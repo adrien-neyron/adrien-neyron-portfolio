@@ -1,0 +1,7 @@
+{
+  "mindset": "Custom `TextDecrypt` component: I designed a lightweight animation that reveals letters one by one. Goal: bring some dynamism to the page while keeping the component reusable and performant.",
+  "projectsButton": "CSS animated button with a scrolling text effect.",
+  "contactButton": "Accessibility-focused button: hover and focus states meet WCAG AA contrast standards and are fully keyboard-accessible.",
+  "layout": "Responsive layout built with Flexbox and Tailwind breakpoints. Two clear columns on desktop, simplified stacked layout on mobile.",
+  "resumeData": "All data related to my resume is externalized in `resume.json`. This separates content from presentation and makes it reusable elsewhere."
+}

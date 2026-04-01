@@ -1,0 +1,40 @@
+{
+  "name": "adrien-portfolio-nuxt",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@auth0/auth0-vue": "^2.5.0",
+    "@emailjs/browser": "^4.4.1",
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@nuxt/image": "^1.8.0",
+    "@nuxtjs/color-mode": "^3.5.0",
+    "@pinia/nuxt": "^0.11.3",
+    "@tresjs/cientos": "^4.2.0",
+    "@tresjs/core": "^4.3.0",
+    "@tresjs/nuxt": "^2.1.0",
+    "@vueuse/core": "^11.0.0",
+    "@vueuse/motion": "^2.2.6",
+    "jose": "^6.2.1",
+    "lucide-vue-next": "^0.454.0",
+    "mongoose": "^8.18.0",
+    "nuxt": "^3.13.0",
+    "pg": "^8.16.0",
+    "pinia": "^3.0.4",
+    "sweetalert2": "^11.22.0",
+    "three": "^0.178.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.0.0",
+    "vue-tsc": "^2.0.0"
+  }
+}

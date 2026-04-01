@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+::-moz-selection { background: var(--color-accent); color: #fafafa; }
+::selection      { background: var(--color-accent); color: #fafafa; }
+::-webkit-scrollbar { width: 0px; background: transparent; }
+
+/* ─── Design tokens — Trail / Camp de base ──────────────── */
+:root {
+  --font-sans:  "Inter", "Helvetica Neue", sans-serif;
+  --font-title: "DM Serif Display", serif;
+  --font-mono:  "JetBrains Mono", monospace;
+
+  --color-bg:        #F5F0E8;
+  --color-text:      #2C2416;
+  --color-accent:    #A84E20;  /* 4.8:1 sur --color-bg  ✓ WCAG AA */
+  --color-secondary: #3C5C3A;  /* 6.1:1 sur --color-bg  ✓ WCAG AA */
+  --color-highlight: #E8A838;  /* usage décoratif uniquement        */
+  --color-surface:   #EDE7D9;
+  --color-muted:     #6B5A4A;  /* 5.3:1 sur --color-bg  ✓ WCAG AA */
+}
+
+.dark {
+  --color-bg:        #1A1410;
+  --color-text:      #F0E8D8;
+  --color-accent:    #E07840;
+  --color-secondary: #7AAD78;
+  --color-highlight: #F0C050;
+  --color-surface:   #251E16;
+  --color-muted:     #9A8878;
+}
+
+/* ─── Fond de base ──────────────────────────────────────── */
+html { background-color: #F5F0E8; }
+html.dark { background-color: #1A1410; }
+
+/* ─── Background bivouac (CSS pur, zéro hydration mismatch) ─ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -8%;
+  background-image:
+    linear-gradient(rgba(245, 240, 232, 0.72), rgba(245, 240, 232, 0.72)),
+    url("/bivouac-light.png");
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  animation: bgZoom 28s ease-in-out infinite;
+  will-change: transform;
+  pointer-events: none;
+}
+html.dark body::before {
+  background-image:
+    linear-gradient(rgba(26, 20, 16, 0.60), rgba(26, 20, 16, 0.60)),
+    url("/bivouac.png");
+}
+
+@keyframes bgZoom {
+  0%,  100% { transform: scale(1);    }
+  50%        { transform: scale(1.07); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; inset: 0; }
+}
+
+/* ─── Focus accessible ───────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── Typographie ────────────────────────────────────────── */
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: transparent;
+}
+h1, h2, h3 { font-family: var(--font-title); }
+p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
+
+/* ─── Utilitaires ────────────────────────────────────────── */
+.text-accent   { color: var(--color-accent); }
+.text-muted    { color: var(--color-muted); }
+.bg-surface    { background-color: var(--color-surface); }
+
+.button-accent {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+.button-accent:hover { opacity: 0.9; }
+
+.button-empty {
+  background-color: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+}
+.button-empty:hover {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+
+/* ─── Trail card ─────────────────────────────────────────── */
+.trail-card {
+  background-color: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 20%, transparent);
+  border-radius: 1rem;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.trail-card:hover {
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--color-accent) 15%, transparent);
+  transform: translateY(-2px);
+}
+
+/* ─── Difficulty badge ───────────────────────────────────── */
+.badge-debutant     { background-color: #5C7A5A; color: #fff; }
+.badge-intermediaire { background-color: #E8A838; color: #fff; }
+.badge-expert       { background-color: #C4622D; color: #fff; }
+
+/* ─── Nav trail marker ───────────────────────────────────── */
+.nav-trail-active {
+  color: var(--color-accent);
+  position: relative;
+}
+.nav-trail-active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-accent);
+  border-radius: 50%;
+}
+
+.navbar { color: var(--color-text); transition: color 0.3s ease; }
+.navbar:hover { color: var(--color-highlight); }
+.navbar.active { color: var(--color-accent); }
+
+/* ─── Scroll text (boutons animés) ──────────────────────── */
+.scroll-text-container { position: relative; overflow: hidden; }
+.scroll-text {
+  display: inline-block;
+  white-space: nowrap;
+  transform: translateX(0);
+}
+.group:hover .scroll-text {
+  animation: scrollTextLoop 4s linear infinite;
+}
+
+/* ─── Animations ─────────────────────────────────────────── */
+@keyframes bgMove {
+  0%   { transform: scale(1) translate(0, 0); }
+  50%  { transform: scale(1.05) translate(2px, -2px); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 0.8s ease-out forwards; }
+
+@keyframes scrollTextLoop {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes trail-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
+}
+.trail-pulse { animation: trail-pulse 2s ease-in-out infinite; }
+
+/* ─── Reduced motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
