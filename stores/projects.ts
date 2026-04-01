@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { projects as staticProjects } from "~/data/projects";
 
 export interface Project {
   _id: string;
@@ -12,6 +13,17 @@ export interface Project {
   imageUrl?: string; // injecté côté vue selon le thème
 }
 
+const staticFallback: Project[] = staticProjects.map((p) => ({
+  _id: p.id,
+  title: p.title,
+  role: p.role,
+  description: p.description,
+  technologies: p.technologies,
+  image: p.image,
+  link: p.link,
+  code: p.code,
+}));
+
 export const useProjectsStore = defineStore("projects", () => {
   const projects = ref<Project[]>([]);
   const loading  = ref(false);
@@ -22,8 +34,10 @@ export const useProjectsStore = defineStore("projects", () => {
     loading.value = true;
     error.value   = null;
     try {
-      projects.value = await $fetch<Project[]>("/api/projects");
+      const result = await $fetch<Project[]>("/api/projects");
+      projects.value = result.length ? result : staticFallback;
     } catch {
+      projects.value = staticFallback;
       error.value = "Impossible de charger les projets.";
     } finally {
       loading.value = false;

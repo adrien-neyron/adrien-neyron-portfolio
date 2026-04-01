@@ -18,6 +18,29 @@ export interface ProjectData {
 
 export const projects: ProjectData[] = [
   {
+    id: "runfit-advisor",
+    title: "RunFit Advisor",
+    tagline: "Conseiller de sentier — recommandation de chaussures par IA",
+    role: "Développeur Full-Stack",
+    description:
+      "Application web de recommandation personnalisée de chaussures de running et trail. Un questionnaire morphologique et sportif intelligent oriente chaque coureur vers la paire idéale, avec des liens d'affiliation multi-réseaux intégrés.",
+    challenge:
+      "Les coureurs peinent à choisir une chaussure adaptée parmi des centaines de modèles. Les comparateurs existants manquent de personnalisation morphologique et ne tiennent pas compte des habitudes d'entraînement ni du type de terrain.",
+    solution:
+      "Développement d'un moteur de recommandation basé sur un profil complet (morphologie, niveau, terrain, distance). Synchronisation automatique des catalogues produits via feeds d'affiliation (Awin, CJ, Amazon). Interface filtrée par sport, marque, prix et disponibilité.",
+    result:
+      "Application déployée et opérationnelle. Catalogue synchronisé automatiquement via cron jobs. Liens affiliés actifs générant des revenus passifs dès la mise en ligne.",
+    technologies: ["Nuxt 3", "Vue 3", "TypeScript", "PostgreSQL", "Prisma", "Tailwind CSS", "Nitro"],
+    image: {
+      light: "/recentprojects/runfit-hero.webp",
+      dark: "/recentprojects/runfit-hero.webp",
+    },
+    link: "https://runfit-advisor.vercel.app/",
+    difficulty: "Expert",
+    duration: "2 mois",
+    category: "IA",
+  },
+  {
     id: "boutique-trail-running",
     title: "Boutique Trail Running",
     tagline: "Sentier commercial — e-commerce sur mesure pour le running",
