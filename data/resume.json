@@ -1,15 +1,15 @@
 {
     "basics": {
         "name": "Adrien Neyron",
-        "label": "Web & Mobile Developer | Expert in Business Tools",
+        "label": "Développeur Web Fullstack JS · Vue.js / Node.js · AI & Automation",
         "email": "adrien.neyron@gmail.com",
         "phone": "(+33) 6 81 58 25 95",
         "picture": "an.png",
         "x_title": "I like efficiency, sport and adventure",
-        "job1": "I BUILD WEB TOOLS THAT PERFORM.",
-        "job2": "After years in sports industry, I now code solutions that help teams and companies run faster, smoother, smarter.",
-        "description": "Hi, I'm Adrien — a web and mobile developer with 10 years' experience bridging the worlds of sport, education, and technology. I build tailor-made applications that save time, cut costs, and inspire users.",
-        "summary": "based in Araches, France.",
+        "job1": "Je livre des applications qui tiennent en production.",
+        "job2": "Vue.js 3 & FastAPI à la DGFiP, pipelines Make.com + Claude API, déploiements GitLab CI/CD. Des outils métiers complexes qui réduisent les coûts et accélèrent les équipes.",
+        "description": "Développeur Web Fullstack JS avec 2 ans d'expérience sur des SI complexes (DGFiP) et une spécialisation en AI & automation. Je construis des applications qui performent en production.",
+        "summary": "CDI & Freelance · Haute-Savoie · Lyon · Paris · Remote",
         "keywords": "personal,website,portfolio,template,kit,adrien,neyron,webdev,web,developer,araches,france,react,github,linkedin,google,gitlab,telegram,material,design,ui,webapp,markdown",
         "url": "https://adrienneyron.vercel.app/",
         "location": {
@@ -35,8 +35,8 @@
             },
             {
                 "network": "GitHub",
-                "username": "coderensemble",
-                "url": "https://github.com/coderensemble",
+                "username": "adrien-neyron",
+                "url": "https://github.com/adrien-neyron",
                 "x_icon": "fab fa-github"
             }
         ]

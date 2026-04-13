@@ -13,24 +13,52 @@ export interface ProjectData {
   code?: string;
   difficulty: "Débutant" | "Intermédiaire" | "Expert";
   duration: string;
-  category: "E-commerce" | "Outil métier" | "LMS" | "IA";
+  category: "E-commerce" | "Outil métier" | "LMS" | "IA" | "Automatisation" | "SI";
+  status: "En production" | "En cours" | "Case study pro";
+  impact?: string;
 }
 
 export const projects: ProjectData[] = [
   {
-    id: "runfit-advisor",
-    title: "RunFit Advisor",
-    tagline: "Conseiller de sentier — recommandation de chaussures par IA",
+    id: "coachflow",
+    title: "CoachFlow",
+    tagline: "Plateforme LMS gamifiée · 6 phases · 82 leçons · certification",
     role: "Développeur Full-Stack",
     description:
-      "Application web de recommandation personnalisée de chaussures de running et trail. Un questionnaire morphologique et sportif intelligent oriente chaque coureur vers la paire idéale, avec des liens d'affiliation multi-réseaux intégrés.",
+      "Plateforme de formation en ligne complète pour coachs sportifs. Parcours structuré en 6 phases et 82 leçons, système de gamification (XP, niveaux, badges, streak), dashboard apprenant, communauté, certification LinkedIn-ready et panel d'administration. Stack React 18 + Supabase déployée sur Vercel.",
     challenge:
-      "Les coureurs peinent à choisir une chaussure adaptée parmi des centaines de modèles. Les comparateurs existants manquent de personnalisation morphologique et ne tiennent pas compte des habitudes d'entraînement ni du type de terrain.",
+      "Concevoir une expérience d'apprentissage engageante qui transforme un coach débutant en professionnel certifié, tout en maintenant la motivation sur un parcours de 14 semaines.",
     solution:
-      "Développement d'un moteur de recommandation basé sur un profil complet (morphologie, niveau, terrain, distance). Synchronisation automatique des catalogues produits via feeds d'affiliation (Awin, CJ, Amazon). Interface filtrée par sport, marque, prix et disponibilité.",
+      "Architecture LMS complète avec React 18 + TypeScript + Vite. Backend Supabase (auth + BDD). Gamification progressive : XP, 5 niveaux, badges, défis hebdomadaires, classement. Leçons multi-formats (vidéo, PDF, quiz, projets réels). Certification partageable sur LinkedIn. Panel admin pour la gestion du contenu.",
     result:
-      "Application déployée et opérationnelle. Catalogue synchronisé automatiquement via cron jobs. Liens affiliés actifs générant des revenus passifs dès la mise en ligne.",
-    technologies: ["Nuxt 3", "Vue 3", "TypeScript", "PostgreSQL", "Prisma", "Tailwind CSS", "Nitro"],
+      "Plateforme déployée et fonctionnelle. Parcours complet de 82 leçons sur 14 semaines. Système de gamification opérationnel. Interface admin pour la gestion des présentations.",
+    technologies: ["React 18", "TypeScript", "Vite", "Supabase", "shadcn/ui", "Framer Motion", "React Query", "Tailwind CSS"],
+    image: {
+      light: "/projectsoon.png",
+      dark: "/projectsoon.png",
+    },
+    link: "https://with-coachflow.vercel.app/",
+    code: "https://github.com/adrien-neyron/CoachFlow",
+    difficulty: "Expert",
+    duration: "3 semaines",
+    category: "LMS",
+    status: "En production",
+    impact: "82 leçons · gamification complète · certification LinkedIn",
+  },
+  {
+    id: "runfit-advisor",
+    title: "RunFit Advisor",
+    tagline: "Recommandation de chaussures running par algo de scoring",
+    role: "Développeur Full-Stack",
+    description:
+      "Application web de recommandation personnalisée de chaussures de running et trail. Questionnaire morphologique et sportif, algo de scoring, interface swipe, authentification, liens d'affiliation multi-réseaux — déployée et en production.",
+    challenge:
+      "Les coureurs peinent à choisir une chaussure adaptée parmi des centaines de modèles. Les comparateurs existants manquent de personnalisation morphologique.",
+    solution:
+      "Moteur de recommandation basé sur profil complet (morphologie, niveau, terrain, distance). Auth Supabase. Interface swipe pour affiner les préférences. Synchronisation automatique du catalogue via cron jobs. Liens affiliés Awin, CJ, Amazon.",
+    result:
+      "Application déployée et opérationnelle. Catalogue synchronisé automatiquement. Liens affiliés actifs.",
+    technologies: ["Nuxt 3", "Vue 3", "TypeScript", "Supabase", "PostgreSQL", "Prisma", "Tailwind CSS", "Nitro"],
     image: {
       light: "/recentprojects/runfit-hero.webp",
       dark: "/recentprojects/runfit-hero.webp",
@@ -39,62 +67,49 @@ export const projects: ProjectData[] = [
     difficulty: "Expert",
     duration: "2 mois",
     category: "IA",
+    status: "En production",
+    impact: "En production — algo de scoring + auth + affiliation",
   },
   {
-    id: "boutique-trail-running",
-    title: "Boutique Trail Running",
-    tagline: "Sentier commercial — e-commerce sur mesure pour le running",
-    role: "Développeur Full-Stack",
+    id: "job-search-automator",
+    title: "Job Search Automator",
+    tagline: "Pipeline d'automatisation de recherche d'emploi avec IA",
+    role: "Développeur & Architecte automation",
     description:
-      "Plateforme e-commerce complète pour une boutique spécialisée trail running : catalogue, tunnel de conversion optimisé, paiement Stripe et espace client.",
+      "Pipeline complet de recherche d'emploi automatisée : scraping Playwright des offres, enrichissement Claude API (scoring, extraction de critères), génération de lettres de motivation personnalisées, dashboard React pour review humaine, synchronisation Airtable.",
     challenge:
-      "La boutique utilisait une solution généraliste qui ne correspondait pas aux spécificités d'une boutique outdoor (guides de taille techniques, filtres par terrain, recommandations par niveau). Les taux de conversion étaient faibles et l'expérience mobile décevante.",
+      "La recherche d'emploi manuelle est chronophage : veille quotidienne, tri des offres, rédaction de candidatures adaptées. Automatiser sans perdre la pertinence ni le contrôle humain.",
     solution:
-      "Développement d'une plateforme Nuxt 3 avec un catalogue produit typé, des filtres avancés (terrain, distance, drop), une fiche produit immersive et un tunnel de paiement en 3 étapes via Stripe. Interface mobile-first avec transitions fluides.",
+      "Architecture Make.com pour l'orchestration du pipeline. Playwright pour le scraping des plateformes d'offres. Claude API pour le scoring de pertinence et la génération de lettres contextualisées. Dashboard React avec validation human-in-the-loop avant envoi. Airtable comme base de données de suivi.",
     result:
-      "Réduction du temps de chargement de 60%. Augmentation du taux de conversion de 35% en 3 mois. 98% de score Lighthouse mobile.",
-    technologies: ["Nuxt 3", "Vue.js", "TypeScript", "Stripe", "Node.js", "PostgreSQL", "Tailwind CSS"],
+      "Pipeline opérationnel. Réduction du temps de candidature de 80%. Human-in-the-loop préserve la qualité des candidatures.",
+    technologies: ["Make.com", "Claude API", "Playwright", "React", "Airtable", "Node.js", "TypeScript"],
     image: { light: "/projectsoon.png", dark: "/projectsoon.png" },
     difficulty: "Expert",
-    duration: "4 mois",
-    category: "E-commerce",
+    duration: "3 semaines",
+    category: "Automatisation",
+    status: "En cours",
+    impact: "-80% temps de candidature · human-in-the-loop",
   },
   {
-    id: "interface-metier-sport",
-    title: "Interface Métier Sport",
-    tagline: "Col de gestion — dashboard pour club sportif",
-    role: "Développeur Frontend & Intégrateur",
+    id: "dgfip-outil-metier",
+    title: "Outil Métier DGFiP",
+    tagline: "Interface SI Vue.js 3 · -50% temps de traitement",
+    role: "Développeur Full-Stack (mission de 2 ans)",
     description:
-      "Dashboard interne permettant à une organisation sportive de gérer ses adhérents, plannings, événements et finances depuis une interface unifiée.",
+      "Application métier interne déployée à la Direction Générale des Finances Publiques. Interface Vue.js 3 avec backend FastAPI, CI/CD GitLab, intégrée dans le SI existant. Résultat : -50% sur le temps de traitement des processus ciblés.",
     challenge:
-      "L'équipe jonglait entre 4 outils différents (Excel, Google Sheets, une app de réservation et un CRM basique). La perte d'information et les doublons de saisie coûtaient plusieurs heures par semaine.",
+      "Des agents traitaient manuellement des processus répétitifs et chronophages sur des outils vieillissants. L'enjeu : moderniser sans déstabiliser le SI en place, sur un périmètre réglementé.",
     solution:
-      "Conception d'une interface métier Vue.js avec des modules dédiés : gestion des membres (filtres, statuts, historique), calendrier des événements, tableau de bord financier avec visualisations Chart.js, et automatisation de relances email via Make.",
+      "Développement d'une interface Vue.js 3 avec Pinia, connectée à une API FastAPI Python. Pipeline CI/CD GitLab pour les déploiements. Tests unitaires et d'intégration. Conception UX centrée sur les cas d'usage agents.",
     result:
-      "Gain de 8h/semaine sur les tâches administratives. Réduction des erreurs de saisie de 90%. ROI positif dès le 2e mois.",
-    technologies: ["Vue.js", "TypeScript", "Pinia", "Chart.js", "Express.js", "MongoDB", "Make"],
-    image: { light: "/projectsoon.png", dark: "/projectsoon.png" },
-    difficulty: "Intermédiaire",
-    duration: "3 mois",
-    category: "Outil métier",
-  },
-  {
-    id: "lms-sport-formation",
-    title: "LMS Sport & Formation",
-    tagline: "Sommet pédagogique — plateforme de cours en ligne",
-    role: "Développeur Full-Stack & Concepteur pédagogique",
-    description:
-      "Plateforme LMS complète pour organiser et diffuser des formations dans le secteur sport et tourisme : modules vidéo, quiz, suivi de progression et certification.",
-    challenge:
-      "Les formateurs utilisaient des outils généralistes (Moodle, Google Classroom) peu adaptés aux formations terrain — pas de gestion de sorties, de suivi GPS ou de certification BPJEPS. L'expérience apprenante était décevante sur mobile.",
-    solution:
-      "Développement d'un LMS sur mesure Nuxt 3 avec : système de modules pédagogiques, lecture vidéo optimisée, quiz interactifs avec correction automatique, tableau de bord apprenant (progression, badges, certificats) et espace formateur pour créer et modifier les parcours.",
-    result:
-      "Taux de complétion des formations passé de 40% à 78%. Satisfaction apprenants 4.7/5. Réduction du temps de création de cours de 50% pour les formateurs.",
-    technologies: ["Nuxt 3", "Vue.js", "TypeScript", "Pinia", "Node.js", "PostgreSQL", "EmailJS", "TresJS"],
+      "Réduction de 50% du temps de traitement sur les processus ciblés. Application en production sur 2 ans.",
+    technologies: ["Vue.js 3", "TypeScript", "Pinia", "FastAPI", "Python", "GitLab CI/CD", "PostgreSQL"],
     image: { light: "/projectsoon.png", dark: "/projectsoon.png" },
     difficulty: "Expert",
-    duration: "5 mois",
-    category: "LMS",
+    duration: "2 ans",
+    category: "SI",
+    status: "Case study pro",
+    impact: "-50% temps de traitement · SI public · 2 ans en prod",
   },
 ];

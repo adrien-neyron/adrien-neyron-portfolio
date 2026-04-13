@@ -33,7 +33,7 @@ const isDark = computed(() => colorMode.value === "dark");
         >
           Adrien Neyron
         </a>
-        <span class="opacity-70">Web &amp; Mobile Developer | Expert in Business Tools</span>
+        <span class="opacity-70">Fullstack JS · Vue.js / Node.js · AI &amp; Automation</span>
       </div>
 
       <BackgroundMusic />

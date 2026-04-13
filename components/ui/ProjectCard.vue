@@ -13,7 +13,15 @@ const props = defineProps<{
   difficulty?: "Débutant" | "Intermédiaire" | "Expert";
   duration?: string;
   tagline?: string;
+  status?: "En production" | "En cours" | "Case study pro";
+  impact?: string;
 }>();
+
+const statusClass: Record<string, string> = {
+  "En production":  "bg-green-500/15 text-green-600 dark:text-green-400",
+  "En cours":       "bg-yellow-500/15 text-yellow-600 dark:text-yellow-400",
+  "Case study pro": "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+};
 
 const difficultyClass: Record<string, string> = {
   Débutant:       "badge-debutant",
@@ -48,12 +56,28 @@ const difficultyClass: Record<string, string> = {
     <!-- Content -->
     <div class="p-5 flex flex-col gap-3 flex-1">
       <div>
-        <h3 class="font-bold text-[var(--color-text)] text-base leading-snug">{{ title }}</h3>
+        <div class="flex items-start justify-between gap-2 flex-wrap">
+          <h3 class="font-bold text-[var(--color-text)] text-base leading-snug">{{ title }}</h3>
+          <span
+            v-if="status"
+            :class="['text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0', statusClass[status]]"
+          >
+            {{ status }}
+          </span>
+        </div>
         <p class="text-xs font-medium text-[var(--color-accent)] mt-0.5">{{ role }}</p>
         <p v-if="tagline" class="text-xs text-[var(--color-muted)] italic mt-1">{{ tagline }}</p>
       </div>
 
       <p class="text-sm text-[var(--color-text)]/70 leading-relaxed line-clamp-2">{{ description }}</p>
+
+      <!-- Impact -->
+      <div
+        v-if="impact"
+        class="text-xs font-semibold text-[var(--color-accent)] bg-[var(--color-accent)]/8 rounded-lg px-3 py-1.5"
+      >
+        {{ impact }}
+      </div>
 
       <!-- Duration -->
       <div v-if="duration" class="flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
