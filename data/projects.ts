@@ -101,11 +101,11 @@ export const projects: ProjectData[] = [
     challenge:
       "Des agents traitaient manuellement des processus répétitifs et chronophages sur des outils vieillissants. L'enjeu : moderniser sans déstabiliser le SI en place, sur un périmètre réglementé.",
     solution:
-      "Développement d'une interface Vue.js 3 avec Pinia, connectée à une API FastAPI Python. Pipeline CI/CD GitLab pour les déploiements. Tests unitaires et d'intégration. Conception UX centrée sur les cas d'usage agents.",
+      "Développement d'une interface Vue.js 3 avec Vuex, connectée à l'API REST Gitlab ainsi qu'à une API créée avec FastAPI Python. Pipeline CI/CD GitLab pour les déploiements. Tests unitaires et d'intégration. Conception UX centrée sur les cas d'usage agents.",
     result:
-      "Réduction de 50% du temps de traitement sur les processus ciblés. Application en production sur 2 ans.",
-    technologies: ["Vue.js 3", "TypeScript", "Pinia", "FastAPI", "Python", "GitLab CI/CD", "PostgreSQL"],
-    image: { light: "/projectsoon.png", dark: "/projectsoon.png" },
+      "Réduction de 50% du temps de traitement sur les processus ciblés. Application en production depuis 2 ans.",
+    technologies: ["Vue.js 3", "TypeScript", "Vuex", "FastAPI", "Python", "GitLab CI/CD", "PostgreSQL"],
+    image: { light: "/recentprojects/dgfip-hero.png", dark: "/recentprojects/dgfip-hero.png" },
     difficulty: "Expert",
     duration: "2 ans",
     category: "SI",
