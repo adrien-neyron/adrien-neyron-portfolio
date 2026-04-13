@@ -8,23 +8,23 @@ const hovered = ref(false);
 
 const timeline = [
   {
-    period: "2010 – 2020",
+    period: "2011 – 2021",
     title: "Éducateur sportif & Formateur",
     description: "10 ans dans les secteurs du sport, du tourisme et du social. Animation, enseignement, conception de parcours pédagogiques pour des publics variés.",
     icon: "🏃",
     color: "var(--color-secondary)",
   },
   {
-    period: "2020 – 2022",
+    period: "2021 – 2023",
     title: "La transition numérique",
     description: "Reconversion vers le développement web. Formations intensives, premiers projets freelance, découverte de Vue.js et Nuxt. La pédagogie terrain devient pédagogie code.",
     icon: "💡",
     color: "var(--color-highlight)",
   },
   {
-    period: "2022 – Aujourd'hui",
+    period: "2023 – Aujourd'hui",
     title: "Développeur Full-Stack Sport & Outdoor",
-    description: "Conception de plateformes e-commerce, interfaces métier et LMS pour les acteurs du sport. Intégration d'outils IA. Profil hybride : développeur + formateur + passionné trail.",
+    description: "Conception d'interfaces métier, de plateformes e-commerce et d'une plateforme LMS pour les acteurs du sport. Intégration d'outils IA. Profil hybride : développeur + formateur + passionné trail.",
     icon: "🚀",
     color: "var(--color-accent)",
   },
@@ -44,7 +44,7 @@ const values = [
   {
     icon: "🗺️",
     title: "La Vision",
-    description: "10 ans d'expérience terrain donnent une perspective business. Je construis des outils utiles, pas juste techniques.",
+    description: "17 ans d'expérience terrain donnent une perspective business. Je construis des outils utiles, pas juste techniques.",
   },
 ];
 
@@ -105,7 +105,7 @@ const skills = {
               <MapPin :size="14" aria-hidden="true" />
               {{ resume.basics.location.city }}, {{ resume.basics.location.region }}
               <span class="w-px h-3 bg-[var(--color-muted)]/40 mx-1" />
-              10 ans d'expérience
+              17 ans d'expérience
             </div>
             <p class="text-sm text-[var(--color-text)]/70 leading-relaxed max-w-lg">
               {{ resume.basics.description }}

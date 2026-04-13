@@ -40,7 +40,7 @@ import tooltip from "~/data/tooltip.json";
         <MapPin :size="14" />
         <span>{{ resume.basics.summary }}</span>
         <span class="w-px h-3 bg-gray-300 dark:bg-gray-600" />
-        <span>10 ans d'expérience</span>
+        <span>17 ans d'expérience</span>
       </div>
     </div>
 

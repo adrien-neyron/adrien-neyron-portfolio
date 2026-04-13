@@ -38,7 +38,7 @@ const trailRoutes = [
     label: "Le Randonneur",
     sublabel: "Mon parcours",
     icon: User,
-    description: "10 ans dans le sport. Formateur, puis développeur. Un profil hybride unique.",
+    description: "17 ans dans le sport. Formateur, puis développeur. Un profil hybride unique.",
     difficulty: "1 histoire",
     color: "var(--color-highlight)",
   },
