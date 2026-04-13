@@ -99,7 +99,7 @@ export const projects: ProjectData[] = [
     description:
       "Application métier interne déployée à la Direction Générale des Finances Publiques. Interface Vue.js 3 avec backend FastAPI, CI/CD GitLab, intégrée dans le SI existant. Résultat : -50% sur le temps de traitement des processus ciblés.",
     challenge:
-      "Des agents traitaient manuellement des processus répétitifs et chronophages sur des outils vieillissants. L'enjeu : moderniser sans déstabiliser le SI en place, sur un périmètre réglementé.",
+      "Des agents traitaient manuellement des processus répétitifs et chronophages de configurations techniques avec des outils vieillissants afin d'intégrer de nouveaux projets. L'enjeu : moderniser sans déstabiliser le SI en place, sur un périmètre réglementé.",
     solution:
       "Développement d'une interface Vue.js 3 avec Vuex, connectée à l'API REST Gitlab ainsi qu'à une API créée avec FastAPI Python. Pipeline CI/CD GitLab pour les déploiements. Tests unitaires et d'intégration. Conception UX centrée sur les cas d'usage agents.",
     result:
