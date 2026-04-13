@@ -34,8 +34,8 @@ export const projects: ProjectData[] = [
       "Plateforme déployée et fonctionnelle. Parcours complet de 82 leçons sur 14 semaines. Système de gamification opérationnel. Interface admin pour la gestion des présentations.",
     technologies: ["React 18", "TypeScript", "Vite", "Supabase", "shadcn/ui", "Framer Motion", "React Query", "Tailwind CSS"],
     image: {
-      light: "/projectsoon.png",
-      dark: "/projectsoon.png",
+      light: "/recentprojects/coachflow-hero.png",
+      dark: "/recentprojects/coachflow-hero.png",
     },
     link: "https://with-coachflow.vercel.app/",
     code: "https://github.com/adrien-neyron/CoachFlow",
