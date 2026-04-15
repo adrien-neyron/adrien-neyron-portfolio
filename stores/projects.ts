@@ -3,6 +3,7 @@ import { projects as staticProjects } from "~/data/projects";
 
 export interface Project {
   _id: string;
+  slug?: string;
   title: string;
   tagline?: string;
   role: string;
@@ -15,11 +16,13 @@ export interface Project {
   duration?: string;
   status?: "En production" | "En cours" | "Case study pro";
   impact?: string;
+  category?: string;
   imageUrl?: string; // injecté côté vue selon le thème
 }
 
 const staticFallback: Project[] = staticProjects.map((p) => ({
   _id: p.id,
+  slug: p.id,
   title: p.title,
   tagline: p.tagline,
   role: p.role,
@@ -32,6 +35,7 @@ const staticFallback: Project[] = staticProjects.map((p) => ({
   duration: p.duration,
   status: p.status,
   impact: p.impact,
+  category: p.category,
 }));
 
 export const useProjectsStore = defineStore("projects", () => {

@@ -1,17 +1,15 @@
 import { requireAuth } from "~/server/utils/requireAuth";
-import { getPool }     from "~/server/lib/pgsql";
+import { dbConnect }   from "~/server/lib/mongodb";
+import Project         from "~/server/models/project";
 
 export default defineEventHandler(async (event) => {
   await requireAuth(event);
+  await dbConnect();
 
-  const id   = getRouterParam(event, "id");
-  const pool = getPool();
+  const id  = getRouterParam(event, "id");
+  const doc = await Project.findByIdAndDelete(id);
 
-  const { rowCount } = await pool.query(
-    `DELETE FROM projects WHERE id=$1`, [id]
-  );
-
-  if (!rowCount) throw createError({ statusCode: 404, statusMessage: "Project not found" });
+  if (!doc) throw createError({ statusCode: 404, statusMessage: "Project not found" });
 
   return sendNoContent(event, 204);
 });

@@ -36,6 +36,11 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
+  routeRules: {
+    "/admin/**": { ssr: false },
+    "/callback":  { ssr: false },
+  },
+
   css: ["~/assets/css/main.css"],
 
   typescript: {
@@ -46,10 +51,8 @@ export default defineNuxtConfig({
     mongodbUri:   process.env.MONGODB_URI    ?? "",
     postgresUrl:  process.env.POSTGRES_URL   ?? "",
     public: {
-      auth0Domain:      process.env.AUTH0_DOMAIN       ?? "",
-      auth0ClientId:    process.env.AUTH0_CLIENT_ID    ?? "",
-      auth0Audience:    process.env.AUTH0_AUDIENCE     ?? "",
-      auth0RedirectUri: process.env.AUTH0_REDIRECT_URI ?? "http://localhost:3000/admin",
+      auth0Domain:   process.env.AUTH0_DOMAIN    ?? "",
+      auth0ClientId: process.env.AUTH0_CLIENT_ID ?? "",
     },
   },
 });

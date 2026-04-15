@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { MapPin, Filter } from "lucide-vue-next";
-import { projects } from "~/data/projects";
-import type { ProjectData } from "~/data/projects";
+import { useProjectsStore, type Project } from "~/stores/projects";
 
 useHead({ title: "Les Sentiers — Projets | Adrien Neyron" });
 
-type Category = "Tous" | ProjectData["category"];
-const categories: Category[] = ["Tous", "E-commerce", "Outil métier", "LMS", "IA"];
+const store = useProjectsStore();
+onMounted(() => store.fetchProjects());
+
+const categories = ["Tous", "E-commerce", "Outil métier", "LMS", "IA"] as const;
+type Category = typeof categories[number];
 const activeFilter = ref<Category>("Tous");
 
 const filtered = computed(() =>
   activeFilter.value === "Tous"
-    ? projects
-    : projects.filter((p) => p.category === activeFilter.value)
+    ? store.projects
+    : store.projects.filter((p: Project) => p.category === activeFilter.value)
 );
 </script>
 
@@ -56,28 +58,37 @@ const filtered = computed(() =>
         </div>
       </UiAnimatedSection>
 
+      <!-- Loading -->
+      <div v-if="store.loading" class="text-center py-20 text-[var(--color-muted)]">
+        Chargement des projets…
+      </div>
+
       <!-- Grille de projets -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <UiAnimatedSection
           v-for="project in filtered"
-          :key="project.id"
+          :key="project._id"
         >
           <UiProjectCard
             :title="project.title"
             :role="project.role"
             :description="project.description"
             :technologies="project.technologies"
-            :image-url="project.image.light"
-            :slug="project.id"
+            :image-url="project.image?.light"
+            :slug="project.slug || project._id"
             :difficulty="project.difficulty"
             :duration="project.duration"
             :tagline="project.tagline"
+            :status="project.status"
+            :impact="project.impact"
+            :link="project.link"
+            :code="project.code"
           />
         </UiAnimatedSection>
       </div>
 
       <!-- Empty state -->
-      <div v-if="filtered.length === 0" class="text-center py-20 text-[var(--color-muted)]">
+      <div v-if="!store.loading && filtered.length === 0" class="text-center py-20 text-[var(--color-muted)]">
         <p class="text-4xl mb-4">🏔️</p>
         <p class="text-sm">Aucun projet dans cette catégorie pour l'instant.</p>
       </div>

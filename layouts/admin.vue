@@ -10,7 +10,7 @@ function handleLogout() {
 </script>
 
 <template>
-  <div class="min-h-screen flex" style="background-color: var(--color-bg); color: var(--color-text);">
+  <div class="min-h-screen flex" style="position: relative; z-index: 1; background-color: var(--color-bg); color: var(--color-text);">
 
     <!-- Sidebar -->
     <aside class="w-56 shrink-0 border-r flex flex-col" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent); background-color: var(--color-surface);">

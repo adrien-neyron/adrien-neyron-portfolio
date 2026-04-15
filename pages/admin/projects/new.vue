@@ -4,7 +4,8 @@ import { useAuth0 } from "@auth0/auth0-vue";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 
-const { getAccessTokenSilently } = useAuth0();
+const { idTokenClaims } = useAuth0();
+const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
 const router  = useRouter();
 const loading = ref(false);
 const error   = ref("");
@@ -13,7 +14,7 @@ async function handleSubmit(payload: Record<string, unknown>) {
   loading.value = true;
   error.value   = "";
   try {
-    const token = await getAccessTokenSilently();
+    const token = getToken();
     await $fetch("/api/admin/projects", {
       method:  "POST",
       headers: { Authorization: `Bearer ${token}` },

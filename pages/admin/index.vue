@@ -1,11 +1,37 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useAuth0 } from "@auth0/auth0-vue";
-import { Pencil, Trash2, PlusCircle } from "lucide-vue-next";
+import { Pencil, Trash2, PlusCircle, LogOut, Download } from "lucide-vue-next";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 
-const { getAccessTokenSilently } = useAuth0();
+const { idTokenClaims, logout } = useAuth0();
+const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
+
+function handleLogout() {
+  logout({ logoutParams: { returnTo: window.location.origin } });
+}
+
+const seeding = ref(false);
+async function seedProjects() {
+  if (!confirm("Importer les 4 projets statiques dans MongoDB ? Les projets existants (même slug) ne seront pas écrasés.")) return;
+  seeding.value = true;
+  try {
+    const token = getToken();
+    const result = await $fetch<{ seeded: number; slugs: string[] }>("/api/admin/seed", {
+      method:  "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    alert(`${result.seeded} projet(s) importé(s) : ${result.slugs.join(", ")}`);
+    await fetchProjects();
+  } catch (e: unknown) {
+    const fe = e as { statusCode?: number; statusMessage?: string; message?: string };
+    alert(`Erreur ${fe.statusCode ?? "?"} — ${fe.statusMessage ?? fe.message ?? "inconnu"}`);
+    console.error("[admin] seedProjects:", e);
+  } finally {
+    seeding.value = false;
+  }
+}
 
 interface Project {
   id: string;
@@ -26,12 +52,19 @@ async function fetchProjects() {
   loading.value = true;
   error.value   = "";
   try {
-    const token = await getAccessTokenSilently();
+    const token = getToken();
+    if (!token) {
+      error.value = "Token introuvable — reconnectez-vous.";
+      loading.value = false;
+      return;
+    }
     projects.value = await $fetch<Project[]>("/api/admin/projects", {
       headers: { Authorization: `Bearer ${token}` },
     });
-  } catch {
-    error.value = "Impossible de charger les projets.";
+  } catch (e: unknown) {
+    const fe = e as { statusCode?: number; statusMessage?: string; message?: string };
+    error.value = `Erreur ${fe.statusCode ?? "?"} — ${fe.statusMessage ?? fe.message ?? "inconnu"}`;
+    console.error("[admin] fetchProjects:", e);
   } finally {
     loading.value = false;
   }
@@ -39,7 +72,7 @@ async function fetchProjects() {
 
 async function deleteProject(id: string, title: string) {
   if (!confirm(`Supprimer "${title}" ?`)) return;
-  const token = await getAccessTokenSilently();
+  const token = getToken();
   await $fetch(`/api/admin/projects/${id}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
@@ -59,14 +92,33 @@ onMounted(fetchProjects);
           {{ projects.length }} projet{{ projects.length !== 1 ? 's' : '' }} en base
         </p>
       </div>
-      <NuxtLink
-        to="/admin/projects/new"
-        class="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:opacity-90"
-        style="background-color: var(--color-accent);"
-      >
-        <PlusCircle :size="16" />
-        Nouveau projet
-      </NuxtLink>
+      <div class="flex items-center gap-3">
+        <button
+          :disabled="seeding"
+          class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition hover:opacity-80 disabled:opacity-50"
+          style="border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); color: var(--color-muted);"
+          @click="seedProjects"
+        >
+          <Download :size="16" />
+          {{ seeding ? "Import…" : "Importer les projets" }}
+        </button>
+        <NuxtLink
+          to="/admin/projects/new"
+          class="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:opacity-90"
+          style="background-color: var(--color-accent);"
+        >
+          <PlusCircle :size="16" />
+          Nouveau projet
+        </NuxtLink>
+        <button
+          class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition hover:opacity-80"
+          style="border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); color: var(--color-muted);"
+          @click="handleLogout"
+        >
+          <LogOut :size="16" />
+          Déconnexion
+        </button>
+      </div>
     </div>
 
     <div v-if="loading" class="text-center py-20" style="color: var(--color-muted);">Chargement…</div>

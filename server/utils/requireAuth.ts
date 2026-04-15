@@ -17,11 +17,14 @@ export async function requireAuth(event: H3Event): Promise<void> {
   );
 
   try {
+    // ID token : audience = clientId (pas d'API audience nécessaire)
     await jwtVerify(token, JWKS, {
       issuer:   `https://${domain}/`,
-      audience: config.public.auth0Audience,
+      audience: config.public.auth0ClientId,
     });
-  } catch {
+  } catch (e) {
+    console.error("[requireAuth] jwtVerify failed:", e);
+    console.error("[requireAuth] domain:", domain, "| clientId:", config.public.auth0ClientId);
     throw createError({ statusCode: 401, statusMessage: "Invalid token" });
   }
 }

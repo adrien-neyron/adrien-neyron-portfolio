@@ -4,7 +4,8 @@ import { useAuth0 } from "@auth0/auth0-vue";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 
-const { getAccessTokenSilently } = useAuth0();
+const { idTokenClaims } = useAuth0();
+const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
 const route   = useRoute();
 const router  = useRouter();
 const id      = route.params.id as string;
@@ -15,7 +16,7 @@ const error   = ref("");
 
 onMounted(async () => {
   try {
-    const token = await getAccessTokenSilently();
+    const token = getToken();
     const rows = await $fetch<Record<string, unknown>[]>("/api/admin/projects", {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -30,7 +31,7 @@ async function handleSubmit(payload: Record<string, unknown>) {
   loading.value = true;
   error.value   = "";
   try {
-    const token = await getAccessTokenSilently();
+    const token = getToken();
     await $fetch(`/api/admin/projects/${id}`, {
       method:  "PUT",
       headers: { Authorization: `Bearer ${token}` },
