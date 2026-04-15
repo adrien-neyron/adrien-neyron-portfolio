@@ -5,8 +5,9 @@ import { Pencil, Trash2, PlusCircle, LogOut, Download } from "lucide-vue-next";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 
-const { idTokenClaims, logout } = useAuth0();
+const { idTokenClaims, user, logout } = useAuth0();
 const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
+const isAdmin = computed(() => user.value?.email === "adrien.neyron@gmail.com");
 
 function handleLogout() {
   logout({ logoutParams: { returnTo: window.location.origin } });
@@ -93,23 +94,25 @@ onMounted(fetchProjects);
         </p>
       </div>
       <div class="flex items-center gap-3">
-        <button
-          :disabled="seeding"
-          class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition hover:opacity-80 disabled:opacity-50"
-          style="border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); color: var(--color-muted);"
-          @click="seedProjects"
-        >
-          <Download :size="16" />
-          {{ seeding ? "Import…" : "Importer les projets" }}
-        </button>
-        <NuxtLink
-          to="/admin/projects/new"
-          class="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:opacity-90"
-          style="background-color: var(--color-accent);"
-        >
-          <PlusCircle :size="16" />
-          Nouveau projet
-        </NuxtLink>
+        <template v-if="isAdmin">
+          <button
+            :disabled="seeding"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition hover:opacity-80 disabled:opacity-50"
+            style="border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); color: var(--color-muted);"
+            @click="seedProjects"
+          >
+            <Download :size="16" />
+            {{ seeding ? "Import…" : "Importer les projets" }}
+          </button>
+          <NuxtLink
+            to="/admin/projects/new"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:opacity-90"
+            style="background-color: var(--color-accent);"
+          >
+            <PlusCircle :size="16" />
+            Nouveau projet
+          </NuxtLink>
+        </template>
         <button
           class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition hover:opacity-80"
           style="border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); color: var(--color-muted);"
@@ -140,7 +143,7 @@ onMounted(fetchProjects);
             <th class="text-left px-4 py-3 font-semibold hidden md:table-cell" style="color: var(--color-muted);">Catégorie</th>
             <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell" style="color: var(--color-muted);">Difficulté</th>
             <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell" style="color: var(--color-muted);">Durée</th>
-            <th class="px-4 py-3" />
+            <th v-if="isAdmin" class="px-4 py-3" />
           </tr>
         </thead>
         <tbody>
@@ -157,7 +160,7 @@ onMounted(fetchProjects);
             <td class="px-4 py-3 hidden md:table-cell" style="color: var(--color-muted);">{{ project.category }}</td>
             <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ project.difficulty }}</td>
             <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ project.duration }}</td>
-            <td class="px-4 py-3">
+            <td v-if="isAdmin" class="px-4 py-3">
               <div class="flex items-center justify-end gap-2">
                 <NuxtLink
                   :to="`/admin/projects/${project.id}/edit`"
@@ -177,6 +180,7 @@ onMounted(fetchProjects);
                 </button>
               </div>
             </td>
+            <td v-else class="px-4 py-3" />
           </tr>
         </tbody>
       </table>

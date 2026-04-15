@@ -1,9 +1,9 @@
-import { requireAuth } from "~/server/utils/requireAuth";
+import { requireAdminWrite } from "~/server/utils/requireAuth";
 import { dbConnect }   from "~/server/lib/mongodb";
 import Project         from "~/server/models/project";
 
 export default defineEventHandler(async (event) => {
-  await requireAuth(event);
+  await requireAdminWrite(event);
   await dbConnect();
 
   const id   = getRouterParam(event, "id");

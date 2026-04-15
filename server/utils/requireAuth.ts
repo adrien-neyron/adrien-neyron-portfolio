@@ -1,7 +1,13 @@
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import type { H3Event } from "h3";
 
-export async function requireAuth(event: H3Event): Promise<void> {
+interface JWTPayload {
+  email?: string;
+  sub?: string;
+  [key: string]: unknown;
+}
+
+export async function requireAuth(event: H3Event): Promise<JWTPayload> {
   const authorization = getHeader(event, "authorization");
 
   if (!authorization?.startsWith("Bearer ")) {
@@ -17,14 +23,23 @@ export async function requireAuth(event: H3Event): Promise<void> {
   );
 
   try {
-    // ID token : audience = clientId (pas d'API audience nécessaire)
-    await jwtVerify(token, JWKS, {
+    const { payload } = await jwtVerify(token, JWKS, {
       issuer:   `https://${domain}/`,
       audience: config.public.auth0ClientId,
     });
+    return payload as JWTPayload;
   } catch (e) {
     console.error("[requireAuth] jwtVerify failed:", e);
-    console.error("[requireAuth] domain:", domain, "| clientId:", config.public.auth0ClientId);
     throw createError({ statusCode: 401, statusMessage: "Invalid token" });
+  }
+}
+
+export async function requireAdminWrite(event: H3Event): Promise<void> {
+  const payload = await requireAuth(event);
+  const config  = useRuntimeConfig();
+  const adminEmail = config.adminEmail;
+
+  if (!adminEmail || payload.email !== adminEmail) {
+    throw createError({ statusCode: 403, statusMessage: "Forbidden" });
   }
 }
