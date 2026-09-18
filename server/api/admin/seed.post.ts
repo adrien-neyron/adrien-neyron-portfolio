@@ -4,6 +4,23 @@ import Project         from "~/server/models/project";
 
 const staticProjects = [
   {
+    slug: "click2sellsite-accessibilite",
+    title: "Click2SellSite — Sprint Accessibilité",
+    tagline: "Remédiation RGAA/WCAG 2.1 AA à grande échelle sur un SaaS Vue 3 multi-marques",
+    role: "Développeur Front-End (mission ESN — Amiltone)",
+    description: "Sprint d'accessibilité mené sur Click2SellSite (YepGarage), plateforme SaaS Vue 3 qui permet à des garages du monde entier de créer leur site de vente et d'installation de pneus. Remédiation RGAA/WCAG 2.1 AA sur des dizaines de composants existants : navigation clavier, accordéons, onglets, carrousel, formulaires multi-étapes, localisateur de garages, modales et annonceur ARIA global.",
+    challenge: "Rendre conforme RGAA/WCAG 2.1 AA une plateforme SaaS déjà en production, construite sur des dizaines de composants Vue 3 existants (carrousel Hooper, modales, tabs, formulaires) non pensés pour l'accessibilité — sans casser le design ni les fonctionnalités en place, sur un périmètre multi-langues (7 langues).",
+    solution: "Audit puis remédiation composant par composant : refonte de la navigation clavier (pattern ARIA tablist, roving tabindex), résolution des conflits de cache v-show sur les accordéons, remplacement des <a>/<div> cliquables par des <button> sémantiques, attribut inert sur les panneaux latéraux, création d'un annonceur ARIA live global en singleton (useA11yAnnouncer), correction d'un bug de rôles ARIA implicites HTML5 sur les balises <section>/<header>/<footer>, centralisation de la logique de labels dans a11y.util.ts. Mise en place d'un garde-fou CI : eslint-plugin-vuejs-accessibility + hook Husky pre-commit, suites de tests Vitest dédiées (.a11y.spec.ts), et validation manuelle au lecteur d'écran Orca sous Linux avec cross-check Chrome/Firefox.",
+    result: "Remédiation livrée sur la navbar, les accordéons, les onglets, les modales, le breadcrumb, le carrousel, le localisateur de garages et les formulaires. Gate CI automatisé pour prévenir les régressions d'accessibilité, traductions a11y déployées sur 7 langues, et documentation des conventions pour l'équipe.",
+    technologies: ["Vue 3", "TypeScript", "RGAA / WCAG 2.1 AA", "Vitest", "ESLint (vuejs-accessibility)", "Husky", "Hooper", "i18n"],
+    image: { light: "/projectsoon.png", dark: "/projectsoon.png" },
+    difficulty: "Expert",
+    duration: "Depuis mai 2026 (en cours)",
+    category: "E-commerce",
+    status: "Case study pro",
+    impact: "RGAA/WCAG 2.1 AA · gate CI a11y · tests Orca · 7 langues",
+  },
+  {
     slug: "coachflow",
     title: "CoachFlow",
     tagline: "Plateforme LMS gamifiée · 6 phases · 82 leçons · certification",
