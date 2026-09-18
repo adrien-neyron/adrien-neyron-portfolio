@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuth0 } from "@auth0/auth0-vue";
-import { LogOut, LayoutDashboard, PlusCircle, Home } from "lucide-vue-next";
+import { LogOut, LayoutDashboard, PlusCircle, Home, UserCircle, Cpu } from "lucide-vue-next";
 
 const { logout } = useAuth0();
 
@@ -27,6 +27,14 @@ function handleLogout() {
         <NuxtLink to="/admin/projects/new" class="admin-nav-link" active-class="admin-nav-link--active">
           <PlusCircle :size="15" aria-hidden="true" />
           Nouveau projet
+        </NuxtLink>
+        <NuxtLink to="/admin/profile" class="admin-nav-link" active-class="admin-nav-link--active">
+          <UserCircle :size="15" aria-hidden="true" />
+          Profil
+        </NuxtLink>
+        <NuxtLink to="/admin/ai-tools" class="admin-nav-link" active-class="admin-nav-link--active">
+          <Cpu :size="15" aria-hidden="true" />
+          Outils IA
         </NuxtLink>
       </nav>
 

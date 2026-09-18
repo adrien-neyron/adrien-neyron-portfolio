@@ -2,9 +2,12 @@
 import emailjs from "@emailjs/browser";
 import Swal    from "sweetalert2";
 import { Mail, MapPin, Send, MessageCircle } from "lucide-vue-next";
-import resume from "~/data/resume.json";
+import { useProfileStore } from "~/stores/profile";
 
 useHead({ title: "Bivouac — Contact | Adrien Neyron" });
+
+const profileStore = useProfileStore();
+profileStore.fetchProfile();
 
 const formEl = ref<HTMLFormElement | null>(null);
 
@@ -68,19 +71,19 @@ async function sendEmail(e: Event) {
             <!-- Contact -->
             <div class="flex flex-col gap-4">
               <a
-                :href="`mailto:${resume.basics.email}`"
+                :href="`mailto:${profileStore.profile.email}`"
                 class="flex items-center gap-3 text-sm text-[var(--color-text)]/70 hover:text-[var(--color-accent)] transition-colors group"
               >
                 <span class="w-9 h-9 rounded-full bg-[var(--color-surface)] border border-[var(--color-accent)]/15 flex items-center justify-center group-hover:border-[var(--color-accent)]/40 transition-colors">
                   <Mail :size="15" class="text-[var(--color-accent)]" aria-hidden="true" />
                 </span>
-                {{ resume.basics.email }}
+                {{ profileStore.profile.email }}
               </a>
               <div class="flex items-center gap-3 text-sm text-[var(--color-text)]/60">
                 <span class="w-9 h-9 rounded-full bg-[var(--color-surface)] border border-[var(--color-accent)]/15 flex items-center justify-center">
                   <MapPin :size="15" class="text-[var(--color-accent)]" aria-hidden="true" />
                 </span>
-                {{ resume.basics.location.city }}, {{ resume.basics.location.region }}
+                {{ profileStore.profile.location.city }}, {{ profileStore.profile.location.region }}
               </div>
             </div>
 
@@ -99,7 +102,7 @@ async function sendEmail(e: Event) {
             <div class="flex flex-col gap-2">
               <p class="text-xs font-mono text-[var(--color-muted)] uppercase tracking-widest mb-1">Réseaux</p>
               <a
-                v-for="profile in resume.basics.profiles"
+                v-for="profile in profileStore.profile.profiles"
                 :key="profile.network"
                 :href="profile.url"
                 target="_blank"

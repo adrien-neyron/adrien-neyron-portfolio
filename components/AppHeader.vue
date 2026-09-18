@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { useVisitorStore } from "~/stores/visitor";
+import { useProfileStore } from "~/stores/profile";
 import { useColorMode } from "#imports";
 
 const visitorStore = useVisitorStore();
+const profileStore = useProfileStore();
 const colorMode   = useColorMode();
 const isScrolled  = ref(false);
+
+profileStore.fetchProfile();
 
 onMounted(() => {
   const onScroll = () => { isScrolled.value = window.scrollY > 10; };
@@ -31,9 +35,9 @@ const isDark = computed(() => colorMode.value === "dark");
           href="#home"
           :class="['font-semibold', isDark ? 'hover:text-[#61DAFB]' : 'hover:text-[#FF6B2D]']"
         >
-          Adrien Neyron
+          {{ profileStore.profile.name }}
         </a>
-        <span class="opacity-70">Fullstack JS · Vue.js / Node.js · AI &amp; Automation</span>
+        <span class="opacity-70">{{ profileStore.profile.headerSubtitle }}</span>
       </div>
 
       <BackgroundMusic />

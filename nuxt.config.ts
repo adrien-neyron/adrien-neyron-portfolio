@@ -51,6 +51,7 @@ export default defineNuxtConfig({
     mongodbUri:   process.env.MONGODB_URI    ?? "",
     postgresUrl:  process.env.POSTGRES_URL   ?? "",
     adminEmail:   process.env.ADMIN_EMAIL    ?? "adrien.neyron@gmail.com",
+    blobReadWriteToken: process.env.BLOB_READ_WRITE_TOKEN ?? "",
     public: {
       auth0Domain:   process.env.AUTH0_DOMAIN    ?? "",
       auth0ClientId: process.env.AUTH0_CLIENT_ID ?? "",

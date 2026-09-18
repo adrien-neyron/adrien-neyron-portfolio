@@ -2,7 +2,10 @@
 import emailjs from "@emailjs/browser";
 import Swal    from "sweetalert2";
 import { Mail, MapPin, Send } from "lucide-vue-next";
-import resume from "~/data/resume.json";
+import { useProfileStore } from "~/stores/profile";
+
+const profileStore = useProfileStore();
+profileStore.fetchProfile();
 
 const greetings = "LET'S WORK TOGETHER!";
 const formEl    = ref<HTMLFormElement | null>(null);
@@ -67,19 +70,19 @@ async function sendEmail(e: Event) {
         <!-- Coordonnées -->
         <div class="flex flex-col gap-4">
           <a
-            :href="`mailto:${resume.basics.email}`"
+            :href="`mailto:${profileStore.profile.email}`"
             class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 hover:text-accent dark:hover:text-accent transition-colors group"
           >
             <span class="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center group-hover:bg-accent/10 transition-colors">
               <Mail :size="16" class="text-accent" />
             </span>
-            {{ resume.basics.email }}
+            {{ profileStore.profile.email }}
           </a>
           <div class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
             <span class="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center">
               <MapPin :size="16" class="text-accent" />
             </span>
-            {{ resume.basics.location.city }}, {{ resume.basics.location.region }}
+            {{ profileStore.profile.location.city }}, {{ profileStore.profile.location.region }}
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { AiTool } from "~/data/ai-tools";
+import type { AiToolItem } from "~/stores/aiTools";
 
-defineProps<{ tool: AiTool }>();
+defineProps<{ tool: AiToolItem }>();
 
 const categoryColor: Record<string, string> = {
   Productivité:    "bg-[var(--color-secondary)]/20 text-[var(--color-secondary)]",

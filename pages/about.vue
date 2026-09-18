@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { MapPin, Download, Mail } from "lucide-vue-next";
-import resume from "~/data/resume.json";
+import { useProfileStore } from "~/stores/profile";
 
 useHead({ title: "Le Randonneur — À propos | Adrien Neyron" });
+
+const profileStore = useProfileStore();
+profileStore.fetchProfile();
 
 const hovered = ref(false);
 
@@ -84,7 +87,7 @@ const skills = {
             >
               <div v-if="hovered" class="absolute inset-0">
                 <NuxtImg
-                  src="/profile.png"
+                  :src="profileStore.profile.pictureUrl"
                   alt="Adrien Neyron"
                   class="w-full h-full object-cover rounded-2xl border border-[var(--color-accent)]/30 shadow-lg"
                 />
@@ -103,16 +106,16 @@ const skills = {
             </p>
             <div class="flex items-center gap-2 text-sm text-[var(--color-muted)] mb-4">
               <MapPin :size="14" aria-hidden="true" />
-              {{ resume.basics.location.city }}, {{ resume.basics.location.region }}
+              {{ profileStore.profile.location.city }}, {{ profileStore.profile.location.region }}
               <span class="w-px h-3 bg-[var(--color-muted)]/40 mx-1" />
               17 ans d'expérience
             </div>
             <p class="text-sm text-[var(--color-text)]/70 leading-relaxed max-w-lg">
-              {{ resume.basics.description }}
+              {{ profileStore.profile.description }}
             </p>
             <div class="flex gap-3 mt-6">
               <a
-                href="/2025_CV_AdrienNEYRON.pdf"
+                :href="profileStore.profile.cvUrl"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="button-empty px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2"

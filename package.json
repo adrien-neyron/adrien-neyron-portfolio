@@ -19,6 +19,7 @@
     "@tresjs/cientos": "^4.2.0",
     "@tresjs/core": "^4.3.0",
     "@tresjs/nuxt": "^2.1.0",
+    "@vercel/blob": "^0.27.0",
     "@vueuse/core": "^11.0.0",
     "@vueuse/motion": "^2.2.6",
     "jose": "^6.2.1",

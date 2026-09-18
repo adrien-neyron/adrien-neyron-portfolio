@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { Cpu, ArrowRight } from "lucide-vue-next";
-import { aiTools } from "~/data/ai-tools";
-import type { AiTool } from "~/data/ai-tools";
+import { useAiToolsStore } from "~/stores/aiTools";
 
 useHead({ title: "Équipement IA | Adrien Neyron" });
 
-type Category = "Tous" | AiTool["category"];
+const aiToolsStore = useAiToolsStore();
+aiToolsStore.fetchAiTools();
+
+type Category = "Tous" | "Productivité" | "Création" | "Analyse" | "Automatisation";
 const categories: Category[] = ["Tous", "Productivité", "Création", "Analyse", "Automatisation"];
 const activeFilter = ref<Category>("Tous");
 
 const filtered = computed(() =>
   activeFilter.value === "Tous"
-    ? aiTools
-    : aiTools.filter((t) => t.category === activeFilter.value)
+    ? aiToolsStore.tools
+    : aiToolsStore.tools.filter((t) => t.category === activeFilter.value)
 );
 </script>
 
@@ -75,7 +77,7 @@ const filtered = computed(() =>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
         <UiAnimatedSection
           v-for="tool in filtered"
-          :key="tool.id"
+          :key="tool.id ?? tool.slug"
         >
           <UiAiToolCard :tool="tool" />
         </UiAnimatedSection>

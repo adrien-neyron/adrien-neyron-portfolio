@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { MapPin } from "lucide-vue-next";
-import resume  from "~/data/resume.json";
 import tooltip from "~/data/tooltip.json";
+import { useProfileStore } from "~/stores/profile";
+
+const profileStore = useProfileStore();
+profileStore.fetchProfile();
 </script>
 
 <template>
@@ -38,7 +41,7 @@ import tooltip from "~/data/tooltip.json";
       <!-- Localisation + expérience -->
       <div class="flex items-center gap-2 mt-6 text-sm text-gray-500 dark:text-gray-400">
         <MapPin :size="14" />
-        <span>{{ resume.basics.summary }}</span>
+        <span>{{ profileStore.profile.summary }}</span>
         <span class="w-px h-3 bg-gray-300 dark:bg-gray-600" />
         <span>17 ans d'expérience</span>
       </div>
@@ -50,10 +53,10 @@ import tooltip from "~/data/tooltip.json";
       <!-- Accroche -->
       <div>
         <div class="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-accent mb-3">
-          {{ resume.basics.job1 }}
+          {{ profileStore.profile.job1 }}
         </div>
         <p class="text-base sm:text-lg lg:text-xl text-gray-700 dark:text-gray-300 leading-relaxed max-w-md">
-          {{ resume.basics.job2 }}
+          {{ profileStore.profile.job2 }}
         </p>
       </div>
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { Download } from "lucide-vue-next";
+import { useProfileStore } from "~/stores/profile";
+
+const profileStore = useProfileStore();
+profileStore.fetchProfile();
+
 const greetings = "HELLO. I'M ADRIEN, WELCOME THERE!";
-const aboutMeParagraphs = [
-  "I'm Adrien Neyron, a creative fullstack developer specializing in Javascript with frameworks like Vue, Nuxt, React, and Node.js. I usually code in Typescript. My passion for coding drives me to create innovative solutions that solve problems.",
-  "With a strong background in business and a knack for problem-solving, I bring a unique perspective to every project. I blend clean code with thoughtful UX/UI design to craft applications that are both functional and visually engaging.",
-  "Tailwind CSS and Bootstrap are my go-to for creating responsive interfaces. I also explore Three.js, @vueuse/motion, and TresJS to bring my designs to life.",
-  "Passionate about learning and innovation, I thrive on challenges and love transforming ideas into smooth, interactive digital experiences.",
-];
 
 const hovered       = ref(false);
 const reducedMotion = ref(false);
@@ -41,6 +41,7 @@ onMounted(() => {
             src="/sculpture.png"
             alt="Sculpture"
             class="w-full h-full object-contain rounded-xl shadow-lg border border-white/30"
+            placeholder
           />
         </div>
 
@@ -55,9 +56,10 @@ onMounted(() => {
         >
           <div v-if="hovered" class="absolute inset-0">
             <NuxtImg
-              src="/profile.png"
+              :src="profileStore.profile.pictureUrl"
               alt="Photo de profil d'Adrien"
               class="w-full h-full object-cover rounded-xl shadow-xl border border-white/40"
+              placeholder
             />
           </div>
         </Transition>
@@ -76,7 +78,7 @@ onMounted(() => {
 
         <div class="space-y-4 text-gray-800 dark:text-gray-200 text-sm md:text-base">
           <p
-            v-for="(paragraph, index) in aboutMeParagraphs"
+            v-for="(paragraph, index) in profileStore.profile.about"
             :key="index"
             class="leading-relaxed"
           >
@@ -89,6 +91,18 @@ onMounted(() => {
             </span>
           </p>
         </div>
+
+        <a
+          v-if="profileStore.profile.cvUrl"
+          :href="profileStore.profile.cvUrl"
+          target="_blank"
+          rel="noopener"
+          download
+          class="button-empty inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl font-semibold text-sm w-fit self-center md:self-start transition hover:text-white"
+        >
+          <Download :size="16" aria-hidden="true" />
+          Télécharger mon CV
+        </a>
       </div>
     </div>
   </section>

@@ -115,12 +115,14 @@ function onSubmit() {
     <!-- Images -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="admin-label">Image mode clair (URL)</label>
-        <input v-model="form.image_light" class="admin-input" placeholder="/recentprojects/mon-projet-light.png" />
+        <label class="admin-label">Image mode clair</label>
+        <input v-model="form.image_light" class="admin-input mb-2" placeholder="/recentprojects/mon-projet-light.png" />
+        <FileUpload v-model="form.image_light" accept="image/*" label="Uploader une image" />
       </div>
       <div>
-        <label class="admin-label">Image mode sombre (URL)</label>
-        <input v-model="form.image_dark" class="admin-input" placeholder="/recentprojects/mon-projet-dark.png" />
+        <label class="admin-label">Image mode sombre</label>
+        <input v-model="form.image_dark" class="admin-input mb-2" placeholder="/recentprojects/mon-projet-dark.png" />
+        <FileUpload v-model="form.image_dark" accept="image/*" label="Uploader une image" />
       </div>
     </div>
 
