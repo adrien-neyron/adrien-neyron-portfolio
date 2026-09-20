@@ -29,8 +29,8 @@
       <!-- Stack -->
       <p class="text-xs text-[var(--color-muted)] text-center sm:text-right">
         Construit avec
-        <span class="text-[#41B883] font-medium">Vue.js</span>,
-        <span class="text-[#00C16A] font-medium">Nuxt</span>
+        <span class="text-[var(--color-vue)] font-medium">Vue.js</span>,
+        <span class="text-[var(--color-nuxt)] font-medium">Nuxt</span>
         &amp;
         <span class="text-[var(--color-accent)] font-medium">Three.js</span>
       </p>

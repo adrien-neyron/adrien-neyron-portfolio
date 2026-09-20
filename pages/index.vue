@@ -3,6 +3,8 @@ import { Map, Cpu, User, MessageCircle, Mountain, ArrowRight } from "lucide-vue-
 import { projects } from "~/data/projects";
 import { useProfileStore } from "~/stores/profile";
 
+useHead({ title: "Camp de Base — Accueil | Adrien Neyron" });
+
 const profileStore = useProfileStore();
 profileStore.fetchProfile();
 

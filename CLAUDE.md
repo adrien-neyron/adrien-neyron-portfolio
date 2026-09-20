@@ -42,7 +42,7 @@ Stores in `stores/`, all following the same pattern — fetch the Mongo-backed A
 - `ui.ts` — Controls popup modal visibility
 - `visitor.ts` — Fetches/increments visitor count via API
 - `projects.ts` — Projects, falls back to `data/projects.ts`
-- `profile.ts` — Singleton bio/contact/CV profile, falls back to `data/resume.json` + `staticProfileFallback` (used by `pages/about.vue`, `pages/contact.vue`)
+- `profile.ts` — Singleton bio/contact/CV profile, falls back to `data/resume.json` + `staticProfileFallback` (used by `pages/index.vue` for the hero title/tagline, `pages/about.vue`, `pages/contact.vue`)
 - `aiTools.ts` — AI tools list, falls back to `data/ai-tools.ts` (used by `pages/ai-tools.vue`)
 
 ### Composables
@@ -74,6 +74,7 @@ Auth0-gated (`middleware/admin.ts` + `layouts/admin.vue`). Each managed entity f
 - **Tailwind CSS 4** with custom design tokens in `assets/css/main.css`
 - Accent color: `#FF6B2D` (light) / `#57C785` (dark) — via `--color-accent`
 - Highlight color: `#f6c453` (light) / `#61DAFB` (dark) — via `--color-highlight`
+- `--color-vue` / `--color-nuxt` — tech-stack badge colors used in `components/AppFooter.vue`, darkened in light mode (`#065F46` / `#166534`) to clear 4.5:1 contrast against `--color-bg`; full brand brightness (`#41B883` / `#00C16A`) in dark mode, where contrast against the dark background is already sufficient. Never hardcode the raw Vue/Nuxt brand hexes directly in a template — go through these tokens so contrast stays correct in both modes.
 - Dark mode uses `dark:` prefix (Tailwind), stored in `color-mode` localStorage key via `@nuxtjs/color-mode`
 
 ### Static Data (fallbacks only — not the source of truth once Mongo has data)
@@ -89,11 +90,20 @@ Auth0-gated (`middleware/admin.ts` + `layouts/admin.vue`). Each managed entity f
 
 ### Accessibility
 
-Components follow WCAG AA patterns: semantic HTML, `aria-label`/`aria-hidden` on animated text, `:focus-visible` styles, and `prefers-reduced-motion` support throughout.
+Components follow WCAG AA / RGAA patterns: semantic HTML, `:focus-visible` styles, and `prefers-reduced-motion` support throughout.
+
+- `<html lang="fr">` is set via `app.head.htmlAttrs` in `nuxt.config.ts`.
+- Every page sets a page-specific `<title>` via `useHead({ title: ... })` (see the top of each `pages/*.vue`); the homepage's is `"Camp de Base — Accueil | Adrien Neyron"`.
+- `UiTextDecrypt` (`components/ui/TextDecrypt.vue`) never puts `aria-label` on its wrapping `<div>` — a `<div>` has no implicit ARIA role, so `aria-label` on it is invalid per WCAG 4.1.2 / RGAA 7.1.1 (axe-core: `aria-prohibited-attr`). The real text is exposed to assistive tech via a `.sr-only` span instead; the animated span and the space-reservation span are both `aria-hidden="true"`.
+- Footer tech badges go through the `--color-vue` / `--color-nuxt` tokens (see Styling above) so their contrast passes WCAG AA / RGAA 3.2 in both color modes instead of using the raw brand hexes directly (those fail ~2:1 against the light background).
+- Audited with Lighthouse (2026-09); fixed as a result: `aria-prohibited-attr` (TextDecrypt), `color-contrast` (footer badges), `document-title` (homepage was missing one), `html-has-lang`.
 
 ### Known gaps (not fixed as part of the backoffice work)
 
 - `npm run lint` fails — no `eslint.config.js` in the repo (ESLint v9 expects flat config).
 - `pages/index.vue` imports `data/projects.ts` directly instead of going through `stores/projects.ts`, so the homepage's "Projets récents" section doesn't reflect Mongo edits until redeployed.
 
-`job1` / `job2` / `summary` / `headerSubtitle` / `about` on the `Profile` model are now displayed on `pages/about.vue`: `job1`/`job2` feed the hero tagline (`× `-joined, with a static fallback), `headerSubtitle` is a small kicker under it, and `summary` + `about` render in a new "Mon histoire" section.
+`job1` / `job2` / `summary` / `about` / `heroTitle` on the `Profile` model are now displayed live:
+- `heroTitle` and `job1`/`job2` feed the homepage hero (`pages/index.vue`): `heroTitle` is split into a `UiTextDecrypt`-animated first word plus an accent-colored remainder (so the H1 stays readable whatever length is typed in the admin), and `job1`/`job2` render as the subtitle lines underneath it.
+- `pages/about.vue`'s tagline uses `label` instead — `job1`/`job2` turned out to be full marketing sentences rather than short titles, so joining them there read as garbled text; `summary` + `about` render in a "Mon histoire" section on that page.
+- `headerSubtitle` is not displayed anywhere at the moment (it was briefly slated for `pages/about.vue`, then dropped as redundant with `label`). The field and its admin input are kept in case it's wanted again later.

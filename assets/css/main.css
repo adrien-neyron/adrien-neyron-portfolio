@@ -17,6 +17,8 @@
   --color-highlight: #E8A838;  /* usage décoratif uniquement        */
   --color-surface:   #EDE7D9;
   --color-muted:     #6B5A4A;  /* 5.3:1 sur --color-bg  ✓ WCAG AA */
+  --color-vue:       #065F46;  /* vert Vue.js assombri — 6.8:1 sur --color-bg ✓ WCAG AA */
+  --color-nuxt:      #166534;  /* vert Nuxt assombri — 6.3:1 sur --color-bg ✓ WCAG AA */
 }
 
 .dark {
@@ -27,6 +29,8 @@
   --color-highlight: #F0C050;
   --color-surface:   #251E16;
   --color-muted:     #9A8878;
+  --color-vue:       #41B883;  /* vert Vue.js officiel — 7.3:1 sur --color-bg (dark) ✓ WCAG AA */
+  --color-nuxt:      #00C16A;  /* vert Nuxt officiel — contraste suffisant sur --color-bg (dark) ✓ WCAG AA */
 }
 
 /* ─── Fond de base ──────────────────────────────────────── */

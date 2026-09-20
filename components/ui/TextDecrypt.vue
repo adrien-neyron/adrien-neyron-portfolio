@@ -17,14 +17,15 @@ watch(() => props.text, (val) => {
 </script>
 
 <template>
-  <!-- aria-label expose le texte réel ; les spans internes sont masqués des AT -->
-  <div
-    :class="['relative inline-block h-32 overflow-hidden', className]"
-    :aria-label="text"
-  >
+  <!-- Un <div> n'a pas de rôle ARIA implicite : aria-label y est donc interdit
+       (WCAG 4.1.2 / RGAA 7.1.1). Le texte réel est exposé via un span sr-only
+       (lu par les lecteurs d'écran) ; les spans visuels (animation + span de
+       réservation d'espace) sont masqués des technologies d'assistance. -->
+  <div :class="['relative inline-block h-32 overflow-hidden', className]">
     <span class="absolute left-0 top-0" aria-hidden="true">
       {{ prefersReduced ? text : result }}&nbsp;
     </span>
     <span class="invisible" aria-hidden="true">{{ text }}&nbsp;</span>
+    <span class="sr-only">{{ text }}</span>
   </div>
 </template>
