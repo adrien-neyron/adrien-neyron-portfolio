@@ -22,6 +22,7 @@ export interface Profile {
   label: string;
   email: string;
   phone?: string;
+  heroTitle?: string;
   job1?: string;
   job2?: string;
   description?: string;
@@ -45,6 +46,7 @@ export const staticProfileFallback: Profile = {
   label: resume.basics.label,
   email: resume.basics.email,
   phone: resume.basics.phone,
+  heroTitle: "Développeur spécialisé sport & outdoor",
   job1: resume.basics.job1,
   job2: resume.basics.job2,
   description: resume.basics.description,

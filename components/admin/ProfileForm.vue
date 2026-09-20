@@ -55,6 +55,10 @@ function onSubmit() {
     <!-- Accroche (Home) -->
     <div class="grid grid-cols-1 gap-4">
       <div>
+        <label class="admin-label">Titre principal (accueil)</label>
+        <input v-model="form.heroTitle" class="admin-input" placeholder="Développeur spécialisé sport & outdoor" />
+      </div>
+      <div>
         <label class="admin-label">Accroche principale (job1)</label>
         <input v-model="form.job1" class="admin-input" placeholder="Je livre des applications qui tiennent en production." />
       </div>

@@ -21,6 +21,7 @@ export interface IProfile extends Document {
   label: string;
   email: string;
   phone?: string;
+  heroTitle?: string;
   job1?: string;
   job2?: string;
   description?: string;
@@ -43,6 +44,7 @@ const ProfileSchema = new Schema<IProfile>(
     label:          { type: String, default: "" },
     email:          { type: String, required: true },
     phone:          String,
+    heroTitle:      String,
     job1:           String,
     job2:           String,
     description:    String,

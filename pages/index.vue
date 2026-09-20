@@ -6,6 +6,15 @@ import { useProfileStore } from "~/stores/profile";
 const profileStore = useProfileStore();
 profileStore.fetchProfile();
 
+// Le H1 est découpé en "premier mot" (animé, ton neutre) + "reste" (accent),
+// pour rester lisible quel que soit le titre saisi dans l'admin.
+const heroTitleParts = computed(() => {
+  const title = profileStore.profile.heroTitle || "Développeur spécialisé sport & outdoor";
+  const spaceIndex = title.indexOf(" ");
+  if (spaceIndex === -1) return { first: title, rest: "" };
+  return { first: title.slice(0, spaceIndex), rest: title.slice(spaceIndex + 1) };
+});
+
 // Barre de progression au scroll
 onMounted(() => {
   const updateProgress = () => {
@@ -99,9 +108,8 @@ const expertises = [
 
       <!-- H1 -->
       <h1 class="text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight text-[var(--color-text)] mb-4">
-        <UiTextDecrypt text="Développeur" class="block" />
-        <span class="text-[var(--color-accent)]">spécialisé sport</span>
-        <span class="block text-[var(--color-text)]">& outdoor</span>
+        <UiTextDecrypt :text="heroTitleParts.first" class="block" />
+        <span v-if="heroTitleParts.rest" class="block text-[var(--color-accent)]">{{ heroTitleParts.rest }}</span>
       </h1>
 
       <!-- Sous-titre -->
