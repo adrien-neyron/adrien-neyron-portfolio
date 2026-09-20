@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { Map, Cpu, User, MessageCircle, Mountain, ArrowRight } from "lucide-vue-next";
 import { projects } from "~/data/projects";
+import { useProfileStore } from "~/stores/profile";
+
+const profileStore = useProfileStore();
+profileStore.fetchProfile();
 
 // Barre de progression au scroll
 onMounted(() => {
@@ -102,9 +106,10 @@ const expertises = [
 
       <!-- Sous-titre -->
       <p class="mt-4 text-base sm:text-lg text-[var(--color-text)]/70 max-w-2xl leading-relaxed">
-        Je conçois des plateformes e-commerce, des interfaces métier et des outils pédagogiques
-        pour les <strong class="text-[var(--color-text)]">organisations sportives</strong>.
-        Ancien éducateur sportif, maintenant développeur web.
+        {{ profileStore.profile.job1 || "Je conçois des plateformes e-commerce, des interfaces métier et des outils pédagogiques. Ancien éducateur sportif, maintenant développeur web." }}
+      </p>
+      <p v-if="profileStore.profile.job2" class="mt-2 text-sm text-[var(--color-text)]/60 max-w-2xl leading-relaxed">
+        {{ profileStore.profile.job2 }}
       </p>
 
       <!-- Disponibilité -->

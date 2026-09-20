@@ -102,7 +102,7 @@ const skills = {
               Adrien Neyron
             </h1>
             <p class="text-[var(--color-accent)] font-medium mb-4">
-              Développeur Web × Formateur × Passionné Trail
+              {{ profileStore.profile.label || "Développeur Web × Formateur × Passionné Trail" }}
             </p>
             <div class="flex items-center gap-2 text-sm text-[var(--color-muted)] mb-4">
               <MapPin :size="14" aria-hidden="true" />
@@ -131,6 +131,25 @@ const skills = {
                 Me contacter
               </NuxtLink>
             </div>
+          </div>
+        </div>
+      </UiAnimatedSection>
+
+      <!-- Mon histoire -->
+      <UiAnimatedSection v-if="profileStore.profile.about?.length">
+        <div class="mb-16">
+          <h2 class="text-xl font-bold text-[var(--color-text)] mb-4">Mon histoire</h2>
+          <p v-if="profileStore.profile.summary" class="text-sm text-[var(--color-accent)] font-medium mb-4">
+            {{ profileStore.profile.summary }}
+          </p>
+          <div class="flex flex-col gap-4 max-w-3xl">
+            <p
+              v-for="(paragraph, i) in profileStore.profile.about"
+              :key="i"
+              class="text-sm text-[var(--color-text)]/70 leading-relaxed"
+            >
+              {{ paragraph }}
+            </p>
           </div>
         </div>
       </UiAnimatedSection>
