@@ -72,8 +72,13 @@ export const useProfileStore = defineStore("profile", () => {
   const error   = ref<string | null>(null);
   const loaded  = ref(false);
 
-  async function fetchProfile() {
-    if (loaded.value) return;
+  // `force` permet de recharger même si déjà chargé une fois dans la session —
+  // nécessaire après un enregistrement admin, sinon les pages publiques
+  // gardent en mémoire (store Pinia partagé sur toute la SPA) le profil
+  // chargé avant la modification tant qu'aucun rechargement complet de page
+  // n'a lieu (la navigation client-side ne recrée pas le store).
+  async function fetchProfile(force = false) {
+    if (loaded.value && !force) return;
     loading.value = true;
     error.value   = null;
     try {

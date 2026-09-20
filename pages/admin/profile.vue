@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useAuth0 } from "@auth0/auth0-vue";
-import { staticProfileFallback, type Profile } from "~/stores/profile";
+import { staticProfileFallback, useProfileStore, type Profile } from "~/stores/profile";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 
 const { idTokenClaims } = useAuth0();
 const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
+const profileStore = useProfileStore();
 
 const profile = ref<Profile | null>(null);
 const loading = ref(false);
@@ -38,6 +39,10 @@ async function handleSubmit(payload: Profile) {
       body:    payload,
     });
     saved.value = true;
+    // Force le rechargement du store partagé (utilisé par les pages
+    // publiques) : sans ça, la navigation client-side vers "/", "/about",
+    // etc. réutilise le profil déjà en mémoire depuis avant la modification.
+    await profileStore.fetchProfile(true);
   } catch (e: unknown) {
     const status = (e as { response?: { status?: number }; statusCode?: number })?.response?.status
       ?? (e as { statusCode?: number })?.statusCode;
