@@ -35,8 +35,15 @@ const dirIntensity    = computed(() => props.isDark ? 1   : 3);
       zIndex: 2,
       pointerEvents: 'none',
     }"
-    :camera="{ position: [0, 0, 15], fov: 70 }"
   >
+    <!-- La caméra doit être déclarée comme un vrai composant Tres (make-default),
+         pas comme un objet d'options passé au prop `camera` du Canvas : ce prop
+         attend une instance de caméra THREE, pas des options de construction.
+         C'est ce qui causait "camera is not an instance of THREE.Camera" à
+         chaque frame et le crash en boucle ("setContext" sur undefined) — le
+         renderer recevait l'objet brut { position, fov } au lieu d'une vraie
+         THREE.PerspectiveCamera. -->
+    <TresPerspectiveCamera :position="[0, 0, 15]" :fov="70" make-default />
     <TresAmbientLight :intensity="ambientIntensity" />
     <TresDirectionalLight :position="[5, 5, 5]" :intensity="dirIntensity" />
     <BackgroundExplodingStar v-bind="palette" :is-dark="isDark" />
