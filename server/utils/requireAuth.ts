@@ -40,6 +40,14 @@ export async function requireAdminWrite(event: H3Event): Promise<void> {
   const adminEmail = config.adminEmail;
 
   if (!adminEmail || payload.email !== adminEmail) {
+    // Diagnostic : ne révèle rien au client (toujours 403 générique), mais
+    // trace côté serveur (Vercel → Runtime Logs) l'email reçu du token vs
+    // celui attendu, pour distinguer "ADMIN_EMAIL absent en prod" d'un
+    // simple mismatch de casse/espace/compte de connexion.
+    console.error(
+      "[requireAdminWrite] Forbidden — token email:", JSON.stringify(payload.email),
+      "| expected ADMIN_EMAIL:", adminEmail ? JSON.stringify(adminEmail) : "(non défini)"
+    );
     throw createError({ statusCode: 403, statusMessage: "Forbidden" });
   }
 }

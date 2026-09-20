@@ -38,8 +38,16 @@ async function handleSubmit(payload: Profile) {
       body:    payload,
     });
     saved.value = true;
-  } catch {
-    error.value = "Erreur lors de l'enregistrement du profil.";
+  } catch (e: unknown) {
+    const status = (e as { response?: { status?: number }; statusCode?: number })?.response?.status
+      ?? (e as { statusCode?: number })?.statusCode;
+    if (status === 403) {
+      error.value = "Accès refusé (403) : l'email du compte connecté ne correspond pas à l'administrateur configuré (ADMIN_EMAIL). Vérifie avec quel compte tu es connecté à /admin.";
+    } else if (status === 401) {
+      error.value = "Session expirée ou invalide (401) : reconnecte-toi via /admin/login.";
+    } else {
+      error.value = "Erreur lors de l'enregistrement du profil.";
+    }
   } finally {
     saving.value = false;
   }
