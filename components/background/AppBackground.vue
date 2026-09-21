@@ -21,10 +21,18 @@ onMounted(() => {
     <div class="blob blob-b" :class="{ dark: isDark }" />
     <div class="blob blob-c" :class="{ dark: isDark }" />
 
-    <!-- ② Canvas Three.js ──────────────────────────────────── -->
-    <ClientOnly>
-      <BackgroundThreeScene :is-dark="isDark" />
-    </ClientOnly>
+    <!-- ② Canvas Three.js — DÉSACTIVÉ TEMPORAIREMENT ─────────
+         @tresjs/nuxt@2.1.2 dépend en direct de @tresjs/core@3.9.0, ce qui
+         installe une copie imbriquée en plus du @tresjs/core@^4.3.0 de premier
+         niveau. Ce conflit de versions fait planter le montage du composant
+         (erreur Vue "Cannot read properties of undefined (reading 'default')"
+         dans patchProp), ce qui remonte jusqu'à la racine de l'app et casse
+         TOUTE la page (page d'erreur 500 Nuxt), pas seulement le fond animé.
+         Un correctif via `overrides` dans package.json a déjà été tenté et a
+         causé une régression pire (plantage du formulaire admin) — donc pas
+         de nouvel essai en prod sans l'avoir testé au préalable dans un
+         environnement de build complet. En attendant : composant non monté,
+         le reste du fond (blobs CSS ci-dessus) reste actif. -->
 
   </div>
 </template>
