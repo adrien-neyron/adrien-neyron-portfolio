@@ -19,6 +19,7 @@ onMounted(async () => {
   </a>
 
   <BackgroundAppBackground />
+  <UiDuotoneFilterDefs />
 
   <NavigationTrailNav />
   <ClientOnly><UiContactsAccess /></ClientOnly>

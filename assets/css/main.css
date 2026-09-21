@@ -118,6 +118,20 @@ p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
   transform: translateY(-2px);
 }
 
+/* ─── Duotone photo projets ──────────────────────────────────
+   Traitement "à la volée" (filtre SVG, aucune image regénérée ni
+   stockée) appliqué aux vignettes de projet pour les harmoniser avec
+   la charte du portfolio, quelle que soit l'image importée depuis
+   l'admin. Défs du filtre : components/ui/DuotoneFilterDefs.vue
+   (montées une fois dans layouts/default.vue). Couleurs : ombres =
+   --color-secondary, lumières = --color-highlight — valeurs figées,
+   volontairement indépendantes du mode sombre (rendu photo constant).
+   Voir components/ui/ProjectCard.vue pour l'usage (calque duotone en
+   permanence + calque couleur d'origine qui apparaît au survol/focus). */
+.duotone-image {
+  filter: url(#duotone-trail);
+}
+
 /* ─── Difficulty badge ───────────────────────────────────── */
 .badge-debutant     { background-color: #5C7A5A; color: #fff; }
 .badge-intermediaire { background-color: #E8A838; color: #fff; }

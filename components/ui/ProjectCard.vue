@@ -35,14 +35,30 @@ const difficultyClass: Record<string, string> = {
     :aria-label="title"
     class="trail-card group flex flex-col overflow-hidden h-full"
   >
-    <!-- Image -->
-    <div class="relative w-full overflow-hidden bg-[var(--color-surface)]">
+    <!-- Image —
+         Deux calques superposés pour l'effet "duotone qui laisse place aux
+         couleurs d'origine au survol" : le calque du dessous (.duotone-image)
+         porte le texte alternatif réel et reste toujours visible ; le calque
+         du dessus est une copie purement décorative de la même image
+         (alt="" + aria-hidden, pour ne jamais être annoncée deux fois par un
+         lecteur d'écran) dont l'opacité passe de 0 à 1 au survol ET au focus
+         clavier (group-focus-within), pour que l'effet ne soit pas réservé
+         aux utilisateurs de souris. -->
+    <div class="relative w-full h-48 overflow-hidden bg-[var(--color-surface)]">
       <NuxtImg
         :src="imageUrl || '/projectsoon.png'"
         :alt="title"
         width="800"
         height="450"
-        class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+        class="duotone-image absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+      <NuxtImg
+        :src="imageUrl || '/projectsoon.png'"
+        alt=""
+        aria-hidden="true"
+        width="800"
+        height="450"
+        class="absolute inset-0 h-full w-full object-cover opacity-0 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100 group-focus-within:scale-105 group-focus-within:opacity-100"
       />
       <!-- Difficulty badge -->
       <span

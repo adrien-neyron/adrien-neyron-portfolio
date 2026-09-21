@@ -72,8 +72,9 @@ Auth0-gated (`middleware/admin.ts` + `layouts/admin.vue`). Each managed entity f
 ### Styling
 
 - **Tailwind CSS 4** with custom design tokens in `assets/css/main.css`
-- Accent color: `#FF6B2D` (light) / `#57C785` (dark) — via `--color-accent`
-- Highlight color: `#f6c453` (light) / `#61DAFB` (dark) — via `--color-highlight`
+- Accent color: `#A84E20` (light) / `#E07840` (dark) — via `--color-accent`
+- Highlight color: `#E8A838` (light) / `#F0C050` (dark) — via `--color-highlight` (decorative use only — not contrast-checked for text, see the comment in `main.css`)
+- **Project image duotone** (`.duotone-image` in `main.css` + `components/ui/DuotoneFilterDefs.vue`, mounted once in `layouts/default.vue`): an SVG filter (`feColorMatrix` → grayscale, `feComponentTransfer` → remapped to `--color-secondary`/`--color-highlight`) applied live to every project thumbnail, so any screenshot uploaded from the admin is automatically brought into the portfolio's palette with no image processing step. `components/ui/ProjectCard.vue` stacks the duotone image (real `alt`) under a decorative color copy (`alt=""`, `aria-hidden`) that fades in on `group-hover`/`group-focus-within`, so the original colors are reachable by mouse and by keyboard alike.
 - `--color-vue` / `--color-nuxt` — tech-stack badge colors used in `components/AppFooter.vue`, darkened in light mode (`#065F46` / `#166534`) to clear 4.5:1 contrast against `--color-bg`; full brand brightness (`#41B883` / `#00C16A`) in dark mode, where contrast against the dark background is already sufficient. Never hardcode the raw Vue/Nuxt brand hexes directly in a template — go through these tokens so contrast stays correct in both modes.
 - Dark mode uses `dark:` prefix (Tailwind), stored in `color-mode` localStorage key via `@nuxtjs/color-mode`
 
