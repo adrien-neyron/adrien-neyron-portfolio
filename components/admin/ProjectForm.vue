@@ -129,12 +129,12 @@ function onSubmit() {
       <div>
         <label class="admin-label">Image mode clair</label>
         <input v-model="form.image_light" class="admin-input mb-2" placeholder="/recentprojects/mon-projet-light.png" />
-        <FileUpload v-model="form.image_light" accept="image/*" label="Uploader une image" />
+        <AdminFileUpload v-model="form.image_light" accept="image/*" label="Uploader une image" />
       </div>
       <div>
         <label class="admin-label">Image mode sombre</label>
         <input v-model="form.image_dark" class="admin-input mb-2" placeholder="/recentprojects/mon-projet-dark.png" />
-        <FileUpload v-model="form.image_dark" accept="image/*" label="Uploader une image" />
+        <AdminFileUpload v-model="form.image_dark" accept="image/*" label="Uploader une image" />
       </div>
     </div>
 

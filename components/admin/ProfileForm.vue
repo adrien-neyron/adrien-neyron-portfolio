@@ -90,11 +90,11 @@ function onSubmit() {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label class="admin-label">Photo de profil</label>
-        <FileUpload v-model="form.pictureUrl" accept="image/*" label="Changer la photo" />
+        <AdminFileUpload v-model="form.pictureUrl" accept="image/*" label="Changer la photo" />
       </div>
       <div>
         <label class="admin-label">CV (PDF)</label>
-        <FileUpload v-model="form.cvUrl" accept="application/pdf" label="Changer le CV" />
+        <AdminFileUpload v-model="form.cvUrl" accept="application/pdf" label="Changer le CV" />
       </div>
     </div>
 
