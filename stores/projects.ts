@@ -12,7 +12,8 @@ export interface Project {
   image?: { light?: string; dark?: string };
   link?: string;
   code?: string;
-  difficulty?: "Débutant" | "Intermédiaire" | "Expert";
+  // Anciennes valeurs acceptées en lecture — voir composables/useDifficultyBadge.ts
+  difficulty?: "Apprentissage" | "Side Project" | "Professionnel" | "Débutant" | "Intermédiaire" | "Expert";
   duration?: string;
   status?: "En production" | "En cours" | "Case study pro";
   impact?: string;

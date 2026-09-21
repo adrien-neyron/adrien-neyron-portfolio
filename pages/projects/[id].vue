@@ -24,11 +24,7 @@ useHead({
   title: computed(() => `${project.value?.title ?? "Projet"} | Adrien Neyron`),
 });
 
-const difficultyClass: Record<string, string> = {
-  Débutant:       "badge-debutant",
-  Intermédiaire:  "badge-intermediaire",
-  Expert:         "badge-expert",
-};
+const { difficultyLabel, difficultyClass } = useDifficultyBadge();
 </script>
 
 <template>
@@ -52,9 +48,9 @@ const difficultyClass: Record<string, string> = {
           <div class="flex flex-wrap items-center gap-3 mb-4">
             <span
               v-if="project.difficulty"
-              :class="['text-xs font-bold px-3 py-1 rounded-full', difficultyClass[project.difficulty]]"
+              :class="['text-xs font-bold px-3 py-1 rounded-full', difficultyClass(project.difficulty)]"
             >
-              {{ project.difficulty }}
+              {{ difficultyLabel(project.difficulty) }}
             </span>
             <span class="text-xs text-[var(--color-muted)] bg-[var(--color-surface)] px-3 py-1 rounded-full border border-[var(--color-accent)]/15">
               {{ project.category }}

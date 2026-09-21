@@ -10,7 +10,10 @@ const props = defineProps<{
   link?: string;
   code?: string;
   slug?: string;
-  difficulty?: "Débutant" | "Intermédiaire" | "Expert";
+  // Anciennes valeurs ("Débutant"/"Intermédiaire"/"Expert") acceptées en
+  // lecture pour les projets pas encore ré-enregistrés — voir
+  // composables/useDifficultyBadge.ts.
+  difficulty?: "Apprentissage" | "Side Project" | "Professionnel" | "Débutant" | "Intermédiaire" | "Expert";
   duration?: string;
   tagline?: string;
   status?: "En production" | "En cours" | "Case study pro";
@@ -23,11 +26,7 @@ const statusClass: Record<string, string> = {
   "Case study pro": "bg-blue-500/15 text-blue-600 dark:text-blue-400",
 };
 
-const difficultyClass: Record<string, string> = {
-  Débutant:       "badge-debutant",
-  Intermédiaire:  "badge-intermediaire",
-  Expert:         "badge-expert",
-};
+const { difficultyLabel, difficultyClass } = useDifficultyBadge();
 </script>
 
 <template>
@@ -47,9 +46,9 @@ const difficultyClass: Record<string, string> = {
       <!-- Difficulty badge -->
       <span
         v-if="difficulty"
-        :class="['absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full', difficultyClass[difficulty]]"
+        :class="['absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full', difficultyClass(difficulty)]"
       >
-        {{ difficulty }}
+        {{ difficultyLabel(difficulty) }}
       </span>
     </div>
 

@@ -118,7 +118,11 @@ p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
   transform: translateY(-2px);
 }
 
-/* ─── Difficulty badge ───────────────────────────────────── */
+/* ─── Difficulty badge ───────────────────────────────────────
+   Noms de classe conservés tels quels pour limiter le diff, mais le texte
+   affiché a changé (sept. 2026) : badge-debutant = "Apprentissage",
+   badge-intermediaire = "Side Project", badge-expert = "Professionnel" —
+   voir composables/useDifficultyBadge.ts. */
 .badge-debutant     { background-color: #5C7A5A; color: #fff; }
 .badge-intermediaire { background-color: #E8A838; color: #fff; }
 .badge-expert       { background-color: #C4622D; color: #fff; }

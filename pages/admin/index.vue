@@ -8,6 +8,7 @@ definePageMeta({ layout: "admin", middleware: "admin" });
 const { idTokenClaims, user, logout } = useAuth0();
 const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
 const isAdmin = computed(() => user.value?.email === "adrien.neyron@gmail.com");
+const { difficultyLabel } = useDifficultyBadge();
 
 function handleLogout() {
   logout({ logoutParams: { returnTo: window.location.origin } });
@@ -158,7 +159,7 @@ onMounted(fetchProjects);
               <p class="text-xs font-mono mt-0.5" style="color: var(--color-muted);">{{ project.slug }}</p>
             </td>
             <td class="px-4 py-3 hidden md:table-cell" style="color: var(--color-muted);">{{ project.category }}</td>
-            <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ project.difficulty }}</td>
+            <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ difficultyLabel(project.difficulty) }}</td>
             <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ project.duration }}</td>
             <td v-if="isAdmin" class="px-4 py-3">
               <div class="flex items-center justify-end gap-2">

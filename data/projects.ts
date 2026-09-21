@@ -11,7 +11,7 @@ export interface ProjectData {
   image: { light?: string; dark?: string };
   link?: string;
   code?: string;
-  difficulty: "Débutant" | "Intermédiaire" | "Expert";
+  difficulty: "Apprentissage" | "Side Project" | "Professionnel";
   duration: string;
   category: "E-commerce" | "Outil métier" | "LMS" | "IA" | "Automatisation" | "SI";
   status: "En production" | "En cours" | "Case study pro";
@@ -37,7 +37,7 @@ export const projects: ProjectData[] = [
       light: "/projectsoon.png",
       dark: "/projectsoon.png",
     },
-    difficulty: "Expert",
+    difficulty: "Professionnel",
     duration: "Depuis mai 2026 (en cours)",
     category: "E-commerce",
     status: "Case study pro",
@@ -63,7 +63,7 @@ export const projects: ProjectData[] = [
     },
     link: "https://with-coachflow.vercel.app/",
     code: "https://github.com/adrien-neyron/CoachFlow",
-    difficulty: "Expert",
+    difficulty: "Professionnel",
     duration: "3 semaines",
     category: "LMS",
     status: "En production",
@@ -88,7 +88,7 @@ export const projects: ProjectData[] = [
       dark: "/recentprojects/runfit-hero.webp",
     },
     link: "https://runfit-advisor.vercel.app/",
-    difficulty: "Expert",
+    difficulty: "Professionnel",
     duration: "2 mois",
     category: "IA",
     status: "En production",
@@ -109,7 +109,7 @@ export const projects: ProjectData[] = [
       "Pipeline opérationnel. Réduction du temps de candidature de 80%. Human-in-the-loop préserve la qualité des candidatures.",
     technologies: ["Make.com", "Claude API", "Playwright", "React", "Airtable", "Node.js", "TypeScript"],
     image: { light: "/projectsoon.png", dark: "/projectsoon.png" },
-    difficulty: "Expert",
+    difficulty: "Professionnel",
     duration: "3 semaines",
     category: "Automatisation",
     status: "En cours",
@@ -130,7 +130,7 @@ export const projects: ProjectData[] = [
       "Réduction de 50% du temps de traitement sur les processus ciblés. Application en production depuis 2 ans.",
     technologies: ["Vue.js 3", "TypeScript", "Vuex", "FastAPI", "Python", "GitLab CI/CD", "PostgreSQL"],
     image: { light: "/recentprojects/dgfip-hero.png", dark: "/recentprojects/dgfip-hero.png" },
-    difficulty: "Expert",
+    difficulty: "Professionnel",
     duration: "2 ans",
     category: "SI",
     status: "Case study pro",

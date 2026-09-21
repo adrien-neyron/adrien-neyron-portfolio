@@ -15,7 +15,7 @@ interface ProjectPayload {
   image_dark: string;
   link: string;
   code: string;
-  difficulty: "Débutant" | "Intermédiaire" | "Expert";
+  difficulty: "Apprentissage" | "Side Project" | "Professionnel";
   duration: string;
   category: string;
 }
@@ -23,13 +23,25 @@ interface ProjectPayload {
 const props = defineProps<{ initial?: Partial<ProjectPayload>; loading?: boolean }>();
 const emit  = defineEmits<{ submit: [payload: ProjectPayload] }>();
 
+// Un projet enregistré avant le renommage de septembre 2026 peut encore
+// porter une ancienne valeur ("Débutant"/"Intermédiaire"/"Expert") : on la
+// convertit vers son équivalent actuel dès le chargement du formulaire, à
+// la fois pour que le <select> ci-dessous l'affiche correctement (ses
+// <option> ne listent plus que les 3 nouvelles valeurs) et pour que le
+// prochain enregistrement migre naturellement le champ, sans script de
+// migration séparé — voir composables/useDifficultyBadge.ts.
+const { difficultyLabel } = useDifficultyBadge();
+
 const form = ref<ProjectPayload>({
   slug: "", title: "", tagline: "", role: "",
   description: "", challenge: "", solution: "", result: "",
   technologies: [], image_light: "", image_dark: "",
   link: "", code: "",
-  difficulty: "Intermédiaire", duration: "", category: "",
+  difficulty: "Side Project", duration: "", category: "",
   ...props.initial,
+  ...(props.initial?.difficulty
+    ? { difficulty: difficultyLabel(props.initial.difficulty) as ProjectPayload["difficulty"] }
+    : {}),
 });
 
 // Technologies en tant que string CSV dans l'input
@@ -143,9 +155,9 @@ function onSubmit() {
       <div>
         <label class="admin-label">Difficulté *</label>
         <select v-model="form.difficulty" required class="admin-input">
-          <option>Débutant</option>
-          <option>Intermédiaire</option>
-          <option>Expert</option>
+          <option>Apprentissage</option>
+          <option>Side Project</option>
+          <option>Professionnel</option>
         </select>
       </div>
       <div>
