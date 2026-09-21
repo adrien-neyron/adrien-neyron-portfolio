@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { Map, Cpu, User, MessageCircle, Mountain, ArrowRight } from "lucide-vue-next";
-import { projects } from "~/data/projects";
+import { useProjectsStore } from "~/stores/projects";
 import { useProfileStore } from "~/stores/profile";
 
 useHead({ title: "Camp de Base — Accueil | Adrien Neyron" });
 
 const profileStore = useProfileStore();
 profileStore.fetchProfile();
+
+// Projets récents : passe par le store (Mongo + fallback statique) au lieu
+// d'importer data/projects.ts en dur, sinon cette section n'affiche jamais
+// les modifications faites depuis l'admin (difficulté, description, etc.) —
+// voir la section "Known gaps" de CLAUDE.md.
+const projectsStore = useProjectsStore();
+onMounted(() => projectsStore.fetchProjects());
 
 // Le H1 est découpé en "premier mot" (animé, ton neutre) + "reste" (accent),
 // pour rester lisible quel que soit le titre saisi dans l'admin.
@@ -252,14 +259,14 @@ const expertises = [
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <UiProjectCard
-            v-for="project in projects"
-            :key="project.id"
+            v-for="project in projectsStore.projects"
+            :key="project._id"
             :title="project.title"
             :role="project.role"
             :description="project.description"
             :technologies="project.technologies"
-            :image-url="project.image.light"
-            :slug="project.id"
+            :image-url="project.image?.light"
+            :slug="project.slug || project._id"
             :difficulty="project.difficulty"
             :duration="project.duration"
             :tagline="project.tagline"
