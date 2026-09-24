@@ -29,7 +29,7 @@ async function handleSubmit(payload: Record<string, unknown>) {
 </script>
 
 <template>
-  <div class="p-8 max-w-4xl">
+  <div class="p-4 sm:p-8 max-w-4xl">
     <div class="mb-8">
       <NuxtLink to="/admin" class="text-sm hover:underline" style="color: var(--color-muted);">← Retour</NuxtLink>
       <h1 class="text-2xl font-bold mt-2" style="font-family: var(--font-title);">Nouveau projet</h1>
@@ -39,7 +39,7 @@ async function handleSubmit(payload: Record<string, unknown>) {
       {{ error }}
     </div>
 
-    <div class="p-6 rounded-xl border" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent); background-color: var(--color-surface);">
+    <div class="p-4 sm:p-6 rounded-xl border" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent); background-color: var(--color-surface);">
       <AdminProjectForm :loading="loading" @submit="handleSubmit" />
     </div>
   </div>

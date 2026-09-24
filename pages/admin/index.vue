@@ -86,15 +86,15 @@ onMounted(fetchProjects);
 </script>
 
 <template>
-  <div class="p-8">
-    <div class="flex items-center justify-between mb-8">
+  <div class="p-4 sm:p-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
       <div>
         <h1 class="text-2xl font-bold" style="font-family: var(--font-title);">Projets</h1>
         <p class="text-sm mt-0.5" style="color: var(--color-muted);">
           {{ projects.length }} projet{{ projects.length !== 1 ? 's' : '' }} en base
         </p>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 flex-wrap">
         <template v-if="isAdmin">
           <button
             :disabled="seeding"
@@ -136,7 +136,7 @@ onMounted(fetchProjects);
       <NuxtLink to="/admin/projects/new" style="color: var(--color-accent);">Créer le premier →</NuxtLink>
     </div>
 
-    <div v-else class="rounded-xl border overflow-hidden" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
+    <div v-else class="rounded-xl border overflow-x-auto" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
       <table class="w-full text-sm">
         <thead>
           <tr style="background-color: var(--color-surface);">
