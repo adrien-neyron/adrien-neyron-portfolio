@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useAuth0 } from "@auth0/auth0-vue";
-import { LogOut, LayoutDashboard, PlusCircle, Home, UserCircle, Cpu, Menu, X } from "lucide-vue-next";
+import { LogOut, LayoutDashboard, PlusCircle, Home, UserCircle, Cpu, NotebookPen, Menu, X } from "lucide-vue-next";
 
 const { logout } = useAuth0();
 const route     = useRoute();
@@ -62,6 +62,10 @@ watch(() => route.path, () => { menuOpen.value = false; });
         <NuxtLink to="/admin/projects/new" class="admin-nav-link" active-class="admin-nav-link--active">
           <PlusCircle :size="15" aria-hidden="true" />
           Nouveau projet
+        </NuxtLink>
+        <NuxtLink to="/admin/carnet" class="admin-nav-link" active-class="admin-nav-link--active">
+          <NotebookPen :size="15" aria-hidden="true" />
+          Carnet
         </NuxtLink>
         <NuxtLink to="/admin/profile" class="admin-nav-link" active-class="admin-nav-link--active">
           <UserCircle :size="15" aria-hidden="true" />

@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { ArrowLeft, Mountain, HeartPulse, Gauge } from "lucide-vue-next";
+import { marked } from "marked";
+import { useCarnetStore } from "~/stores/carnet";
 
 const route = useRoute();
 const { categoryClass, categoryIcon } = useCarnetCategory();
 
-const { data: article } = await useAsyncData(route.path, () =>
-  queryCollection("carnet").path(route.path).first()
+const store = useCarnetStore();
+onMounted(() => store.fetchArticles());
+
+const article = computed(() =>
+  store.articles.find((a) => a.slug === route.params.slug)
 );
 
-if (!article.value) {
-  throw createError({ statusCode: 404, statusMessage: "Article introuvable", fatal: true });
-}
+const notFound = computed(() => !store.loading && store.articles.length > 0 && !article.value);
 
 useHead({
   title: computed(() => `${article.value?.title ?? "Article"} | Le Carnet — Adrien Neyron`),
@@ -30,6 +33,14 @@ const dataStats = computed(() => {
     data.heartRate ? { icon: HeartPulse, label: "FC moy.", value: data.heartRate } : null,
     data.pace ? { icon: Gauge, label: "Allure", value: data.pace } : null,
   ].filter((s): s is { icon: typeof Mountain; label: string; value: string } => s !== null);
+});
+
+// Contenu rédigé exclusivement depuis le backoffice (admin authentifié via
+// Auth0, cf. CLAUDE.md) — pas d'entrée utilisateur public ici, d'où le
+// rendu HTML direct du Markdown sans étape de sanitisation supplémentaire.
+const renderedContent = computed(() => {
+  if (!article.value?.content) return "";
+  return marked.parse(article.value.content, { async: false }) as string;
 });
 </script>
 
@@ -96,12 +107,19 @@ const dataStats = computed(() => {
 
       <!-- Contenu -->
       <UiAnimatedSection>
-        <div class="carnet-prose">
-          <ContentRenderer :value="article" />
-        </div>
+        <div class="carnet-prose" v-html="renderedContent" />
       </UiAnimatedSection>
 
     </div>
+  </div>
+
+  <div v-else-if="notFound" class="min-h-screen py-20 px-6 sm:px-12 lg:px-20 text-center">
+    <p class="text-[var(--color-muted)]">Article introuvable.</p>
+    <NuxtLink to="/carnet" style="color: var(--color-accent);">Retour au carnet →</NuxtLink>
+  </div>
+
+  <div v-else class="min-h-screen py-20 px-6 sm:px-12 lg:px-20 text-center text-[var(--color-muted)]">
+    Chargement…
   </div>
 </template>
 

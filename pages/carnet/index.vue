@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { BookOpen, Filter, ChevronRight } from "lucide-vue-next";
+import { useCarnetStore } from "~/stores/carnet";
 
 useHead({ title: "Le Carnet — Trail, Dev & Coulisses | Adrien Neyron" });
 
 const { categoryClass, categoryIcon } = useCarnetCategory();
 
-const { data: articles, pending } = await useAsyncData("carnet-list", () =>
-  queryCollection("carnet").order("date", "DESC").all()
-);
+const store = useCarnetStore();
+onMounted(() => store.fetchArticles());
 
 const categories = ["Tous", "Trail", "Dev", "Coulisses"] as const;
 type CarnetFilter = (typeof categories)[number];
 const activeFilter = ref<CarnetFilter>("Tous");
 
 const filtered = computed(() => {
-  const list = articles.value ?? [];
+  const list = store.articles;
   return activeFilter.value === "Tous"
     ? list
     : list.filter((a) => a.category === activeFilter.value);
@@ -68,7 +68,7 @@ function formatDate(value: string) {
       </UiAnimatedSection>
 
       <!-- Loading -->
-      <div v-if="pending" class="text-center py-20 text-[var(--color-muted)]">
+      <div v-if="store.loading" class="text-center py-20 text-[var(--color-muted)]">
         Chargement du carnet…
       </div>
 
@@ -76,9 +76,9 @@ function formatDate(value: string) {
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <UiAnimatedSection
           v-for="article in filtered"
-          :key="article.path"
+          :key="article.slug"
         >
-          <NuxtLink :to="article.path" class="block h-full">
+          <NuxtLink :to="`/carnet/${article.slug}`" class="block h-full">
             <article class="trail-card group flex flex-col overflow-hidden h-full">
               <div v-if="article.cover" class="relative w-full overflow-hidden bg-[var(--color-surface)]">
                 <NuxtImg
@@ -117,7 +117,7 @@ function formatDate(value: string) {
       </div>
 
       <!-- Empty state -->
-      <div v-if="!pending && filtered.length === 0" class="text-center py-20 text-[var(--color-muted)]">
+      <div v-if="!store.loading && filtered.length === 0" class="text-center py-20 text-[var(--color-muted)]">
         <p class="text-4xl mb-4">📓</p>
         <p class="text-sm">Aucun article dans cette catégorie pour l'instant.</p>
       </div>
