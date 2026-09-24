@@ -127,6 +127,13 @@ p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
 .badge-intermediaire { background-color: #E8A838; color: #fff; }
 .badge-expert       { background-color: #C4622D; color: #fff; }
 
+/* ─── Carnet — pastille catégorie ────────────────────────────
+   Couleurs fixes (indépendantes du mode clair/sombre), comme les badges
+   de difficulté ci-dessus. Voir composables/useCarnetCategory.ts. */
+.badge-carnet-trail     { background-color: #3C5C3A; color: #fff; }
+.badge-carnet-dev       { background-color: #A84E20; color: #fff; }
+.badge-carnet-coulisses { background-color: #4A3F33; color: #fff; }
+
 /* ─── Nav trail marker ───────────────────────────────────── */
 .nav-trail-active {
   color: var(--color-accent);

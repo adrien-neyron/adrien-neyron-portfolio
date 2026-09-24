@@ -50,7 +50,6 @@ Stores in `stores/`, all following the same pattern — fetch the Mongo-backed A
 - `useTextDecrypt` — Letter-by-letter text reveal animation (respects `prefers-reduced-motion`)
 - `usePopupSession` — One-time popup trigger using `sessionStorage`
 - `useSectionTrigger` — IntersectionObserver wrapper for scroll-triggered callbacks
-- `useDifficultyBadge` — Maps a project's `difficulty` value to its display label and CSS class (`components/ui/ProjectCard.vue`, `pages/projects/[id].vue`, `pages/admin/index.vue`). Also accepts the pre-September-2026 values as legacy aliases — see the note below.
 
 ### Backend (Nitro / `server/`)
 
@@ -108,10 +107,3 @@ Components follow WCAG AA / RGAA patterns: semantic HTML, `:focus-visible` style
 - `heroTitle` and `job1`/`job2` feed the homepage hero (`pages/index.vue`): `heroTitle` is split into a `UiTextDecrypt`-animated first word plus an accent-colored remainder (so the H1 stays readable whatever length is typed in the admin), and `job1`/`job2` render as the subtitle lines underneath it.
 - `pages/about.vue`'s tagline uses `label` instead — `job1`/`job2` turned out to be full marketing sentences rather than short titles, so joining them there read as garbled text; `summary` + `about` render in a "Mon histoire" section on that page.
 - `headerSubtitle` is not displayed anywhere at the moment (it was briefly slated for `pages/about.vue`, then dropped as redundant with `label`). The field and its admin input are kept in case it's wanted again later.
-
-### Project difficulty labels (renamed September 2026)
-
-The project `difficulty` field's admin-facing values changed from "Débutant" / "Intermédiaire" / "Expert" to "Apprentissage" / "Side Project" / "Professionnel" — `components/admin/ProjectForm.vue`'s `<select>` now only offers the new three. No database migration was run (the Mongoose schema's `difficulty` field is a plain unconstrained `String`, and the site's own projects were seeded with `difficulty: "Expert"` for all entries):
-- `composables/useDifficultyBadge.ts` maps both old and new values to the current label/CSS class, so any project still holding a pre-rename value keeps displaying correctly everywhere it's shown (`ProjectCard.vue`, `pages/projects/[id].vue`, `pages/admin/index.vue`'s table).
-- `ProjectForm.vue` also runs an existing project's `difficulty` through this mapping when the edit form loads, so the `<select>` shows the correct pre-selected option (not blank) for a legacy value — and simply saving that form migrates the stored value to its new equivalent, with no separate migration script needed.
-- `data/projects.ts` (the static fallback / seed data) was updated directly to the new values, since it's static content under version control rather than live Mongo data.

@@ -136,55 +136,94 @@ onMounted(fetchProjects);
       <NuxtLink to="/admin/projects/new" style="color: var(--color-accent);">Créer le premier →</NuxtLink>
     </div>
 
-    <div v-else class="rounded-xl border overflow-x-auto" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
-      <table class="w-full text-sm">
-        <thead>
-          <tr style="background-color: var(--color-surface);">
-            <th class="text-left px-4 py-3 font-semibold" style="color: var(--color-muted);">Titre</th>
-            <th class="text-left px-4 py-3 font-semibold hidden md:table-cell" style="color: var(--color-muted);">Catégorie</th>
-            <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell" style="color: var(--color-muted);">Difficulté</th>
-            <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell" style="color: var(--color-muted);">Durée</th>
-            <th v-if="isAdmin" class="px-4 py-3" />
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="project in projects"
-            :key="project.id"
-            class="border-t"
-            style="border-color: color-mix(in srgb, var(--color-accent) 10%, transparent);"
-          >
-            <td class="px-4 py-3">
-              <p class="font-medium">{{ project.title }}</p>
-              <p class="text-xs font-mono mt-0.5" style="color: var(--color-muted);">{{ project.slug }}</p>
-            </td>
-            <td class="px-4 py-3 hidden md:table-cell" style="color: var(--color-muted);">{{ project.category }}</td>
-            <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ difficultyLabel(project.difficulty) }}</td>
-            <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ project.duration }}</td>
-            <td v-if="isAdmin" class="px-4 py-3">
-              <div class="flex items-center justify-end gap-2">
-                <NuxtLink
-                  :to="`/admin/projects/${project.id}/edit`"
-                  class="p-1.5 rounded-lg transition hover:opacity-80"
-                  style="color: var(--color-accent);"
-                  title="Modifier"
-                >
-                  <Pencil :size="15" />
-                </NuxtLink>
-                <button
-                  class="p-1.5 rounded-lg transition hover:opacity-80"
-                  style="color: #e53e3e;"
-                  title="Supprimer"
-                  @click="deleteProject(project.id, project.title)"
-                >
-                  <Trash2 :size="15" />
-                </button>
-              </div>
-            </td>
-            <td v-else class="px-4 py-3" />
-          </tr>
-        </tbody>
-      </table>
+    <div v-else>
+      <!-- Mobile : liste de cartes (pas de tableau à scroller horizontalement,
+           le bouton "Modifier" est toujours visible et pris en un seul tap) -->
+      <ul class="space-y-3 md:hidden" role="list">
+        <li
+          v-for="project in projects"
+          :key="project.id"
+          class="rounded-xl border p-4"
+          style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent); background-color: var(--color-surface);"
+        >
+          <p class="font-medium">{{ project.title }}</p>
+          <p class="text-xs font-mono mt-0.5" style="color: var(--color-muted);">{{ project.slug }}</p>
+          <p class="text-xs mt-2" style="color: var(--color-muted);">
+            {{ project.category }} · {{ difficultyLabel(project.difficulty) }} · {{ project.duration }}
+          </p>
+
+          <div v-if="isAdmin" class="flex items-center gap-2 mt-3">
+            <NuxtLink
+              :to="`/admin/projects/${project.id}/edit`"
+              class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:opacity-80"
+              style="border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent); color: var(--color-accent);"
+            >
+              <Pencil :size="15" aria-hidden="true" />
+              Modifier
+            </NuxtLink>
+            <button
+              class="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:opacity-80"
+              style="border: 1px solid color-mix(in srgb, #e53e3e 30%, transparent); color: #e53e3e;"
+              :aria-label="`Supprimer ${project.title}`"
+              @click="deleteProject(project.id, project.title)"
+            >
+              <Trash2 :size="15" aria-hidden="true" />
+            </button>
+          </div>
+        </li>
+      </ul>
+
+      <!-- Desktop : tableau -->
+      <div class="hidden md:block rounded-xl border overflow-x-auto" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
+        <table class="w-full text-sm">
+          <thead>
+            <tr style="background-color: var(--color-surface);">
+              <th class="text-left px-4 py-3 font-semibold" style="color: var(--color-muted);">Titre</th>
+              <th class="text-left px-4 py-3 font-semibold" style="color: var(--color-muted);">Catégorie</th>
+              <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell" style="color: var(--color-muted);">Difficulté</th>
+              <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell" style="color: var(--color-muted);">Durée</th>
+              <th v-if="isAdmin" class="px-4 py-3" />
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="project in projects"
+              :key="project.id"
+              class="border-t"
+              style="border-color: color-mix(in srgb, var(--color-accent) 10%, transparent);"
+            >
+              <td class="px-4 py-3">
+                <p class="font-medium">{{ project.title }}</p>
+                <p class="text-xs font-mono mt-0.5" style="color: var(--color-muted);">{{ project.slug }}</p>
+              </td>
+              <td class="px-4 py-3" style="color: var(--color-muted);">{{ project.category }}</td>
+              <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ difficultyLabel(project.difficulty) }}</td>
+              <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ project.duration }}</td>
+              <td v-if="isAdmin" class="px-4 py-3">
+                <div class="flex items-center justify-end gap-2">
+                  <NuxtLink
+                    :to="`/admin/projects/${project.id}/edit`"
+                    class="p-1.5 rounded-lg transition hover:opacity-80"
+                    style="color: var(--color-accent);"
+                    title="Modifier"
+                  >
+                    <Pencil :size="15" />
+                  </NuxtLink>
+                  <button
+                    class="p-1.5 rounded-lg transition hover:opacity-80"
+                    style="color: #e53e3e;"
+                    title="Supprimer"
+                    @click="deleteProject(project.id, project.title)"
+                  >
+                    <Trash2 :size="15" />
+                  </button>
+                </div>
+              </td>
+              <td v-else class="px-4 py-3" />
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

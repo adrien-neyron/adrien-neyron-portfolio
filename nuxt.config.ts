@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxtjs/color-mode",
     "@nuxt/image",
+    "@nuxt/content",
     "@tresjs/nuxt",
     "@vueuse/motion/nuxt",
   ],
