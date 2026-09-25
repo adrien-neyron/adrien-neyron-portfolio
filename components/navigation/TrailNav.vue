@@ -12,7 +12,7 @@ const navLinks = [
   { path: "/",          label: "Camp de Base",  hoverLabel: "Accueil",   icon: Mountain },
   { path: "/projects",  label: "Sentiers",      hoverLabel: "Projets",   icon: Map },
   { path: "/carnet",    label: "Carnet",        hoverLabel: "Journal",   icon: NotebookPen },
-  { path: "/ai-tools",  label: "Équipement IA", hoverLabel: "Outils",    icon: Cpu },
+  { path: "/ai-tools",  label: "Équipement", hoverLabel: "Outils",    icon: Cpu },
   { path: "/about",     label: "Le Randonneur", hoverLabel: "Mon Parcours",  icon: User },
   { path: "/contact",   label: "Bivouac",       hoverLabel: "Discutons", icon: MessageCircle },
 ];
