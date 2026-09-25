@@ -54,6 +54,26 @@ const filtered = computed(() =>
         </div>
       </UiAnimatedSection>
 
+      <!-- Nouveau : outil trail -->
+      <UiAnimatedSection>
+        <NuxtLink
+          to="/outils/allure-denivele"
+          class="trail-card p-6 mb-10 flex flex-col sm:flex-row gap-6 items-start group"
+        >
+          <span class="text-4xl shrink-0" aria-hidden="true">⛰️</span>
+          <div class="flex-1">
+            <h2 class="font-semibold text-[var(--color-text)] mb-2 flex items-center gap-2">
+              Nouveau — Calculateur d'allure trail (D+/D-)
+              <ArrowRight :size="14" aria-hidden="true" class="group-hover:translate-x-0.5 transition-transform" />
+            </h2>
+            <p class="text-sm text-[var(--color-text)]/70 leading-relaxed">
+              Un outil que j'ai construit pour mes propres sorties : estime ton temps de course en tenant compte du
+              vrai dénivelé du parcours, pas juste d'une allure plate.
+            </p>
+          </div>
+        </NuxtLink>
+      </UiAnimatedSection>
+
       <!-- Filtres -->
       <UiAnimatedSection>
         <div class="flex flex-wrap gap-2 mb-8" role="group" aria-label="Filtrer par catégorie">
