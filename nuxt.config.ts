@@ -30,7 +30,7 @@ export default defineNuxtConfig({
 
   colorMode: {
     classSuffix: "",       // génère class="dark" — compatible Tailwind dark:
-    preference: "light",
+    preference: "system",  // suit le réglage clair/sombre de l'appareil tant que le visiteur n'a rien choisi
     fallback: "light",
     storageKey: "color-mode",
   },

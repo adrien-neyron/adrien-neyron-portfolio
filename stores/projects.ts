@@ -8,6 +8,9 @@ export interface Project {
   tagline?: string;
   role: string;
   description: string;
+  challenge?: string;   // « Passages délicats » sur la fiche projet
+  solution?: string;    // « L'itinéraire choisi »
+  result?: string;      // « Arrivée — résultats »
   technologies: string[];
   image?: { light?: string; dark?: string };
   link?: string;
@@ -28,6 +31,9 @@ const staticFallback: Project[] = staticProjects.map((p) => ({
   tagline: p.tagline,
   role: p.role,
   description: p.description,
+  challenge: p.challenge,
+  solution: p.solution,
+  result: p.result,
   technologies: p.technologies,
   image: p.image,
   link: p.link,

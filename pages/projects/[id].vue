@@ -1,19 +1,26 @@
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight, Clock, ExternalLink, Github } from "lucide-vue-next";
-import { projects } from "~/data/projects";
+import { useProjectsStore } from "~/stores/projects";
 
 const route = useRoute();
 
+// Passe par le store (Mongo + repli statique) : la fiche reflète les
+// modifications faites depuis /admin sans redéploiement.
+const projectsStore = useProjectsStore();
+await projectsStore.fetchProjects();
+
+const slugOf = (p: { slug?: string; _id: string }) => p.slug || p._id;
+
 const project = computed(() =>
-  projects.find((p) => p.id === route.params.id)
+  projectsStore.projects.find((p) => slugOf(p) === route.params.id)
 );
 
 const currentIndex = computed(() =>
-  projects.findIndex((p) => p.id === route.params.id)
+  projectsStore.projects.findIndex((p) => slugOf(p) === route.params.id)
 );
 
 const nextProject = computed(() =>
-  projects[(currentIndex.value + 1) % projects.length]
+  projectsStore.projects[(currentIndex.value + 1) % projectsStore.projects.length]
 );
 
 if (!project.value) {
@@ -72,7 +79,7 @@ const { difficultyLabel, difficultyClass } = useDifficultyBadge();
       <UiAnimatedSection>
         <div class="rounded-2xl overflow-hidden mb-12 border border-[var(--color-accent)]/15">
           <NuxtImg
-            :src="project.image.light || '/projectsoon.png'"
+            :src="project.image?.light || '/projectsoon.png'"
             :alt="project.title"
             width="1200"
             height="600"
@@ -93,7 +100,8 @@ const { difficultyLabel, difficultyClass } = useDifficultyBadge();
             <p class="text-sm text-[var(--color-text)]/80 leading-relaxed">{{ project.solution }}</p>
           </div>
           <div class="trail-card p-6">
-            <h2 class="text-xs font-mono text-[var(--color-highlight)] uppercase tracking-widest mb-3">Le Résultat</h2>
+            <!-- --color-highlight est décoratif (≈ 2:1) : l'accent garantit le contraste AA du titre -->
+            <h2 class="text-xs font-mono text-[var(--color-accent)] uppercase tracking-widest mb-3">Le Résultat</h2>
             <p class="text-sm text-[var(--color-text)]/80 leading-relaxed">{{ project.result }}</p>
           </div>
         </div>
@@ -148,7 +156,8 @@ const { difficultyLabel, difficultyClass } = useDifficultyBadge();
         <div class="border-t border-[var(--color-accent)]/15 pt-10">
           <p class="text-xs font-mono text-[var(--color-muted)] uppercase tracking-widest mb-4">Prochaine étape</p>
           <NuxtLink
-            :to="`/projects/${nextProject.id}`"
+            v-if="nextProject"
+            :to="`/projects/${slugOf(nextProject)}`"
             class="trail-card p-5 flex items-center justify-between group"
           >
             <div>

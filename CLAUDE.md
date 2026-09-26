@@ -88,7 +88,8 @@ Follows the standard Mongo-backed pattern above — **not** Nuxt Content: articl
 - Accent color: `#A84E20` (light) / `#E07840` (dark) — via `--color-accent`
 - Highlight color: `#E8A838` (light) / `#F0C050` (dark) — via `--color-highlight` (decorative use only — not contrast-checked for text, see the comment in `main.css`)
 - `--color-vue` / `--color-nuxt` — tech-stack badge colors used in `components/AppFooter.vue`, darkened in light mode (`#065F46` / `#166534`) to clear 4.5:1 contrast against `--color-bg`; full brand brightness (`#41B883` / `#00C16A`) in dark mode, where contrast against the dark background is already sufficient. Never hardcode the raw Vue/Nuxt brand hexes directly in a template — go through these tokens so contrast stays correct in both modes.
-- Dark mode uses `dark:` prefix (Tailwind), stored in `color-mode` localStorage key via `@nuxtjs/color-mode`
+- Dark mode: `@nuxtjs/color-mode` puts `.dark` on `<html>` (localStorage key `color-mode`, `preference: "system"` → follows the device until the visitor clicks `ThemeToggle`). Tailwind's `dark:` variant is redefined in `main.css` with `@custom-variant` so it follows that class (and `[data-time="night"]` pages) instead of Tailwind 4's default `prefers-color-scheme` media query.
+- Page moment (`data-time` on `<html>`, set in `layouts/default.vue` from the route): `dawn` (/about), `day` (default: /, /projects, /ai-tools, /outils), `golden` (/carnet), `night` (/contact). Only `--color-bg` / `--color-surface` change for dawn/golden (text/accent/muted keep their values, contrast re-checked ≥ 4.5:1 on every bg and surface); `night` swaps to a full dark token set whatever the visitor's mode. When adding a route, add it to `TIME_BY_SECTION`.
 
 ### Static Data (fallbacks only — not the source of truth once Mongo has data)
 
@@ -112,10 +113,23 @@ Components follow WCAG AA / RGAA patterns: semantic HTML, `:focus-visible` style
 - Footer tech badges go through the `--color-vue` / `--color-nuxt` tokens (see Styling above) so their contrast passes WCAG AA / RGAA 3.2 in both color modes instead of using the raw brand hexes directly (those fail ~2:1 against the light background).
 - Audited with Lighthouse (2026-09); fixed as a result: `aria-prohibited-attr` (TextDecrypt), `color-contrast` (footer badges), `document-title` (homepage was missing one), `html-has-lang`.
 
+## Refonte « L'ascension » (branche `feat/ascension`)
+
+Redesign in progress, decided in the claude.ai « Portfolio » project (docs `design/home-ascension.md`, `design/architecture-site.md`, `dev/etape-1-audit-code.md`). Prototypes: 3D home https://claude.ai/artifact/6gugNaV3KuPngLuDh74JVK · inner pages https://claude.ai/artifact/RP2eUZAUKrBVk1VA2ucJQt · Figma https://www.figma.com/design/QYD86pMLGOMrM6IAyrgCkn
+
+- **Concept**: the home is a map with a GPS trace from the summit (Grandes Platières, 2 480 m) to the missions — Paris (DGFiP) then Lyon (Click2SellSite) — ending at the Bivouac (contact). 2D map view at each stop, 3D flight in between. The map is the sitemap: summit → Le Randonneur, stops → Sentiers, viewpoint → Équipement, refuge → Carnet, bivouac → Contact.
+- **Architecture**: "single page" feel, multi-URL. One persistent map scene in the layout (never unmounted); each route moves the camera and the page content slides over it. Keep real URLs for sharing, SEO and RGAA.
+- **Colours**: two independent axes — `data-time` (page moment, narrative) and `.dark` (visitor preference, always wins). Existing fonts kept (DM Serif Display / Inter / JetBrains Mono).
+- **3D**: do NOT use TresJS for the map (see the version conflict in `components/background/AppBackground.vue`); use `three` directly in a client-only component, like the prototype.
+- **Content stays in Mongo + /admin** (no Nuxt Content). Project fiche sections map to existing fields: `challenge` → « Passages délicats », `solution` → « L'itinéraire choisi », `result` → « Arrivée ». Fields to add later: place, coords, elevation profile points, start date.
+- **Steps**: 1. foundations (colour axes, nav « métaphore · libellé », accessible route changes, project page via store) ✅ in progress · 2. Sentiers (index + topo fiche) · 3. Le Randonneur, Bivouac, Équipement · 4. persistent 3D map · 5. Carnet launch (making-of article). Lighthouse + RGAA check at each step.
+- **Accessible route changes** (`layouts/default.vue`): after client navigation, focus moves to the page `h1` (tabindex -1, no visible outline) and « Page : <title> » is announced in an `aria-live` region.
+- **Navigation** (`TrailNav.vue`): metaphor + explicit label always visible (« Sentiers · Projets »), `aria-current` (`page` / `true` for a parent section); desktop nav from `xl`, burger below.
+
 ### Known gaps (not fixed as part of the backoffice work)
 
 - `npm run lint` fails — no `eslint.config.js` in the repo (ESLint v9 expects flat config).
-- `pages/index.vue` imports `data/projects.ts` directly instead of going through `stores/projects.ts`, so the homepage's "Projets récents" section doesn't reflect Mongo edits until redeployed.
+- ~~`pages/projects/[id].vue` read `data/projects.ts` directly~~ — fixed on `feat/ascension`: it now goes through `stores/projects.ts` (slug or `_id`), and `challenge` / `solution` / `result` were added to the store type and fallback.
 
 `job1` / `job2` / `summary` / `about` / `heroTitle` on the `Profile` model are now displayed live:
 - `heroTitle` and `job1`/`job2` feed the homepage hero (`pages/index.vue`): `heroTitle` is split into a `UiTextDecrypt`-animated first word plus an accent-colored remainder (so the H1 stays readable whatever length is typed in the admin), and `job1`/`job2` render as the subtitle lines underneath it.

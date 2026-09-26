@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Les utilitaires `dark:` suivent le mode choisi (classe .dark posée par @nuxtjs/color-mode)
+   et les pages « nuit » (Bivouac), au lieu du réglage système par défaut de Tailwind 4. */
+@custom-variant dark (&:where(.dark, .dark *, [data-time="night"], [data-time="night"] *));
+
 ::-moz-selection { background: var(--color-accent); color: #fafafa; }
 ::selection      { background: var(--color-accent); color: #fafafa; }
 ::-webkit-scrollbar { width: 0px; background: transparent; }
@@ -33,9 +37,33 @@
   --color-nuxt:      #00C16A;  /* vert Nuxt officiel — contraste suffisant sur --color-bg (dark) ✓ WCAG AA */
 }
 
+/* ─── Moment de la page (refonte « L'ascension ») ───────────
+   Deux axes indépendants :
+   - data-time sur <html> = moment de la page (narration), posé par layouts/default.vue :
+     aube (Le Randonneur), jour (Accueil, Sentiers, Équipement), heure dorée (Carnet), nuit (Bivouac)
+   - .dark = préférence Jour / Nuit du visiteur (confort), toujours prioritaire
+   Seuls le fond et la surface changent : texte, accent, secondaire et muted gardent
+   leurs valeurs, contrastes vérifiés AA (≥ 4.5:1) sur chaque fond et chaque surface. */
+html[data-time="dawn"]   { --color-bg: #EEF1EF; --color-surface: #E3E9E6; }
+html[data-time="golden"] { --color-bg: #F7EBD8; --color-surface: #F4E9D8; }
+html.dark[data-time="dawn"]   { --color-bg: #111B20; --color-surface: #18252B; }
+html.dark[data-time="golden"] { --color-bg: #1D1611; --color-surface: #281E16; }
+/* Bivouac : la nuit tombe quel que soit le mode choisi */
+html[data-time="night"] {
+  color-scheme: dark;
+  --color-bg:        #0E1A1F;
+  --color-surface:   #16262C;
+  --color-text:      #F0E8D8;
+  --color-accent:    #E07840;  /* 5.8:1 sur le fond, 5.1:1 sur la surface ✓ */
+  --color-secondary: #7AAD78;
+  --color-highlight: #F0C050;
+  --color-muted:     #A6B3AE;  /* 8.2:1 ✓ */
+  --color-vue:       #41B883;
+  --color-nuxt:      #00C16A;
+}
+
 /* ─── Fond de base ──────────────────────────────────────── */
-html { background-color: #F5F0E8; }
-html.dark { background-color: #1A1410; }
+html { background-color: var(--color-bg); transition: background-color .5s ease; }
 
 /* ─── Background bivouac (CSS pur, zéro hydration mismatch) ─ */
 body::before {
@@ -43,7 +71,7 @@ body::before {
   position: fixed;
   inset: -8%;
   background-image:
-    linear-gradient(rgba(245, 240, 232, 0.72), rgba(245, 240, 232, 0.72)),
+    linear-gradient(color-mix(in srgb, var(--color-bg) 72%, transparent), color-mix(in srgb, var(--color-bg) 72%, transparent)),
     url("/bivouac-light.png");
   background-size: cover;
   background-position: center;
@@ -52,9 +80,10 @@ body::before {
   will-change: transform;
   pointer-events: none;
 }
-html.dark body::before {
+html.dark body::before,
+html[data-time="night"] body::before {
   background-image:
-    linear-gradient(rgba(26, 20, 16, 0.60), rgba(26, 20, 16, 0.60)),
+    linear-gradient(color-mix(in srgb, var(--color-bg) 60%, transparent), color-mix(in srgb, var(--color-bg) 60%, transparent)),
     url("/bivouac.png");
 }
 

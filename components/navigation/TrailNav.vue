@@ -17,11 +17,16 @@ const navLinks = [
   { path: "/contact",   label: "Bivouac",       hoverLabel: "Discutons", icon: MessageCircle },
 ];
 
-const hoveredPath = ref<string | null>(null);
-
 function isActive(path: string) {
   if (path === "/") return route.path === "/";
   return route.path.startsWith(path);
+}
+
+// aria-current : "page" sur la rubrique exacte, "true" sur la rubrique parente
+// (ex. /projects/xxx → « Sentiers »), pour les lecteurs d'écran.
+function ariaCurrent(path: string): "page" | "true" | undefined {
+  if (!isActive(path)) return undefined;
+  return route.path === path ? "page" : "true";
 }
 
 onMounted(() => {
@@ -53,8 +58,9 @@ watch(() => route.path, () => { menuOpen.value = false; });
         </span>
       </NuxtLink>
 
-      <!-- Navigation desktop -->
-      <nav aria-label="Navigation principale" class="hidden md:flex items-center gap-1">
+      <!-- Navigation desktop — métaphore + libellé explicite toujours visibles
+           (refonte « L'ascension » : un recruteur doit comprendre où il va) -->
+      <nav aria-label="Navigation principale" class="hidden xl:flex items-center gap-1">
         <NuxtLink
           v-for="link in navLinks"
           :key="link.path"
@@ -65,16 +71,11 @@ watch(() => route.path, () => { menuOpen.value = false; });
               ? 'text-(--color-accent) bg-(--color-accent)/10 nav-trail-active'
               : 'text-(--color-text)/70 hover:text-(--color-accent) hover:bg-(--color-accent)/5',
           ]"
-          @mouseenter="hoveredPath = link.path"
-          @mouseleave="hoveredPath = null"
+          :aria-current="ariaCurrent(link.path)"
         >
           <component :is="link.icon" :size="13" aria-hidden="true" />
-          <span class="inline-block w-[88px] text-center">
-            <Transition name="nav-label" mode="out-in">
-              <span :key="hoveredPath === link.path ? 'h' : 'd'" class="block">
-                {{ hoveredPath === link.path ? link.hoverLabel : link.label }}
-              </span>
-            </Transition>
+          <span class="whitespace-nowrap">
+            {{ link.label }}<span class="font-normal text-(--color-muted)"> · {{ link.hoverLabel }}</span>
           </span>
         </NuxtLink>
       </nav>
@@ -99,7 +100,7 @@ watch(() => route.path, () => { menuOpen.value = false; });
 
         <!-- Hamburger mobile -->
         <button
-          class="md:hidden p-1.5 rounded-lg hover:bg-(--color-accent)/10 text-(--color-text) transition-colors"
+          class="xl:hidden p-1.5 rounded-lg hover:bg-(--color-accent)/10 text-(--color-text) transition-colors"
           :aria-label="menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'"
           :aria-expanded="menuOpen"
           @click="menuOpen = !menuOpen"
@@ -122,12 +123,13 @@ watch(() => route.path, () => { menuOpen.value = false; });
       <nav
         v-if="menuOpen"
         aria-label="Menu mobile"
-        class="md:hidden bg-(--color-surface) border-t border-(--color-accent)/10 px-4 py-3 flex flex-col gap-1"
+        class="xl:hidden bg-(--color-surface) border-t border-(--color-accent)/10 px-4 py-3 flex flex-col gap-1"
       >
         <NuxtLink
           v-for="link in navLinks"
           :key="link.path"
           :to="link.path"
+          :aria-current="ariaCurrent(link.path)"
           :class="[
             'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all',
             isActive(link.path)
@@ -138,7 +140,7 @@ watch(() => route.path, () => { menuOpen.value = false; });
           <component :is="link.icon" :size="16" aria-hidden="true" />
           <span class="flex flex-col leading-tight">
             <span>{{ link.label }}</span>
-            <span class="text-[10px] font-normal opacity-50">{{ link.hoverLabel }}</span>
+            <span class="text-[11px] font-normal text-(--color-muted)">{{ link.hoverLabel }}</span>
           </span>
         </NuxtLink>
       </nav>
@@ -155,13 +157,4 @@ watch(() => route.path, () => { menuOpen.value = false; });
   </header>
 </template>
 
-<style scoped>
-.nav-label-enter-active,
-.nav-label-leave-active {
-  transition: opacity 0.12s ease;
-}
-.nav-label-enter-from,
-.nav-label-leave-to {
-  opacity: 0;
-}
-</style>
+
