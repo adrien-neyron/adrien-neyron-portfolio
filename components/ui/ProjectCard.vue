@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ExternalLink, Github, Clock, ChevronRight } from "lucide-vue-next";
+import { formatCoords } from "~/utils/trail";
 
 const props = defineProps<{
   title: string;
@@ -18,12 +19,38 @@ const props = defineProps<{
   tagline?: string;
   status?: "En production" | "En cours" | "Case study pro";
   impact?: string;
+  /**
+   * Niveau du titre de la carte, selon la page qui l'affiche (RGAA 9.1 :
+   * pas de niveau sauté). 3 par défaut (home : cartes sous le h2
+   * « Projets réalisés ») ; 2 sur /projects où les cartes sont juste sous le h1.
+   */
+  headingLevel?: 2 | 3;
+  /** lieu et coordonnées de la fiche topo, affichés en étiquette GPS sur la photo */
+  place?: string;
+  coords?: { lat?: number; lon?: number };
+  /** photo d'ambiance : affichée avec le traitement « grain skate » (main.css) */
+  cover?: string;
 }>();
 
+// Photo d'ambiance en priorité, sinon la capture d'écran — toutes passent par le filtre grain.
+const photoSrc = computed(() => props.cover || props.imageUrl || "/projectsoon.png");
+
+const gpsLabel = computed(() => {
+  const c = formatCoords(props.coords);
+  return [props.place, c].filter(Boolean).join(" · ");
+});
+
+const headingTag = computed(() => `h${props.headingLevel ?? 3}`);
+
+// Couleurs du texte assombries (clair) / éclaircies (sombre) pour atteindre
+// ≥ 4.5:1 (RGAA 3.2 / WCAG 1.4.3) sur la pastille teintée, quel que soit le
+// fond de carte (jour, aube, heure dorée, crépuscule, nuit) :
+// clair : vert 5.2:1, jaune 5.2:1, bleu 4.7:1 — sombre : 6.8 / 7.6 / 5.1:1.
+// Les -600 d'origine tombaient à 2.7 / 2.4 / 4.2:1.
 const statusClass: Record<string, string> = {
-  "En production":  "bg-green-500/15 text-green-600 dark:text-green-400",
-  "En cours":       "bg-yellow-500/15 text-yellow-600 dark:text-yellow-400",
-  "Case study pro": "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+  "En production":  "bg-green-500/15 text-green-800 dark:text-green-400",
+  "En cours":       "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400",
+  "Case study pro": "bg-blue-500/15 text-blue-700 dark:text-blue-400",
 };
 
 const { difficultyLabel, difficultyClass } = useDifficultyBadge();
@@ -35,18 +62,25 @@ const { difficultyLabel, difficultyClass } = useDifficultyBadge();
     class="trail-card group flex flex-col overflow-hidden h-full"
   >
     <!-- Image -->
-    <div class="relative w-full overflow-hidden bg-[var(--color-surface)]">
+    <!-- Photo décorative (alt vide, RGAA 1.2) : le titre de la carte porte l'information -->
+    <!-- Filtre « grain skate » sur TOUTES les cartes, quelle que soit la source de
+         l'image (photo admin, Unsplash, défaut, capture ou /projectsoon.png) :
+         la grille reste homogène. Seule la section « Départ » de la fiche garde
+         la capture nette, pour qu'elle reste lisible. -->
+    <div class="grain-photo relative w-full overflow-hidden">
       <NuxtImg
-        :src="imageUrl || '/projectsoon.png'"
-        :alt="title"
+        :src="photoSrc"
+        alt=""
         width="800"
         height="450"
         class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
       />
+      <!-- Étiquette GPS : lieu du sentier (information aussi présente sur la fiche) -->
+      <span v-if="gpsLabel" class="gps-tag absolute bottom-3 left-3">{{ gpsLabel }}</span>
       <!-- Difficulty badge -->
       <span
         v-if="difficulty"
-        :class="['absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full', difficultyClass(difficulty)]"
+        :class="['absolute z-[2] top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full', difficultyClass(difficulty)]"
       >
         {{ difficultyLabel(difficulty) }}
       </span>
@@ -56,7 +90,7 @@ const { difficultyLabel, difficultyClass } = useDifficultyBadge();
     <div class="p-5 flex flex-col gap-3 flex-1">
       <div>
         <div class="flex items-start justify-between gap-2 flex-wrap">
-          <h3 class="font-bold text-[var(--color-text)] text-base leading-snug">{{ title }}</h3>
+          <component :is="headingTag" class="font-bold text-[var(--color-text)] text-base leading-snug">{{ title }}</component>
           <span
             v-if="status"
             :class="['text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0', statusClass[status]]"

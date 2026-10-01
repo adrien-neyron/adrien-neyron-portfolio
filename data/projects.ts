@@ -1,3 +1,5 @@
+import type { Milestone, ProjectStat } from "~/utils/trail";
+
 export interface ProjectData {
   id: string;
   title: string;
@@ -9,6 +11,9 @@ export interface ProjectData {
   result: string;
   technologies: string[];
   image: { light?: string; dark?: string };
+  cover?: string;         // photo d'ambiance « grain skate » (cartes + en-tête de fiche)
+  coverCredit?: string;
+  coverCreditUrl?: string;
   link?: string;
   code?: string;
   difficulty: "Apprentissage" | "Side Project" | "Professionnel";
@@ -16,6 +21,13 @@ export interface ProjectData {
   category: "E-commerce" | "Outil métier" | "LMS" | "IA" | "Automatisation" | "SI";
   status: "En production" | "En cours" | "Case study pro";
   impact?: string;
+  // fiche topo (refonte « L'ascension ») — optionnels
+  place?: string;
+  coords?: { lat: number; lon: number };
+  startDate?: string;
+  profile?: number[];
+  milestones?: Milestone[];
+  stats?: ProjectStat[];
 }
 
 export const projects: ProjectData[] = [
@@ -33,6 +45,10 @@ export const projects: ProjectData[] = [
     result:
       "Remédiation livrée sur la navbar, les accordéons, les onglets, les modales, le breadcrumb, le carrousel, le localisateur de garages et les formulaires. Gate CI automatisé pour prévenir les régressions d'accessibilité, traductions a11y déployées sur 7 langues, et documentation des conventions pour l'équipe.",
     technologies: ["Vue 3", "TypeScript", "RGAA / WCAG 2.1 AA", "Vitest", "ESLint (vuejs-accessibility)", "Husky", "Hooper", "i18n"],
+    // Illustration : Euromaster.ro (site Click2SellSite) + score Lighthouse accessibilité 100
+    cover: "/recentprojects/tyredating-cover.webp",
+    coverCredit: "Capture d'Euromaster.ro (Click2SellSite)",
+    coverCreditUrl: "https://www.euromaster.ro/",
     image: {
       light: "/projectsoon.png",
       dark: "/projectsoon.png",
@@ -42,6 +58,21 @@ export const projects: ProjectData[] = [
     category: "E-commerce",
     status: "Case study pro",
     impact: "RGAA/WCAG 2.1 AA · gate CI a11y · tests Orca · 7 langues",
+    place: "Lyon",
+    coords: { lat: 45.764, lon: 4.836 },
+    startDate: "Mai 2026",
+    profile: [18, 22, 30, 28, 42, 55, 50, 68, 76, 72, 84, 80, 88],
+    milestones: [
+      { label: "Départ", detail: "Base Vue 3 fraîchement migrée" },
+      { label: "Audit", detail: "Composant par composant" },
+      { label: "Remédiation", detail: "Clavier, ARIA, sémantique" },
+      { label: "Garde-fous", detail: "Lint a11y, tests, Orca" },
+    ],
+    stats: [
+      { value: "7", label: "langues pour les libellés d'accessibilité" },
+      { value: "1", label: "annonceur ARIA global, en singleton" },
+      { value: "CI", label: "lint accessibilité bloquant à chaque commit (Husky)" },
+    ],
   },
   {
     id: "coachflow",
@@ -57,6 +88,10 @@ export const projects: ProjectData[] = [
     result:
       "Plateforme déployée et fonctionnelle. Parcours complet de 82 leçons sur 14 semaines. Système de gamification opérationnel. Interface admin pour la gestion des présentations.",
     technologies: ["React 18", "TypeScript", "Vite", "Supabase", "shadcn/ui", "Framer Motion", "React Query", "Tailwind CSS"],
+    // Illustration : accueil SportFlow dans une fenêtre sur fond topo
+    cover: "/recentprojects/coachflow-cover.webp",
+    coverCredit: "Visuel d'accueil de SportFlow",
+    coverCreditUrl: "https://with-coachflow.vercel.app",
     image: {
       light: "/recentprojects/coachflow-hero.png",
       dark: "/recentprojects/coachflow-hero.png",
@@ -83,6 +118,10 @@ export const projects: ProjectData[] = [
     result:
       "Application déployée et opérationnelle. Catalogue synchronisé automatiquement. Liens affiliés actifs.",
     technologies: ["Nuxt 3", "Vue 3", "TypeScript", "Supabase", "PostgreSQL", "Prisma", "Tailwind CSS", "Nitro"],
+    // Illustration : accueil RunMatch dans une fenêtre sur fond topo
+    cover: "/recentprojects/runfit-cover.webp",
+    coverCredit: "Visuel d'accueil de RunMatch",
+    coverCreditUrl: "https://runfit-advisor.vercel.app",
     image: {
       light: "/recentprojects/runfit-hero.webp",
       dark: "/recentprojects/runfit-hero.webp",
@@ -108,6 +147,9 @@ export const projects: ProjectData[] = [
     result:
       "Pipeline opérationnel. Réduction du temps de candidature de 80%. Human-in-the-loop préserve la qualité des candidatures.",
     technologies: ["Make.com", "Claude API", "Playwright", "React", "Airtable", "Node.js", "TypeScript"],
+    cover: "https://images.unsplash.com/photo-1595327656903-2f54e37ce09b?w=1600&q=80&auto=format&fit=crop",
+    coverCredit: "I'M ZION / Unsplash",
+    coverCreditUrl: "https://unsplash.com/photos/rVcxGBT80j8",
     image: { light: "/projectsoon.png", dark: "/projectsoon.png" },
     difficulty: "Professionnel",
     duration: "3 semaines",
@@ -129,11 +171,26 @@ export const projects: ProjectData[] = [
     result:
       "Réduction de 50% du temps de traitement sur les processus ciblés. Application en production depuis 2 ans.",
     technologies: ["Vue.js 3", "TypeScript", "Vuex", "FastAPI", "Python", "GitLab CI/CD", "PostgreSQL"],
+    cover: "https://images.unsplash.com/photo-1680992044138-ce4864c2b962?w=1600&q=80&auto=format&fit=crop",
+    coverCredit: "Tyler / Unsplash",
+    coverCreditUrl: "https://unsplash.com/photos/vSprjjDbu60",
     image: { light: "/recentprojects/dgfip-hero.png", dark: "/recentprojects/dgfip-hero.png" },
     difficulty: "Professionnel",
     duration: "2 ans",
     category: "SI",
     status: "Case study pro",
     impact: "-50% temps de traitement · SI public · 2 ans en prod",
+    place: "Paris",
+    coords: { lat: 48.857, lon: 2.352 },
+    milestones: [
+      { label: "Départ", detail: "Processus manuels" },
+      { label: "Conception", detail: "UX centrée agents" },
+      { label: "Livraison", detail: "CI/CD GitLab" },
+      { label: "Arrivée", detail: "−50 % de temps" },
+    ],
+    stats: [
+      { value: "−50 %", label: "de temps de traitement sur les processus ciblés" },
+      { value: "2 ans", label: "en production dans le SI de la DGFiP" },
+    ],
   },
 ];

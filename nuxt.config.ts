@@ -56,6 +56,9 @@ export default defineNuxtConfig({
     adminEmail:   process.env.ADMIN_EMAIL    ?? "adrien.neyron@gmail.com",
     blobReadWriteToken: process.env.BLOB_READ_WRITE_TOKEN ?? "",
     geminiApiKey: process.env.GEMINI_API_KEY ?? "",
+    // Photos d'ambiance des projets : clé « Access Key » d'une app sur unsplash.com/oauth/applications
+    // (serveur uniquement). Absente → pas de recherche auto, photos par défaut de data/projects.ts.
+    unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY ?? "",
     public: {
       auth0Domain:   process.env.AUTH0_DOMAIN    ?? "",
       auth0ClientId: process.env.AUTH0_CLIENT_ID ?? "",

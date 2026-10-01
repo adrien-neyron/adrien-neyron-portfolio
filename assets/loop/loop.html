@@ -1,0 +1,248 @@
+<a class="skip" href="#main">Aller au contenu</a>
+
+<header class="top">
+  <a class="brand" href="#main" aria-label="L'ascension, retour à la boussole" id="brand">L'ascension</a>
+  <div class="tools-bar" role="group" aria-label="Réglages d'affichage">
+    <button type="button" class="tg" id="tgPause" aria-pressed="false">Pause</button>
+    <button type="button" class="tg" id="tgNight" aria-pressed="false">Mode nuit</button>
+    <button type="button" class="tg" id="tgSoundTop" aria-pressed="false">Son</button>
+    <button type="button" class="tg" id="openSet" aria-haspopup="dialog">Réglages</button>
+  </div>
+  <nav class="rail" aria-label="Plan de la boucle">
+    <ol id="railNav">
+      <li><button type="button" data-p="0.02" data-s="s1"><span class="m">Se repérer</span><span class="l">Accueil</span></button></li>
+      <li><button type="button" data-p="0.19" data-s="s1"><span class="m">S'équiper</span><span class="l">Atelier</span></button></li>
+      <li><button type="button" data-p="0.41" data-s="s2"><span class="m">Monter</span><span class="l">Expériences</span></button></li>
+      <li><button type="button" data-p="0.67" data-s="s3"><span class="m">Persévérer</span><span class="l">À propos et carnet</span></button></li>
+      <li><button type="button" data-p="0.845" data-s="s4"><span class="m">Se poser</span><span class="l">Contact</span></button></li>
+    </ol>
+  </nav>
+</header>
+
+<div id="live" class="sr-only" aria-live="polite"></div>
+
+<main id="main" tabindex="-1">
+<noscript><p style="padding:100px 20px">Ce prototype demande JavaScript pour l'animation au défilement.</p></noscript>
+<div class="stage" id="stage">
+
+  <!-- 1. Boussole + instruments -->
+  <section class="scene s1" id="s1" aria-labelledby="h1">
+    <canvas id="aurora" aria-hidden="true"></canvas>
+    <div class="spot" id="spot" aria-hidden="true"></div>
+    <div class="bigword crew" id="crew" aria-hidden="true"><span class="w">Résilience</span><span class="w">Écoute</span><span class="w">Stabilité</span><span class="w">Curiosité</span><span class="w">Endurance</span><span class="w">Rigueur</span><span class="w">Pédagogie</span><span class="w">Persévérance</span><span class="w">Esprit de cordée</span></div>
+    <p class="sr-only">Mes qualités : résilience (cap fixe face aux bugs), écoute active (collaboration d'équipe), stabilité (gestion de la pression), ouverture d'esprit (curiosité technique), endurance, rigueur, pédagogie, persévérance, esprit de cordée. Expérience : 17 ans dans le sport. Compétences : Vue 3, TypeScript, accessibilité RGAA.</p>
+    <canvas id="compassCanvas" aria-hidden="true"></canvas>
+    <svg id="compassFallback" viewBox="-110 -110 220 220" aria-hidden="true">
+      <circle r="104" fill="#17191C"/><circle r="98" fill="#C98D6E"/><circle r="88" fill="#17191C"/><circle r="80" fill="#050607" stroke="#E6F4F1" stroke-opacity=".4"/>
+      <path d="M0-86 L8-70 L-8-70Z" fill="#E26D3B"/>
+      <text y="-46" text-anchor="middle" font-size="22" font-weight="700" fill="#E26D3B" font-family="Arial,sans-serif">N</text>
+      <text y="8" text-anchor="middle" font-size="26" font-weight="700" fill="#E6F4F1" font-family="Arial,sans-serif">000°</text>
+      <text y="44" text-anchor="middle" font-size="11" fill="#9AA4AB" font-family="Arial,sans-serif">17 ans de sport</text>
+    </svg>
+    <svg id="toolLines" aria-hidden="true"></svg>
+    <svg id="escape" aria-hidden="true"><defs><filter id="escBlur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs><path id="escGlow" filter="url(#escBlur)"/><path id="escLine"/><circle id="escHead" r="7"/></svg>
+    <div class="cpf" id="cpf" aria-hidden="true"><i></i><span>Checkpoint 01 · Km 0</span></div>
+    <div class="tip" id="tip" role="tooltip" aria-hidden="true"><b id="tipT"></b><span id="tipD"></span></div>
+    <div class="head" id="head1">
+      <p class="eyebrow" id="eyebrow1">Se repérer · Km 0</p>
+      <h1 id="h1">Vous avez le cap. Je connais le sentier.</h1>
+      <p class="sub">Adri, développeur front-end. Vue 3, TypeScript, accessibilité. 17 ans de sport avant le code.</p>
+    </div>
+    <div class="head" id="head2" style="opacity:0">
+      <p class="eyebrow">S'équiper · Atelier</p>
+      <h2>Des outils construits pour le terrain</h2>
+    </div>
+    <ul class="tools" id="tools" aria-label="Outils construits"></ul>
+    <div class="loader" id="loader" role="status">
+      <p><span class="sr-only">Chargement en cours. </span><span id="loadLabel">Montée au sommet</span> <span id="pct" aria-hidden="true">0</span><span aria-hidden="true"> m</span></p>
+      <div class="bar"><i id="loadBar"></i></div>
+    </div>
+  </section>
+
+  <!-- 2. Carte -->
+  <section class="scene s2" id="s2" aria-labelledby="h-map">
+    <div id="sky2" aria-hidden="true"></div>
+    <canvas id="parcCanvas" aria-hidden="true"></canvas>
+    <div id="pTags" aria-hidden="true"></div>
+    <nav class="pl-stages plate" aria-label="Étapes du sentier"><ol id="pStageList"></ol></nav>
+    <div class="pl-metrics plate" aria-hidden="true">
+      <p class="ttl" id="pmTtl">Km 0 · Départ</p>
+      <div><b id="pm1">985 m</b><span id="pm1l">Altitude</span></div>
+      <div><b id="pm2">000°</b><span id="pm2l">Cap suivi</span></div>
+      <div><b id="pm3">0 km</b><span id="pm3l">Distance</span></div>
+    </div>
+    <ol class="pl-list" id="pList" aria-label="Projets"></ol>
+    <div class="bigword" aria-hidden="true">Trace</div>
+    <svg id="mapSvg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g id="world">
+      <defs>
+        <radialGradient id="poolGrad"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>
+        <radialGradient id="poolGlow"><stop offset="0" style="stop-color:var(--acc);stop-opacity:.36"/><stop offset="1" style="stop-color:var(--acc);stop-opacity:0"/></radialGradient>
+        <filter id="beamBlur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7"/></filter>
+        <mask id="lightMask" maskUnits="userSpaceOnUse" x="-6000" y="-6000" width="14000" height="14000"><circle id="maskC" cx="0" cy="0" r="200" fill="url(#poolGrad)"/></mask>
+      </defs>
+      <circle id="pool" cx="0" cy="0" r="250" fill="url(#poolGlow)"/>
+      <g id="rings"></g>
+      <g id="ringsLit" mask="url(#lightMask)"></g>
+      <path id="pathBase" class="base" d="M180 560 C 260 470, 400 250, 520 250 C 650 250, 780 470, 900 520 C 960 545, 1030 620, 1080 700"/>
+      <path id="halo" class="halo" d="M180 560 C 260 470, 400 250, 520 250 C 650 250, 780 470, 900 520 C 960 545, 1030 620, 1080 700"/>
+      <path id="beamGlow" class="beam glow" filter="url(#beamBlur)"/>
+      <path id="trace" class="trace" d="M180 560 C 260 470, 400 250, 520 250 C 650 250, 780 470, 900 520 C 960 545, 1030 620, 1080 700"/>
+      <path id="beamCore" class="beam core"/>
+      <g id="mk0" transform="translate(180 560)"><path class="wp" d="M0-16 L15 12 L-15 12Z"/><circle class="wpd" r="3"/></g>
+      <g id="mk1" transform="translate(520 250)"><circle class="wp" r="13"/><circle class="wpd" r="4.5"/></g>
+      <g id="mk2" transform="translate(900 520)"><circle class="wp" r="13"/><circle class="wpd" r="4.5"/></g>
+      <g id="mk3" transform="translate(1080 700)"><circle class="wp" r="9" stroke-dasharray="3 4"/></g>
+      <g id="you"><circle r="16" fill="none" stroke="var(--acc)" stroke-width="2" opacity=".5"/><circle r="8" fill="var(--acc)"/></g>
+    </g>
+    </svg>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="head">
+      <p class="eyebrow">Monter · Expériences</p>
+      <h2 id="h-map">Chaque projet, une étape avec sa preuve</h2>
+    </div>
+    <article class="mcard" id="c0">
+      <p class="eyebrow">Km 0 · Sommet</p>
+      <h3>Grandes Platières</h3>
+      <p class="proof"><b>17 ans</b><span>dans le sport</span></p>
+      <p class="role">Management d'équipes et formation en extérieur : j'y ai appris à écouter et à tenir la cordée. Puis le code.</p>
+      <ul class="stack" aria-label="Domaines"><li>Management</li><li>Formation</li><li>Outdoor</li></ul>
+    </article>
+    <article class="mcard" id="c1">
+      <p class="eyebrow">Étape 01 · Paris</p>
+      <h3>DGFiP</h3>
+      <p class="proof"><b>−50 %</b><span>de temps de traitement</span></p>
+      <p class="role">Application de workflow, du front Vue 3 à l'API FastAPI, déployée en CI/CD.</p>
+      <ul class="stack" aria-label="Technologies"><li>Vue 3</li><li>FastAPI</li><li>PostgreSQL</li><li>GitLab CI/CD</li></ul>
+    </article>
+    <article class="mcard" id="c2">
+      <p class="eyebrow">Étape 02 · Lyon · en cours</p>
+      <h3>Click2SellSite</h3>
+      <p class="proof"><b>7 langues</b><span>de libellés d'accessibilité livrés</span></p>
+      <p class="role">Composants réutilisables, accessibilité RGAA et WCAG, tests avec lecteur d'écran, contrôle à chaque commit.</p>
+      <ul class="stack" aria-label="Technologies"><li>Vue 3</li><li>TypeScript</li><li>SCSS</li><li>Vitest</li></ul>
+    </article>
+  </section>
+
+  <!-- 3. Flaque -->
+  <section class="scene s3" id="s3" aria-labelledby="h-flaque">
+    <div class="bigword" aria-hidden="true">Foulée</div>
+    <canvas id="waterCanvas" aria-hidden="true"></canvas>
+    <div id="mist" aria-hidden="true"></div>
+    <canvas id="shoeCanvas" aria-hidden="true"></canvas>
+    <canvas id="puddleCanvas" aria-hidden="true"></canvas>
+    <button type="button" class="pside" id="sideL" tabindex="-1" aria-hidden="true"></button>
+    <button type="button" class="pside" id="sideR" tabindex="-1" aria-hidden="true"></button>
+    <div class="pwrap">
+      <div class="head">
+        <p class="eyebrow">Persévérer · À propos et carnet</p>
+        <h2 id="h-flaque">Une foulée après l'autre, et le récit de la route</h2>
+        <p class="sub">Posez le pied dans l'eau : à gauche, le profil ; à droite, le carnet de trail.</p>
+      </div>
+      <article class="pcard about" id="pAbout"><h3>Le Randonneur</h3><p>17 ans de sport, puis le code : ce que la cordée m'a appris du travail en équipe.</p><button type="button" class="pbtn" id="btnAbout">Toucher l'eau à gauche <span aria-hidden="true">→</span></button></article>
+      <article class="pcard blog" id="pBlog"><h3>Le Carnet</h3><p>Notes de terrain : trail, matériel et coulisses de ce site. Un espace à part, hors-piste.</p><button type="button" class="pbtn" id="btnBlog">Toucher l'eau à droite <span aria-hidden="true">→</span></button></article>
+    </div>
+  </section>
+
+  <!-- 4. Bivouac -->
+  <section class="scene s4" id="s4" aria-labelledby="h-biv">
+    <div id="sky4" aria-hidden="true"></div>
+    <div class="bigword" aria-hidden="true">Nuit</div>
+    <div class="stars" id="stars" aria-hidden="true"></div>
+    <svg class="tent" id="tent" viewBox="0 0 300 120" aria-hidden="true"><path d="M0 120 L0 104 L96 104 L150 22 L204 104 L300 104 L300 120Z" fill="#121B2B"/></svg>
+    <div class="ball" id="ball" aria-hidden="true"></div>
+    <canvas id="campCanvas" aria-hidden="true"></canvas>
+    <div class="bivtext" id="bivtext">
+      <h2 id="h-biv">Posons le sac.</h2>
+      <p class="lead">Disponible pour de nouveaux projets. Dites-moi où vous voulez aller : je réponds sous 48 h.</p>
+      <div class="cnt-links">
+        <button type="button" class="cnt" data-k="email">E-mail</button>
+        <button type="button" class="cnt" data-k="linkedin">LinkedIn</button>
+        <button type="button" class="cnt" data-k="rdv">Prendre rendez-vous</button>
+      </div>
+      <form class="cnt-form" id="cntForm" novalidate>
+        <label for="cnN">Votre nom</label><input id="cnN" name="nom" autocomplete="name" required>
+        <label for="cnE">Votre e-mail</label><input id="cnE" type="email" name="email" autocomplete="email" required>
+        <label for="cnM">Votre message</label><textarea id="cnM" name="message" rows="3" required></textarea>
+        <button type="submit" class="cnt-send">Envoyer le message</button>
+        <p id="cntStatus" role="status"></p>
+      </form>
+    </div>
+    <button type="button" class="restart" id="restart" aria-label="Recommencer l'aventure : retour à l'accueil">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><g class="rs-tick"><circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="2"/></g><g class="rs-ticks" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M100 4v12M100 184v12M4 100h12M184 100h12" /></g><path d="M58 100c0-16 12-28 26-28 24 0 32 56 58 56 14 0 26-12 26-28s-12-28-26-28c-26 0-34 56-58 56-14 0-26-12-26-28Z" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" transform="translate(-10 0) scale(1.05) translate(-2 0)"/></svg>
+      <span>Recommencer l'aventure</span>
+    </button>
+  </section>
+
+</div>
+</main>
+
+
+<button type="button" class="skipintro" id="skipIntro" aria-label="Passer l'intro et aller à mon profil">Passer l'intro</button>
+
+<footer class="perma">
+  <p class="copy">© 2026 Adrien Neyron · Dev × Trail × Formation</p>
+  <nav aria-label="Pied de page">
+    <a href="/cv-adrien-neyron.pdf" download>CV (PDF)</a>
+    <button type="button" id="ftContact">Contact</button>
+    <button type="button" data-dlg="legal">Mentions légales</button>
+    <button type="button" data-dlg="a11y">Accessibilité</button>
+  </nav>
+</footer>
+
+<dialog id="dlgProfil" class="sheet" aria-labelledby="proT">
+  <div class="sh-head"><div><p class="eyebrow">Persévérer · Profil</p><h2 id="proT">Le Randonneur</h2></div><button type="button" class="sh-x" id="proX">Fermer</button></div>
+  <div class="sh-body">
+    <p class="lead">17 ans de sport, puis le code. Ce que la cordée m'a appris du travail en équipe, je le retrouve dans chaque projet.</p>
+    <ul class="skills">
+      <li><b>Résilience</b><span>Cap fixe face aux bugs.</span></li>
+      <li><b>Écoute active</b><span>Collaboration d'équipe.</span></li>
+      <li><b>Stabilité</b><span>Gestion de la pression.</span></li>
+      <li><b>Ouverture d'esprit</b><span>Curiosité technique.</span></li>
+    </ul>
+    <p class="facts">Développeur front-end : Vue 3, TypeScript, accessibilité RGAA. Missions à la DGFiP (Paris) et sur Click2SellSite (Lyon).</p>
+    <div class="sh-actions"><a class="sh-main" href="/cv-adrien-neyron.pdf" download>Télécharger le CV (PDF)</a><button type="button" class="sh-alt" id="proBack">Revenir au sentier</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlgCarnet" class="sheet" aria-labelledby="carT">
+  <div class="sh-head"><div><p class="eyebrow">Hors-piste · Carnet d'expédition</p><h2 id="carT">Le Carnet</h2><p class="sh-sub">Récits de course, matériel et coulisses. Un territoire à part, avec la même boussole.</p></div>
+    <button type="button" class="compass-btn" id="carBack" aria-label="Retrouver le chemin principal"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M24 8 L29 24 L24 40 L19 24Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M24 8 L29 24 L19 24Z" fill="#E0561B" stroke="none"/></svg></button></div>
+  <div class="sh-body">
+    <div class="sh-filters" role="group" aria-label="Filtrer les articles"><button type="button" aria-pressed="true" data-f="all">Tous</button><button type="button" aria-pressed="false" data-f="course">Récits de course</button><button type="button" aria-pressed="false" data-f="matos">Matériel et outils</button><button type="button" aria-pressed="false" data-f="coulisses">Coulisses</button></div>
+    <p class="sh-note">Articles de lancement proposés (brouillons) : la liste réelle viendra du blog.</p>
+    <ol class="sh-list" id="carList"></ol>
+    <div class="sh-actions"><button type="button" class="sh-main" id="carBack2">← Retrouver le chemin principal</button></div>
+  </div>
+</dialog>
+
+<dialog id="setDlg" aria-labelledby="setT">
+  <button type="button" class="x" id="setX">Fermer</button>
+  <h2 id="setT">Réglages</h2>
+  <div class="setrow"><button type="button" class="tg" id="tgStatic" aria-pressed="false">Vue statique</button><p>Toutes les scènes empilées, sans animation. S'active seule si votre appareil demande moins d'animations.</p></div>
+  <div class="setrow"><button type="button" class="tg" id="tgCharte" aria-pressed="true">Style expédition</button><p>Couleurs franches, grain de pellicule et typographie géante. Désactivé : la version papier, plus sobre.</p></div>
+  <div class="setrow" id="rowHaptic" hidden><button type="button" class="tg" id="tgHaptic" aria-pressed="true">Vibrations</button><p>Un léger tic à chaque foulée, chaque étape et chaque instrument. Sur mobile compatible.</p></div>
+  <div class="setrow" id="rowOrient" hidden><button type="button" class="tg" id="tgOrient" aria-pressed="false">Boussole du téléphone</button><p>L'aiguille suit le vrai nord grâce au capteur de votre téléphone. Demande votre autorisation.</p></div>
+  <div class="setrow"><button type="button" class="tg" id="tgEco" aria-pressed="false">Mode économe</button><p>Allège les effets 3D (résolution, particules, détails) pour rester fluide sur un téléphone ou un ordinateur modeste. S'active seul si la page ralentit.</p></div>
+  <div class="setrow"><button type="button" class="tg" id="tgSound" aria-pressed="false">Son</button><p>Vent, pas, éclaboussures et clic de l'aiguille. Coupé par défaut, jamais lancé sans votre action.</p></div>
+</dialog>
+
+<dialog id="dlg" aria-labelledby="dlgT">
+  <button type="button" class="x" id="dlgX">Fermer</button>
+  <h2 id="dlgT"></h2>
+  <div id="dlgB"></div>
+</dialog>
+
+<div class="bgfx" id="bgfx" aria-hidden="true"><svg class="topo" id="topo" preserveAspectRatio="none"></svg><div class="halos"><i class="h lamp"></i><i class="h moon"></i><i class="h glint"></i></div></div>
+<canvas id="warp" aria-hidden="true"></canvas>
+<div class="tour" id="tour" role="group" aria-label="Parcours guidé">
+  <button type="button" class="tbtn" id="tPause" aria-label="Mettre le parcours en pause" aria-pressed="false" title="Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="tPauseIc" d="M8 5v14M16 5v14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+  <button type="button" class="tbtn" id="tSkip" aria-label="Passer à l'étape suivante" title="Étape suivante"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5l9 7-9 7zM18 5v14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button type="button" class="tbtn" id="tStop" aria-label="Arrêter le parcours et reprendre la main" title="Arrêter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+  <p class="tlbl" id="tourLbl" aria-hidden="true"></p>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="altrail" aria-hidden="true"><i class="ln"></i><i class="tk" style="top:2%"></i><i class="tk" style="top:19%"></i><i class="tk" style="top:41%"></i><i class="tk" style="top:67%"></i><i class="tk" style="top:84.5%"></i><i class="dot" id="railDot"></i></div>
+<div class="hud" id="hud" aria-hidden="true">ALT <b id="alt">2 480</b> m · <span id="mode">Boussole</span><br><span id="live2"></span></div>
+<p class="hint" id="hint" aria-hidden="true"></p>
+<button type="button" class="cta" id="cta" title="Lance un parcours guidé de toute la boucle. Vous pouvez le mettre en pause ou reprendre la main à tout moment."><span class="lg">Commencer l'expédition</span><span class="sm">Commencer</span><span aria-hidden="true"> →</span></button>

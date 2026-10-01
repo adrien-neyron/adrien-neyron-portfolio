@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
-/* Les utilitaires `dark:` suivent le mode choisi (classe .dark posée par @nuxtjs/color-mode)
-   et les pages « nuit » (Bivouac), au lieu du réglage système par défaut de Tailwind 4. */
-@custom-variant dark (&:where(.dark, .dark *, [data-time="night"], [data-time="night"] *));
+/* Les utilitaires `dark:` suivent le mode choisi par le visiteur (classe .dark posée par
+   @nuxtjs/color-mode), au lieu du réglage système par défaut de Tailwind 4. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 ::-moz-selection { background: var(--color-accent); color: #fafafa; }
 ::selection      { background: var(--color-accent); color: #fafafa; }
@@ -41,15 +41,19 @@
    Deux axes indépendants :
    - data-time sur <html> = moment de la page (narration), posé par layouts/default.vue :
      aube (Le Randonneur), jour (Accueil, Sentiers, Équipement), heure dorée (Carnet), nuit (Bivouac)
-   - .dark = préférence Jour / Nuit du visiteur (confort), toujours prioritaire
+   - .dark = préférence Jour / Nuit du visiteur (confort), toujours prioritaire :
+     aucune page n'impose le mode sombre, le bouton fonctionne partout
    Seuls le fond et la surface changent : texte, accent, secondaire et muted gardent
    leurs valeurs, contrastes vérifiés AA (≥ 4.5:1) sur chaque fond et chaque surface. */
 html[data-time="dawn"]   { --color-bg: #EEF1EF; --color-surface: #E3E9E6; }
 html[data-time="golden"] { --color-bg: #F7EBD8; --color-surface: #F4E9D8; }
 html.dark[data-time="dawn"]   { --color-bg: #111B20; --color-surface: #18252B; }
 html.dark[data-time="golden"] { --color-bg: #1D1611; --color-surface: #281E16; }
-/* Bivouac : la nuit tombe quel que soit le mode choisi */
-html[data-time="night"] {
+/* Bivouac en mode jour : crépuscule (fond rosé), contrastes AA vérifiés
+   (accent 4.6:1, muted 5.4:1, texte 12.6:1) */
+html[data-time="night"] { --color-bg: #F3E8E0; --color-surface: #F1E7E1; }
+/* Bivouac en mode nuit : bleu nuit du concept */
+html.dark[data-time="night"] {
   color-scheme: dark;
   --color-bg:        #0E1A1F;
   --color-surface:   #16262C;
@@ -80,8 +84,7 @@ body::before {
   will-change: transform;
   pointer-events: none;
 }
-html.dark body::before,
-html[data-time="night"] body::before {
+html.dark body::before {
   background-image:
     linear-gradient(color-mix(in srgb, var(--color-bg) 60%, transparent), color-mix(in srgb, var(--color-bg) 60%, transparent)),
     url("/bivouac.png");
@@ -145,6 +148,73 @@ p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
 .trail-card:hover {
   box-shadow: 0 8px 32px color-mix(in srgb, var(--color-accent) 15%, transparent);
   transform: translateY(-2px);
+}
+
+/* ─── Signature photo « grain skate » ───────────────────────
+   Les photos d'ambiance des projets (`cover`) sont traitées comme une vidéo
+   de skate tournée en 16 mm : noir et blanc contrasté, vignettage, et un grain
+   de pellicule qui « saute » (6 positions par seconde).
+   Utilisation : un conteneur `.grain-photo` (position relative, overflow
+   hidden) qui contient l'<img>. Le grain et le vignettage sont des
+   pseudo-éléments décoratifs (rien n'est lu par les lecteurs d'écran) posés
+   sous les étiquettes (`.gps-tag`, badges : z-index 2).
+   Valeurs fixes, indépendantes du mode jour/nuit et du moment de la page.
+   Animation coupée si l'utilisateur demande moins d'animations. */
+.grain-photo {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #111;
+}
+.grain-photo img {
+  filter: grayscale(1) contrast(1.5) brightness(0.9);
+}
+.grain-photo::before,
+.grain-photo::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+/* vignettage */
+.grain-photo::before {
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.6) 100%);
+}
+/* grain : bruit SVG en tuile (feTurbulence), 50 % plus grand que la photo
+   pour pouvoir le déplacer sans laisser de bord vide */
+.grain-photo::after {
+  inset: -50%;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='2.6' intercept='-.8'/%3E%3CfeFuncG type='linear' slope='2.6' intercept='-.8'/%3E%3CfeFuncB type='linear' slope='2.6' intercept='-.8'/%3E%3CfeFuncA type='linear' slope='0' intercept='1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: hard-light;
+  opacity: 0.3;
+  animation: film-grain 1s steps(6) infinite;
+}
+@keyframes film-grain {
+  0%   { transform: translate(0, 0); }
+  17%  { transform: translate(-4%, 3%); }
+  33%  { transform: translate(3%, -5%); }
+  50%  { transform: translate(-6%, -2%); }
+  67%  { transform: translate(5%, 4%); }
+  83%  { transform: translate(-2%, 6%); }
+  100% { transform: translate(0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .grain-photo::after { animation: none; }
+}
+
+/* Étiquette GPS posée sur une photo de projet (lieu · coordonnées) */
+.gps-tag {
+  z-index: 2;                                       /* au-dessus du grain */
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #2C2416;                                   /* fixe : 12:1 sur le fond ci-dessous */
+  background: rgba(245, 240, 232, 0.92);
+  border-radius: 4px;
+  padding: 3px 7px;
 }
 
 /* ─── Difficulty badge ───────────────────────────────────────

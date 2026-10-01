@@ -13,6 +13,7 @@
     "@auth0/auth0-vue": "^2.5.0",
     "@emailjs/browser": "^4.4.1",
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@google/genai": "^2.24.0",
     "@nuxt/image": "^1.8.0",
     "@nuxtjs/color-mode": "^3.5.0",
     "@pinia/nuxt": "^0.11.3",
@@ -21,7 +22,6 @@
     "@tresjs/nuxt": "^2.1.0",
     "@vercel/blob": "^2.8.0",
     "@vueuse/core": "^11.0.0",
-    "@google/genai": "^2.24.0",
     "@vueuse/motion": "^2.2.6",
     "jose": "^6.2.1",
     "lucide-vue-next": "^0.454.0",
@@ -32,6 +32,7 @@
     "pinia": "^3.0.4",
     "sweetalert2": "^11.22.0",
     "three": "^0.178.0",
+    "three-r128": "npm:three@^0.128.0",
     "vue": "^3.5.0"
   },
   "devDependencies": {
