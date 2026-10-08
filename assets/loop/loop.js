@@ -90,6 +90,14 @@ const ICONS={
   gpx:'<path d="M5 20c0-5 6-4 6-9s5-3 5-8"/><circle cx="17" cy="4" r="2"/><circle cx="5" cy="20" r="1.5"/>',
   spark:'<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>'
 };
+/* Liens : le site en ligne est la référence (relatif quand on est dessus, absolu ailleurs, par exemple dans le prototype) */
+const SITE=(typeof location!=='undefined'&&/(^|\.)vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname))?'':'https://adrien-neyron-portfolio.vercel.app';
+$$('a[data-site]').forEach(a=>{a.href=SITE+a.dataset.site});   // lien d'administration : l'espace /admin du site
+const PROJECT_LINKS={
+  runfit:[{l:'Ouvrir RunFit Advisor',u:'https://runfit-advisor.vercel.app/'}],
+  coach:[{l:'Ouvrir CoachFlow',u:'https://with-coachflow.vercel.app/'},{l:'Code sur GitHub',u:'https://github.com/adrien-neyron/CoachFlow'}],
+  asc:[{l:'Voir le site en ligne',u:'https://adrien-neyron-portfolio.vercel.app/'},{l:'Code sur GitHub',u:'https://github.com/adrien-neyron/adrien-neyron-portfolio'}]
+};
 const TOOLS=[
   {n:'Calculateur d\'allure',d:'Nouveau · trail avec D+ / D−',i:'chrono',a:30},
   {n:'RunFit Advisor',d:'Chaussures de trail · swipe',i:'shoe',a:85},
@@ -98,11 +106,37 @@ const TOOLS=[
   {n:'CoachFlow',d:'Coaching et formation',i:'pulse',a:275},
   {n:'Analyseur GPX',d:'À venir',i:'gpx',a:330}
 ];
+const TOOL_INFO=[
+  {e:`Atelier · Outil`,st:`Démonstration`,l:`Une allure à plat ne dit presque rien d'une course en montagne. Ce calculateur compte le dénivelé positif (D+) et négatif (D−) pour estimer un temps de passage plus réaliste.`,pts:[`Prend en compte le D+ et le D−, pas seulement la distance.`,`Version de démonstration : la formule définitive reste à brancher.`],k:[`Vue 3`]},
+  {e:`Atelier · Projet personnel`,st:`En ligne`,l:`Une application de recommandation de chaussures de trail, construite autour d'une mécanique de swipe.`,pts:[`Swipe pour comparer les paires et se décider.`,`Modèle économique : affiliation.`,`En ligne et utilisable dès maintenant.`],k:[`Nuxt 3`,`Supabase`],url:`https://runfit-advisor.vercel.app`,ul:`Ouvrir RunFit Advisor`},
+  {e:`Atelier · Méthode`,st:`Au quotidien`,l:`Les outils d'IA que j'intègre à mon travail de développeur, chaque jour.`,pts:[`Assistants de code : Claude Code et GitHub Copilot.`,`Automatisation et intégrations : Make.com et l'API Claude.`],k:[`Claude Code`,`GitHub Copilot`,`Make.com`,`API Claude`]},
+  {e:`Atelier · Automatisation`,st:`Projet personnel`,l:`Un pipeline de candidature assisté par l'IA, pour automatiser les étapes répétitives d'une recherche d'emploi.`,pts:[`Des automatisations construites avec Make.com, l'API Claude, Airtable et Playwright.`,`Né de ma propre recherche : optimisation du CV et prise de contact sur LinkedIn.`],k:[`Make.com`,`API Claude`,`Airtable`,`Playwright`]},
+  {e:`Atelier · Projet personnel`,st:`Projet personnel`,l:`Un outil pour le coaching et la formation, né de mes dix ans de management et de formation avant le code.`,pts:[`Pensé comme une plateforme de formation (LMS) pour accompagner une progression.`],k:[`LMS`,`Formation`]}
+];
+TOOL_INFO[0].links=[{l:'Ouvrir le calculateur',u:SITE+'/outils/allure-denivele'}];
+TOOL_INFO[1].links=PROJECT_LINKS.runfit;
+TOOL_INFO[2].links=[{l:'Voir tous les outils IA',u:SITE+'/ai-tools'}];
+TOOL_INFO[3].note=`Pas de lien public renseigné pour l'instant.`;
+TOOL_INFO[1].t=`RunFit Advisor`;TOOL_INFO[3].t=`Job Search Automator`;TOOL_INFO[4].t=`CoachFlow`;
+TOOL_INFO[4].links=PROJECT_LINKS.coach;
+const PROJECT_INFO={   // fiches de la carte des projets ; liens repris du site en ligne et de ses données
+  stock:{t:`Stockpulse`,e:`Étape 01 · Haute-Savoie · Développeur auto-entrepreneur`,st:`2021–2023`,l:`Une application de gestion du matériel de secours pour les casernes de pompiers : une interface responsive pensée pour le mobile, la tablette et le bureau.`,pts:[`Interface responsive multi-supports (mobile, tablette, desktop).`,`Charte graphique et design système avec Tailwind CSS.`],k:[`PHP`,`Twig`,`Tailwind CSS`],note:`Projet pour une PME locale : pas de lien public.`},
+  hello:{t:`HelloStay`,e:`Étape 02 · Haute-Savoie · Développeur auto-entrepreneur`,st:`2021–2023`,l:`Un CRM de gestion locative qui automatise les entrées et les sorties des locataires et synchronise les calendriers.`,pts:[`Intégration de l'API Igloohome pour automatiser les entrées et les sorties.`,`Synchronisation des calendriers.`],k:[`Vue.js`,`Tailwind CSS`,`API Igloohome`],note:`Projet pour une PME locale : pas de lien public.`},
+  dgfip:{t:`DGFiP`,e:`Étape 03 · Paris · Développeur Front-End`,st:`2023–2025`,l:`Refonte d'une application métier qui automatise les configurations systèmes et réseaux des projets entrants, au sein d'une équipe agile.`,pts:[`Formulaire multi-étapes à état centralisé, versionné via GitLab (historique, diffs), avec configuration YAML pour automatiser le déploiement serveur.`,`Tests automatisés (unitaires et E2E), CI/CD GitLab multi-environnements.`,`Analyse des besoins et rédaction de spécifications techniques.`,`Temps de traitement des configurations réduit de 50 %.`],k:[`TypeScript`,`Vue.js 3`,`Bootstrap`,`Python`,`FastAPI`,`PostgreSQL`,`GitLab`],note:`Outil interne d'une administration : pas de lien public.`},
+  c2s:{t:`Click2SellSite`,e:`Étape 04 · Lyon · Tyredating`,st:`2026 – en cours`,l:`Plateforme de création de sites avec CRM intégré pour garagistes (YepGarage), déployée à l'international pour des filiales de Michelin.`,pts:[`Audit RGAA/WCAG (automatique et manuel) sur 50 pages, score Lighthouse de 90 à 100 %.`,`Anomalies corrigées au niveau des composants transverses réutilisables, propagées sur des centaines de sites clients.`,`Migration de Vue 2 vers Vue 3 et refonte des composants.`,`Convention data-id pour fiabiliser et automatiser les tests QA.`,`Support client et résolution d'incidents sur les CRM métier.`],k:[`Vue.js`,`TypeScript`,`Bootstrap`,`Jenkins`,`MongoDB`,`AWS`,`Java`,`Datadog`],links:[{l:'Voir YepGarage',u:'http://yepgarage.com'}]},
+  runfit:TOOL_INFO[1],
+  coach:TOOL_INFO[4],
+  jsa:TOOL_INFO[3],
+  next:{t:`À déterminer`,e:`Prochaine étape · la suite`,st:`À écrire`,l:`Le tracé s'arrête ici, pour l'instant : la suite du parcours reste à écrire ensemble. Un nouveau projet, une mission, une collaboration.`,pts:[`Un projet à construire avec une équipe qui tient à l'accessibilité et à la qualité.`,`Vue 3 et TypeScript côté interface, des classes Java robustes côté données, le tout administrable en temps réel.`],k:[`Votre projet ?`],links:[{l:'Parlons de la suite',go:'contact'}]},
+  asc:{t:`L'ascension`,e:`Sommet · Ce site`,st:`En ligne`,l:`Le site que vous parcourez : une boucle en 3D, de la boussole au bivouac, pensée pour rester lisible et accessible à tous.`,pts:[`Contenu 100 % HTML pour les lecteurs d'écran, la 3D est un habillage.`,`Pause, vue statique, parcours guidé et navigation au clavier.`],k:[`Nuxt`,`Three.js`,`RGAA`],links:PROJECT_LINKS.asc}
+};
 const STEP=.026;
 const toolsUl=$('#tools'), lines=$('#toolLines');
 const chips=TOOLS.map((t,i)=>{
   const li=document.createElement('li'); li.className='chip';
-  li.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[t.i]}</svg><b>${t.n}</b><span class="d">${t.d}</span>`;
+  const inner=`<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[t.i]}</svg><b>${t.n}</b><span class="d">${t.d}</span>`;
+  if(TOOL_INFO[i])li.innerHTML=`<button type="button" class="cb" aria-haspopup="dialog">${inner}</button>`;   // carte cliquable : ouvre la fiche du projet
+  else{li.className='chip soon';li.innerHTML=inner}   // « À venir » : pas de fiche
   toolsUl.appendChild(li);
   const ln=document.createElementNS('http://www.w3.org/2000/svg','line'); ln.setAttribute('pathLength','1'); lines.appendChild(ln);
   return {li,ln};
@@ -113,7 +147,7 @@ function layoutTools(){
   const mob=isMobile();
   const cy=mob?H*.49:H*.52, cx=W/2;
   const Rs=mob?.375*W:.30*Math.min(W,H);
-  LAY={W,H,cx,cy,Rs};layoutEscape(W,H,cx,cy,mob);
+  LAY={W,H,cx,cy,Rs};
   const sp=$('#spot');sp.style.setProperty('--spx',cx+'px');sp.style.setProperty('--spy',cy+'px');sp.style.setProperty('--spr',(Rs*1.8).toFixed(0)+'px');
   lines.setAttribute('viewBox',`0 0 ${W} ${H}`);
   const rx=Math.min(.36*W,520), ry=.34*H;
@@ -136,7 +170,7 @@ function layoutTools(){
 /* ---------- Aurore boréale et étoiles (shader plein écran, basse résolution) ---------- */
 const auroraCv=$('#aurora');let auroraGL=null,auroraU=null;
 const AUR_FS=`precision highp float;
-uniform vec2 uRes;uniform float uT;
+uniform vec2 uRes;uniform float uT;uniform float uK;uniform float uW;
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
 float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<5;i++){s+=a*vn(p);p=p*2.03+vec2(17.,9.);a*=.5;}return s;}
@@ -165,6 +199,8 @@ void main(){
     aur+=c*prof*mix(.55,1.,rays)*veil*(.2-.05*fi);
   }
   aur*=(1.-smoothstep(.7,.95,uv.y))*smoothstep(.34,.52,uv.y);
+  aur*=uK;   // fondu de l'aurore pendant la plongée
+  aur=mix(aur,vec3(.89,.43,.23)*dot(aur,vec3(.3,.6,.1))*1.5,uW);   // sa lumière vire de l'émeraude au cuivre de la carte
   col+=aur;
   col=1.-exp(-col*1.6);
   gl_FragColor=vec4(col,clamp(max(col.r,max(col.g,col.b)),0.,1.));
@@ -180,7 +216,7 @@ function initAurora(){
   if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){fail();return}
   gl.useProgram(pr);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
   const loc=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-  auroraGL=gl;auroraU={res:gl.getUniformLocation(pr,'uRes'),t:gl.getUniformLocation(pr,'uT')};
+  auroraGL=gl;auroraU={res:gl.getUniformLocation(pr,'uRes'),t:gl.getUniformLocation(pr,'uT'),k:gl.getUniformLocation(pr,'uK'),w:gl.getUniformLocation(pr,'uW')};
 }
 function setCompassQuality(){if(renderer)renderer.setPixelRatio(Math.min(devicePixelRatio,QDPR()))}
 function applyQuality(){
@@ -192,7 +228,8 @@ function sizeAurora(){
   const w=Math.max(2,Math.round(auroraCv.clientWidth*q)),h=Math.max(2,Math.round(auroraCv.clientHeight*q));
   auroraCv.width=w;auroraCv.height=h;if(auroraGL)auroraGL.viewport(0,0,w,h);
 }
-function drawAurora(t){if(!auroraGL)return;auroraGL.uniform2f(auroraU.res,auroraCv.width,auroraCv.height);auroraGL.uniform1f(auroraU.t,t);auroraGL.drawArrays(auroraGL.TRIANGLES,0,3)}
+let auroraK=1,auroraW=0;   // fondu et virage de teinte de l'aurore, pilotés par la position dans la plongée
+function drawAurora(t){if(!auroraGL)return;auroraGL.uniform2f(auroraU.res,auroraCv.width,auroraCv.height);auroraGL.uniform1f(auroraU.t,t);auroraGL.uniform1f(auroraU.k,auroraK);auroraGL.uniform1f(auroraU.w,auroraW);auroraGL.drawArrays(auroraGL.TRIANGLES,0,3)}
 
 /* ---------- Boussole 3D ---------- */
 function webglOK(){try{const c=document.createElement('canvas');return !!(c.getContext('webgl')||c.getContext('experimental-webgl'))}catch(e){return false}}
@@ -386,16 +423,25 @@ function drawReadout(deg,force){
   }
   readTex.needsUpdate=true;
 }
-function makeTopoTex(){   // relief topographique qui remplace les données du cadran pendant la plongée
-  const c=document.createElement('canvas');c.width=c.height=1024;const x=c.getContext('2d');
+function makeTopoTex(){   // relief gravé dans le verre : EXACTEMENT ce que verra la caméra de la carte (mêmes courbes, même grille, même perspective), vu de dessus au départ
+  const I=PARC.topoInfo(),c=document.createElement('canvas');c.width=c.height=1024;const x=c.getContext('2d');
   x.fillStyle='#050607';x.fillRect(0,0,1024,1024);
-  const cell=16,n=Math.ceil(1024/cell)+1;let sd=77;const rnd=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
-  const P=[];for(let i=0;i<7;i++)P.push([rnd()*1024,rnd()*1024,.5+rnd()*.5,110+rnd()*120]);
-  const f=new Float32Array(n*n);
-  for(let j=0;j<n;j++)for(let i=0;i<n;i++){const X=i*cell,Y=j*cell;let h=0;for(const [px,py,a,sg] of P){const dx=(X-px)/1.25,dy=Y-py;h+=a*Math.exp(-(dx*dx+dy*dy)/(2*sg*sg))}f[j*n+i]=h+.05*Math.sin(X/70+1)*Math.sin(Y/60)}
-  for(let li=0;li<22;li++){
-    const L=.07+li*.05,master=li%5===4;x.strokeStyle=master?'rgba(226,109,59,.85)':'rgba(150,200,230,.5)';x.lineWidth=master?2.6:1.4;x.beginPath();
-    marchLevel(f,n,n,cell,L,(x1,y1,x2,y2)=>{x.moveTo(x1,y1);x.lineTo(x2,y2)});x.stroke();
+  const RG=I.rfin/.55,hT=I.kappa*I.rfin,fx=I.hx,fz=I.hz,rx=-I.hz,rz=I.hx;   // la texture couvre RG de rayon ; la plongée en montre 55 % au centre, soit rfin au bord du cadran
+  const mOf=h=>hT/(hT+I.gy0-h);   // grossissement d'un point selon son altitude, vu par la caméra de dessus (les points hauts sont plus proches)
+  const P=(u,v,m)=>[512+m*u/RG*512,512-m*v/RG*512];
+  // grille de la carte : une ligne tous les 14 unités de sol (tracée au niveau moyen du terrain autour du départ)
+  const mg=mOf(I.gy0-8);x.lineWidth=1;x.strokeStyle='rgba(90,140,190,.22)';x.beginPath();
+  const toU=(gx,gz)=>[(gx-I.x0)*rx+(gz-I.z0)*rz,(gx-I.x0)*fx+(gz-I.z0)*fz];
+  for(let m=Math.floor((I.x0-RG*2)/14);m<=Math.ceil((I.x0+RG*2)/14);m++){const a=toU(m*14,I.z0-RG*2),b=toU(m*14,I.z0+RG*2),pa=P(a[0],a[1],mg),pb=P(b[0],b[1],mg);x.moveTo(pa[0],pa[1]);x.lineTo(pb[0],pb[1])}
+  for(let m=Math.floor((I.z0-RG*2)/14);m<=Math.ceil((I.z0+RG*2)/14);m++){const a=toU(I.x0-RG*2,m*14),b=toU(I.x0+RG*2,m*14),pa=P(a[0],a[1],mg),pb=P(b[0],b[1],mg);x.moveTo(pa[0],pa[1]);x.lineTo(pb[0],pb[1])}
+  x.stroke();
+  // courbes de niveau : mêmes altitudes (multiples de cstep) et mêmes courbes maîtresses (tous les 5) que la carte
+  const cg=1.4,n=Math.round(RG*2.6/cg)+1,half=(n-1)*cg/2,f=new Float32Array(n*n);let lo=1e9,hi=-1e9;
+  for(let j=0;j<n;j++)for(let i=0;i<n;i++){const u=i*cg-half,v=half-j*cg,h=I.heightAt(I.x0+rx*u+fx*v,I.z0+rz*u+fz*v);f[j*n+i]=h;if(h<lo)lo=h;if(h>hi)hi=h}
+  for(let k=Math.ceil(lo/I.cstep);k<=Math.floor(hi/I.cstep);k++){
+    const L=k*I.cstep,master=k%5===0,t=Math.max(0,Math.min(1,(L-I.hmin)/(I.hmax-I.hmin))),m=mOf(L);
+    x.strokeStyle=`rgba(${Math.round(199+56*t)},${Math.round(112+66*t)},${Math.round(46+61*t)},${master?.95:.62})`;x.lineWidth=master?2.4:1.3;x.beginPath();
+    marchLevel(f,n,n,cg,L,(x1,y1,x2,y2)=>{const a=P(x1-half,half-y1,m),b=P(x2-half,half-y2,m);x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1])});x.stroke();
   }
   const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;
 }
@@ -479,7 +525,7 @@ function makeNeedle(){
 }
 /* ---------- Décor de l'accueil : sol rocheux, rochers, massif en fil de fer lumineux (cyan à gauche, cuivre à droite) ---------- */
 const FOOT=4.23,PITCH=3.1*Math.PI/180,MNX=110,MNZ=64,MU0=1.35;
-let stand,scenery,sceneryNear,mtnGeo,mtnMat,gndMat,rockMat;const farRocks=[];
+let stand,scenery,sceneryNear,mtnGeo,mtnMat,mtnMesh,nearGeo,nearMat,nearMesh,gndMat,rockMat,shadowMat;const farRocks=[];
 function makeGroundTex(){   // sol rocheux : dalles de pierre (cellules de Voronoï) aux joints sombres, arêtes éclairées
   const N=256,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),im=x.createImageData(N,N);
   let sd=17;const r=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
@@ -494,11 +540,63 @@ function makeGroundTex(){   // sol rocheux : dalles de pierre (cellules de Voron
   x.putImageData(im,0,0);
   const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(90,60);t.anisotropy=4;return t;
 }
-function rockGeom(){
-  const g=new THREE.IcosahedronGeometry(1,1),p=g.attributes.position;
-  for(let i=0;i<p.count;i++){const vx=p.getX(i),vy=p.getY(i),vz=p.getZ(i),h=Math.sin(vx*12.9+vy*78.2+vz*37.7)*43758.5453,n=.8+(h-Math.floor(h))*.35;p.setXYZ(i,vx*n,Math.max(vy*n,-.2),vz*n)}
-  g.computeVertexNormals();return g;
+function makeRockTex(){   // roche volcanique : basalte sombre vésiculaire (trous de gaz), fissures fines, éclats de cristaux ; teinte, relief et rugosité raccordables
+  const N=512,H=new Float32Array(N*N),PT=new Float32Array(N*N);let sd=4321;const r=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
+  const hs=(ix,iy,P)=>{ix=((ix%P)+P)%P;iy=((iy%P)+P)%P;let n=Math.imul(ix,374761393)+Math.imul(iy,668265263)+Math.imul(P,2246822519);n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296};
+  const vn=(x,y,P)=>{const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return(hs(ix,iy,P)*(1-u)+hs(ix+1,iy,P)*u)*(1-v)+(hs(ix,iy+1,P)*(1-u)+hs(ix+1,iy+1,P)*u)*v};
+  const fb=(i,j,base,oc)=>{let a=.5,s=0,k=1;for(let o=0;o<oc;o++){s+=a*vn(i/N*base*k,j/N*base*k,base*k);a*=.5;k*=2}return s};
+  const ss=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
+  for(let k=0;k<700;k++){   // vésicules : petites cuvettes, rares quand elles sont grandes
+    const px=r()*N,py=r()*N,rad=1.4+r()*r()*8,dp=.2+r()*.45;
+    for(let dy=-Math.ceil(rad);dy<=Math.ceil(rad);dy++)for(let dx=-Math.ceil(rad);dx<=Math.ceil(rad);dx++){const d2=dx*dx+dy*dy;if(d2>rad*rad)continue;const x=((Math.floor(px)+dx)%N+N)%N,y=((Math.floor(py)+dy)%N+N)%N;PT[y*N+x]+=dp*(1-d2/(rad*rad))}
+  }
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){
+    const c=Math.abs(fb(i+37,j+11,3,4)-.5),crack=1-ss(0,.03,c);
+    H[j*N+i]=fb(i,j,4,5)*.6+(fb(i+9,j+5,48,2)-.4)*.1-crack*.1-PT[j*N+i]*.7;
+  }
+  const mk=()=>{const c=document.createElement('canvas');c.width=c.height=N;return c},cm=mk(),cb=mk(),cr=mk(),xm=cm.getContext('2d'),xb=cb.getContext('2d'),xr=cr.getContext('2d');
+  const im=xm.createImageData(N,N),ib=xb.createImageData(N,N),ir=xr.createImageData(N,N);
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){
+    const o=j*N+i,g=(x,y)=>H[((y+N)%N)*N+((x+N)%N)],hh=Math.min(1,Math.max(0,H[o]*1.15+.12));
+    const sh=Math.min(1.5,Math.max(.3,.66+3.4*((g(i-1,j)-g(i+1,j))+(g(i,j+1)-g(i,j-1)))*.5));   // ombrage cuit dans la teinte : lumière rasante du haut gauche
+    const grain=.9+.2*vn(i*.9,j*.9,N);
+    let R=(24+36*hh)*sh*grain,G=(26+38*hh)*sh*grain,B=(30+42*hh)*sh*grain;
+    if(r()<.0022){const b=70+r()*80;R+=b*.7;G+=b*.8;B+=b}   // éclats de cristaux
+    const p=o*4;im.data[p]=R;im.data[p+1]=G;im.data[p+2]=B;im.data[p+3]=255;
+    const bv=Math.min(255,Math.max(0,H[o]*255*1.1+40));ib.data[p]=ib.data[p+1]=ib.data[p+2]=bv;ib.data[p+3]=255;
+    const rv=255*(.97+(.78-.97)*Math.min(1,PT[o]*1.4));ir.data[p]=ir.data[p+1]=ir.data[p+2]=rv;ir.data[p+3]=255;
+  }
+  xm.putImageData(im,0,0);xb.putImageData(ib,0,0);xr.putImageData(ir,0,0);
+  const T=c=>{const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;return t};
+  return {map:T(cm),bump:T(cb),rough:T(cr)};
 }
+function rockGeom(seed){   // pierre cassée : sphère irrégulière, base aplatie et enterrée, coupée par des plans de fracture, puis bruit fin ; normales lissées (arêtes usées), occlusion peinte en couleurs de sommets
+  const g=new THREE.SphereGeometry(1,104,68),p=g.attributes.position;
+  let sd=seed*9301+49297;const rnd=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
+  const h3=(x,y,z)=>{const s=Math.sin(x*127.1+y*311.7+z*74.7+seed*13.1)*43758.5453;return s-Math.floor(s)};
+  const n3=(x,y,z)=>{const ix=Math.floor(x),iy=Math.floor(y),iz=Math.floor(z),fx=x-ix,fy=y-iy,fz=z-iz,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy),w=fz*fz*(3-2*fz),L=(a,b,t)=>a+(b-a)*t;
+    return L(L(L(h3(ix,iy,iz),h3(ix+1,iy,iz),u),L(h3(ix,iy+1,iz),h3(ix+1,iy+1,iz),u),v),L(L(h3(ix,iy,iz+1),h3(ix+1,iy,iz+1),u),L(h3(ix,iy+1,iz+1),h3(ix+1,iy+1,iz+1),u),v),w)};
+  const planes=[];for(let k=0;k<16;k++){const a=rnd()*6.283,b=Math.acos(2*rnd()-1);planes.push([Math.sin(b)*Math.cos(a),Math.cos(b)*(k<4?.4:1),Math.sin(b)*Math.sin(a),k<8?.36+rnd()*.3:.62+rnd()*.26])}
+  planes.forEach(q=>{const l=Math.hypot(q[0],q[1],q[2]);q[0]/=l;q[1]/=l;q[2]/=l});
+  const col=new Float32Array(p.count*3),V=new THREE.Vector3();
+  for(let i=0;i<p.count;i++){
+    V.set(p.getX(i),p.getY(i),p.getZ(i));const r0=.9+.22*n3(V.x*1.3+3,V.y*1.3,V.z*1.3);V.multiplyScalar(r0);   // forme générale irrégulière
+    V.y=Math.max(V.y,-.14);V.x*=1.1;
+    for(const q of planes){const t=V.x*q[0]+V.y*q[1]+V.z*q[2];if(t>q[3]){const k=(t-q[3])*.985;V.x-=k*q[0];V.y-=k*q[1];V.z-=k*q[2]}}   // facettes de cassure
+    V.y=Math.max(V.y,-.14);
+    const f=.03*(n3(V.x*6+7,V.y*6,V.z*6)-.5)+.014*(n3(V.x*15,V.y*15+3,V.z*15)-.5);V.addScaledVector(V.clone().normalize(),f);
+    p.setXYZ(i,V.x,V.y,V.z);
+    const ao=.38+.62*Math.min(1,Math.max(0,(V.y+.14)/.62)),tone=.84+.3*n3(V.x*2.2+9,V.y*2.2,V.z*2.2),c=ao*tone;
+    col[i*3]=c;col[i*3+1]=c*1.01;col[i*3+2]=c*1.05;
+  }
+  g.scale(1.5,1.5,1.5);   // les coupes enlèvent de la matière : on regonfle la pierre pour garder la taille voulue
+  g.computeVertexNormals();g.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const nrm=g.attributes.normal,uv=g.attributes.uv;   // projection en boîte : la texture ne s'étire pas sur les pentes
+  for(let i=0;i<p.count;i++){const ax=Math.abs(nrm.getX(i)),ay=Math.abs(nrm.getY(i)),az=Math.abs(nrm.getZ(i)),x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+    if(ay>=ax&&ay>=az)uv.setXY(i,x*1.1,z*1.1);else if(ax>=az)uv.setXY(i,z*1.1,y*1.1);else uv.setXY(i,x*1.1,y*1.1)}
+  return g;
+}
+function makeShadowTex(){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),g=x.createRadialGradient(64,64,6,64,64,64);g.addColorStop(0,'rgba(0,0,0,.78)');g.addColorStop(.45,'rgba(0,0,0,.4)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
 function mtnShape(u,d){   // massif : un sommet principal, des épaules, des crêtes qui s'abaissent vers l'avant
   const e=Math.pow(Math.min(1,d/.85),1.25);
   const P=[[-.08+.06*(d-.5),1,.2],[-.55+.06*(d-.5),.55,.2],[.4+.06*(.5-d),.62,.22],[.9,.4,.25],[-1,.3,.25],[0,.22,.9]];
@@ -531,15 +629,31 @@ function buildMountains(){
   farRocks.forEach(m=>{const {u,dep,w}=m.userData,z=Math.min(20,22-(he/Math.tan(dep*Math.PI/180))/s),half=(22-z)*tn*asp,sx=w*half;   // placés à un angle de sol donné sous l'horizon, donc au premier plan quel que soit l'écran
     m.position.set(u*half,0,z);m.scale.set(sx,sx*.55,sx*.75)});   // taille et position en fraction de la largeur de l'écran
 }
+
+const NNX=110,NNZ=36,NEAR_DEP0=1.9,NEAR_DEP1=6.8;
+function buildNear(){   // nappe de vagues en fil de fer qui passe DEVANT la montre : placée par l'angle de sol sous l'horizon, donc au premier plan quel que soit l'écran
+  if(!nearGeo)return;
+  const {s,he}=sceneryCalc(),asp=cam.aspect,tn=Math.tan(15*Math.PI/180),pos=nearGeo.attributes.position.array,hh=Math.max(he,.35);
+  let k=0;
+  for(let j=0;j<=NNZ;j++){
+    const d=j/NNZ,zd=Math.min(20,22-(hh/Math.tan(lerp(NEAR_DEP0,NEAR_DEP1,d)*Math.PI/180))/s),z=Math.max(zd,lerp(1,3.5,d)),half=(22-z)*tn*asp*1.2;   // jamais derrière le plan de la montre : la nappe passe toujours devant elle
+    for(let i=0;i<=NNX;i++){const u=-1+2*i/NNX;pos[k++]=u*half;pos[k++]=0;pos[k++]=z}
+  }
+  nearGeo.attributes.position.needsUpdate=true;nearGeo.computeBoundingSphere();
+  const A=lerp(1.05,3.1,Math.pow(clamp((asp-.45)/1.15),.8));nearMat.uniforms.uA.value=A;nearMat.uniforms.uHm.value=A*1.1;
+}
 function buildScenery(){
   scenery=new THREE.Group();scene3.add(scenery);sceneryNear=new THREE.Group();scene3.add(sceneryNear);
   const gtx=makeGroundTex();gndMat=new THREE.MeshStandardMaterial({color:0x5A6770,map:gtx,bumpMap:gtx,bumpScale:1.2,roughness:.9,metalness:0,transparent:true});
   const gnd=new THREE.Mesh(new THREE.PlaneGeometry(400,260),gndMat);gnd.rotation.x=-Math.PI/2;gnd.position.set(0,0,-90);scenery.add(gnd);
-  rockMat=new THREE.MeshStandardMaterial({color:0x26324A,roughness:.88,metalness:.05,flatShading:true,transparent:true});
-  const rg=rockGeom();
+  const rtx=makeRockTex();   // gros rochers : pierre cassée à normales lissées, texture de basalte, ombre de contact au sol
+  rockMat=new THREE.MeshStandardMaterial({color:0xffffff,map:rtx.map,bumpMap:rtx.bump,bumpScale:.6,roughnessMap:rtx.rough,roughness:1,metalness:0,vertexColors:true,transparent:true});
+  shadowMat=new THREE.MeshBasicMaterial({map:makeShadowTex(),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+  const RGS=[1,2,3,4].map(rockGeom),shGeo=new THREE.PlaneGeometry(2,2);let ri=0;
+  const mkRock=()=>{const m=new THREE.Mesh(RGS[ri++%RGS.length],rockMat),sh=new THREE.Mesh(shGeo,shadowMat);sh.rotation.x=-Math.PI/2;sh.position.y=-.02;sh.scale.set(1.35,1.35,1);sh.renderOrder=1;m.add(sh);return m};
   // gros rochers au premier plan (à l'échelle de l'écran), cailloux autour du bracelet (à l'échelle de la montre)
-  [[-.9,9.5,.34,.4],[-.42,8,.2,1.2],[.85,10,.3,2.1],[1.02,7,.2,.7],[-1.05,6.5,.26,2.6],[.5,8.5,.14,1.6],[-.75,12,.3,.9],[.72,11.5,.28,2.2],[-.1,13.5,.22,1.9],[.35,6,.12,.5],[-.6,5.5,.12,2.4],[.15,7.5,.16,1.2]].forEach(([u,dep,w,r])=>{const m=new THREE.Mesh(rg,rockMat);m.userData={u,dep,w};m.rotation.y=r;scenery.add(m);farRocks.push(m)});
-  [[2.2,1.4,.5,.3,.4,.5],[-2.4,2.0,.4,.24,.35,1.9],[3.6,-.2,.3,.2,.3,2.7],[-3.8,.4,.55,.32,.45,.2],[.8,2.8,.26,.16,.22,1.1]].forEach(([x,z,a,b,c,r])=>{const m=new THREE.Mesh(rg,rockMat);m.position.set(x,0,z);m.scale.set(a,b,c);m.rotation.y=r;sceneryNear.add(m)});
+  [[-.9,9.5,.34,.4],[-.42,8,.2,1.2],[.85,10,.3,2.1],[1.02,7,.2,.7],[-1.05,6.5,.26,2.6],[.5,8.5,.14,1.6],[-.75,12,.3,.9],[.72,11.5,.28,2.2],[-.1,13.5,.22,1.9],[.35,6,.12,.5],[-.6,5.5,.12,2.4],[.15,7.5,.16,1.2]].forEach(([u,dep,w,r])=>{const m=mkRock();m.userData={u,dep,w};m.rotation.y=r;scenery.add(m);farRocks.push(m)});
+  [[2.2,1.4,.5,.3,.4,.5],[-2.4,2.0,.4,.24,.35,1.9],[3.6,-.2,.3,.2,.3,2.7],[-3.8,.4,.55,.32,.45,.2],[.8,2.8,.26,.16,.22,1.1]].forEach(([x,z,a,b,c,r])=>{const m=mkRock();m.position.set(x,0,z);m.scale.set(a,b,c);m.rotation.y=r;sceneryNear.add(m)});
   // éclairage du décor : rasant, cyan à gauche, cuivre à droite
   const c1=new THREE.PointLight(0x6FC6FF,.8,0);c1.position.set(-16,6,10);scenery.add(c1);
   const c2=new THREE.PointLight(0xE26D3B,.8,0);c2.position.set(16,4,10);scenery.add(c2);
@@ -560,7 +674,31 @@ function buildScenery(){
       'float a=(max(gu,gz)*1.0+cont*0.7)*slope+hn*0.11*smoothstep(0.0,0.2,hn);a*=0.8+0.2*sin(vZ*0.55-uT*1.3);a*=smoothstep(3.0,9.0,vZ)*(1.0-smoothstep(62.0,71.0,vZ));a*=1.0-smoothstep(1.15,1.35,abs(vUv.x));'+
       'col*=0.6+0.8*hn;gl_FragColor=vec4(col,a*uFade*0.62);}'
   });
-  const mtn=new THREE.Mesh(mtnGeo,mtnMat);mtn.frustumCulled=false;mtn.renderOrder=2;scenery.add(mtn);
+  const mtn=new THREE.Mesh(mtnGeo,mtnMat);mtn.frustumCulled=false;mtn.renderOrder=2;scenery.add(mtn);mtnMesh=mtn;
+  // nappe de vagues du premier plan : elle revient devant la montre, en lignes teal qui virent au cuivre sur la droite
+  nearGeo=new THREE.BufferGeometry();
+  {const n=(NNX+1)*(NNZ+1),ud=new Float32Array(n*2),idx=[];let k=0;
+   for(let j=0;j<=NNZ;j++)for(let i=0;i<=NNX;i++){ud[k++]=-1+2*i/NNX;ud[k++]=j/NNZ}
+   for(let j=0;j<NNZ;j++)for(let i=0;i<NNX;i++){const a=j*(NNX+1)+i,b=a+1,c=a+NNX+1,d=c+1;idx.push(a,c,b,b,c,d)}
+   nearGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(n*3),3));nearGeo.setAttribute('aUD',new THREE.BufferAttribute(ud,2));nearGeo.setIndex(idx);}
+  nearMat=new THREE.ShaderMaterial({
+    transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,extensions:{derivatives:true},
+    uniforms:{uT:{value:0},uA:{value:.6},uHm:{value:.7},uFade:{value:1},uCa:{value:new THREE.Color(0x4FE3C1)},uCb:{value:new THREE.Color(0xE26D3B)},uDial:{value:new THREE.Vector3(0,0,1)}},
+    vertexShader:'attribute vec2 aUD;uniform float uT;uniform float uA;varying vec2 vUD;varying float vH;varying vec2 vS;'+
+      'void main(){float u=aUD.x,d=aUD.y;'+
+      'float w=0.55*sin(u*3.1+d*5.0+uT*0.7)+0.35*sin(u*5.3-d*3.0-uT*0.5)+0.2*sin(u*9.0+d*8.0+uT*1.2);w+=0.55*exp(-pow((d-0.52-0.16*sin(u*2.0-uT*0.35))*4.2,2.0))*(0.7+0.3*cos(u*2.6+uT*0.3));'+
+      'float env=smoothstep(1.25,0.7,abs(u))*pow(sin(3.14159*clamp(d,0.0,1.0)),0.8);'+
+      'float h=max(0.0,w+0.2)*uA*env;vH=h;vUD=vec2(u*0.5+0.5,d);'+
+      'vec4 c=projectionMatrix*modelViewMatrix*vec4(position+vec3(0.0,h,0.0),1.0);vS=c.xy/c.w;gl_Position=c;}',
+    fragmentShader:'varying vec2 vUD;varying float vH;varying vec2 vS;uniform vec3 uCa;uniform vec3 uCb;uniform float uHm;uniform float uFade;'+
+      'uniform vec3 uDial;float ln(float v){float w=fwidth(v);return 1.0-min(abs(fract(v-0.5)-0.5)/max(w*1.7,0.0001),1.0);}'+
+      'void main(){float lu=ln(vUD.x*34.0),ld=ln(vUD.y*26.0);float hn=clamp(vH/uHm,0.0,1.0);'+
+      'float a=max(lu,ld)*(0.42+0.78*smoothstep(0.0,0.5,hn))+hn*0.16;'+
+      'a*=smoothstep(0.0,0.12,vUD.y)*(1.0-smoothstep(0.86,1.0,vUD.y));a*=1.0-smoothstep(0.8,1.0,abs(vUD.x*2.0-1.0));'+
+      'a*=smoothstep(-0.97,-0.68,vS.y);vec2 dq=(vS-uDial.xy)*vec2(uDial.z>0.0?1.0:1.0,1.0);a*=1.0-0.78*(1.0-smoothstep(0.82,1.08,length(vec2(dq.x*uDial.z,dq.y))));'+   // pas de lignes sur le pied de page
+      'vec3 col=mix(uCa,uCb,smoothstep(0.55,0.95,vUD.x))*(0.65+0.7*hn);gl_FragColor=vec4(col,a*uFade*0.95);}'
+  });
+  nearMesh=new THREE.Mesh(nearGeo,nearMat);nearMesh.frustumCulled=false;nearMesh.renderOrder=3;scenery.add(nearMesh);
 }
 function sizeThree(){
   sizeAurora();buildTopoBg();sizeWarp();PARC.resize();SHOE.resize();CAMP.resize();
@@ -569,11 +707,12 @@ function sizeThree(){
   renderer.setSize(w,h,false);cam.aspect=w/h;
   vis=3.9*h/LAY.Rs;
   cam.position.set(0,0,vis/(2*Math.tan(THREE.MathUtils.degToRad(15))));cam.rotation.x=PITCH;
-  cam.updateProjectionMatrix();buildMountains();
+  cam.updateProjectionMatrix();buildMountains();buildNear();
   {const D0=cam.position.z,sc0=sceneryCalc().s;scene3.fog.near=D0+30*sc0;scene3.fog.far=D0+225*sc0}   // le sol se fond dans la nuit vers l'horizon
 }
 let nRot=0,nVel=0,lastTool=-1;
-const tiltS={x:0,y:0,vx:0,vy:0};
+const DIAL={r:0,cx:0,cy:0};   // rayon et centre du cadran à l'écran (px CSS), pour caler la carte sur les lignes du verre
+const tiltS={x:0,y:0,vx:0,vy:0};let lastBlinkOn=false;const MAP_LINE=new THREE.Color(0xE26D3B);
 function updateCompass(p,dt){
   if(!THREE_OK)return;
   const tools=p>=.07&&p<.25;
@@ -598,8 +737,12 @@ function updateCompass(p,dt){
   const zi=sm(.2,.30,p),scl=p<.5?lerp(1,4.6,zi):lerp(4.6,1,sm(.95,1,p));
   const sc=sceneryCalc();stand.scale.setScalar(scl);stand.position.y=sc.yD-FOOT*scl;   // le centre du cadran reste fixe pendant le zoom
   scenery.position.y=sceneryNear.position.y=sc.yD-FOOT;scenery.scale.setScalar(sc.s);
-  const fz=p<.5?1-sm(.12,.26,p):sm(.96,1,p);
-  mtnMat.uniforms.uT.value=tNow;mtnMat.uniforms.uFade.value=fz;gndMat.opacity=rockMat.opacity=fz;scenery.visible=sceneryNear.visible=fz>.01;
+  // l'accueil se fond dans la carte : le sol et les rochers s'effacent d'abord, le massif se couche pour devenir le quadrillage de la carte (et prend sa teinte cuivre), l'aurore s'éteint en virant au cuivre
+  const fG=p<.5?1-sm(.10,.24,p):sm(.96,1,p),fM=p<.5?1-sm(.20,.30,p):sm(.96,1,p),kf=p<.5?sm(.10,.28,p):0;
+  mtnMesh.scale.y=lerp(1,.03,kf);
+  if(nearMesh){nearMesh.scale.y=lerp(1,.03,kf);nearMat.uniforms.uFade.value=fM;nearMat.uniforms.uT.value=paused?0:tNow*.4;/* ondulation de la nappe : 2,5 fois plus lente */nearMesh.visible=QC.tier<2&&fM>.01;{const W=LAY.W||1,H=LAY.H||1,r=DIAL.r>5?DIAL.r:LAY.Rs*1.15;nearMat.uniforms.uDial.value.set(((DIAL.r>5?DIAL.cx:LAY.cx)/W)*2-1,1-((DIAL.r>5?DIAL.cy:LAY.cy)/H)*2,(W/H)/((r/H)*2)*(1/ (W/H)))}}   // la nappe du premier plan se couche elle aussi en quadrillage de cartemtnMat.uniforms.uCA.value.setHex(0x8CCFE6).lerp(MAP_LINE,Math.min(1,kf*1.25));
+  auroraK=p<.5?1-.97*sm(.14,.30,p):1;auroraW=p<.5?sm(.12,.26,p):0;
+  mtnMat.uniforms.uT.value=tNow;mtnMat.uniforms.uFade.value=fM;gndMat.opacity=rockMat.opacity=fG;shadowMat.opacity=.85*fG;scenery.visible=sceneryNear.visible=Math.max(fG,fM)>.01;
   const sw=paused?0:1;
   // ressort amorti : le boîtier a du poids, il suit le curseur avec un léger retard et un petit rebond
   {const k=38,c=9,mxv=reduce?0:mx,myv=reduce?0:my;tiltS.vx+=((mxv-tiltS.x)*k-tiltS.vx*c)*dt;tiltS.vy+=((myv-tiltS.y)*k-tiltS.vy*c)*dt;tiltS.x+=tiltS.vx*dt;tiltS.y+=tiltS.vy*dt}
@@ -608,13 +751,17 @@ function updateCompass(p,dt){
   stand.rotation.x=(-.1+Math.sin(tNow*.8)*.03*sw)*face+tiltS.y*.2*face;
   stand.rotation.y=(Math.sin(tNow*.55)*.1*sw*(1-sm(.05,.2,pc)*.7)+tiltS.x*.6+Math.sin(pc*11)*.14)*face;
   // métamorphose : les aiguilles s'effacent, les données du cadran se dilatent en relief topographique
-  const nf=p<.5?1-sm(.15,.21,p):sm(.96,1,p),tf=p<.5?sm(.19,.26,p):1-sm(.96,1,p);
-  needle.children.forEach(m=>{m.material.opacity=nf});needle.visible=nf>.01;needle.scale.setScalar(1+.4*(1-nf));
+  const nf=p<.5?1-sm(.29,.33,p):sm(.96,1,p),tf=p<.5?sm(.19,.26,p):1-sm(.96,1,p);
+  const tw=transW(p),bk=needleBlink(tNow),no=nf*(1-tw*(1-bk));   // pendant la transition, l'aiguille reste visible et clignote : c'est elle qui fait le halo
+  needle.children.forEach(m=>{m.material.opacity=no});needle.visible=no>.01;needle.scale.setScalar(1+.4*(1-nf)+tw*.18*bk);
+  {const on=tw>.2&&bk>.5;if(on&&!lastBlinkOn&&!paused&&!reduce)tickSoft();lastBlinkOn=on}
   roMesh.material.opacity=p<.5?1-sm(.17,.22,p):sm(.96,1,p);
   topoMesh.material.opacity=tf;topoMesh.visible=tf>.01;
   const zz=lerp(1,.55,tf);topoTex.repeat.set(zz,zz);topoTex.offset.set((1-zz)/2,(1-zz)/2);
   // franchissement du verre : clic, souffle, vibration
   const into=p>.21&&p<.5;if(lastInto!==null&&into&&!lastInto){tick();swoosh();haptic([10,40,16])}lastInto=into;
+  {stand.updateMatrixWorld(true);const e=new THREE.Vector3(1.98,0,.053),c0=new THREE.Vector3(0,0,.053);group.localToWorld(e);group.localToWorld(c0);e.project(cam);c0.project(cam);
+   DIAL.r=Math.abs(e.x-c0.x)*LAY.W/2;DIAL.cx=(c0.x*.5+.5)*LAY.W;DIAL.cy=(.5-c0.y*.5)*LAY.H}
   renderer.render(scene3,cam);
   placeHot(p);
 }
@@ -741,7 +888,7 @@ const SHOE=(()=>{
   let renderer,scene,cam,ray,gmat,pair,shoes=[],mirrors=[],pGeo,pPos,pSize,pAl,pMat,inv=[],ok=false,failed=false;
   const pl=new THREE.Plane(new THREE.Vector3(0,1,0),0),RIP=[],PARTS=[],NP=320,RX=4.6,RZ=2.6;
   const ripBuf=new Float32Array(32),prevU=[0,0];
-  const tmpV=new THREE.Vector3();
+  const tmpV=new THREE.Vector3(),tmpQ=new THREE.Quaternion(),lampP=[new THREE.Vector3(0,1.2,0),new THREE.Vector3(0,1.2,0)],lampD=[new THREE.Vector3(1,-.3,0),new THREE.Vector3(1,-.3,0)];let lampL=[];
   let sway={x:0,y:0};
   /* --- textures --- */
   function hexTex(){
@@ -755,78 +902,170 @@ const SHOE=(()=>{
     }
     const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(1/.7,1/.7);t.anisotropy=4;return t;
   }
-  function overlayTex(){   // renforts pare-pierres, talon, liseré orange, boue séchée : dessinés dans l'espace de la chaussure
-    const W=1040,Hh=480,c=document.createElement('canvas');c.width=W;c.height=Hh;const x=c.getContext('2d');
-    const X=u=>(u+2.6)*200,Y=v=>(2.4-v)*200;
-    const path=(pts,close=true)=>{x.beginPath();pts.forEach(([a,b],i)=>i?x.lineTo(X(a),Y(b)):x.moveTo(X(a),Y(b)));if(close)x.closePath()};
-    // pare-pierres (bout)
-    x.beginPath();x.moveTo(X(1.05),Y(.57));x.lineTo(X(2.5),Y(.57));x.bezierCurveTo(X(2.56),Y(.65),X(2.5),Y(.85),X(2.34),Y(1.05));x.bezierCurveTo(X(2.0),Y(1.42),X(1.55),Y(1.6),X(1.05),Y(1.64));x.closePath();
-    x.fillStyle='#14181C';x.fill();x.strokeStyle='rgba(226,109,59,.85)';x.lineWidth=5;x.stroke();
-    x.setLineDash([12,9]);x.strokeStyle='rgba(200,210,220,.5)';x.lineWidth=3;x.beginPath();x.moveTo(X(1.15),Y(.66));x.bezierCurveTo(X(1.5),Y(1.3),X(2.0),Y(1.2),X(2.3),Y(.95));x.stroke();x.setLineDash([]);
-    // contrefort du talon
-    x.beginPath();x.moveTo(X(-2.46),Y(.57));x.bezierCurveTo(X(-2.5),Y(1.2),X(-2.15),Y(1.72),X(-1.68),Y(1.84));x.lineTo(X(-1.4),Y(1.5));x.lineTo(X(-1.55),Y(.57));x.closePath();
-    x.fillStyle='#14181C';x.fill();x.strokeStyle='rgba(226,109,59,.85)';x.lineWidth=5;x.stroke();
-    // bande orange sur le flanc
-    x.strokeStyle='rgba(226,109,59,.95)';x.lineWidth=24;x.lineCap='round';x.beginPath();x.moveTo(X(-1.2),Y(.98));x.bezierCurveTo(X(-.5),Y(1.05),X(.2),Y(1.3),X(.95),Y(1.22));x.stroke();
-    x.strokeStyle='rgba(255,255,255,.55)';x.lineWidth=5;x.beginPath();x.moveTo(X(-1.2),Y(1.08));x.bezierCurveTo(X(-.5),Y(1.15),X(.2),Y(1.4),X(.95),Y(1.32));x.stroke();
-    // boue séchée en bas du flanc
-    let seed=3;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
-    for(let i=0;i<2600;i++){const u=-2.5+rnd()*5,v=rnd()*rnd()*1.0+.56;x.fillStyle='rgba('+(48+rnd()*22|0)+','+(34+rnd()*16|0)+','+(22+rnd()*10|0)+','+(.35+rnd()*.5)+')';x.beginPath();x.arc(X(u),Y(v),1+rnd()*4.2,0,6.283);x.fill()}
-    for(let i=0;i<16;i++){const u=-2+rnd()*4.4,v=.6+rnd()*.35;x.fillStyle='rgba(50,36,24,.7)';x.beginPath();x.ellipse(X(u),Y(v),10+rnd()*26,5+rnd()*9,rnd()*3,0,6.283);x.fill()}
-    const t=new THREE.CanvasTexture(c);t.anisotropy=4;t.repeat.set(1/5.2,1/2.4);t.offset.set(.5,0);return t;
-  }
   function makeEnvS(){
     const mk=(a,b,boxes)=>{const k=document.createElement('canvas');k.width=k.height=64;const x=k.getContext('2d'),g=x.createLinearGradient(0,0,0,64);g.addColorStop(0,a);g.addColorStop(1,b);x.fillStyle=g;x.fillRect(0,0,64,64);(boxes||[]).forEach(([bx,by,bw,bh,col])=>{x.fillStyle=col;x.fillRect(bx,by,bw,bh)});return k};
     const t=new THREE.CubeTexture([mk('#3A2A28','#0A0C10',[[26,0,8,64,'rgba(255,190,140,.7)']]),mk('#1E2A3C','#080A0E',[[15,0,6,64,'rgba(170,200,255,.8)']]),mk('#9FB4D0','#10151C',[[12,14,40,12,'rgba(235,245,255,.95)']]),mk('#050607','#080A0C'),mk('#2A3544','#0A0D12'),mk('#10151C','#05070A')]);
     t.needsUpdate=true;return t;
   }
-  /* --- chaussure --- */
-  const M=(x,y)=>[x/60,-y/60];
+  function evaTex(){   // mousse EVA de semelle : fin grain mat, sans strates
+    const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.fillStyle='#808080';x.fillRect(0,0,128,128);
+    let sd=11;const rn=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
+    for(let k=0;k<2600;k++){const v=rn()>.5?255:0;x.fillStyle='rgba('+v+','+v+','+v+','+(.08+rn()*.14)+')';x.beginPath();x.arc(rn()*128,rn()*128,.5+rn()*1.1,0,6.283);x.fill()}
+    const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(4,4);return t;
+  }
+  /* ====== Chaussure de trail, d'après la Salomon Ultra Glide 4 (photos de référence) ======
+     semelle très épaisse et galbée (rocker avant et talon), tige basse en mesh technique crème, fenêtre de languette alvéolée entre deux bandes d'œillets,
+     lacets fins croisés, languette matelassée au col, col rembourré, sangle de talon, crampons hexagonaux.
+     Couleurs regroupées dans COL : on peut les passer dans la palette du site sans toucher à la géométrie. */
+  function heightNormalTex(cv,str,rx,ry){   // normal map (Sobel) calculée à partir d'une image de relief : blanc = haut
+    const S=cv.width,d=cv.getContext('2d').getImageData(0,0,S,S).data,H=(u,v)=>d[(((v+S)%S)*S+((u+S)%S))*4]/255;
+    const n=document.createElement('canvas');n.width=n.height=S;const nx=n.getContext('2d'),nd=nx.createImageData(S,S);
+    for(let v=0;v<S;v++)for(let u=0;u<S;u++){const dx=(H(u+1,v)-H(u-1,v))*str,dy=(H(u,v+1)-H(u,v-1))*str,l=Math.hypot(dx,dy,1),k=(v*S+u)*4;
+      nd.data[k]=(-dx/l*.5+.5)*255;nd.data[k+1]=(dy/l*.5+.5)*255;nd.data[k+2]=(1/l*.5+.5)*255;nd.data[k+3]=255}
+    nx.putImageData(nd,0,0);const t=new THREE.CanvasTexture(n);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;t.repeat.set(rx,ry);return t;
+  }
+  function weaveCanvases(){   // mesh technique fin : petites alvéoles en quinconce sur un tissage serré (couleur + relief)
+    const S=256,col=document.createElement('canvas'),rel=document.createElement('canvas');col.width=col.height=rel.width=rel.height=S;
+    const c=col.getContext('2d'),r=rel.getContext('2d');c.fillStyle='#E9E0CB';c.fillRect(0,0,S,S);r.fillStyle='#b0b0b0';r.fillRect(0,0,S,S);
+    const p=8;for(let j=0;j<S/p+1;j++)for(let i=0;i<S/p+1;i++){const cx=i*p+(j%2?p/2:0),cy=j*p;
+      c.fillStyle='rgba(160,144,114,.32)';c.beginPath();c.arc(cx,cy,2.1,0,6.283);c.fill();r.fillStyle='#303030';r.beginPath();r.arc(cx,cy,2.3,0,6.283);r.fill();
+      c.strokeStyle='rgba(255,252,240,.35)';c.lineWidth=1;c.beginPath();c.arc(cx,cy,3.2,0,6.283);c.stroke();r.strokeStyle='#f0f0f0';r.lineWidth=1.2;r.beginPath();r.arc(cx,cy,3.3,0,6.283);r.stroke()}
+    return {col,rel};
+  }
+  function honeyCanvases(){   // fenêtre de languette : nid d'abeille ajouré, fond brun-sable
+    const S=256,col=document.createElement('canvas'),rel=document.createElement('canvas');col.width=col.height=rel.width=rel.height=S;
+    const c=col.getContext('2d'),r=rel.getContext('2d');c.fillStyle='#D9C7A3';c.fillRect(0,0,S,S);r.fillStyle='#e0e0e0';r.fillRect(0,0,S,S);
+    const R=11,h=R*Math.sqrt(3);for(let row=-1;row<S/h+1;row++)for(let k=-1;k<S/(1.5*R)+1;k++){const cx=k*1.5*R,cy=row*h+(k%2?h/2:0);
+      for(const [cv,fill,w,st] of [[c,'rgba(96,78,54,.88)',2,'rgba(246,236,212,.55)'],[r,'#202020',2,'#fafafa']]){cv.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i;cv.lineTo(cx+(R-3)*Math.cos(a),cy+(R-3)*Math.sin(a))}cv.closePath();cv.fillStyle=fill;cv.fill();
+        cv.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i;cv.lineTo(cx+(R-1)*Math.cos(a),cy+(R-1)*Math.sin(a))}cv.closePath();cv.strokeStyle=st;cv.lineWidth=w;cv.stroke()}}
+    return {col,rel};
+  }
+  function glyphTex(){   // petit écusson "S" de la languette
+    const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle='#BDBE97';x.beginPath();x.roundRect?x.roundRect(4,4,56,56,12):x.rect(4,4,56,56);x.fill();
+    x.fillStyle='#F2EEDD';x.font='bold 44px Inter,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('S',32,35);return new THREE.CanvasTexture(c);
+  }
+  function overlayTex2(){   // grandes alvéoles hexagonales vert-de-gris sur l'avant-pied (sérigraphie), dessinées dans l'espace de la chaussure
+    const W=1040,Hh=480,c=document.createElement('canvas');c.width=W;c.height=Hh;const x=c.getContext('2d'),X=u=>(u+2.6)*200,Y=v=>(2.4-v)*200;
+    x.strokeStyle='rgba(112,120,90,.55)';x.lineWidth=3;const R=.2,h=R*Math.sqrt(3);
+    for(let k=0;k<7;k++)for(let row=0;row<4;row++){const cx=.2+k*1.5*R,cy=1.0+row*h+(k%2?h/2:0);if(cx>2.1)continue;x.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i;x.lineTo(X(cx+R*.92*Math.cos(a)),Y(cy+R*.92*Math.sin(a)))}x.closePath();x.stroke()}
+    const t=new THREE.CanvasTexture(c);t.anisotropy=4;t.repeat.set(1/5.2,1/2.4);t.offset.set(.5,0);return t;
+  }
   function buildShoe(env){
     const g=new THREE.Group();
-    const up=new THREE.Shape();
-    up.moveTo(...M(-142,-34));up.bezierCurveTo(...M(-146,-72),...M(-126,-100),...M(-100,-106));up.bezierCurveTo(...M(-80,-110),...M(-64,-104),...M(-48,-112));
-    up.bezierCurveTo(...M(-30,-124),...M(-6,-122),...M(10,-104));up.bezierCurveTo(...M(50,-96),...M(110,-84),...M(136,-56));up.bezierCurveTo(...M(146,-46),...M(148,-38),...M(146,-34));up.closePath();
-    const upGeo=new THREE.ExtrudeGeometry(up,{depth:.7,bevelEnabled:true,bevelThickness:.4,bevelSize:.26,bevelSegments:5,curveSegments:14});upGeo.translate(0,0,-.35);
-    const hex=hexTex(),ovl=overlayTex();
-    const upper=new THREE.Mesh(upGeo,[new THREE.MeshStandardMaterial({map:hex,bumpMap:hex,bumpScale:.6,roughness:.72,metalness:.05,envMap:env,envMapIntensity:.6}),new THREE.MeshStandardMaterial({color:0x27384A,roughness:.72,metalness:.05})]);
-    g.add(upper);
-    const over=new THREE.Mesh(upGeo,[new THREE.MeshStandardMaterial({map:ovl,transparent:true,roughness:.85,metalness:0,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,depthWrite:false}),new THREE.MeshBasicMaterial({visible:false})]);
-    g.add(over);
-    const ms=new THREE.Shape();
-    ms.moveTo(...M(-146,-34));ms.lineTo(...M(148,-34));ms.quadraticCurveTo(...M(158,-20),...M(146,-6));ms.lineTo(...M(-140,-6));ms.quadraticCurveTo(...M(-154,-20),...M(-146,-34));
-    const msGeo=new THREE.ExtrudeGeometry(ms,{depth:1.5,bevelEnabled:true,bevelThickness:.12,bevelSize:.1,bevelSegments:3,curveSegments:8});msGeo.translate(0,0,-.75);
-    g.add(new THREE.Mesh(msGeo,new THREE.MeshStandardMaterial({color:0xE8E2D4,roughness:.55,metalness:0,envMap:env,envMapIntensity:.5})));
-    const os=new THREE.Shape(),ox0=-2.4,ox1=2.45;
-    os.moveTo(ox0+.2,0);os.lineTo(ox1-.2,0);os.quadraticCurveTo(ox1,0,ox1,.12);os.lineTo(ox0,.12);os.quadraticCurveTo(ox0,0,ox0+.2,0);
-    const osGeo=new THREE.ExtrudeGeometry(os,{depth:1.25,bevelEnabled:true,bevelThickness:.05,bevelSize:.05,bevelSegments:2,curveSegments:6});osGeo.translate(0,0,-.625);
-    const rub=new THREE.MeshStandardMaterial({color:0x14181C,roughness:.92,metalness:0});
-    g.add(new THREE.Mesh(osGeo,rub));
-    // crampons de la semelle
-    const lugGeo=new THREE.BoxGeometry(.2,.17,.3),lugs=new THREE.InstancedMesh(lugGeo,rub,48),d=new THREE.Object3D();let n=0;
-    for(let i=0;i<16;i++){const x=-2.25+i*.305;[-.47,0,.47].forEach((z,j)=>{if(n>=48)return;d.position.set(x+(j===1?.15:0),-.03,z);d.rotation.set(0,(j-1)*.25,0);d.updateMatrix();lugs.setMatrixAt(n++,d.matrix)})}
+    const sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
+    const XN=-2.46,XP=2.47,PW=.62,NXs=96,NT=30;
+    const COL={upper:0xC9CFD0,mesh:0xBFC0B0,mid:0xBDBFBA,out:0x16304F,collar:0xDCD2BC,lace:0x4B4B30,inside:0x1C1712};
+    /* --- profils (unités de la scène : 4,9 de long, y vers le haut, bout vers +x) --- */
+    const rockF=x=>{const a=sm(.7,2.45,x),b=sm(-1.7,-2.45,x);return .38*a*a+.3*b*b};   // dessous en banane : pointe et talon relevés
+    const botM=x=>.13+rockF(x),thk=x=>.60+.06*sm(-1.2,1.2,x)-.05*sm(1.9,2.47,x),topM=x=>botM(x)+thk(x)*(.35+.65*endF(x));   // mousse très épaisse (35 mm talon, 41 mm avant-pied)
+    const Hh=x=>1.1*(.95-.15*sm(-2.05,-1.4,x)-.02*sm(-1.4,-.5,x)-.2*sm(-.5,1.3,x)-.13*sm(1.3,2.3,x)-.06*sm(2.2,2.47,x));   // hauteur de la tige au-dessus de la mousse : basse, col haut au talon
+    const Wx=x=>{let w=.56+.06*sm(-2.4,-1.6,x)+.11*sm(-.3,1.0,x)-.03*Math.exp(-Math.pow((x+.3)/.6,2));
+      if(x>1.6){const q=(x-1.6)/(XP-1.6);w*=Math.pow(Math.max(.03,1-Math.pow(q,1.9)),.6)}
+      if(x<-2.1){const q=(-2.1-x)/.36;w*=Math.sqrt(Math.max(.04,1-q*q))}return w};
+    const WS=x=>{let w=.74+.07*sm(-2.4,-1.6,x)+.1*sm(-.4,1.0,x)-.04*Math.exp(-Math.pow((x+.2)/.6,2));
+      if(x>1.7){const q=(x-1.7)/.77;w*=Math.pow(Math.max(.03,1-Math.pow(q,1.45)),.85)}
+      if(x<-2.12){const q=(-2.12-x)/.34;w*=Math.sqrt(Math.max(.03,1-q*q))}return w};
+    const endF=x=>Math.min(1,Math.sqrt(Math.max(0,(x+2.46)/.3)),Math.sqrt(Math.max(0,(2.47-x)/.3)));
+    const tipF=x=>Math.min(1,.62+.38*Math.sqrt(Math.max(0,(XP+.01-x)/.45)),.62+.38*Math.sqrt(Math.max(0,(x-XN+.01)/.35)));   // la tige se ferme en pointe au bout et au talon
+    const sec=(x,t)=>{const c=Math.cos(t),s=Math.sin(t);return [x,topM(x)-.09*(1-.5*endF(x))+Hh(x)*tipF(x)*Math.pow(Math.abs(s),PW),-Wx(x)*Math.sign(c)*Math.pow(Math.abs(c),PW)]};
+    const ysf=(x,z)=>{const W=Wx(x),q=Math.min(.995,Math.pow(Math.abs(z)/W,1/PW));return topM(x)-.09*(1-.5*endF(x))+Hh(x)*tipF(x)*Math.pow(Math.sqrt(1-q*q),PW)};
+    const P=(x,z,o)=>new THREE.Vector3(x,ysf(x,z)+(o||0),z);
+    /* --- tige : coupes transversales, col ouvert, bout arrondi ; ombre peinte (couleur des sommets) au raccord avec la semelle --- */
+    const loft=planar=>{
+      const pos=[],uv=[],idx=[],cl=[],ro=NT+1;
+      for(let i=0;i<=NXs;i++){const x=XN+(XP-XN)*i/NXs;let arc=0,prev=null;
+        for(let j=0;j<=NT;j++){const p=sec(x,Math.PI*j/NT);pos.push(p[0],p[1],p[2]);if(prev)arc+=Math.hypot(p[1]-prev[1],p[2]-prev[2]);prev=p;uv.push(planar?p[0]:x*1.1,planar?p[1]:arc*1.1);
+          const f=(p[1]-topM(x))/Math.max(.2,Hh(x)),a=.58+.42*sm(0,.34,f);cl.push(a,a,a)}}
+      for(let i=0;i<NXs;i++){const xm=XN+(XP-XN)*(i+.5)/NXs;for(let j=0;j<NT;j++){
+        if(xm>-2.05&&xm<-.5&&j>=6&&j<NT-6)continue;
+        const a=i*ro+j,b=a+1,c=a+ro,d=c+1;idx.push(a,b,c,b,d,c)}}
+      const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));geo.setIndex(idx);geo.computeVertexNormals();return geo};
+    const WV=weaveCanvases(),wTex=new THREE.CanvasTexture(WV.col);wTex.wrapS=wTex.wrapT=THREE.RepeatWrapping;wTex.anisotropy=4;wTex.repeat.set(1,1);
+    const upperMat=new THREE.MeshStandardMaterial({map:wTex,normalMap:heightNormalTex(WV.rel,1.4,1,1),normalScale:new THREE.Vector2(.22,.22),vertexColors:true,color:COL.upper,roughness:.82,metalness:0,envMap:env,envMapIntensity:.55});
+    g.add(new THREE.Mesh(loft(false),upperMat));
+    g.add(new THREE.Mesh(loft(false),new THREE.MeshStandardMaterial({color:COL.inside,roughness:1,metalness:0,side:THREE.BackSide})));   // intérieur du col
+    g.add(new THREE.Mesh(loft(true),new THREE.MeshStandardMaterial({map:overlayTex2(),transparent:true,roughness:.85,metalness:0,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,depthWrite:false})));   // sérigraphie hexagonale
+    const surf=(x,t,off)=>{const p=sec(x,t),yc=topM(x)+Hh(x)*.32,v=new THREE.Vector3(0,p[1]-yc,p[2]);v.normalize();return new THREE.Vector3(p[0],p[1],p[2]).addScaledVector(v,off||0)};
+    /* --- fenêtre de languette en nid d'abeille entre deux bandes d'œillets, lacets fins croisés --- */
+    const WX0=-.05,WX1=1.38,pa=x=>{const u=(x-WX0)/(WX1-WX0);return .36*(1-.3*u)*Math.pow(Math.max(0,1-Math.pow(u,6)),.5)};
+    {
+      const HC=honeyCanvases(),hT=new THREE.CanvasTexture(HC.col);hT.wrapS=hT.wrapT=THREE.RepeatWrapping;hT.anisotropy=4;
+      const NX=40,NZ=12,pos=[],uv=[],idx=[];
+      for(let i=0;i<=NX;i++){const x=WX0+(WX1-WX0)*i/NX,a=Math.max(.002,pa(x));for(let j=0;j<=NZ;j++){const z=a*(2*j/NZ-1);const p=P(x,z,.014-.02*Math.pow(Math.abs(z)/a,2));pos.push(p.x,p.y,p.z);uv.push(x*2.2,z*2.2)}}
+      for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){const q=i*(NZ+1)+j;idx.push(q,q+1,q+NZ+1,q+1,q+NZ+2,q+NZ+1)}
+      const wg=new THREE.BufferGeometry();wg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));wg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));wg.setIndex(idx);wg.computeVertexNormals();
+      g.add(new THREE.Mesh(wg,new THREE.MeshStandardMaterial({map:hT,normalMap:heightNormalTex(HC.rel,3,2.2*0+1,1),normalScale:new THREE.Vector2(1,1),color:0xffffff,roughness:.9,metalness:0,side:THREE.DoubleSide})));
+      const bandMat=new THREE.MeshStandardMaterial({color:COL.upper,roughness:.8,metalness:0,envMap:env,envMapIntensity:.5}),laceMat=new THREE.MeshStandardMaterial({color:COL.lace,roughness:.55,metalness:0,envMap:env,envMapIntensity:.4});
+      [-1,1].forEach(sd=>{   // bandes d'œillets (tube aplati) + anneaux de passage
+        const pts=[];for(let i=0;i<=30;i++){const x=WX0-.04+(WX1-WX0+.04)*i/30;pts.push(P(x,sd*(pa(Math.min(x,WX1-.2))+.09),.03))}
+        const m=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),60,.05,8,false),bandMat);g.add(m)});
+      const NL=5,xs=i=>.06+i*.29,ez=x=>pa(x)+.1;
+      for(let i=0;i<NL;i++)[-1,1].forEach(sd=>{const m=new THREE.Mesh(new THREE.TorusGeometry(.05,.016,6,12),laceMat);m.position.copy(P(xs(i),sd*ez(xs(i)),.075));m.rotation.x=Math.PI/2;g.add(m)});
+      for(let i=0;i<NL-1;i++)[[-1,1],[1,-1]].forEach(([a,b])=>{const pts=[];for(let k=0;k<=14;k++){const w=k/14,x=xs(i)+(xs(i+1)-xs(i))*w,z=(a*ez(xs(i))*(1-w)+b*ez(xs(i+1))*w);pts.push(P(x,z,.07+.025*Math.sin(Math.PI*w)))}
+        g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),28,.019,8,false),laceMat))});
+      {   // brins du haut : passent dans le dernier anneau puis retombent sur la languette
+        [-1,1].forEach(sd=>{const x0=xs(0),pts=[P(x0,sd*ez(x0),.075),P(x0-.1,sd*(ez(x0)-.03),.15),P(x0-.2,sd*.1,.1),P(x0-.28,sd*.02,.06)];g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),16,.019,8,false),laceMat))});
+      }
+    }
+    /* --- languette matelassée au col : renflement qui naît de la tige, lèvre arrondie, écusson --- */
+    {
+      const X0=-.04,X1=-.5,A=.4,H=.3,PWt=.62,NS=30,NA=28,pos=[],uv=[],idx=[];
+      const cap=u=>u>.8?Math.sqrt(Math.max(0,1-Math.pow((u-.8)/.2,2.4))):1,hT=u=>H*sm(0,.9,u)*cap(u)+.02*sm(0,.2,u),aT=u=>A*Math.pow(cap(u),.55);
+      for(let i=0;i<=NS;i++){const u=i/NS,x=X0+(X1-X0)*u,wa=aT(u),h=hT(u);
+        for(let a=0;a<=NA;a++){const ph=a/NA*Math.PI*2,cs=Math.cos(ph),sn=Math.sin(ph),z=wa*Math.sign(cs)*Math.pow(Math.abs(cs),PWt),yS=ysf(x,z);pos.push(x,sn>=0?yS+h*Math.pow(sn,PWt):yS-.03,z);uv.push(x*2,z*2)}}
+      for(let i=0;i<NS;i++)for(let a=0;a<NA;a++){const q=i*(NA+1)+a;idx.push(q,q+1,q+NA+1,q+1,q+NA+2,q+NA+1)}
+      const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));tg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));tg.setIndex(idx);tg.computeVertexNormals();
+      const tm=upperMat.clone();tm.vertexColors=false;tm.color=new THREE.Color(0xF1E9D6);tm.side=THREE.DoubleSide;g.add(new THREE.Mesh(tg,tm));
+      const lg=new THREE.Mesh(new THREE.PlaneGeometry(.2,.2),new THREE.MeshStandardMaterial({map:glyphTex(),roughness:.8,metalness:0,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));
+      const yl=ysf(-.34,0)+hT(.65)*.93+.006;lg.position.set(-.34,yl,0);lg.rotation.set(-Math.PI/2+.35,0,-Math.PI/2);g.add(lg);
+    }
+    /* --- col rembourré, sangle de talon, bande de contrefort --- */
+    const collarM=new THREE.MeshStandardMaterial({color:COL.collar,roughness:.9,metalness:0,envMap:env,envMapIntensity:.4,bumpMap:evaTex(),bumpScale:.02});
+    {
+      const pts=[],xa=-.52,xb=-2.05,add=(x,t)=>pts.push(surf(x,t,0));
+      for(let i=0;i<=10;i++)add(xa+(xb-xa)*i/10,Math.PI*.2);for(let j=1;j<=8;j++)add(xb,Math.PI*(.2+.6*j/8));for(let i=10;i>=0;i--)add(xa+(xb-xa)*i/10,Math.PI*.8);
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),100,.085,10,false),collarM));
+    }
+    {
+      const A=surf(-2.02,Math.PI/2,0),B=surf(-2.34,Math.PI/2,0),C=A.clone().lerp(B,.5),apex=C.clone().add(new THREE.Vector3(-.1,.34,0));
+      const pts=[A.clone().add(new THREE.Vector3(0,-.03,0)),A.clone().add(new THREE.Vector3(-.05,.14,0)),apex.clone().add(new THREE.Vector3(.12,-.02,0)),apex,apex.clone().add(new THREE.Vector3(-.14,-.06,0)),B.clone().add(new THREE.Vector3(-.03,.14,0)),B.clone().add(new THREE.Vector3(0,-.04,0))];
+      const tab=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,.04,8,false),new THREE.MeshStandardMaterial({color:COL.upper,roughness:.85,metalness:0}));tab.scale.z=3.2;g.add(tab);
+    }
+    {   // bande verticale claire au centre du talon (contrefort moulé)
+      const pts=[];for(let i=0;i<=12;i++){const x=-1.9-.5*i/12;pts.push(new THREE.Vector3(x,sec(x,Math.PI/2)[1]+.012,0))}
+      const xr=-2.455;for(let k=1;k<=10;k++){const yb=topM(xr),yt=sec(-2.44,Math.PI/2)[1];pts.push(new THREE.Vector3(xr-.002*k/10,yt-(yt-yb)*k/10*.92,0))}
+      const st=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),50,.035,8,false),new THREE.MeshStandardMaterial({color:0xF3EDDC,roughness:.8,metalness:0}));st.scale.z=2.4;g.add(st);
+    }
+    /* --- semelle : mousse blanche très épaisse, flancs alvéolés, semelle de gomme bleue, crampons hexagonaux --- */
+    const loftS=(x0,x1,topF,botF,hwF,p,ns,nt)=>{
+      const pos=[],uv=[],idx=[],ro=nt+1;
+      for(let i=0;i<=ns;i++){const x=x0+(x1-x0)*i/ns,e=endF(x),tp=topF(x),bt=botF(x),mid=(tp+bt)/2,hh=(tp-bt)/2,hw=hwF(x);
+        for(let j=0;j<=nt;j++){const t=-Math.PI/2+2*Math.PI*j/nt,c=Math.cos(t),s=Math.sin(t);
+          pos.push(x,mid+hh*Math.sign(s)*Math.pow(Math.abs(s),p),hw*(.965-.045*s)*Math.sign(c)*Math.pow(Math.abs(c),p));uv.push(x,mid+hh*Math.sign(s)*Math.pow(Math.abs(s),p)-(botF(x)-botF(0)))}}
+      for(let i=0;i<ns;i++)for(let j=0;j<nt;j++){const a=i*ro+j,b=a+1,c=a+ro,d=c+1;idx.push(a,c,b,b,c,d)}
+      const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();
+      const nr=geo.attributes.normal;for(let i=0;i<=ns;i++){const a=i*ro,b=a+nt,nx=nr.getX(a)+nr.getX(b),ny=nr.getY(a)+nr.getY(b),nz=nr.getZ(a)+nr.getZ(b),l=Math.hypot(nx,ny,nz)||1;nr.setXYZ(a,nx/l,ny/l,nz/l);nr.setXYZ(b,nx/l,ny/l,nz/l)}
+      return geo};
+    const hx=document.createElement('canvas');hx.width=1040;hx.height=200;{const x=hx.getContext('2d');x.fillStyle='#d4d4d4';x.fillRect(0,0,1040,200);   // alvéoles fines uniquement dans la moitié basse du flanc (comme la Salomon)
+      const R=5.2,h=R*Math.sqrt(3);for(let row=0;row<200/h;row++)for(let k=0;k<1040/(1.5*R);k++){const cx=k*1.5*R,cy=row*h+(k%2?h/2:0),v=1-cy/200,f=1-Math.min(1,Math.max(0,(v-.30)/.14));if(f<=0)continue;
+        x.fillStyle='rgba(60,60,60,'+(.85*f)+')';x.beginPath();x.arc(cx,cy,1.9,0,6.283);x.fill()}}
+    const hxT=new THREE.CanvasTexture(hx);hxT.wrapS=THREE.RepeatWrapping;hxT.repeat.set(1/5.2,1);hxT.offset.set(.5,0);hxT.anisotropy=4;
+    g.add(new THREE.Mesh(loftS(XN,XP,topM,botM,x=>WS(x)+.04,.5,110,44),new THREE.MeshStandardMaterial({color:COL.mid,roughness:.88,metalness:0,bumpMap:hxT,bumpScale:.5,envMap:env,envMapIntensity:.3})));
+    const rub=new THREE.MeshStandardMaterial({color:COL.out,roughness:.9,metalness:0,envMap:env,envMapIntensity:.25});
+    g.add(new THREE.Mesh(loftS(-2.43,2.45,x=>botM(x)+.03,x=>botM(x)-.1,x=>WS(x)*.97,.6,110,28),rub));
+    {   // semelle intérieure sombre visible par le col
+      const NSx=44,pos=[],idx=[],x0=-2.3,x1=-.44;for(let i=0;i<=NSx;i++){const x=x0+(x1-x0)*i/NSx,y=topM(x)+.025,w=Wx(x);pos.push(x,y,-w,x,y,w)}
+      for(let i=0;i<NSx;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}
+      const ig=new THREE.BufferGeometry();ig.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ig.setIndex(idx);ig.computeVertexNormals();g.add(new THREE.Mesh(ig,new THREE.MeshStandardMaterial({color:COL.inside,roughness:1,metalness:0,side:THREE.DoubleSide})));
+    }
+    const lugGeo=new THREE.CylinderGeometry(.1,.125,.1,6),lugs=new THREE.InstancedMesh(lugGeo,rub,64),d=new THREE.Object3D();let n=0;
+    for(let i=0;i<17;i++){const x=-2.25+i*.285,sl=(rockF(x+.05)-rockF(x-.05))/.1,w=WS(x);if(w<.38)continue;[-1,0,1].forEach(j=>{if(n>=64)return;const zz=j*(w-.24)*.9;d.position.set(x+(j===0?.14:0),botM(x)-.12,zz);d.rotation.set(0,j*.25,-Math.atan(sl));d.updateMatrix();lugs.setMatrixAt(n++,d.matrix)})}
     lugs.count=n;g.add(lugs);
-    // lacets techniques et languette
-    const lace=new THREE.MeshStandardMaterial({color:0xE26D3B,roughness:.5,metalness:0,emissive:0x3A1A08});
-    const topY=x=>{let b=0;up.getPoints(60).forEach(p=>{if(Math.abs(p.x-x)<.08&&p.y>b)b=p.y});return b+.23};
-    for(let i=0;i<6;i++){
-      const x=-.72+i*.3,ty=topY(x);
-      const pts=[new THREE.Vector3(x-.05,ty-.26,-.72),new THREE.Vector3(x,ty-.02,-.38),new THREE.Vector3(x+.06,ty+.05,0),new THREE.Vector3(x,ty-.02,.38),new THREE.Vector3(x-.05,ty-.26,.72)];
-      g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),14,.042,6,false),lace));
-    }
-    const tg=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(-1.75,1.5,0),new THREE.Vector3(-1.95,1.95,0),new THREE.Vector3(-1.6,2.05,0)]),12,.05,6,false),lace);g.add(tg);   // anse de talon
-    // gouttelettes perlant sur le tissu
-    const bead=new THREE.MeshStandardMaterial({color:0xBFD8EE,roughness:.04,metalness:0,transparent:true,opacity:.55,envMap:env,envMapIntensity:1.5});
-    const bg=new THREE.SphereGeometry(1,10,8);let sd=21;const rnd=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
-    for(let i=0;i<22;i++){
-      const x=-1.9+rnd()*3.8,y=.72+rnd()*.85,side=rnd()<.5?-1:1;
-      const b=new THREE.Mesh(bg,bead);b.userData.bead=true;const r=.03+rnd()*.05;b.scale.set(r,r*.85,r*.6);b.position.set(x,y,side*.77);g.add(b);
-    }
     return g;
   }
   /* --- sol : boue et flaque (shader) --- */
   const GFS=`precision highp float;
-  uniform float uT;uniform vec4 uRip[8];varying vec3 vW;
+  uniform float uT;uniform vec4 uRip[8];uniform vec3 uLP0,uLD0,uLP1,uLD1;varying vec3 vW;
   float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
   float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
   vec3 sky(vec3 r){
@@ -839,6 +1078,14 @@ const SHOE=(()=>{
     float mo=dot(r,normalize(vec3(-.25,.2,-.95)));
     c+=vec3(.75,.85,1.)*(smoothstep(.9986,.9996,mo)*1.8+smoothstep(.97,.999,mo)*.3);
     return c;
+  }
+  vec3 lampTerm(vec3 P,vec3 Lp,vec3 D,vec3 R,float F){   // lampe frontale : tache de lumière chaude sur l'eau et reflet de la lampe
+    float dist=length(P-Lp);vec3 Lw=(Lp-P)/dist;
+    float cone=smoothstep(.78,.96,dot(-Lw,D))*exp(-dist*.15);
+    vec3 hit=Lp+D*(-Lp.y/min(D.y,-.05));vec2 dd=P.xz-hit.xz;vec2 dr=normalize(D.xz+vec2(1e-4));float al=dot(dd,dr),pe=dot(dd,vec2(-dr.y,dr.x));
+    float pch=exp(-(al*al/5.5+pe*pe/1.25));
+    float spec=pow(max(dot(R,Lw),0.),60.);
+    return vec3(1.,.76,.45)*(cone*(.1+.36*pch)+pch*.4+spec*1.5*(.35+F));
   }
   void main(){
     vec2 p=vW.xz;vec2 q=p/vec2(4.6,2.6);float r=length(q);
@@ -866,23 +1113,35 @@ const SHOE=(()=>{
     float dfade=1.-smoothstep(18.,44.,length(vW-cameraPosition));
     gl_FragColor=vec4(col,mix(1.,.86,m)*dfade);
   }`;
-  const PVS='attribute float size;attribute float alpha;varying float vA;uniform float uScale;void main(){vA=alpha;vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=size*uScale/-mv.z;gl_Position=projectionMatrix*mv;}';
-  const PFS=`precision highp float;varying float vA;
-  void main(){vec2 c=gl_PointCoord-.5;float d=length(c);float a=smoothstep(.5,.0,d);
-    float cr=smoothstep(.05,.0,abs(c.x))*smoothstep(.5,.1,abs(c.y))+smoothstep(.05,.0,abs(c.y))*smoothstep(.5,.1,abs(c.x));
-    gl_FragColor=vec4(vec3(.86,.93,1.)*(a*.85+cr*.7),(a*.9+cr*.5)*vA);}`;
+  const PVS='attribute float size;attribute float alpha;varying float vA;varying vec3 vWp;uniform float uScale;void main(){vA=alpha;vWp=position;vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=size*uScale/-mv.z;gl_Position=projectionMatrix*mv;}';
+  const PFS=`precision highp float;varying float vA;varying vec3 vWp;uniform vec3 uLP0,uLD0,uLP1,uLD1;
+  float beamAt(vec3 P,vec3 Lp,vec3 D){vec3 w=normalize(Lp-P);return smoothstep(.72,.95,dot(-w,D))*exp(-length(P-Lp)*.14);}
+  void main(){vec2 c=gl_PointCoord-.5;float d=length(c);float bm=0.;
+    float disk=smoothstep(.5,.43,d),rim=smoothstep(.5,.41,d)*smoothstep(.26,.45,d);   // goutte nette : corps translucide et bord lumineux
+    float hl=smoothstep(.14,.0,length(c-vec2(-.14,-.15)));   // reflet principal
+    float hl2=smoothstep(.08,.0,length(c-vec2(.15,.16)))*.55;   // reflet inverse, côté de la lampe
+    float a=disk*.2+rim*.7+hl*1.15+hl2;
+    gl_FragColor=vec4(mix(vec3(.78,.9,1.),vec3(1.,.84,.56),bm)*a*(1.+1.5*bm),min(1.,a)*vA);}`;
   function init(){
     renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,QDPR()));renderer.setClearColor(0x000000,0);
     scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(36,1,.1,200);ray=new THREE.Raycaster();
-    scene.add(new THREE.HemisphereLight(0xaac4e0,0x1a1410,.85));
+    scene.add(new THREE.HemisphereLight(0x9db4d0,0x2a1a10,.6));
     const moon=new THREE.DirectionalLight(0xbcd4ff,1.15);moon.position.set(-4,6,-6);scene.add(moon);
-    const em=new THREE.PointLight(0xE26D3B,1.1,16);em.position.set(3.5,.8,3.5);scene.add(em);
+    const em=new THREE.PointLight(0xE26D3B,.3,16);em.position.set(3.5,.8,3.5);scene.add(em);
+    const key=new THREE.DirectionalLight(0xFFE6D2,1.1);key.position.set(5,3.5,4);scene.add(key);   // clé chaude de droite : la tige brune et la semelle claire prennent un liseré cuivré
     const env=makeEnvS();
-    gmat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uT:{value:0},uRip:{value:ripBuf}},
+    gmat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uT:{value:0},uRip:{value:ripBuf},uLP0:{value:lampP[0]},uLD0:{value:lampD[0]},uLP1:{value:lampP[1]},uLD1:{value:lampD[1]}},
       vertexShader:'varying vec3 vW;void main(){vW=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(vW,1.);}',fragmentShader:GFS});
     const gm=new THREE.Mesh(new THREE.PlaneGeometry(90,90),gmat);gm.rotation.x=-Math.PI/2;gm.renderOrder=1;scene.add(gm);
     pair=new THREE.Group();pair.position.y=.1;scene.add(pair);
-    const base=buildShoe(env);
+    {   // lignes topographiques fines qui flottent derrière et au-dessus de la paire, comme sur la photo : réseau de courbes de niveau qui s'efface vers le bas
+      const c=document.createElement('canvas');c.width=640;c.height=360;const x=c.getContext('2d');let sd=11;const rn=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};const ph=[rn()*6,rn()*6,rn()*6];
+      for(let k=0;k<17;k++){const R=26+k*12.5,al=Math.max(.14,.55-.022*k);x.strokeStyle='rgba(255,255,255,'+al+')';x.lineWidth=1.1;x.beginPath();
+        for(let a=0;a<=96;a++){const th=a/96*Math.PI*2,r=R*(1+.17*Math.sin(3*th+ph[0]+k*.08)+.09*Math.sin(5*th+ph[1])+.05*Math.sin(8*th+ph[2]+k*.12)),px=320+r*1.35*Math.cos(th),py=250+r*.78*Math.sin(th);a?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();x.stroke()}
+      x.globalCompositeOperation='destination-in';const gr=x.createLinearGradient(0,0,0,360);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(.55,'rgba(0,0,0,.75)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,640,360);
+      const topo=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,opacity:.5,depthWrite:false,blending:THREE.AdditiveBlending}));topo.scale.set(9,5,1);topo.position.set(0,3.6,-2.2);scene.add(topo);
+    }
+    const base=buildShoe(env);base.scale.setScalar(.72);   // la nouvelle chaussure est plus haute (semelle épaisse) : réduite pour garder le cadrage
     [0,1].forEach(f=>{
       const s=f?base:base.clone();s.position.z=f?1.25:-1.25;pair.add(s);shoes.push(s);
       const mir=s.clone();mir.scale.y=-1;scene.add(mir);mirrors.push(mir);
@@ -891,7 +1150,7 @@ const SHOE=(()=>{
     pGeo=new THREE.BufferGeometry();pPos=new Float32Array(NP*3);pSize=new Float32Array(NP);pAl=new Float32Array(NP);
     for(let i=0;i<NP;i++)pPos[i*3+1]=-100;
     pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));pGeo.setAttribute('size',new THREE.BufferAttribute(pSize,1));pGeo.setAttribute('alpha',new THREE.BufferAttribute(pAl,1));
-    pMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{uScale:{value:600}},vertexShader:PVS,fragmentShader:PFS});
+    pMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{uScale:{value:600},uLP0:{value:lampP[0]},uLD0:{value:lampD[0]},uLP1:{value:lampP[1]},uLD1:{value:lampD[1]}},vertexShader:PVS,fragmentShader:PFS});
     const pts=new THREE.Points(pGeo,pMat);pts.frustumCulled=false;pts.renderOrder=3;scene.add(pts);
     // invitations : deux anneaux qui pulsent sur l'eau
     [-1,1].forEach(sd=>{const r=new THREE.Mesh(new THREE.RingGeometry(.55,.62,48),new THREE.MeshBasicMaterial({color:0xE26D3B,transparent:true,opacity:.6,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.position.set(sd*2.6,.04,0);r.renderOrder=2;scene.add(r);inv.push(r)});
@@ -979,6 +1238,8 @@ const SHOE=(()=>{
   function update(l,dt,still){
     if(!ok)return;
     pose(l,dt,still);stepSim(dt);placeCam(dt);
+    pair.updateMatrixWorld(true);
+    shoes.forEach((s,i)=>{const L=s.userData.lamp;if(!L)return;tmpV.set(L.p[0],L.p[1],L.p[2]);s.localToWorld(tmpV);lampP[i].copy(tmpV);lampL[i].position.copy(tmpV);s.getWorldQuaternion(tmpQ);lampD[i].set(L.d[0],L.d[1],L.d[2]).applyQuaternion(tmpQ).normalize()});
     ripBuf.fill(0);for(let i=0;i<8;i++)ripBuf[i*4+2]=-1;
     RIP.slice(-8).forEach((r,i)=>{ripBuf[i*4]=r.x;ripBuf[i*4+1]=r.z;ripBuf[i*4+2]=r.t;ripBuf[i*4+3]=r.a});
     gmat.uniforms.uT.value=tNow;
@@ -1043,7 +1304,7 @@ const CAMP=(()=>{
       const e=x.createLinearGradient(0,0,w,h);e.addColorStop(0,'rgba(255,210,150,.18)');e.addColorStop(.5,'rgba(0,0,0,0)');e.addColorStop(1,'rgba(0,0,0,.22)');x.fillStyle=e;x.fillRect(0,0,w,h);
       for(let i=0;i<14;i++){x.strokeStyle='rgba(222,190,150,'+(.1+r0()*.2)+')';x.lineWidth=1+r0()*2;x.beginPath();const px=r0()*w,py=r0()*h;x.moveTo(px,py);x.lineTo(px+20+r0()*50,py+(r0()-.5)*30);x.stroke()}
       x.setLineDash([7,5]);x.strokeStyle='rgba(232,216,184,.75)';x.lineWidth=1.6;x.strokeRect(12,12,w-24,h-24);x.setLineDash([]);
-      x.textAlign='center';x.font='italic 400 30px "DM Serif Display", Georgia, serif';x.fillStyle='rgba(255,230,190,.35)';x.fillText('Carnet',w/2+1,h/2+13);x.fillStyle='rgba(28,14,5,.8)';x.fillText('Carnet',w/2,h/2+12);
+      x.textAlign='center';x.font='italic 400 30px "Cordée Serif", "DM Serif Display", Georgia, serif';x.fillStyle='rgba(255,230,190,.35)';x.fillText('Carnet',w/2+1,h/2+13);x.fillStyle='rgba(28,14,5,.8)';x.fillText('Carnet',w/2,h/2+12);
       x.strokeStyle='rgba(28,14,5,.7)';x.lineWidth=2;x.beginPath();x.arc(w/2,h/2-28,14,0,6.283);x.stroke();x.beginPath();x.moveTo(w/2,h/2-40);x.lineTo(w/2+4,h/2-28);x.lineTo(w/2,h/2-16);x.lineTo(w/2-4,h/2-28);x.closePath();x.stroke()},1);
     const side=new THREE.MeshStandardMaterial({color:0x4A2E1A,roughness:.85}),top=new THREE.MeshStandardMaterial({map:cover,roughness:.8});
     g.add(new THREE.Mesh(new THREE.BoxGeometry(.7,.08,.5),[side,side,top,side,side,side]));
@@ -1340,7 +1601,7 @@ function drawPuddle(l,dt,still){
 }
 
 /* ---------- Choix : profil (gauche) ou carnet hors-piste (droite) ---------- */
-const dlgProfil=$('#dlgProfil'),dlgCarnet=$('#dlgCarnet');
+const dlgProfil=$('#dlgProfil'),dlgCarnet=$('#dlgCarnet'),dlgTool=$('#dlgTool');
 const ARTICLES=[
   {t:'Retour du D+ : 34,4 km et 2 339 m de dénivelé',c:'course',cat:'Récit de course',d:'Notes de terrain sur une sortie aux Houches, du fond de la vallée à 2 521 m.'},
   {t:'Calculateur d\'allure trail : compter le D+ et le D−',c:'matos',cat:'Matériel et outils',d:'Pourquoi une allure à plat ne dit presque rien d\'une course en montagne.'},
@@ -1354,11 +1615,26 @@ $$('.sh-filters button').forEach(b=>b.addEventListener('click',()=>{
   [...carList.children].forEach(li=>{li.hidden=b.dataset.f!=='all'&&li.dataset.c!==b.dataset.f});
 }));
 function openProfile(){root.style.overflow='hidden';dlgProfil.showModal()}
+function showSheet(title,f,opener,back){   // fiche descriptive : atelier (outils) et carte (projets)
+  $('#toolE').textContent=f.e;$('#toolT').textContent=title;$('#toolS').textContent=f.st;$('#toolL').textContent=f.l;
+  $('#toolP').innerHTML=(f.pts||[]).map(x=>`<li>${x}</li>`).join('');$('#toolK').innerHTML=(f.k||[]).map(x=>`<li>${x}</li>`).join('');
+  const nt=$('#toolN');nt.textContent=f.note||'';nt.hidden=!f.note;
+  const acts=$('#toolActs'),bk=$('#toolBack');acts.querySelectorAll('.dyn').forEach(a=>a.remove());
+  (f.links||[]).forEach((x,j)=>{if(x.go){const b=document.createElement('button');b.type='button';b.className='dyn '+(j?'sh-alt':'sh-main');b.textContent=x.l;b.addEventListener('click',()=>{dlgTool.close();jumpTo(.845);live.textContent='Contact. Posons le sac.'});acts.insertBefore(b,bk);return}
+    const a=document.createElement('a');a.className='dyn '+(j?'sh-alt':'sh-main');a.href=x.u;a.target='_blank';a.rel='noopener';a.innerHTML=x.l+'<span class="sr-only"> (nouvel onglet)</span>';acts.insertBefore(a,bk)});
+  bk.textContent=back;toolOpener=opener||null;root.style.overflow='hidden';dlgTool.showModal();
+}
+function openTool(i,opener){const t=TOOLS[i],f=TOOL_INFO[i];if(!f)return;showSheet(t.n,f,opener,"Revenir à l'atelier")}
+function openProject(id,opener){const f=PROJECT_INFO[id];if(!f)return;showSheet(f.t,f,opener,'Revenir à la carte')}
+let toolOpener=null;
+dlgTool.addEventListener('close',()=>{const o=toolOpener;toolOpener=null;if(o&&o.isConnected&&getComputedStyle(o).visibility!=='hidden')o.focus({preventScroll:true})});   // le focus revient sur la carte qui a ouvert la fiche
+$('#tools').addEventListener('click',e=>{const b=e.target.closest('.cb');if(!b)return;openTool([...$('#tools').children].indexOf(b.closest('li')),b)});
 function openCarnet(){root.style.overflow='hidden';document.body.classList.add('horspiste');dlgCarnet.showModal()}
-[dlgProfil,dlgCarnet].forEach(d=>{
+[dlgProfil,dlgCarnet,dlgTool].forEach(d=>{
   d.addEventListener('close',()=>{document.body.classList.remove('horspiste');root.style.overflow=(loaded||staticMode)?'':'hidden'});
   d.addEventListener('click',e=>{if(e.target===d)d.close()});
 });
+$('#toolX').addEventListener('click',()=>dlgTool.close());$('#toolBack').addEventListener('click',()=>dlgTool.close());
 $('#proX').addEventListener('click',()=>dlgProfil.close());$('#proBack').addEventListener('click',()=>dlgProfil.close());
 $('#carBack').addEventListener('click',()=>dlgCarnet.close());$('#carBack2').addEventListener('click',()=>dlgCarnet.close());
 function zonePoint(e){const r=pc.getBoundingClientRect();if(SHOE.ready())return [e.clientX-r.left,e.clientY-r.top];return [clamp(e.clientX-r.left,PW/2-prx*.9,PW/2+prx*.9),clamp(e.clientY-r.top,gy-pry*.6,gy+pry*.6)]}
@@ -1381,11 +1657,11 @@ function updateBivouac(p){
   stars.style.opacity=trap(p,.79,.83,.95,.975);
 }
 /* Contact : e-mail, LinkedIn, rendez-vous, formulaire ; le feu réagit au survol */
-const CONTACT={email:'',linkedin:'',rdv:''};   // à renseigner : adresse e-mail, profil LinkedIn, lien d'agenda
+const CONTACT={email:'adrien.neyron@gmail.com',linkedin:'https://www.linkedin.com/in/adrienneyron/',github:'https://github.com/adrien-neyron',rdv:''};   // e-mail, LinkedIn et GitHub repris du site en ligne ; lien d'agenda à renseigner
 const cntStatus=$('#cntStatus');
 $$('#bivtext .cnt').forEach(b=>b.addEventListener('click',()=>{
   const k=b.dataset.k,u=CONTACT[k];
-  if(!u){cntStatus.textContent={email:'L\'adresse e-mail reste à renseigner.',linkedin:'Le lien LinkedIn reste à renseigner.',rdv:'Le lien de prise de rendez-vous reste à renseigner.'}[k];return}
+  if(!u){cntStatus.textContent={email:'L\'adresse e-mail reste à renseigner.',linkedin:'Le lien LinkedIn reste à renseigner.',rdv:'Le lien de prise de rendez-vous reste à renseigner.',github:'Le lien GitHub reste à renseigner.'}[k];return}
   if(k==='email')location.href='mailto:'+u;else window.open(u,'_blank','noopener');
 }));
 $('#cntForm').addEventListener('submit',e=>{
@@ -1402,39 +1678,29 @@ $$('#bivtext .cnt,#bivtext input,#bivtext textarea,#bivtext .cnt-send,#restart')
 /* Recommencer l'aventure : accélération à travers les étoiles, faisceau sur le cadran, retour au départ */
 const warpCv=$('#warp'),wctx=warpCv.getContext('2d'),WSTARS=Array.from({length:220},()=>({a:Math.random()*6.283,r:Math.random(),s:.3+Math.random()*.7}));let warpOn=false;
 function sizeWarp(){const q=.7;warpCv.width=Math.max(2,Math.round(innerWidth*q));warpCv.height=Math.max(2,Math.round(innerHeight*q))}
-const SNOW=Array.from({length:420},()=>({x:Math.random(),y:Math.random(),z:Math.pow(Math.random(),1.6),ph:Math.random()*6.283}));let snowT=0;
-const FLAKE=(()=>{const c=document.createElement('canvas');c.width=c.height=48;const x=c.getContext('2d'),g=x.createRadialGradient(24,24,0,24,24,24);g.addColorStop(0,'rgba(230,244,241,1)');g.addColorStop(.35,'rgba(230,244,241,.55)');g.addColorStop(1,'rgba(230,244,241,0)');x.fillStyle=g;x.fillRect(0,0,48,48);return c})();
-/* Transition de la plongée dans le verre : une tempête de neige (flocons poussés par le vent, rafales, voile blanc au plus fort) */
-function drawSnowstorm(I0,W,H,q,t){
-  const I=reduce?I0*.45:I0,n=Math.round(SNOW.length*[1,.62,.36][QC.tier]*(reduce?.5:1)),dt=snowT?Math.min(.05,Math.max(0,t-snowT)):0;if(t)snowT=t;
-  const wind=-(.22+1.5*I),fall=.16+.5*I;
-  // nappes de brume qui dérivent, de plus en plus blanches
-  for(let k=0;k<3;k++){
-    const fx=((t*.03*(1+k*.6)+k*.37)%1.4)-.2,fy=.25+k*.28+.05*Math.sin(t*.4+k),rr=Math.max(W,H)*(.55+.25*k),X=W*(1-fx),Y=H*fy;
-    const g=wctx.createRadialGradient(X,Y,0,X,Y,rr);g.addColorStop(0,`rgba(214,232,236,${.34*I*I})`);g.addColorStop(1,'rgba(214,232,236,0)');wctx.fillStyle=g;wctx.fillRect(0,0,W,H);
-  }
-  wctx.fillStyle=`rgba(222,238,240,${.30*I*I*I})`;wctx.fillRect(0,0,W,H);   // voile blanc au plus fort de la tempête
-  wctx.lineCap='round';
-  for(let i=0;i<n;i++){
-    const s=SNOW[i],sp=.35+.95*s.z,gust=1+.35*Math.sin(t*.8+s.x*5),vx=wind*sp*gust,vy=fall*sp;
-    s.x+=vx*dt+Math.sin(t*2+s.ph)*.05*dt;s.y+=vy*dt;
-    if(s.y>1.05){s.y=-.05;s.x=Math.random()}if(s.x<-.1){s.x=1.1;s.y=Math.random()}
-    const X=s.x*W,Y=s.y*H,r=(1.3+3.4*s.z*s.z)*q*1.2*(1+.45*I),a=Math.min(1,(.22+.7*s.z)*(.25+1.5*I));
-    if(s.z>.55&&I>.35){   // gros flocons filés par la vitesse, étirés dans le sens du vent
-      const L=(5+22*I)*s.z*q,vl=Math.hypot(vx,vy)||1;
-      wctx.strokeStyle=`rgba(230,244,241,${a*.4})`;wctx.lineWidth=Math.max(1.4,r*.8);wctx.beginPath();wctx.moveTo(X,Y);wctx.lineTo(X-vx/vl*L,Y-vy/vl*L);wctx.stroke();
-    }
-    wctx.globalAlpha=a;wctx.drawImage(FLAKE,X-r,Y-r,2*r,2*r);
-  }
-  wctx.globalAlpha=1;
+const transW=p=>p<.5?trap(p,.10,.15,.285,.32):0;   // fenêtre de la transition : l'aiguille clignote et fait le halo
+const BLINK_HZ=.55;   // un éclat toutes les 1,8 s environ
+function needleBlink(t){   // éclat bref et rare (bien sous le seuil de 3 éclats par seconde) ; fixe en mouvement réduit ou en pause
+  if(reduce||paused)return .7;
+  return .2+.8*sm(.35,.7,Math.sin(t*6.2832*BLINK_HZ));
+}
+function drawNeedleHalo(Hw,W,H,q,cx,cy,t){   // le halo naît de l'aiguille : cuivre au cœur, onde de blanc givre à chaque éclat
+  const b=needleBlink(t),ph=(reduce||paused)?.5:(t*BLINK_HZ)%1,a=Hw*(.05+.4*b);
+  wctx.globalCompositeOperation='lighter';
+  const R=(70+110*b)*q*(.7+.3*Hw),g=wctx.createRadialGradient(cx,cy,0,cx,cy,R);
+  g.addColorStop(0,`rgba(255,238,222,${.7*a})`);g.addColorStop(.25,`rgba(240,140,90,${.4*a})`);g.addColorStop(1,'rgba(226,109,59,0)');
+  wctx.fillStyle=g;wctx.beginPath();wctx.arc(cx,cy,R,0,6.2832);wctx.fill();
+  const rr=(30+240*ph)*q,al=Hw*(1-ph)*(.3+.3*b);
+  wctx.lineWidth=(1.5+2.5*(1-ph))*q;wctx.strokeStyle=`rgba(230,244,241,${al*.45})`;wctx.beginPath();wctx.arc(cx,cy,rr,0,6.2832);wctx.stroke();
+  wctx.globalCompositeOperation='source-over';
 }
 function drawWarp(p){
-  const wEnd=p>.9?sm(.92,.99,p):0,wSnow=p<.5?trap(p,.17,.235,.27,.32):0,w=Math.max(wEnd,wSnow);   // fin de boucle : étoiles ; plongée dans le verre : tempête de neige
+  const wEnd=p>.9?sm(.92,.99,p):0,wHalo=transW(p),w=Math.max(wEnd,wHalo);   // fin de boucle : étoiles ; plongée dans le verre : seulement le halo de l'aiguille
   if(w<=.001){if(warpOn){wctx.clearRect(0,0,warpCv.width,warpCv.height);warpOn=false}return}
   warpOn=true;
   const W=warpCv.width,H=warpCv.height,q=W/innerWidth,cx=(LAY.cx||innerWidth/2)*q,cy=(LAY.cy||innerHeight/2)*q,R=Math.hypot(W,H)*.6,t=paused?0:tNow;
   wctx.clearRect(0,0,W,H);
-  if(wSnow>.001){wctx.globalCompositeOperation='source-over';drawSnowstorm(wSnow,W,H,q,t)}
+  if(wHalo>.001)drawNeedleHalo(wHalo,W,H,q,cx,cy,t);
   if(wEnd<=.001)return;
   wctx.globalCompositeOperation='lighter';wctx.lineCap='round';
   WSTARS.forEach(s=>{
@@ -1460,6 +1726,11 @@ restartBtn.addEventListener('click',restartAdventure);
 const NAMES=['Se repérer','S\'équiper','Monter','Persévérer','Se poser'];
 let curName=-1;
 function sceneIndex(p){return p<.07?0:p<.27?1:p<.53?2:p<.80?3:p<.95?4:0}
+/* Deux palettes pour la barre de progression : la boucle (cuivre, la teinte de la marque) et la trace de la carte (blanc givre et émeraude, comme la trace) ; elle passe de l'une à l'autre en fondu quand la carte apparaît et disparaît */
+const RT_A={d:[240,162,122],l:[183,154,138],g:[226,109,59],a:[247,176,138],h:[255,226,204]},RT_B={d:[242,251,248],l:[169,189,196],g:[0,245,160],a:[242,251,248],h:[0,245,160]};
+function railTone(k){const el=railTone.el||(railTone.el=document.querySelector('.altrail'));if(!el)return;const q=Math.round(k*50);if(q===railTone.q)return;railTone.q=q;
+  const m=(a,b)=>a.map((v,i)=>Math.round(v+(b[i]-v)*k)).join(','),st=el.style;
+  st.setProperty('--rd','rgb('+m(RT_A.d,RT_B.d)+')');st.setProperty('--rl','rgb('+m(RT_A.l,RT_B.l)+')');st.setProperty('--rg','rgba('+m(RT_A.g,RT_B.g)+',.6)');st.setProperty('--ra','rgb('+m(RT_A.a,RT_B.a)+')');st.setProperty('--rh','rgb('+m(RT_A.h,RT_B.h)+')')}
 function setVisible(el,o){el.style.opacity=o;el.style.visibility=o<.01?'hidden':'visible'}
 function hudFor(p){
   const alt=p<.28?2480:(p<.54&&parcAlt!=null)?parcAlt:p<.54?2480:p<.94?35:lerp(35,2480,sm(.94,1,p));
@@ -1470,16 +1741,17 @@ function announce(i){
   modeEl.textContent=NAMES[i];
   live.textContent=`Scène ${i+1} sur 5 : ${NAMES[i]}`;
   $$('#railNav button').forEach((b,j)=>b.setAttribute('aria-current',j===i?'true':'false'));
+  $('#burgerSteps').parentNode.style.setProperty('--i',i);   // le repère de la rose des vents suit l'étape courante
 }
 function draw(p,dt){
   pal=palette(p);setVars(root,pal);updateBg(p);
   setVisible(S[0],Math.max(trap(p,-1,0,.24,.30),trap(p,.95,1,2,3)));
-  setVisible(S[1],trap(p,.27,.32,.50,.54));
+  {const mo=trap(p,.245,.29,.50,.54);setVisible(S[1],mo);document.documentElement.style.setProperty('--hudk',(1-mo).toFixed(3));railTone(mo)}   // altitude, scène et lieu en bas à gauche : masqués dans l'expérience de la trace
   setVisible(S[2],trap(p,.51,.55,.77,.81));
   setVisible(S[3],trap(p,.78,.82,.97,.985));
   // s1
   head1.style.opacity=Math.max(1-sm(.04,.08,p),sm(.96,1,p));
-  head2.style.opacity=trap(p,.06,.10,.24,.28);
+  head2.style.opacity=trap(p,.08,.11,.24,.28);   // le titre « S'équiper » attend que l'accroche ait disparu
   chips.forEach((c,i)=>{
     const o=clamp((p-(.07+i*STEP))/.03)*(p<.24?1:1-sm(.24,.28,p));
     c.li.style.opacity=o;c.li.style.visibility=o<.04?'hidden':'visible';
@@ -1488,7 +1760,8 @@ function draw(p,dt){
   });
   if(S[0].style.visibility==='visible'){updateCompass(p,dt);drawAurora(tNow+20)}
   // s2
-  if(S[1].style.visibility==='visible'){PARC.ensure();PARC.update(clamp((p-.30)/.22),dt)}
+  S[1].style.setProperty('--hd',(p<.5?sm(.262,.292,p):1).toFixed(3));
+  if(S[1].style.visibility==='visible'){PARC.ensure();PARC.update(clamp((p-.30)/.19),dt,1-sm(.31,.38,p))}
   // s3
   if(S[2].style.visibility==='visible')drawPuddle(clamp((p-.55)/.24),dt);
   // s4
@@ -1496,8 +1769,7 @@ function draw(p,dt){
   drawWarp(p);
   hudFor(p);
   announce(sceneIndex(p));
-  const intro=p<.25;document.body.classList.toggle('intro',intro);skipBtn.style.opacity=intro?1:0;skipBtn.style.visibility=intro?'visible':'hidden';
-  updateEscape(p);
+  const intro=p<.25;document.body.classList.toggle('intro',intro);
   hint.textContent=p>.97?'Encore un pas : la boucle se referme':'';
   hint.style.opacity=p>.97?1:0;
   const ctaOn=loaded&&p<.05;cta.style.opacity=ctaOn?1:0;cta.style.visibility=ctaOn?'visible':'hidden';
@@ -1562,6 +1834,24 @@ $('#railNav').addEventListener('click',e=>{
   if(staticMode){document.getElementById(b.dataset.s).scrollIntoView({behavior:'auto'});return}
   scrollTo({top:unwarp(parseFloat(b.dataset.p))*maxScroll(),behavior:reduce?'auto':'smooth'});
 });
+/* ---------- Menus en burger : étapes du parcours et outils de réglage (motif « disclosure » : bouton, état, panneau) ---------- */
+const burgers=[...$$('.burger')];
+function menuOf(b){return document.getElementById(b.getAttribute('aria-controls'))}
+function setMenu(b,open){b.setAttribute('aria-expanded',String(open));menuOf(b).hidden=!open}
+function closeMenus(except){burgers.forEach(b=>{if(b!==except&&b.getAttribute('aria-expanded')==='true')setMenu(b,false)})}
+burgers.forEach(b=>{
+  b.addEventListener('click',()=>{const open=b.getAttribute('aria-expanded')!=='true';closeMenus(open?b:null);setMenu(b,open)});
+  menuOf(b).addEventListener('focusout',e=>{const n=e.relatedTarget;if(n&&(menuOf(b).contains(n)||b.contains(n)))return;if(n)setMenu(b,false)});   // le focus quitte le menu : il se ferme
+});
+addEventListener('pointerdown',e=>{if(!e.target.closest('.menu,.burger'))closeMenus(null)});
+addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;const b=burgers.find(x=>x.getAttribute('aria-expanded')==='true');
+  if(!b||document.querySelector('dialog[open]'))return;
+  e.menuHandled=true;setMenu(b,false);b.focus();
+});
+$('#railNav').addEventListener('click',()=>{if(TOUR.on)tourEnd(false)},true);   // choisir une étape reprend la main sur le parcours guidé
+$('#railNav').addEventListener('click',()=>closeMenus(null));
+$('#openSet').addEventListener('click',()=>closeMenus(null));
 $('#brand').addEventListener('click',e=>{e.preventDefault();staticMode?scrollTo(0,0):jumpTo(.0004);$('#main').focus({preventScroll:true})});
 $('#tgPause').addEventListener('click',e=>{paused=!paused;document.body.classList.toggle('paused',paused);e.currentTarget.setAttribute('aria-pressed',String(paused))});
 $('#tgStatic').addEventListener('click',()=>setStatic(!staticMode));
@@ -1577,15 +1867,7 @@ let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{layout
 
 
 /* ---------- Raccourci recruteur, pied de page, dialogues ---------- */
-const skipBtn=$('#skipIntro'),dlg=$('#dlg');
-skipBtn.addEventListener('click',()=>{
-  finishLoad();
-  if(staticMode){document.getElementById('s3').scrollIntoView({behavior:'auto'});return}
-  root.style.overflow='';
-  jumpTo(.67);
-  live.textContent='Intro passée. À propos et carnet.';
-  $('#main').focus({preventScroll:true});
-});
+const dlg=$('#dlg');
 $('#ftContact').addEventListener('click',()=>{
   finishLoad();
   if(staticMode){document.getElementById('s4').scrollIntoView({behavior:'auto'});return}
@@ -1596,7 +1878,7 @@ const DLG={
     <h3>Directeur de la publication</h3><p>Adrien Neyron.</p>
     <h3>Contact</h3><p class="todo">[adresse e-mail à renseigner]</p>
     <h3>Hébergeur</h3><p>Vercel Inc., États-Unis (vercel.com).</p>
-    <h3>Crédits</h3><p>Les photos d'ambiance viennent d'Unsplash ; chaque crédit figure sur la fiche du projet concerné.</p>
+    <h3>Crédits</h3><p>Les photos d'ambiance viennent d'Unsplash ; chaque crédit figure sur la fiche du projet concerné.</p><p>Titres : police « Cormorant Garamond » © The Cormorant Project Authors, licence <a href="https://openfontlicense.org/" target="_blank" rel="noopener">SIL OFL 1.1<span class="sr-only"> (nouvel onglet)</span></a>, hébergée sur ce site.</p>
     <h3>Données personnelles</h3><p class="todo">[finalités, durée de conservation et droits d'accès pour le formulaire de contact : à rédiger]</p>`},
   a11y:{t:'Déclaration d\'accessibilité',b:`<p>Ce site vise la conformité au niveau AA des WCAG 2.1 et au RGAA 4.1.</p>
     <h3>État de conformité</h3><p class="todo">[non évalué : audit RGAA à réaliser avant la mise en ligne]</p>
@@ -1691,26 +1973,15 @@ function updateLive(){
 updateLive();__ivs.push(setInterval(updateLive,30000));
 
 /* ---------- Grands mots, altimètre latéral, son ---------- */
-const bigWords=$$('.bigword'),railDot=$('#railDot');
-const crew=$('#crew'),crewW=[...crew.querySelectorAll('.w')];let crewTotal=0,crewC=[];
-function measureCrew(){crewTotal=crew.scrollWidth;crewC=crewW.map(w=>w.offsetLeft+w.offsetWidth/2)}
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureCrew);
-addEventListener('resize',()=>{crewTotal=0});
+const railDot=$('#railDot'),railDone=$('#railDone');let mapRail=null;
 const HW=[$('#h1'),$('#head2 h2'),$('#h-map'),$('#h-flaque'),$('#h-biv')];
 function updateExtras(p,pr){
   const skew=(reduce||paused)?0:clamp((pr-p)*500,-8,8);
-  const L=[p>.5?0:clamp(p/.27),clamp((p-.27)/.27),clamp((p-.51)/.30),clamp((p-.78)/.19)];
-  bigWords.forEach((w,i)=>{if(i>0)w.style.transform=`translate3d(${lerp(8,-46,L[i]).toFixed(2)}vw,-50%,0) skewX(${skew.toFixed(2)}deg)`});
-  /* Qualités : le ruban entre par la droite, sort par la gauche ; le mot proche du centre s'affirme */
-  if(!crewTotal)measureCrew();
-  const vw=innerWidth,tx=lerp(vw*.22,-(crewTotal+vw*.05),L[0]);
-  crew.style.transform=`translate3d(${tx.toFixed(1)}px,-50%,0) skewX(${skew.toFixed(2)}deg)`;
-  crewW.forEach((w,k)=>{const dd=(tx+crewC[k]-vw*.5)/(vw*.45);w.style.opacity=(.035+.11*Math.exp(-dd*dd*2)).toFixed(3)});
-  railDot.style.top=(p*100).toFixed(2)+'%';
+  {const r=mapRail?mapRail(p):null;   // zone de la carte : la barre devient la frise des étapes (calculée avec les étapes, plus bas)
+   {const tp=(r?r.top:p*100).toFixed(2)+'%';railDot.style.top=tp;railDone.style.height=tp}railDot.parentNode.style.setProperty('--tk',(r?1-r.zk:1).toFixed(3));}
   if(!reduce){
     const W=[[HW[0],p<.5?lerp(800,350,sm(0,.05,p)):lerp(350,800,sm(.95,1,p))],[HW[1],lerp(800,350,sm(.06,.14,p))],[HW[2],lerp(800,350,sm(.27,.36,p))],[HW[3],lerp(800,350,sm(.51,.6,p))],[HW[4],lerp(800,350,sm(.79,.86,p))]];
     W.forEach(([el,w])=>{el.style.fontVariationSettings=`'wght' ${Math.round(w)}`});
-    bigWords.forEach((w,i)=>{if(i>0)w.style.fontVariationSettings=`'wght' ${Math.round(lerp(200,900,L[i]))}`});
   }
 }
 let actx=null,windG=null,noiseBuf=null,whiteBuf=null,soundOn=false,lastWind=0;
@@ -1856,12 +2127,12 @@ function updateBg(p){
 
 
 /* ---------- Transition : souffle, ligne GPX qui s'échappe du cadran, départ de l'expédition ---------- */
-function swoosh(){   // bourrasque : vent grave qui enfle puis retombe, avec des rafales
+function swoosh(){
   if(!soundOn||!actx||!whiteBuf)return;
-  const t=actx.currentTime,src=actx.createBufferSource();src.buffer=whiteBuf;src.loop=true;
-  const bp=actx.createBiquadFilter();bp.type='bandpass';bp.Q.value=.7;bp.frequency.setValueAtTime(260,t);bp.frequency.linearRampToValueAtTime(900,t+1.0);bp.frequency.linearRampToValueAtTime(380,t+2.3);
-  const g=actx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.26,t+.9);g.gain.linearRampToValueAtTime(.12,t+1.4);g.gain.linearRampToValueAtTime(.2,t+1.7);g.gain.linearRampToValueAtTime(0,t+2.4);
-  src.connect(bp);bp.connect(g);g.connect(actx.destination);src.start(t);src.stop(t+2.5);
+  const t=actx.currentTime,src=actx.createBufferSource();src.buffer=whiteBuf;
+  const bp=actx.createBiquadFilter();bp.type='bandpass';bp.Q.value=.8;bp.frequency.setValueAtTime(350,t);bp.frequency.exponentialRampToValueAtTime(2600,t+.7);
+  const g=actx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.22,t+.25);g.gain.linearRampToValueAtTime(0,t+.85);
+  src.connect(bp);bp.connect(g);g.connect(actx.destination);src.start(t,Math.random(),1);
 }
 function crackle(v){
   if(!soundOn||!actx||!whiteBuf)return;
@@ -1870,20 +2141,6 @@ function crackle(v){
   const g=actx.createGain(),pk=.03+.12*(v||0)*Math.random()+.03*Math.random(),dur=.012+Math.random()*.03;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(pk,t+.003);g.gain.exponentialRampToValueAtTime(.0005,t+dur);
   src.connect(bp);bp.connect(g);g.connect(actx.destination);src.start(t,Math.random(),dur+.02);
-}
-const escLine=$('#escLine'),escGlow=$('#escGlow'),escHead=$('#escHead'),cpf=$('#cpf'),escSvg=$('#escape');let ESC_LEN=1;
-function layoutEscape(W,H,cx,cy,mob){
-  const x1=cx+W*.05,y1=H*(mob?.86:.9),dy=y1-cy;
-  const d=`M${cx.toFixed(1)} ${cy.toFixed(1)} C ${(cx+W*.05).toFixed(1)} ${(cy+dy*.25).toFixed(1)}, ${(cx-W*.06).toFixed(1)} ${(cy+dy*.5).toFixed(1)}, ${(cx+W*.02).toFixed(1)} ${(cy+dy*.68).toFixed(1)} S ${(x1+W*.03).toFixed(1)} ${(y1-dy*.1).toFixed(1)}, ${x1.toFixed(1)} ${y1.toFixed(1)}`;
-  escSvg.setAttribute('viewBox',`0 0 ${W} ${H}`);escLine.setAttribute('d',d);escGlow.setAttribute('d',d);
-  ESC_LEN=escLine.getTotalLength()||1;escLine.style.strokeDasharray=escGlow.style.strokeDasharray=ESC_LEN;
-  cpf.style.left=x1+'px';cpf.style.top=y1+'px';
-}
-function updateEscape(p){
-  const dr=p<.5?sm(.16,.27,p):0;
-  const off=(ESC_LEN*(1-dr)).toFixed(1);escLine.style.strokeDashoffset=off;escGlow.style.strokeDashoffset=off;
-  const q=escLine.getPointAtLength(ESC_LEN*dr);escHead.setAttribute('cx',q.x.toFixed(1));escHead.setAttribute('cy',q.y.toFixed(1));
-  escHead.style.opacity=dr>.02&&dr<.999?1:0;cpf.style.opacity=dr>.95?1:0;
 }
 const cta=$('#cta');let cine=null;
 function cinematicTo(pt,dur0,mode){
@@ -1948,7 +2205,7 @@ addEventListener('wheel',e=>{if(TOUR.on&&e.deltaY!==0)tourEnd(false)},{passive:t
 addEventListener('touchmove',()=>{if(TOUR.on)tourEnd(false)},{passive:true});
 addEventListener('keydown',e=>{
   if(!TOUR.on)return;const tg=(e.target&&e.target.tagName)||'';
-  if(e.key==='Escape'&&!document.querySelector('dialog[open]')){tourEnd(false);return}
+  if(e.key==='Escape'&&!e.menuHandled&&!document.querySelector('dialog[open]')&&!document.querySelector('.burger[aria-expanded="true"]')){tourEnd(false);return}
   if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End'].includes(e.key)&&!/INPUT|TEXTAREA|SELECT/.test(tg))tourEnd(false);
 });
 // une fenêtre ouverte (profil, carnet, réglages…) met le parcours en attente ; il reprend à sa fermeture
@@ -1961,36 +2218,77 @@ const DATA=[[45.8925,6.8002,1006],[45.8929,6.7995,995],[45.8937,6.7992,987],[45.
 const cv=$('#parcCanvas');
 
 /* ---------- Projets : à remplacer par la liste de /projects (un seul endroit à modifier) ---------- */
-const PROJECTS=[
-  {id:'c2s',title:'Click2SellSite',place:'Lyon',stage:'Étape 02',tags:['Vue 3','TypeScript','SCSS','Vitest','RGAA'],result:'7 langues d\'accessibilité',mat:'stone',t:.10},
-  {id:'dgfip',title:'DGFiP',place:'Paris',stage:'Étape 01',tags:['Vue.js','API REST'],result:'−50 % de temps de traitement',mat:'metal',t:.24},
-  {id:'runfit',title:'RunFit Advisor',place:'Projet perso',stage:'Sentier',tags:['Supabase','Recommandation'],result:'Chaussures de trail',mat:'leather',t:.38},
-  {id:'coach',title:'CoachFlow',place:'Projet perso',stage:'Sentier',tags:['LMS','Formation'],result:'Coaching et formation',mat:'stone',t:.66},
-  {id:'jsa',title:'Job Search Automator',place:'Projet perso',stage:'Sentier',tags:['Make.com','Claude API','Airtable','Playwright'],result:'Pipeline de candidature',mat:'metal',t:.80},
-  {id:'asc',title:'L\'ascension',place:'Ce site',stage:'Sommet',tags:['Nuxt','Three.js','RGAA'],result:'Le site que vous parcourez',mat:'leather',t:.92}
+const PROJECTS=[   // ordre du CV d'Adri, lu du plus ancien au plus récent le long de la trace : 2021–2023 (auto-entrepreneur), 2023–2025 (DGFiP), 2026– (Tyredating), puis les projets personnels
+  {id:'stock',when:'2021–2023',title:'Stockpulse',place:'Haute-Savoie',stage:'Étape 01',tags:['PHP','Twig','Tailwind CSS'],result:'Gestion du matériel de secours en caserne',mat:'leather',t:.08},
+  {id:'hello',when:'2021–2023',title:'HelloStay',place:'Haute-Savoie',stage:'Étape 02',tags:['Vue.js','Tailwind CSS','API Igloohome'],result:'CRM de gestion locative',mat:'stone',t:.17},
+  {id:'dgfip',when:'2023–2025',title:'DGFiP',place:'Paris',stage:'Étape 03',tags:['Vue 3','FastAPI','PostgreSQL','GitLab'],result:'−50 % de temps de traitement',mat:'metal',t:.27},
+  {id:'c2s',when:'2026 – en cours',title:'Click2SellSite',place:'Lyon',stage:'Étape 04',tags:['Vue.js','TypeScript','Java','RGAA'],result:'Audit RGAA/WCAG · Lighthouse 90–100 %',mat:'stone',t:.40},
+  {id:'runfit',title:'RunFit Advisor',place:'Projet perso',stage:'Sentier',tags:['Supabase','Recommandation'],result:'Chaussures de trail',mat:'leather',t:.52},
+  {id:'coach',title:'CoachFlow',place:'Projet perso',stage:'Sentier',tags:['LMS','Formation'],result:'Coaching et formation',mat:'stone',t:.64},
+  {id:'jsa',title:'Job Search Automator',place:'Projet perso',stage:'Sentier',tags:['Make.com','Claude API','Airtable','Playwright'],result:'Pipeline de candidature',mat:'metal',t:.76},
+  {id:'asc',title:'L\'ascension',place:'Ce site',stage:'Sommet',tags:['Nuxt','Three.js','RGAA'],result:'Le site que vous parcourez',mat:'leather',t:.88},
+  {id:'next',title:'À déterminer',place:'La suite',stage:'Prochaine étape',tags:['Votre projet ?'],result:'À écrire ensemble',mat:'ghost',t:1}
 ];
-const OFFICIAL={km:34.4,gain:2339};
+const OFFICIAL={km:180,gain:10200};   // chiffres de la Diagonale des Fous 2026 (environ 180 km et 10 200 m de D+) : le tracé en est une simulation
 
 /* ---------- Trace et relief : position locale (1 unité = 10 m), altitudes exagérées de 50 % ---------- */
 const SC=.1,EX=1.5;
 const lat0=DATA.reduce((a,p)=>a+p[0],0)/DATA.length,lon0=DATA.reduce((a,p)=>a+p[1],0)/DATA.length;
 const kx=111320*Math.cos(lat0*Math.PI/180)*SC,kz=110540*SC;
-const P=DATA.map(([la,lo,al])=>({x:(lo-lon0)*kx,z:-(la-lat0)*kz,y:al*SC*EX,alt:al}));
+const PR=DATA.map(([la,lo,al])=>({x:(lo-lon0)*kx,z:-(la-lat0)*kz,y:al*SC*EX,alt:al}));
+/* Itinéraire fluide : les points GPS bruts (en dents de scie) sont lissés par deux passes d'une fenêtre en cloche, les extrémités restent fixes ; les altitudes brutes (alt) servent toujours aux chiffres */
+const smoothPath=a=>{const W=[1,4,9,16,20,16,9,4,1],n=a.length;return a.map((p,i)=>{let sx=0,sz=0,sy=0,sw=0;for(let k=-4;k<=4;k++){const q=a[i+k];if(!q)continue;const w=W[k+4];sx+=q.x*w;sz+=q.z*w;sy+=q.y*w;sw+=w}
+  const e=Math.min(1,Math.min(i,n-1-i)/8),u=e*e*(3-2*e);return {x:p.x+(sx/sw-p.x)*u,z:p.z+(sz/sw-p.z)*u,y:p.y+(sy/sw-p.y)*u,alt:p.alt}})};
+const P=smoothPath(smoothPath(PR));
+/* Une trace continue, qui ne revient pas à son point de départ : le tracé réel est une boucle (arrivée à 40 m du départ). On l'ouvre en décalant ses points vers l'extérieur de la boucle, de plus en plus (nul au départ, 4,2 km à l'arrivée) : le premier kilomètre reste intact et l'arrivée tombe loin du départ. Les altitudes (alt, y) ne changent pas. */
+const DRIFT_KM=4.2;
+(()=>{const n=P.length,L=[0];for(let i=1;i<n;i++)L.push(L[i-1]+Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z));const tot=L[n-1]||1;
+  let cx=0,cz=0;P.forEach(p=>{cx+=p.x;cz+=p.z});cx/=n;cz/=n;
+  const dx=P[0].x-cx,dz=P[0].z-cz,dl=Math.hypot(dx,dz)||1,D=DRIFT_KM*100;   // 1 unité = 10 m
+  P.forEach((p,i)=>{const s=Math.pow(L[i]/tot,1.7);p.x+=dx/dl*D*s;p.z+=dz/dl*D*s})})();
 let gainTot=0;const gainCum=[0];for(let i=1;i<P.length;i++){gainTot+=Math.max(0,P[i].alt-P[i-1].alt);gainCum.push(gainTot)}
 const gscale=OFFICIAL.gain/gainTot;
+/* Chiffres du parcours : kilomètre et dénivelé positif cumulé à l'abscisse t du tracé, ramenés aux totaux officiels */
+const fmtN=n=>Math.round(n).toLocaleString('fr-FR'),kmAt=t=>OFFICIAL.km*Math.min(1,Math.max(0,t));
+const gainAtT=t=>{const tt=Math.min(1,Math.max(0,t)),f=tt*(P.length-1),i=Math.floor(f),u=f-i,j=Math.min(i+1,P.length-1),real=(gainCum[i]+(gainCum[j]-gainCum[i])*u)/gainTot;return OFFICIAL.gain*(.6*tt+.4*real)};   // le profil du fichier GPS (boucle de 21 km, montée au début) est mélangé à une pente régulière : le dénivelé cumulé grandit tout au long des 180 km, sans plateau
+const kmLine=t=>'Km '+fmtN(kmAt(t))+' · D+ '+fmtN(Math.round(gainAtT(t)/10)*10)+' m',kmSpeech=t=>'Kilomètre '+fmtN(kmAt(t))+', '+fmtN(Math.round(gainAtT(t)/10)*10)+' mètres de dénivelé positif cumulé';
+const KAPPA=4,RFIN=44;   // KAPPA : hauteur de la caméra de dessus = KAPPA fois le rayon visible ; le champ de vision s'ajuste pour que le cadran ait la bonne taille
+//   // rayon de sol (en unités) visible au bord du cadran à la fin de la plongée
+const hd=(()=>{let tot=0;for(let i=1;i<P.length;i++)tot+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);let acc=0,q=P[P.length-1];for(let i=1;i<P.length;i++){acc+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);if(acc>=.05*tot){q=P[i];break}}const dx=q.x-P[0].x,dz=q.z-P[0].z,l=Math.hypot(dx,dz)||1;return {x:dx/l,z:dz/l}})();   // direction de la trace sur ses premiers 5 %
 const xs=P.map(p=>p.x),zs=P.map(p=>p.z),pad=170;
 const bx0=Math.min(...xs)-pad,bx1=Math.max(...xs)+pad,bz0=Math.min(...zs)-pad,bz1=Math.max(...zs)+pad;
-const cell=7,NX=Math.ceil((bx1-bx0)/cell),NZ=Math.ceil((bz1-bz0)/cell);
+const cell0=7,NX0=Math.ceil((bx1-bx0)/cell0),NZ0=Math.ceil((bz1-bz0)/cell0);
+let ecoSaved=false;try{ecoSaved=localStorage.getItem('asc-eco')==='1'}catch(e){}
+const UPF=ecoSaved?1:2,cell=cell0/UPF,NX=NX0*UPF,NZ=NZ0*UPF;   // relief calculé grossièrement (7 unités), lissé, puis ré-échantillonné en cubique : mailles de 3,5 unités sauf en mode économe
 const hash=(x,y)=>{const s=Math.sin(x*127.1+y*311.7)*43758.5453;return s-Math.floor(s)};
 const vnoise=(x,y)=>{const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return lerp(lerp(hash(ix,iy),hash(ix+1,iy),u),lerp(hash(ix,iy+1),hash(ix+1,iy+1),u),v)};
 const fbm=(x,y)=>{let a=.5,f=1,s=0;for(let o=0;o<5;o++){s+=a*vnoise(x*f,y*f);a*=.5;f*=2.03}return s};
-const H=new Float32Array((NX+1)*(NZ+1));
-for(let j=0;j<=NZ;j++)for(let i=0;i<=NX;i++){
-  const x=bx0+i*cell,z=bz0+j*cell;let sw=0,sy=0,dmin=1e9;
-  for(const p of P){const d=Math.hypot(p.x-x,p.z-z);if(d<dmin)dmin=d;const w=1/(d*d*d+40);sw+=w;sy+=w*p.y}
-  const amp=lerp(1,58,sm(6,150,dmin));
-  H[j*(NX+1)+i]=sy/sw+(fbm(x*.011,z*.011)-.5)*amp*1.6+(fbm(x*.04,z*.04)-.5)*amp*.35;
+/* Relief bâti AUTOUR de la trace : la hauteur en un point est la moyenne (pondérée par la proximité) des altitudes des points
+   du tracé, diminuée d'une pente qui croît avec la distance à chacun d'eux. Près de la trace, c'est donc son altitude locale
+   moins une pente latérale : les courbes de niveau la longent de part et d'autre (U emboîtés) et ne la coupent qu'aux altitudes
+   qu'elle franchit, comme sur une carte autour d'une crête. Loin d'elle, un bruit doux donne un paysage naturel. */
+const RK=.7,RDC=50,ridgeFall=d=>RK*Math.min(d,RDC)+.25*RK*Math.max(0,d-RDC);
+const Ys=P.map((p,i)=>{let s=0,n=0;for(let k=-4;k<=4;k++){const q=P[i+k];if(q){s+=q.y;n++}}return s/n});   // altitudes lissées : le bruit du GPS ne fait pas trembler les courbes
+const H0=new Float32Array((NX0+1)*(NZ0+1));
+for(let j=0;j<=NZ0;j++)for(let i=0;i<=NX0;i++){
+  const x=bx0+i*cell0,z=bz0+j*cell0;let sw=0,sy=0,dmin=1e9;
+  for(let q=0;q<P.length;q++){const p=P[q],d=Math.hypot(p.x-x,p.z-z);if(d<dmin)dmin=d;const w=1/(d*d*d+40);sw+=w;sy+=w*(Ys[q]-ridgeFall(d))}
+  const amp=lerp(.5,40,sm(14,170,dmin));
+  H0[j*(NX0+1)+i]=sy/sw+(fbm(x*.011,z*.011)-.5)*amp*1.6+(fbm(x*.04,z*.04)-.5)*amp*.12;
 }
+/* Courbes de niveau fluides : flou binomial (deux passes) pour effacer les bosses autour de chaque point GPS, puis ré-échantillonnage cubique (Catmull-Rom) sur une grille plus fine */
+(()=>{const W=NX0+1,T=new Float32Array(H0.length),at=(a,i,j)=>a[Math.min(NZ0,Math.max(0,j))*W+Math.min(NX0,Math.max(0,i))];
+  for(let pa=0;pa<2;pa++){
+    for(let j=0;j<=NZ0;j++)for(let i=0;i<=NX0;i++)T[j*W+i]=(at(H0,i-2,j)+4*at(H0,i-1,j)+6*at(H0,i,j)+4*at(H0,i+1,j)+at(H0,i+2,j))/16;
+    for(let j=0;j<=NZ0;j++)for(let i=0;i<=NX0;i++)H0[j*W+i]=(at(T,i,j-2)+4*at(T,i,j-1)+6*at(T,i,j)+4*at(T,i,j+1)+at(T,i,j+2))/16;
+  }})();
+const H=UPF===1?H0:(()=>{const W0=NX0+1,W=NX+1,out=new Float32Array(W*(NZ+1)),at=(i,j)=>H0[Math.min(NZ0,Math.max(0,j))*W0+Math.min(NX0,Math.max(0,i))];
+  const cr=(a,b,c,d,t)=>b+.5*t*(c-a+t*(2*a-5*b+4*c-d+t*(3*(b-c)+d-a)));
+  for(let j=0;j<=NZ;j++){const fj=j/UPF,j0=Math.floor(fj),v=fj-j0;
+    for(let i=0;i<=NX;i++){const fi=i/UPF,i0=Math.floor(fi),u=fi-i0;
+      const r=[-1,0,1,2].map(dj=>cr(at(i0-1,j0+dj),at(i0,j0+dj),at(i0+1,j0+dj),at(i0+2,j0+dj),u));
+      out[j*W+i]=cr(r[0],r[1],r[2],r[3],v)}}
+  return out})();
 function terrainAt(x,z){
   const fx=clamp((x-bx0)/cell,0,NX-.001),fz=clamp((z-bz0)/cell,0,NZ-.001),i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,W=NX+1;
   return lerp(lerp(H[j*W+i],H[j*W+i+1],u),lerp(H[(j+1)*W+i],H[(j+1)*W+i+1],u),v);
@@ -1998,8 +2296,8 @@ function terrainAt(x,z){
 let hmin=1e9,hmax=-1e9;for(const h of H){if(h<hmin)hmin=h;if(h>hmax)hmax=h}
 
 /* ---------- Arrêts : départ, un par projet, bivouac ---------- */
-const STOPS=[{t:0,name:'Départ',ttl:'Km 0 · Départ'}].concat(PROJECTS.slice().sort((a,b)=>a.t-b.t).map((p,i)=>({t:p.t,proj:p,name:p.title,ttl:p.stage+' · '+p.place})));
-const PC0=.30,PCW=.22;
+const STOPS=[{t:0,name:'Départ',ttl:'Départ',period:'2009–2021',role:'Éducateur, Formateur, Directeur dans le secteur sportif'}].concat(PROJECTS.slice().sort((a,b)=>a.t-b.t).map((p,i)=>({t:p.t,proj:p,name:p.title,ttl:p.stage+' · '+p.place})));
+const PC0=.30,PCW=.19;   // la carte se termine à 49 % : la scène suivante n'apparaît qu'à 51 %
 const NS=STOPS.length,DW=.042,TRAV=(1-NS*DW)/(NS-1);
 STOPS.forEach((s,i)=>{s.a=i*(DW+TRAV);s.b=s.a+DW});
 function param(p){
@@ -2013,37 +2311,67 @@ function stopWeight(i,p){const s=STOPS[i];return Math.min(sm(s.a-.05,s.a,p),1-sm
 
 /* ---------- Scène ---------- */
 const OK=THREE_OK;
-let renderer,scene,cam,curve,tube,tubeSeg=700,ball,halo,mat,beam,ray;
+let renderer,scene,cam,curve,tube,tubeSeg=1400,ball,halo,mat,beam,ray;
 const camPos=OK?new THREE.Vector3():{},camTgt=OK?new THREE.Vector3():{};
+/* Trace en traits d'épaisseur constante à l'écran (en pixels, quelle que soit la distance de la caméra), claire et froide pour se distinguer des courbes de niveau cuivrées */
+const FAT_V='attribute vec3 aStart,aEnd;attribute float aSel,aSide,aT;uniform vec2 uRes;uniform float uW,uCap;varying float vT,vSide;void main(){vT=aT;vSide=aSide;mat4 M=projectionMatrix*modelViewMatrix;vec4 a=M*vec4(aStart,1.),b=M*vec4(aEnd,1.);float nr=.1;if(a.w<nr&&b.w<nr){gl_Position=vec4(2.,2.,2.,1.);return;}if(a.w<nr)a=mix(a,b,(nr-a.w)/(b.w-a.w));if(b.w<nr)b=mix(b,a,(nr-b.w)/(a.w-b.w));vec2 sa=a.xy/a.w*uRes*.5,sb=b.xy/b.w*uRes*.5,d=sb-sa;float l=length(d);d=l>1e-4?d/l:vec2(1.,0.);bool e=aSel>.5;vec4 c=e?b:a;vec2 sc=e?sb:sa;sc+=d*(e?1.:-1.)*uCap*uW*.5;vec2 o=vec2(-d.y,d.x)*aSide*uW*.5;gl_Position=vec4((sc+o)/(uRes*.5)*c.w,c.z,c.w);}';
+const FAT_F='precision highp float;uniform vec3 uColor;uniform float uAlpha,uT,uMode,uLh,uSoft;varying float vT,vSide;void main(){float a=uAlpha;if(uMode>.5&&uMode<1.5){if(vT>uT)discard;}else if(uMode>1.5){float f=smoothstep(uT-uLh,uT,vT)*step(vT,uT);if(f<=0.)discard;a*=f;}else if(uMode<-.5){if(vT<uT)discard;}gl_FragColor=vec4(uColor,a*(1.-smoothstep(uSoft,1.,abs(vSide))));}';
+const FATS=[];
+function fatGeo(pts){const m=pts.length-1,S=new Float32Array(m*12),E=new Float32Array(m*12),sel=new Float32Array(m*4),sd=new Float32Array(m*4),tt=new Float32Array(m*4),idx=[];   // un quadrilatère par segment, découpé au plan proche de la caméra dans le shader
+  for(let i=0;i<m;i++){const a=pts[i],b=pts[i+1];for(let k=0;k<4;k++){const v=i*4+k;S.set([a.x,a.y,a.z],v*3);E.set([b.x,b.y,b.z],v*3);sel[v]=k>>1;sd[v]=k&1?1:-1;tt[v]=(i+(k>>1))/m}
+    const q=i*4;idx.push(q,q+1,q+2,q+1,q+3,q+2)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(S,3));g.setAttribute('aStart',new THREE.BufferAttribute(S,3));g.setAttribute('aEnd',new THREE.BufferAttribute(E,3));g.setAttribute('aSel',new THREE.BufferAttribute(sel,1));g.setAttribute('aSide',new THREE.BufferAttribute(sd,1));g.setAttribute('aT',new THREE.BufferAttribute(tt,1));g.setIndex(idx);return g}
+function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:o.add?THREE.AdditiveBlending:THREE.NormalBlending,vertexShader:FAT_V,fragmentShader:FAT_F,
+    uniforms:{uRes:{value:new THREE.Vector2(1,1)},uW:{value:o.w},uCap:{value:o.cap==null?1:o.cap},uColor:{value:new THREE.Color(o.c)},uAlpha:{value:o.a},uT:{value:0},uMode:{value:o.mode},uLh:{value:.08},uSoft:{value:o.soft==null?.45:o.soft}}});
+  m.userData.cw=o.w;FATS.push(m);const mesh=new THREE.Mesh(geo,m);mesh.frustumCulled=false;mesh.renderOrder=o.order||2;scene.add(mesh);return mesh}
+const CLEAR=10.5;   // hauteur du bloc au-dessus de la trace : elle passe dessous
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 function paintBlock(b){
   const c=b.canvas,x=c.getContext('2d'),W=c.width,Hh=c.height,pr=b.proj;
   let seed=b.proj.title.length*13+7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
   if(pr.mat==='stone'){
-    const g=x.createLinearGradient(0,0,W,Hh);g.addColorStop(0,'#9A9388');g.addColorStop(1,'#6F695F');x.fillStyle=g;x.fillRect(0,0,W,Hh);
+    const g=x.createLinearGradient(0,0,W,Hh);g.addColorStop(0,'#BDB6AA');g.addColorStop(1,'#A29B8F');x.fillStyle=g;x.fillRect(0,0,W,Hh);
     for(let i=0;i<5000;i++){x.fillStyle=rnd()<.5?'rgba(255,255,255,'+(.03+rnd()*.05)+')':'rgba(30,26,20,'+(.04+rnd()*.07)+')';x.fillRect(rnd()*W,rnd()*Hh,1+rnd()*2,1+rnd()*2)}
     x.lineWidth=1.3;for(let i=0;i<9;i++){x.strokeStyle='rgba(235,228,215,'+(.12+rnd()*.12)+')';x.beginPath();let px=rnd()*W,py=rnd()*Hh;x.moveTo(px,py);for(let k=0;k<7;k++){px+=30+rnd()*50;py+=(rnd()-.5)*60;x.lineTo(px,py)}x.stroke()}
     const gl=x.createLinearGradient(0,0,W,Hh*.6);gl.addColorStop(0,'rgba(255,255,255,.22)');gl.addColorStop(.35,'rgba(255,255,255,0)');x.fillStyle=gl;x.fillRect(0,0,W,Hh);
   }else if(pr.mat==='metal'){
-    const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,'#8E949A');g.addColorStop(.5,'#B7BCC1');g.addColorStop(1,'#8B9096');x.fillStyle=g;x.fillRect(0,0,W,Hh);
+    const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,'#A9AFB5');g.addColorStop(.5,'#CDD2D6');g.addColorStop(1,'#A5AAB0');x.fillStyle=g;x.fillRect(0,0,W,Hh);
     for(let i=0;i<1400;i++){const y=rnd()*Hh,px=rnd()*W,l=40+rnd()*260;x.strokeStyle=(rnd()<.5?'rgba(255,255,255,':'rgba(0,0,0,')+(.04+rnd()*.08)+')';x.lineWidth=.6+rnd()*1.1;x.beginPath();x.moveTo(px,y);x.lineTo(px+l,y+(rnd()-.5));x.stroke()}
     x.strokeStyle='rgba(0,0,0,.35)';x.lineWidth=3;x.strokeRect(14,14,W-28,Hh-28);x.strokeStyle='rgba(255,255,255,.25)';x.lineWidth=1.5;x.strokeRect(17,17,W-34,Hh-34);
     [[26,26],[W-26,26],[26,Hh-26],[W-26,Hh-26]].forEach(([sx,sy])=>{x.fillStyle='#5E6368';x.beginPath();x.arc(sx,sy,7,0,6.283);x.fill();x.strokeStyle='rgba(255,255,255,.4)';x.lineWidth=1.5;x.beginPath();x.arc(sx,sy,7,0,6.283);x.stroke()});
+  }else if(pr.mat==='ghost'){
+    const g=x.createLinearGradient(0,0,W,Hh);g.addColorStop(0,'#22344D');g.addColorStop(.5,'#16233A');g.addColorStop(1,'#101B2E');x.fillStyle=g;x.fillRect(0,0,W,Hh);
+    x.strokeStyle='rgba(150,190,230,.10)';x.lineWidth=1;for(let i=-Hh;i<W;i+=26){x.beginPath();x.moveTo(i,Hh);x.lineTo(i+Hh,0);x.stroke()}
+    const gl=x.createLinearGradient(0,0,W,Hh*.6);gl.addColorStop(0,'rgba(255,255,255,.20)');gl.addColorStop(.4,'rgba(255,255,255,0)');x.fillStyle=gl;x.fillRect(0,0,W,Hh);
+    x.setLineDash([14,12]);x.lineWidth=3;x.strokeStyle='rgba(20,8,2,.55)';x.strokeRect(25,25,W-50,Hh-50);x.strokeStyle='#F0A27A';x.strokeRect(23.5,23.5,W-50,Hh-50);x.setLineDash([]);
   }else{
     x.fillStyle='#7A4A2B';x.fillRect(0,0,W,Hh);
     const g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'rgba(255,190,130,.10)');g.addColorStop(1,'rgba(0,0,0,.25)');x.fillStyle=g;x.fillRect(0,0,W,Hh);
     for(let i=0;i<8000;i++){x.fillStyle=rnd()<.6?'rgba(30,14,5,'+(.10+rnd()*.15)+')':'rgba(255,205,150,'+(.04+rnd()*.06)+')';x.beginPath();x.arc(rnd()*W,rnd()*Hh,.5+rnd()*1.4,0,6.283);x.fill()}
     x.setLineDash([16,11]);x.lineWidth=3;x.strokeStyle='rgba(20,8,2,.6)';x.strokeRect(25,25,W-50,Hh-50);x.strokeStyle='#E8D8B8';x.strokeRect(23.5,23.5,W-50,Hh-50);x.setLineDash([]);
   }
-  // gravure du titre : ombre en creux et reflet
-  const dark=pr.mat==='metal'?'rgba(0,0,0,.55)':'rgba(15,8,3,.72)',light='rgba(255,255,255,.38)';
+  // typographie lisible, contraste visé AAA : encre pleine selon la matière (noir sur pierre et métal clairs, blanc sur cuir et verre sombre), graisse 600 à 700, tailles agrandies
+  const TX={stone:{ink:'#0A0805',hi:'rgba(255,255,255,.35)',fill:'rgba(255,255,255,.30)'},metal:{ink:'#08090A',hi:'rgba(255,255,255,.4)',fill:'rgba(255,255,255,.30)'},leather:{ink:'#FFFFFF',sh:'rgba(20,8,2,.85)',fill:'rgba(0,0,0,.28)'},ghost:{ink:'#FFFFFF',sh:'rgba(0,0,0,.8)',fill:'rgba(0,0,0,.28)',stage:'#FFC4A0'}}[pr.mat];
   x.textAlign='center';x.textBaseline='alphabetic';
-  x.font='italic 400 56px "DM Serif Display", Georgia, serif';
-  let size=56;while(x.measureText(pr.title).width>W-90&&size>26){size-=3;x.font='italic 400 '+size+'px "DM Serif Display", Georgia, serif'}
-  x.fillStyle=light;x.fillText(pr.title,W/2+1.5,Hh/2+1.5);x.fillStyle=dark;x.fillText(pr.title,W/2-.5,Hh/2-.5);
-  x.font='500 22px "JetBrains Mono", monospace';x.fillStyle=pr.mat==='leather'?'rgba(245,230,205,.85)':'rgba(20,18,14,.75)';
-  x.fillText((pr.stage+' · '+pr.place).toUpperCase(),W/2,Hh/2-size-6);
-  x.fillText(pr.result,W/2,Hh/2+54);
+  const SERIF='"Cordée Serif", "DM Serif Display", Georgia, serif',MONO='"JetBrains Mono", monospace',cx=W/2,ty=Hh/2,oy=(pr.tags&&pr.tags.length)?-30:0;x.save();x.translate(0,oy);
+  let size=58;x.font='italic 600 '+size+'px '+SERIF;while(x.measureText(pr.title).width>W-90&&size>28){size-=3;x.font='italic 600 '+size+'px '+SERIF}
+  if(TX.sh){x.shadowColor=TX.sh;x.shadowBlur=7;x.fillStyle=TX.ink;x.fillText(pr.title,cx,ty);x.shadowBlur=0}else{x.fillStyle=TX.hi;x.fillText(pr.title,cx+1,ty+1);x.fillStyle=TX.ink;x.fillText(pr.title,cx,ty)}
+  x.fillStyle=TX.stage||TX.ink;{const sl=(pr.stage+' · '+pr.place+(pr.when?' · '+pr.when:'')).toUpperCase();let fz=24;x.font='700 '+fz+'px '+MONO;while(x.measureText(sl).width>W-70&&fz>15){fz-=1;x.font='700 '+fz+'px '+MONO}x.fillText(sl,cx,ty-size-8)}
+  x.font='700 25px '+MONO;x.fillStyle=TX.ink;
+  const lines=[''];pr.result.split(' ').forEach(w=>{const t=(lines[lines.length-1]+' '+w).trim();if(x.measureText(t).width>W-80&&lines[lines.length-1])lines.push(w);else lines[lines.length-1]=t});   // résultat sur deux lignes au plus
+  const nl=Math.min(2,lines.length);lines.slice(0,2).forEach((l,i)=>x.fillText(l,cx,ty+50+i*30));
+  x.restore();
+  /* technologies gravées sur le bloc : pastilles contournées sous le résultat, 20 px en graisse 700, sur une ou deux rangées */
+  if(pr.tags&&pr.tags.length){
+    const fs=20,padX=13,gap=10,h=36,maxW=W-100;x.font='700 '+fs+'px '+MONO;x.textAlign='center';x.textBaseline='middle';
+    const wd=pr.tags.map(t=>x.measureText(t).width+padX*2),rows=[[]];let cur=0;
+    pr.tags.forEach((t,i)=>{if(rows[rows.length-1].length&&cur+gap+wd[i]>maxW){rows.push([]);cur=0}rows[rows.length-1].push(i);cur+=(rows[rows.length-1].length>1?gap:0)+wd[i]});
+    const rr=(px,py,pw,ph,r)=>{x.beginPath();x.moveTo(px+r,py);x.arcTo(px+pw,py,px+pw,py+ph,r);x.arcTo(px+pw,py+ph,px,py+ph,r);x.arcTo(px,py+ph,px,py,r);x.arcTo(px,py,px+pw,py,r);x.closePath()};
+    const y0=ty+oy+50+(nl-1)*30+16;
+    rows.forEach((row,ri)=>{const tw=row.reduce((a,i)=>a+wd[i],0)+gap*(row.length-1);let px=(W-tw)/2;const py=y0+ri*(h+8);
+      row.forEach(i=>{rr(px,py,wd[i],h,h/2);x.fillStyle=TX.fill;x.fill();x.lineWidth=2;x.strokeStyle=TX.ink;x.globalAlpha=.8;x.stroke();x.globalAlpha=1;x.fillStyle=TX.ink;x.fillText(pr.tags[i],px+wd[i]/2,py+h/2+1);px+=wd[i]+gap})});
+    x.textBaseline='alphabetic';
+  }
   b.tex.needsUpdate=true;
 }
 function makeEnvP(){
@@ -2051,6 +2379,7 @@ function makeEnvP(){
   const t=new THREE.CubeTexture([mk('#3A2A20','#0A0C10',[[26,0,8,64,'rgba(255,200,150,.8)']]),mk('#1E2A3C','#080A0E',[[15,0,6,64,'rgba(150,190,255,.7)']]),mk('#E8EEF4','#2A3038',[[10,12,44,14,'rgba(255,255,255,.95)']]),mk('#050607','#080A0C'),mk('#D8DEE4','#2A2E34',[[8,7,48,10,'rgba(255,255,255,.85)']]),mk('#10151C','#05070A')]);
   t.needsUpdate=true;return t;
 }
+const RFAR=Math.max(520,Math.round(Math.max(...P.map(p=>Math.hypot(p.x-(bx0+bx1)/2,p.z-(bz0+bz1)/2)))+170));   // le relief reste visible jusqu'aux points les plus éloignés du tracé
 function initScene(){
   renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
   renderer.setPixelRatio(Math.min(devicePixelRatio,QDPR()));renderer.setClearColor(0x000000,0);
@@ -2062,7 +2391,7 @@ function initScene(){
   for(let j=0;j<=NZ;j++)for(let i=0;i<=NX;i++){const k=j*(NX+1)+i;pos.setY(k,H[k]);pos.setX(k,bx0+i*cell);pos.setZ(k,bz0+j*cell)}
   mat=new THREE.ShaderMaterial({
     extensions:{derivatives:true},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
-    uniforms:{cLo:{value:new THREE.Vector3(.78,.44,.18)},cHi:{value:new THREE.Vector3(1,.70,.42)},cGrid:{value:new THREE.Vector3(.35,.55,.75)},cstep:{value:20*SC*EX},uMin:{value:hmin},uMax:{value:hmax},uGlow:{value:1},uC:{value:new THREE.Vector2((bx0+bx1)/2,(bz0+bz1)/2)},uR0:{value:320},uR1:{value:520}},
+    uniforms:{cLo:{value:new THREE.Vector3(.78,.44,.18)},cHi:{value:new THREE.Vector3(1,.70,.42)},cGrid:{value:new THREE.Vector3(.35,.55,.75)},cstep:{value:20*SC*EX},uMin:{value:hmin},uMax:{value:hmax},uGlow:{value:1},uC:{value:new THREE.Vector2((bx0+bx1)/2,(bz0+bz1)/2)},uR0:{value:Math.round(.8*RFAR)},uR1:{value:RFAR}},
     vertexShader:'varying float vH;varying vec3 vW;varying vec3 vView;void main(){vH=position.y;vW=position;vec4 mv=modelViewMatrix*vec4(position,1.);vView=mv.xyz;gl_Position=projectionMatrix*mv;}',
     fragmentShader:`precision highp float;
       uniform vec3 cLo,cHi,cGrid;uniform float cstep,uMin,uMax,uGlow,uR0,uR1;uniform vec2 uC;
@@ -2082,9 +2411,12 @@ function initScene(){
   const tm=new THREE.Mesh(g,mat);tm.renderOrder=2;scene.add(tm);
   const pts=P.map(p=>new THREE.Vector3(p.x,Math.max(p.y,terrainAt(p.x,p.z)+.8)+1.6,p.z));
   curve=new THREE.CatmullRomCurve3(pts,false,'centripetal');
-  tube=new THREE.Mesh(new THREE.TubeGeometry(curve,tubeSeg,1.05,6,false),new THREE.MeshBasicMaterial({color:0xE26D3B}));scene.add(tube);
-  beam=new THREE.Mesh(new THREE.TubeGeometry(curve,tubeSeg,2.1,6,false),new THREE.MeshBasicMaterial({color:0xFFE6C0,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false}));scene.add(beam);
-  const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(tubeSeg)),new THREE.LineDashedMaterial({color:0xE26D3B,dashSize:3,gapSize:5,transparent:true,opacity:.35}));ln.computeLineDistances();scene.add(ln);
+  const pathPts=Array.from({length:tubeSeg+1},(_,i)=>curve.getPointAt(i/tubeSeg)),fgeo=fatGeo(pathPts);
+  // de la plus large à la plus fine : halo émeraude de toute la trace, partie à venir en blanc givre atténué, partie parcourue en blanc givre plein, lueur émeraude autour de la position
+  fatLine(fgeo,{w:24,c:0x00F5A0,a:.13,mode:0,add:true,soft:0,cap:0,order:1});
+  fatLine(fgeo,{w:3,c:0xA9BDC4,a:1,mode:-1,order:2});
+  tube=fatLine(fgeo,{w:4.6,c:0xF2FBF8,a:1,mode:1,order:3});
+  beam=fatLine(fgeo,{w:14,c:0x00F5A0,a:.7,mode:2,add:true,soft:0,cap:0,order:3});
   ball=new THREE.Mesh(new THREE.SphereGeometry(2.4,20,14),new THREE.MeshBasicMaterial({color:0xE26D3B}));scene.add(ball);
   const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);
   gr.addColorStop(0,'rgba(226,109,59,.9)');gr.addColorStop(.35,'rgba(226,109,59,.28)');gr.addColorStop(1,'rgba(226,109,59,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
@@ -2098,19 +2430,19 @@ function buildBlocks(){
   const geo=new THREE.ExtrudeGeometry(shp,{depth:5,bevelEnabled:true,bevelThickness:.7,bevelSize:.7,bevelSegments:3,curveSegments:6});
   const sc=document.createElement('canvas');sc.width=sc.height=128;{const x=sc.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(0,0,0,.65)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
   const shTex=new THREE.CanvasTexture(sc);
-  const cfg={stone:{rough:.32,met:.05},metal:{rough:.38,met:.9},leather:{rough:.62,met:0}};
+  const cfg={stone:{rough:.32,met:.05},metal:{rough:.72,met:.5},leather:{rough:.62,met:0},ghost:{rough:.18,met:.2}};
   STOPS.forEach((st,si)=>{
     if(!st.proj)return;
     const pr=st.proj,cnv=document.createElement('canvas');cnv.width=512;cnv.height=384;
     const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=8;tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
-    const top=new THREE.MeshStandardMaterial({map:tex,roughness:cfg[pr.mat].rough,metalness:cfg[pr.mat].met,envMap:env,envMapIntensity:1.1});
-    const side=new THREE.MeshStandardMaterial({color:pr.mat==='leather'?0x4A2A16:pr.mat==='metal'?0x6B7076:0x57524A,roughness:.6,metalness:pr.mat==='metal'?.8:.05,envMap:env,envMapIntensity:.8});
+    const ghost=pr.mat==='ghost',top=new THREE.MeshStandardMaterial({map:tex,roughness:cfg[pr.mat].rough,metalness:cfg[pr.mat].met,envMap:env,envMapIntensity:pr.mat==='metal'?.45:1.1,transparent:ghost,opacity:ghost?.88:1,depthWrite:!ghost});
+    const side=new THREE.MeshStandardMaterial({color:ghost?0x2A3C58:pr.mat==='leather'?0x4A2A16:pr.mat==='metal'?0x6B7076:0x57524A,roughness:.6,metalness:pr.mat==='metal'?.8:.05,envMap:env,envMapIntensity:.8,transparent:ghost,opacity:ghost?.88:1,depthWrite:!ghost});
     const mesh=new THREE.Mesh(geo,[top,side]);mesh.rotation.x=-Math.PI/2+.42;mesh.position.y=0;
     const holder=new THREE.Group();holder.add(mesh);holder.scale.setScalar(1.3);scene.add(holder);
     const t=st.t,pt=curve.getPointAt(t),a=curve.getPointAt(clamp(t-.03)),b=curve.getPointAt(clamp(t+.03));
     let dx=b.x-a.x,dz=b.z-a.z;const dl=Math.hypot(dx,dz)||1;dx/=dl;dz/=dl;
-    const side1=(blocks.length%2?1:-1),nx=-dz,nz=dx;
-    const bx=pt.x+nx*side1*17,bz=pt.z+nz*side1*17,by=terrainAt(bx,bz)+3.4;
+    const side1=1,nx=-dz,nz=dx;
+    const bx=pt.x,bz=pt.z,by=pt.y+CLEAR;
     holder.position.set(bx,by,bz);
     const camAt=curve.getPointAt(clamp(t-.03));
     const faceYaw=Math.atan2(camAt.x-bx,camAt.z-bz);holder.rotation.y=faceYaw;
@@ -2118,10 +2450,10 @@ function buildBlocks(){
     shadow.rotation.x=-Math.PI/2;shadow.position.set(bx,terrainAt(bx,bz)+.4,bz);scene.add(shadow);
     // balise d'altitude : mât et anneau lumineux
     const pole=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,28,8),new THREE.MeshBasicMaterial({color:0xE26D3B,transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false}));
-    pole.position.set(bx,terrainAt(bx,bz)+14,bz);scene.add(pole);
+    const gy0=terrainAt(bx,bz),ph=Math.max(4,by-gy0);pole.scale.y=ph/28;pole.position.set(bx,gy0+ph/2,bz);scene.add(pole);
     const ring=new THREE.Mesh(new THREE.RingGeometry(12,13.2,48),new THREE.MeshBasicMaterial({color:0xE26D3B,transparent:true,opacity:.55,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));
     ring.rotation.x=-Math.PI/2;ring.position.set(bx,terrainAt(bx,bz)+.6,bz);scene.add(ring);
-    const bk={holder,mesh,shadow,pole,ring,proj:pr,base:by,lift:0,stopIdx:si,tex,canvas:cnv,faceYaw,pos:new THREE.Vector3(bx,by,bz),t,pt:new THREE.Vector3(pt.x,0,pt.z),n:[nx*side1,nz*side1],camAt:new THREE.Vector3(camAt.x,0,camAt.z)};
+    const bk={holder,mesh,shadow,pole,ring,proj:pr,base:by,lift:0,stopIdx:si,tex,canvas:cnv,faceYaw,pos:new THREE.Vector3(bx,by,bz),t,ty:pt.y,pt:new THREE.Vector3(pt.x,0,pt.z),n:[nx*side1,nz*side1],camAt:new THREE.Vector3(camAt.x,0,camAt.z)};
     blocks.push(bk);paintBlock(bk);
   });
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>blocks.forEach(paintBlock));
@@ -2129,20 +2461,19 @@ function buildBlocks(){
 const baseFov=()=>cam.aspect<.9?54:42;
 /* Sur écran étroit : blocs plus près du sentier et champ de vision plus large, pour qu'ils restent dans l'image */
 function placeBlocks(){
-  const lat=cam.aspect<.9?7:17;
   blocks.forEach(bk=>{
-    const bx=bk.pt.x+bk.n[0]*lat,bz=bk.pt.z+bk.n[1]*lat,gy=terrainAt(bx,bz);
-    bk.base=gy+3.4;bk.faceYaw=Math.atan2(bk.camAt.x-bx,bk.camAt.z-bz);
+    const bx=bk.pt.x,bz=bk.pt.z,gy=terrainAt(bx,bz),ph=Math.max(4,bk.ty+CLEAR-gy);
+    bk.base=bk.ty+CLEAR;bk.faceYaw=Math.atan2(bk.camAt.x-bx,bk.camAt.z-bz);
     bk.holder.position.set(bx,bk.base,bz);bk.pos.set(bx,bk.base,bz);
-    bk.shadow.position.set(bx,gy+.4,bz);bk.pole.position.set(bx,gy+14,bz);bk.ring.position.set(bx,gy+.6,bz);
+    bk.shadow.position.set(bx,gy+.4,bz);bk.pole.scale.y=ph/28;bk.pole.position.set(bx,gy+ph/2,bz);bk.ring.position.set(bx,gy+.6,bz);
   });
 }
-function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return;renderer.setSize(w,h,false);cam.aspect=w/h;if(!staticMode)cam.fov=baseFov();cam.updateProjectionMatrix();placeBlocks()}
+function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return;renderer.setSize(w,h,false);{const bs=renderer.getDrawingBufferSize(new THREE.Vector2()),k=bs.x/w;FATS.forEach(m=>{m.uniforms.uRes.value.copy(bs);m.uniforms.uW.value=m.userData.cw*k})}cam.aspect=w/h;if(!staticMode)cam.fov=baseFov();cam.updateProjectionMatrix();placeBlocks()}
 
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
-const v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null;
+const v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
 let curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
-function rig(p,dt,snap){
+function rig(p,dt,snap,intro=0){
   const t=param(p);
   let aw=0,bd=9;for(let i=0;i<NS;i++){const d=Math.abs(p-(STOPS[i].a+STOPS[i].b)/2);if(d<bd){bd=d;aw=i}}
   const mw=stopWeight(aw,p);activeStop=aw;
@@ -2154,14 +2485,26 @@ function rig(p,dt,snap){
   const gh=terrainAt(v1.x,v1.z)+22;if(v1.y<gh)v1.y=gh;
   v2.copy(ahead);v2.y+=14;   // regard qui garde les crêtes dans l'image
   const blk=blocks.find(x=>x.stopIdx===aw);
-  if(blk&&mw>0){v2.lerp(blk.pos,mw*(cam.aspect<.9?.9:.55))}
+  if(blk&&mw>0){v2.lerp(blk.pos,mw*(cam.aspect<.9?1:.55))}   // téléphone : à l'arrêt, la caméra vise exactement le bloc (centré, jamais rogné sur le côté)
   const k=snap?1:1-Math.exp(-dt*5);
-  camPos.lerp(v1,k);camTgt.lerp(v2,k);
-  cam.position.copy(camPos);cam.up.set(0,1,0);cam.lookAt(camTgt);
+  if(intro>.001){
+    // début : vue de dessus à hauteur fixe (KAPPA x rayon), centrée sous le cadran ; le champ de vision est celui qui donne au sol la taille du cadran : les courbes de la carte recouvrent celles du verre
+    const e=ease(intro),ok=DIAL.r>5,w=cv.clientWidth,h=cv.clientHeight,hT=KAPPA*RFIN,sP=ok?.98*DIAL.r/RFIN:(h/2)/(hT*Math.tan(baseFov()*Math.PI/360));   // 0,98 : écart d'échelle mesuré entre le disque du cadran et ses courbes
+    const fovT=2*Math.atan((h/2)/(sP*hT))*180/Math.PI;
+    const ox=(ok?DIAL.cx:w/2)-w/2,oy=(ok?DIAL.cy:h/2)-h/2,rx=-hd.z,rz=hd.x;
+    const tx=P[0].x-rx*(ox/sP)+hd.x*(oy/sP),tz=P[0].z-rz*(ox/sP)+hd.z*(oy/sP),gy=terrainAt(P[0].x,P[0].z);
+    camA.position.copy(v1);camA.up.set(0,1,0);camA.lookAt(v2);
+    camB.position.set(tx,gy+hT,tz);camB.up.set(hd.x,0,hd.z);camB.lookAt(tx,gy,tz);
+    camPos.copy(v1).lerp(camB.position,e);camTgt.copy(v2).lerp(v3.set(tx,gy,tz),e);
+    cam.position.copy(camPos);cam.quaternion.slerpQuaternions(camA.quaternion,camB.quaternion,e);
+    const fv=lerp(baseFov(),fovT,e);if(Math.abs(cam.fov-fv)>.01){cam.fov=fv;cam.updateProjectionMatrix()}
+  }else{
+    camPos.lerp(v1,k);camTgt.lerp(v2,k);
+    cam.position.copy(camPos);cam.up.set(0,1,0);cam.lookAt(camTgt);
+    if(!staticMode&&Math.abs(cam.fov-baseFov())>.01){cam.fov=baseFov();cam.updateProjectionMatrix()}
+  }
   ball.position.set(pt.x,pt.y+2.2,pt.z);halo.position.copy(ball.position);
-  tube.geometry.setDrawRange(0,Math.floor(clamp(t)*tubeSeg)*36);
-  const nowS=performance.now()/1000,Lh=.08*(1+.14*Math.sin(nowS*3)),a0=Math.floor(Math.max(0,t-Lh)*tubeSeg),a1=Math.floor(clamp(t)*tubeSeg);
-  beam.geometry.setDrawRange(a0*36,Math.max(0,a1-a0)*36);
+  const nowS=performance.now()/1000;FATS.forEach(m=>{m.uniforms.uT.value=clamp(t);m.uniforms.uLh.value=.08*(1+.14*Math.sin(nowS*3))});
   curT=t;parcAlt=altAt(t);
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
   blocks.forEach((bk,i)=>{
@@ -2195,34 +2538,48 @@ function bearingAt(t){const a=curve.getPointAt(clamp(t-.02)),b=curve.getPointAt(
 const fmt=n=>Math.round(n).toLocaleString('fr-FR');
 STOPS.forEach((st,i)=>{
   const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.dataset.i=i;
-  b.innerHTML=`<i>${String(i).padStart(2,'0')}</i><span class="lb">${st.name}</span>`;
+  b.innerHTML=`<span class="dot" aria-hidden="true"></span><span class="stip"><i>${String(i).padStart(2,'0')}</i><span class="lb">${st.name}</span></span>`;
   b.addEventListener('click',()=>{pinnedIdx=pinnedIdx===i?-1:i;gotoStop(i)});
   b.addEventListener('pointerenter',()=>{focusIdx=i});b.addEventListener('pointerleave',()=>{focusIdx=-1});
   b.addEventListener('focus',()=>{focusIdx=i});b.addEventListener('blur',()=>{if(focusIdx===i)focusIdx=-1});
+  li.style.top=(i/(STOPS.length-1)*100).toFixed(2)+'%';   // les étapes sont réparties sur toute la hauteur de la barre de progression
   li.appendChild(b);stageList.appendChild(li);
+  if(!st.proj){const it0=document.createElement('li');it0.innerHTML=`<p class="e">${st.ttl}</p><p class="km">${kmLine(0)}</p><h3>${st.period}</h3><p>${st.role}</p>`;plist.appendChild(it0)}
   if(st.proj){
     const pr=st.proj,it=document.createElement('li');
     const alt=OK?altAt(st.t):0;
-    it.innerHTML=`<p class="e">${pr.stage} · ${pr.place}</p><h3>${pr.title}</h3><p>${pr.result}</p><ul>${pr.tags.map(t=>'<li>'+t+'</li>').join('')}</ul>`;
+    it.innerHTML=`<p class="e">${pr.stage} · ${pr.place}</p><p class="km">${kmLine(st.t)}</p><h3>${pr.title}</h3><p>${pr.result}</p><ul>${pr.tags.map(t=>'<li>'+t+'</li>').join('')}</ul>`;
     plist.appendChild(it);
-    const holo=document.createElement('div');holo.className='holo';holo.dataset.i=i;holo.innerHTML=pr.tags.map(t=>'<span>'+t+'</span>').join('');tagsEl.appendChild(holo);
+    /* les technologies sont gravées sur la face du bloc (plus de pastilles flottantes au-dessus) */
   }
 });
 const stageBtns=[...stageList.querySelectorAll('button')],holos=[...tagsEl.querySelectorAll('.holo')];
+/* barre de progression : dans la zone de la carte, la pastille parcourt les points d'étapes posés sur la barre */
+mapRail=p=>{
+  const zk=p<.5?sm(.27,.31,p)*(1-sm(.5,.545,p)):0;if(zk<=0)return null;
+  const l=clamp((p-PC0)/PCW),n=STOPS.length,c=STOPS.map(s=>(s.a+s.b)/2);let q=0;
+  if(l>=c[n-1])q=1;else if(l>c[0]){let i=0;while(i<n-2&&l>c[i+1])i++;q=(i+(l-c[i])/(c[i+1]-c[i]))/(n-1)}
+  return {top:lerp(p*100,q*100,zk),zk};
+};
 function gotoStop(i){const s=STOPS[i];cinematicTo(PC0+PCW*(s.a+s.b)/2)}
-const mT=$('#pmTtl'),m1=$('#pm1'),m1l=$('#pm1l'),m2=$('#pm2'),m2l=$('#pm2l'),m3=$('#pm3'),m3l=$('#pm3l');
+const mapTot=$('#mapTot');let totK=-1,totG=-1;
+const mK=$('#pmKm'),mT=$('#pmTtl'),m1=$('#pm1'),m1l=$('#pm1l'),m2=$('#pm2'),m2l=$('#pm2l'),m3=$('#pm3'),m3l=$('#pm3l'),plMore=$('#plMore');
+const plDock=plMore.parentElement;
+function openStop(id,opener){if(id==='next'){jumpTo(.845);live.textContent='Contact. Posons le sac.';return}openProject(id,opener)}   // un seul geste par étape : ouvrir la fiche (la dernière étape mène au contact)
+plMore.addEventListener('click',()=>openStop(plMore.dataset.id,plMore));
 let lastShown=-2;
 function updateUi(p){
   const sel=pinnedIdx>=0?pinnedIdx:(ptrIdx>=0?ptrIdx:(focusIdx>=0?focusIdx:-1));
   const cur=sel>=0?sel:activeStop;
-  stageBtns.forEach((b,i)=>b.setAttribute('aria-current',String(i===activeStop)));
+  stageBtns.forEach((b,i)=>{b.setAttribute('aria-current',String(i===activeStop));b.classList.toggle('past',i<activeStop)});
   const st=STOPS[Math.max(cur,0)],t=st.proj?st.t:(cur===0?0:1);
   const alt=altAt(t),brg=bearingAt(t);
-  mT.textContent=st.ttl+(st.proj?' · '+st.name:'');
-  m1.textContent=fmt(alt)+' m';m1l.textContent='Altitude du projet';
-  m2.textContent=String(Math.round(brg)%360).padStart(3,'0')+'° '+DIRS[Math.round(brg/45)%8];m2l.textContent='Cap suivi';
-  if(st.proj){m3.textContent=st.proj.result;m3l.textContent='Résultat'}else{m3.textContent=(t*OFFICIAL.km).toFixed(1).replace('.',',')+' km';m3l.textContent='Distance'}
-  if(cur!==lastShown){lastShown=cur;if(cur>=0)live.textContent='Étape '+cur+' : '+st.name}
+  mT.textContent=st.ttl+(st.proj?' · '+st.name:'');if(mK)mK.textContent=kmLine(t);
+  if(st.proj&&PROJECT_INFO[st.proj.id]){const nx=st.proj.id==='next';plMore.hidden=false;plMore.dataset.id=st.proj.id;plMore.querySelector('.t').textContent=nx?'Définir la prochaine étape':'Voir la fiche';plMore.querySelector('.n').textContent=' : '+st.proj.title;if(nx)plMore.removeAttribute('aria-haspopup');else plMore.setAttribute('aria-haspopup','dialog');plDock.classList.add('on-proj')}else{plMore.hidden=true;plDock.classList.remove('on-proj')}
+  // la plaque donne l'étape du parcours, plus des coordonnées : période ou état, puis intitulé
+  if(st.proj){const inf=PROJECT_INFO[st.proj.id];m1.textContent=inf?inf.st:'';m3.textContent=st.proj.result}else{m1.textContent=st.period;m3.textContent=st.role}
+  m1l.textContent='';m2.textContent='';m2l.textContent='';m3l.textContent='';
+  if(cur!==lastShown){lastShown=cur;if(cur>=0)live.textContent='Étape '+cur+' : '+st.name+(st.proj?'':', '+st.period+', '+st.role)+'. '+kmSpeech(t)}
   // étiquettes
   holos.forEach(h=>{const i=+h.dataset.i;const on=(i===sel)||(sel<0&&i===activeStop);h.classList.toggle('on',on)});
 }
@@ -2248,14 +2605,18 @@ function pick(){
 }
 cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect();ptr.x=e.clientX-r.left;ptr.y=e.clientY-r.top;ptr.in=true});
 cv.addEventListener('pointerleave',()=>{ptr.in=false;ptrIdx=-1});
-cv.addEventListener('click',()=>{if(ptrIdx>=0){pinnedIdx=pinnedIdx===ptrIdx?-1:ptrIdx;gotoStop(ptrIdx)}});
+cv.addEventListener('click',e=>{   // toucher le bloc 3D : sur l'étape en cours, il ouvre la fiche ; sur un autre bloc, la caméra s'y rend
+  const r=cv.getBoundingClientRect();ptr.x=e.clientX-r.left;ptr.y=e.clientY-r.top;ptr.in=true;pick();
+  if(ptrIdx<0)return;const st=STOPS[ptrIdx];
+  if(ptrIdx===activeStop&&st&&st.proj&&PROJECT_INFO[st.proj.id]){openStop(st.proj.id,plMore);return}
+  pinnedIdx=pinnedIdx===ptrIdx?-1:ptrIdx;gotoStop(ptrIdx)});
 addEventListener('keydown',e=>{if(e.key==='Escape')pinnedIdx=-1});
 
 /* ---------- Vue statique et interface publique ---------- */
 function staticView(){
   if(!inited)return;resize();updateSky(.3);
-  const c=curve.getPointAt(.5);camPos.set(c.x,900,c.z+70);camTgt.set(c.x,0,c.z);cam.position.copy(camPos);cam.lookAt(camTgt);cam.fov=28;cam.updateProjectionMatrix();
-  tube.geometry.setDrawRange(0,tubeSeg*36);beam.visible=false;halo.visible=false;
+  const c=curve.getPointAt(.5),ext=Math.max(bx1-bx0-2*pad,bz1-bz0-2*pad)*1.12,hs=Math.max(900,ext*.5/Math.tan(14*Math.PI/180));camPos.set(c.x,hs,c.z+70);camTgt.set(c.x,0,c.z);cam.position.copy(camPos);cam.lookAt(camTgt);cam.fov=28;cam.updateProjectionMatrix();
+  FATS.forEach(m=>{m.uniforms.uT.value=1});beam.visible=false;halo.visible=false;
   blocks.forEach(b=>{b.lift=0;b.holder.position.y=b.base});
   renderer.render(scene,cam);
 }
@@ -2263,15 +2624,18 @@ function dynamicView(){if(!inited)return;beam.visible=true;halo.visible=true;res
 let inited=false;
 function ensure(){if(inited||!OK)return;inited=true;initScene();resize();camPos.set(0,0,0);camTgt.set(0,0,0);first=true}
 let first=true,lastT=0;
-function update(l,dt){
+function update(l,dt,intro){
   if(!inited)return;
-  updateSky(l);rig(l,dt,first);first=false;pick();updateUi(l);
+  const iL=1-sm(STOPS[0].b,STOPS[1].a,l);   // la vue de dessus (alignée sur le verre) ne dure que le temps du Départ, puis la caméra s'incline en rejoignant la première étape
+  updateSky(l);rig(l,dt,first||iL>0,iL);first=false;
+  {const tt=param(l),k=Math.round(kmAt(tt)),g=Math.round(gainAtT(tt)/10);if(k!==totK||g!==totG){totK=k;totG=g;mapTot.textContent=kmLine(tt)}}   /* sous le titre : kilomètre et dénivelé cumulés évoluent avec l'avancée sur la trace */
+  pick();updateUi(l);
   renderer.render(scene,cam);placeHolos();
 }
 function sizeIt(){if(inited)resize()}
 function setQuality(){if(inited){renderer.setPixelRatio(Math.min(devicePixelRatio,QDPR()));resize()}}
 function stopPs(){return STOPS.map(s=>({p:PC0+PCW*(s.a+s.b)/2,name:s.name}))}
-return {ensure,update,resize:sizeIt,staticView,dynamicView,setQuality,stopPs,dispose(){if(inited)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
+return {ensure,update,resize:sizeIt,staticView,dynamicView,setQuality,stopPs,topoInfo(){return {heightAt:terrainAt,x0:P[0].x,z0:P[0].z,gy0:terrainAt(P[0].x,P[0].z),hx:hd.x,hz:hd.z,cstep:20*SC*EX,rfin:RFIN,kappa:KAPPA,hmin,hmax}},dispose(){if(inited)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
 
 })();
 

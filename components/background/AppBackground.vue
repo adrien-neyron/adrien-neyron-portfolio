@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 
 const isDark = ref(false);
+const { isPaused } = useSceneState();
 
 onMounted(() => {
   isDark.value = document.documentElement.classList.contains("dark");
@@ -15,33 +16,13 @@ onMounted(() => {
 
 <template>
   <div aria-hidden="true">
-
-    <!-- ① Gradient mesh vivant — 3 blobs colorés animés ───── -->
-    <div class="blob blob-a" :class="{ dark: isDark }" />
-    <div class="blob blob-b" :class="{ dark: isDark }" />
-    <div class="blob blob-c" :class="{ dark: isDark }" />
-
-    <!-- ② Canvas Three.js — DÉSACTIVÉ TEMPORAIREMENT ─────────
-         @tresjs/nuxt@2.1.2 dépend en direct de @tresjs/core@3.9.0, ce qui
-         installe une copie imbriquée en plus du @tresjs/core@^4.3.0 de premier
-         niveau. Ce conflit de versions fait planter le montage du composant
-         (erreur Vue "Cannot read properties of undefined (reading 'default')"
-         dans patchProp), ce qui remonte jusqu'à la racine de l'app et casse
-         TOUTE la page (page d'erreur 500 Nuxt), pas seulement le fond animé.
-         Un correctif via `overrides` dans package.json a déjà été tenté et a
-         causé une régression pire (plantage du formulaire admin) — donc pas
-         de nouvel essai en prod sans l'avoir testé au préalable dans un
-         environnement de build complet. En attendant : composant non monté,
-         le reste du fond (blobs CSS ci-dessus) reste actif. -->
-
+    <div class="blob blob-a" :class="{ dark: isDark, paused: isPaused }" />
+    <div class="blob blob-b" :class="{ dark: isDark, paused: isPaused }" />
+    <div class="blob blob-c" :class="{ dark: isDark, paused: isPaused }" />
   </div>
 </template>
 
 <style scoped>
-/* ─── Gradient blobs ─────────────────────────────────────── */
-/* Chaque blob est un cercle flou qui dérive lentement.         */
-/* GPU-only : transform uniquement.                             */
-
 .blob {
   position: fixed;
   border-radius: 50%;
@@ -50,81 +31,53 @@ onMounted(() => {
   pointer-events: none;
   will-change: transform;
 }
+.blob.paused { animation-play-state: paused; }
 
-/* Blob A — orange brûlé, haut-droite → bas-centre */
 .blob-a {
-  width: 65vw;
-  height: 65vw;
-  top: -20vw;
-  right: -15vw;
-  background: radial-gradient(circle,
-    rgba(196, 98, 45, 0.30) 0%,
-    transparent 70%
-  );
+  width: 65vw; height: 65vw;
+  top: -20vw; right: -15vw;
+  background: radial-gradient(circle, rgba(196, 98, 45, 0.30) 0%, transparent 70%);
   animation: blobA 22s ease-in-out infinite;
 }
 .blob-a.dark {
-  background: radial-gradient(circle,
-    rgba(224, 120, 64, 0.22) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle, rgba(224, 120, 64, 0.22) 0%, transparent 70%);
 }
 
-/* Blob B — vert sauge, bas-gauche → haut-centre */
 .blob-b {
-  width: 55vw;
-  height: 55vw;
-  bottom: -15vw;
-  left: -10vw;
-  background: radial-gradient(circle,
-    rgba(92, 122, 90, 0.28) 0%,
-    transparent 70%
-  );
+  width: 55vw; height: 55vw;
+  bottom: -15vw; left: -10vw;
+  background: radial-gradient(circle, rgba(92, 122, 90, 0.28) 0%, transparent 70%);
   animation: blobB 30s ease-in-out infinite;
 }
 .blob-b.dark {
-  background: radial-gradient(circle,
-    rgba(122, 173, 120, 0.20) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle, rgba(122, 173, 120, 0.20) 0%, transparent 70%);
 }
 
-/* Blob C — ambre doré, centre → légère pulsation */
 .blob-c {
-  width: 45vw;
-  height: 45vw;
-  top: 25vh;
-  left: 28vw;
-  background: radial-gradient(circle,
-    rgba(232, 168, 56, 0.18) 0%,
-    transparent 70%
-  );
+  width: 45vw; height: 45vw;
+  top: 25vh; left: 28vw;
+  background: radial-gradient(circle, rgba(232, 168, 56, 0.18) 0%, transparent 70%);
   animation: blobC 38s ease-in-out infinite;
 }
 .blob-c.dark {
-  background: radial-gradient(circle,
-    rgba(240, 192, 80, 0.13) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle, rgba(240, 192, 80, 0.13) 0%, transparent 70%);
 }
 
-/* ─── Mouvements des blobs ─────────────────────────────────── */
 @keyframes blobA {
-  0%,  100% { transform: translate(0,    0)    scale(1);    }
+  0%,  100% { transform: translate(0, 0)    scale(1);    }
   30%        { transform: translate(-8vw, 6vh)  scale(1.12); }
   65%        { transform: translate(5vw, -4vh)  scale(0.92); }
 }
 @keyframes blobB {
-  0%,  100% { transform: translate(0,   0)    scale(1);    }
+  0%,  100% { transform: translate(0, 0)    scale(1);    }
   40%        { transform: translate(9vw, -7vh) scale(1.15); }
   72%        { transform: translate(-4vw, 5vh) scale(0.88); }
 }
 @keyframes blobC {
-  0%,  100% { transform: translate(0,     0)    scale(1);    }
-  50%        { transform: translate(-10vw, 7vh)  scale(1.20); }
+  0%,  100% { transform: translate(0, 0)       scale(1);    }
+  50%        { transform: translate(-10vw, 7vh) scale(1.20); }
 }
 
-/* ─── Reduced motion ──────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .blob { animation: none; }
 }

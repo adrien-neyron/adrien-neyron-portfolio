@@ -1,22 +1,35 @@
 <a class="skip" href="#main">Aller au contenu</a>
 
 <header class="top">
-  <a class="brand" href="#main" aria-label="L'ascension, retour à la boussole" id="brand">L'ascension</a>
-  <div class="tools-bar" role="group" aria-label="Réglages d'affichage">
-    <button type="button" class="tg" id="tgPause" aria-pressed="false">Pause</button>
-    <button type="button" class="tg" id="tgNight" aria-pressed="false">Mode nuit</button>
-    <button type="button" class="tg" id="tgSoundTop" aria-pressed="false">Son</button>
-    <button type="button" class="tg" id="openSet" aria-haspopup="dialog">Réglages</button>
+  <svg class="svgdefs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute"><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F9BE9B"/><stop offset=".5" stop-color="#E26D3B"/><stop offset="1" stop-color="#9E441F"/></linearGradient><linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE2CC"/><stop offset="1" stop-color="#E88A5C"/></linearGradient></defs></svg>
+  <a class="brand" href="#main" aria-label="Cordée, retour à l'accueil" id="brand"><svg class="logo" aria-hidden="true" focusable="false" viewBox="0 0 40 56"><g transform="rotate(20 20 28)" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5C29 5 33 12 31 20L27.5 44C26.6 50 22.6 52.6 18.2 52.6C11.4 52.6 7 48.4 8 42L13 14C14 8.4 16.2 5 20 5Z" stroke="url(#cg)" stroke-width="4.6"/><path d="M20 5C29 5 33 12 31 20L27.5 44C26.6 50 22.6 52.6 18.2 52.6C11.4 52.6 7 48.4 8 42L13 14C14 8.4 16.2 5 20 5Z" stroke="#2A130A" stroke-opacity=".55" stroke-width="4.6" stroke-dasharray="1 2.1"/><path d="M20 3.6C28 3.6 32 10 30.2 17.5" stroke="#FFE7D6" stroke-opacity=".6" stroke-width=".9"/><path d="M30.6 22L27.4 43" stroke="url(#cg2)" stroke-width="3.2"/><rect x="25" y="27.5" width="7.2" height="10.5" rx="2" transform="rotate(8 28.6 32.8)" fill="#1A0E08" stroke="url(#cg)" stroke-width="1.6"/><path d="M26.2 31h5M26 33.6h5M25.8 36.2h5" stroke="#E26D3B" stroke-opacity=".7" stroke-width=".8" transform="rotate(8 28.6 32.8)"/></g></svg><span class="bn">Cordée</span></a>
+  <div class="topnav">
+    <div class="hmenu hm-l">
+      <button type="button" class="burger" id="burgerSteps" aria-expanded="false" aria-controls="menuSteps"><span class="orb"><svg class="rose" aria-hidden="true" focusable="false" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19.6" fill="none" stroke="url(#cg)" stroke-width="1.3"/><circle cx="24" cy="24" r="19.6" fill="none" stroke="#2A130A" stroke-opacity=".55" stroke-width="1.3" stroke-dasharray="1 2.1"/><path d="M24 8L25.3 20.86L30.79 17.21L27.14 22.7L40 24L27.14 25.3L30.79 30.79L25.3 27.14L24 40L22.7 27.14L17.21 30.79L20.86 25.3L8 24L20.86 22.7L17.21 17.21L22.7 20.86Z" fill="rgba(226,109,59,.2)" stroke="url(#cg)" stroke-width="1.5" stroke-linejoin="round"/><path d="M24 8L25.3 20.86L30.79 17.21L27.14 22.7L40 24L27.14 25.3L30.79 30.79L25.3 27.14L24 40L22.7 27.14L17.21 30.79L20.86 25.3L8 24L20.86 22.7L17.21 17.21L22.7 20.86Z" fill="none" stroke="#2A130A" stroke-opacity=".3" stroke-width="1.5" stroke-dasharray="1 2.4" stroke-linejoin="round"/><path d="M24 8L25.3 20.86L24 24L22.7 20.86Z" fill="url(#cg2)" opacity=".92"/><circle cx="24" cy="24" r="2.2" fill="#120B07" stroke="url(#cg2)" stroke-width="1"/><g class="mk"><circle cx="24" cy="3.6" r="1.9" fill="url(#cg2)" stroke="#E26D3B" stroke-width=".8"/></g></svg></span><span class="lbl">Étapes</span></button>
+      <nav class="menu" id="menuSteps" aria-label="Plan de la boucle" hidden>
+        <div class="mh" aria-hidden="true"><span class="t">Parcours · 5 étapes</span><svg class="mr rose" aria-hidden="true" focusable="false" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19.6" fill="none" stroke="url(#cg)" stroke-width="1.3"/><circle cx="24" cy="24" r="19.6" fill="none" stroke="#2A130A" stroke-opacity=".55" stroke-width="1.3" stroke-dasharray="1 2.1"/><path d="M24 8L25.3 20.86L30.79 17.21L27.14 22.7L40 24L27.14 25.3L30.79 30.79L25.3 27.14L24 40L22.7 27.14L17.21 30.79L20.86 25.3L8 24L20.86 22.7L17.21 17.21L22.7 20.86Z" fill="rgba(226,109,59,.2)" stroke="url(#cg)" stroke-width="1.5" stroke-linejoin="round"/><path d="M24 8L25.3 20.86L30.79 17.21L27.14 22.7L40 24L27.14 25.3L30.79 30.79L25.3 27.14L24 40L22.7 27.14L17.21 30.79L20.86 25.3L8 24L20.86 22.7L17.21 17.21L22.7 20.86Z" fill="none" stroke="#2A130A" stroke-opacity=".3" stroke-width="1.5" stroke-dasharray="1 2.4" stroke-linejoin="round"/><path d="M24 8L25.3 20.86L24 24L22.7 20.86Z" fill="url(#cg2)" opacity=".92"/><circle cx="24" cy="24" r="2.2" fill="#120B07" stroke="url(#cg2)" stroke-width="1"/><g class="mk"><circle cx="24" cy="3.6" r="1.9" fill="url(#cg2)" stroke="#E26D3B" stroke-width=".8"/></g></svg></div>
+        <ol id="railNav">
+          <li><button type="button" data-p="0.02" data-s="s1"><span class="m">Se repérer</span><span class="l">Accueil</span></button></li>
+          <li><button type="button" data-p="0.19" data-s="s1"><span class="m">S'équiper</span><span class="l">Atelier</span></button></li>
+          <li><button type="button" data-p="0.41" data-s="s2"><span class="m">Monter</span><span class="l">Expériences</span></button></li>
+          <li><button type="button" data-p="0.67" data-s="s3"><span class="m">Persévérer</span><span class="l">À propos et carnet</span></button></li>
+          <li><button type="button" data-p="0.845" data-s="s4"><span class="m">Se poser</span><span class="l">Contact</span></button></li>
+        </ol>
+      </nav>
+    </div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="hmenu hm-r">
+      <button type="button" class="burger" id="burgerTools" aria-expanded="false" aria-controls="menuTools"><span class="orb"><svg class="cog" aria-hidden="true" focusable="false" viewBox="0 0 48 48"><g class="gr"><path d="M22.27 10.31L22.67 6.65L25.33 6.65L25.73 10.31A13.8 13.8 0 0 1 29.35 11.28L31.52 8.31L33.83 9.64L32.34 13.01A13.8 13.8 0 0 1 34.99 15.66L38.36 14.17L39.69 16.48L36.72 18.65A13.8 13.8 0 0 1 37.69 22.27L41.35 22.67L41.35 25.33L37.69 25.73A13.8 13.8 0 0 1 36.72 29.35L39.69 31.52L38.36 33.83L34.99 32.34A13.8 13.8 0 0 1 32.34 34.99L33.83 38.36L31.52 39.69L29.35 36.72A13.8 13.8 0 0 1 25.73 37.69L25.33 41.35L22.67 41.35L22.27 37.69A13.8 13.8 0 0 1 18.65 36.72L16.48 39.69L14.17 38.36L15.66 34.99A13.8 13.8 0 0 1 13.01 32.34L9.64 33.83L8.31 31.52L11.28 29.35A13.8 13.8 0 0 1 10.31 25.73L6.65 25.33L6.65 22.67L10.31 22.27A13.8 13.8 0 0 1 11.28 18.65L8.31 16.48L9.64 14.17L13.01 15.66A13.8 13.8 0 0 1 15.66 13.01L14.17 9.64L16.48 8.31L18.65 11.28A13.8 13.8 0 0 1 22.27 10.31Z" fill="rgba(226,109,59,.14)" stroke="url(#cg)" stroke-width="1.8" stroke-linejoin="round"/><path d="M22.27 10.31L22.67 6.65L25.33 6.65L25.73 10.31A13.8 13.8 0 0 1 29.35 11.28L31.52 8.31L33.83 9.64L32.34 13.01A13.8 13.8 0 0 1 34.99 15.66L38.36 14.17L39.69 16.48L36.72 18.65A13.8 13.8 0 0 1 37.69 22.27L41.35 22.67L41.35 25.33L37.69 25.73A13.8 13.8 0 0 1 36.72 29.35L39.69 31.52L38.36 33.83L34.99 32.34A13.8 13.8 0 0 1 32.34 34.99L33.83 38.36L31.52 39.69L29.35 36.72A13.8 13.8 0 0 1 25.73 37.69L25.33 41.35L22.67 41.35L22.27 37.69A13.8 13.8 0 0 1 18.65 36.72L16.48 39.69L14.17 38.36L15.66 34.99A13.8 13.8 0 0 1 13.01 32.34L9.64 33.83L8.31 31.52L11.28 29.35A13.8 13.8 0 0 1 10.31 25.73L6.65 25.33L6.65 22.67L10.31 22.27A13.8 13.8 0 0 1 11.28 18.65L8.31 16.48L9.64 14.17L13.01 15.66A13.8 13.8 0 0 1 15.66 13.01L14.17 9.64L16.48 8.31L18.65 11.28A13.8 13.8 0 0 1 22.27 10.31Z" fill="none" stroke="#2A130A" stroke-opacity=".5" stroke-width="1.8" stroke-dasharray="1 2.1" stroke-linejoin="round"/><circle cx="24" cy="24" r="10" fill="none" stroke="url(#cg2)" stroke-opacity=".8" stroke-width=".9"/><circle cx="24" cy="24" r="8.2" fill="none" stroke="url(#cg)" stroke-width="1.6" stroke-dasharray="1 2.1"/><circle cx="24" cy="24" r="3.8" fill="#120B07" stroke="url(#cg)" stroke-width="1.4"/></g></svg></span><span class="lbl">Outils</span></button>
+      <div class="menu" id="menuTools" role="group" aria-label="Réglages d'affichage" hidden>
+        <div class="mh" aria-hidden="true"><span class="t">Instruments</span><svg class="mr cog" aria-hidden="true" focusable="false" viewBox="0 0 48 48"><g class="gr"><path d="M22.27 10.31L22.67 6.65L25.33 6.65L25.73 10.31A13.8 13.8 0 0 1 29.35 11.28L31.52 8.31L33.83 9.64L32.34 13.01A13.8 13.8 0 0 1 34.99 15.66L38.36 14.17L39.69 16.48L36.72 18.65A13.8 13.8 0 0 1 37.69 22.27L41.35 22.67L41.35 25.33L37.69 25.73A13.8 13.8 0 0 1 36.72 29.35L39.69 31.52L38.36 33.83L34.99 32.34A13.8 13.8 0 0 1 32.34 34.99L33.83 38.36L31.52 39.69L29.35 36.72A13.8 13.8 0 0 1 25.73 37.69L25.33 41.35L22.67 41.35L22.27 37.69A13.8 13.8 0 0 1 18.65 36.72L16.48 39.69L14.17 38.36L15.66 34.99A13.8 13.8 0 0 1 13.01 32.34L9.64 33.83L8.31 31.52L11.28 29.35A13.8 13.8 0 0 1 10.31 25.73L6.65 25.33L6.65 22.67L10.31 22.27A13.8 13.8 0 0 1 11.28 18.65L8.31 16.48L9.64 14.17L13.01 15.66A13.8 13.8 0 0 1 15.66 13.01L14.17 9.64L16.48 8.31L18.65 11.28A13.8 13.8 0 0 1 22.27 10.31Z" fill="rgba(226,109,59,.14)" stroke="url(#cg)" stroke-width="1.8" stroke-linejoin="round"/><path d="M22.27 10.31L22.67 6.65L25.33 6.65L25.73 10.31A13.8 13.8 0 0 1 29.35 11.28L31.52 8.31L33.83 9.64L32.34 13.01A13.8 13.8 0 0 1 34.99 15.66L38.36 14.17L39.69 16.48L36.72 18.65A13.8 13.8 0 0 1 37.69 22.27L41.35 22.67L41.35 25.33L37.69 25.73A13.8 13.8 0 0 1 36.72 29.35L39.69 31.52L38.36 33.83L34.99 32.34A13.8 13.8 0 0 1 32.34 34.99L33.83 38.36L31.52 39.69L29.35 36.72A13.8 13.8 0 0 1 25.73 37.69L25.33 41.35L22.67 41.35L22.27 37.69A13.8 13.8 0 0 1 18.65 36.72L16.48 39.69L14.17 38.36L15.66 34.99A13.8 13.8 0 0 1 13.01 32.34L9.64 33.83L8.31 31.52L11.28 29.35A13.8 13.8 0 0 1 10.31 25.73L6.65 25.33L6.65 22.67L10.31 22.27A13.8 13.8 0 0 1 11.28 18.65L8.31 16.48L9.64 14.17L13.01 15.66A13.8 13.8 0 0 1 15.66 13.01L14.17 9.64L16.48 8.31L18.65 11.28A13.8 13.8 0 0 1 22.27 10.31Z" fill="none" stroke="#2A130A" stroke-opacity=".5" stroke-width="1.8" stroke-dasharray="1 2.1" stroke-linejoin="round"/><circle cx="24" cy="24" r="10" fill="none" stroke="url(#cg2)" stroke-opacity=".8" stroke-width=".9"/><circle cx="24" cy="24" r="8.2" fill="none" stroke="url(#cg)" stroke-width="1.6" stroke-dasharray="1 2.1"/><circle cx="24" cy="24" r="3.8" fill="#120B07" stroke="url(#cg)" stroke-width="1.4"/></g></svg></div>
+        <button type="button" class="tg" id="tgPause" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8.5 5.5v13M15.5 5.5v13" stroke-linecap="round"/></svg><span>Pause</span></button>
+        <button type="button" class="tg" id="tgNight" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z" stroke-linejoin="round"/></svg><span>Mode nuit</span></button>
+        <button type="button" class="tg" id="tgSoundTop" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.5 9.5h3.2L12 6v12l-4.3-3.5H4.5z" stroke-linejoin="round"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18 7a7.4 7.4 0 0 1 0 10" stroke-linecap="round"/></svg><span>Son</span></button>
+        <button type="button" class="tg" id="openSet" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 7h8M17 7h2M5 17h2M11 17h8" stroke-linecap="round"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Réglages</span></button>
+        <a class="tg" id="adminLink" href="/admin" data-site="/admin"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.6"/><path d="M12 12.6V15.2" stroke-linecap="round"/></svg><span>Administration<span class="sr-only"> : configurer le site</span></span></a>
+      </div>
+    </div>
   </div>
-  <nav class="rail" aria-label="Plan de la boucle">
-    <ol id="railNav">
-      <li><button type="button" data-p="0.02" data-s="s1"><span class="m">Se repérer</span><span class="l">Accueil</span></button></li>
-      <li><button type="button" data-p="0.19" data-s="s1"><span class="m">S'équiper</span><span class="l">Atelier</span></button></li>
-      <li><button type="button" data-p="0.41" data-s="s2"><span class="m">Monter</span><span class="l">Expériences</span></button></li>
-      <li><button type="button" data-p="0.67" data-s="s3"><span class="m">Persévérer</span><span class="l">À propos et carnet</span></button></li>
-      <li><button type="button" data-p="0.845" data-s="s4"><span class="m">Se poser</span><span class="l">Contact</span></button></li>
-    </ol>
-  </nav>
 </header>
 
 <div id="live" class="sr-only" aria-live="polite"></div>
@@ -29,7 +42,6 @@
   <section class="scene s1" id="s1" aria-labelledby="h1">
     <canvas id="aurora" aria-hidden="true"></canvas>
     <div class="spot" id="spot" aria-hidden="true"></div>
-    <div class="bigword crew" id="crew" aria-hidden="true"><span class="w">Résilience</span><span class="w">Écoute</span><span class="w">Stabilité</span><span class="w">Curiosité</span><span class="w">Endurance</span><span class="w">Rigueur</span><span class="w">Pédagogie</span><span class="w">Persévérance</span><span class="w">Esprit de cordée</span></div>
     <p class="sr-only">Mes qualités : résilience (cap fixe face aux bugs), écoute active (collaboration d'équipe), stabilité (gestion de la pression), ouverture d'esprit (curiosité technique), endurance, rigueur, pédagogie, persévérance, esprit de cordée. Expérience : 17 ans dans le sport. Compétences : Vue 3, TypeScript, accessibilité RGAA.</p>
     <canvas id="compassCanvas" aria-hidden="true"></canvas>
     <svg id="compassFallback" viewBox="-110 -110 220 220" aria-hidden="true">
@@ -40,13 +52,11 @@
       <text y="44" text-anchor="middle" font-size="11" fill="#9AA4AB" font-family="Arial,sans-serif">17 ans de sport</text>
     </svg>
     <svg id="toolLines" aria-hidden="true"></svg>
-    <svg id="escape" aria-hidden="true"><defs><filter id="escBlur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs><path id="escGlow" filter="url(#escBlur)"/><path id="escLine"/><circle id="escHead" r="7"/></svg>
-    <div class="cpf" id="cpf" aria-hidden="true"><i></i><span>Checkpoint 01 · Km 0</span></div>
     <div class="tip" id="tip" role="tooltip" aria-hidden="true"><b id="tipT"></b><span id="tipD"></span></div>
     <div class="head" id="head1">
       <p class="eyebrow" id="eyebrow1">Se repérer · Km 0</p>
       <h1 id="h1">Vous avez le cap. Je connais le sentier.</h1>
-      <p class="sub">Adri, développeur front-end. Vue 3, TypeScript, accessibilité. 17 ans de sport avant le code.</p>
+      <p class="sub">Architecte de données et de l'interface, je donne vie à des applications web Vue et TypeScript accessibles, propulsées par des classes Java robustes et administrables en temps réel.</p>
     </div>
     <div class="head" id="head2" style="opacity:0">
       <p class="eyebrow">S'équiper · Atelier</p>
@@ -65,14 +75,16 @@
     <canvas id="parcCanvas" aria-hidden="true"></canvas>
     <div id="pTags" aria-hidden="true"></div>
     <nav class="pl-stages plate" aria-label="Étapes du sentier"><ol id="pStageList"></ol></nav>
+    <div class="pl-dock">
+      <button type="button" class="pl-more" id="plMore" hidden aria-haspopup="dialog"><span class="t">Voir la fiche</span><span class="sr-only n"></span><span aria-hidden="true"> →</span></button>
     <div class="pl-metrics plate" aria-hidden="true">
-      <p class="ttl" id="pmTtl">Km 0 · Départ</p>
-      <div><b id="pm1">985 m</b><span id="pm1l">Altitude</span></div>
-      <div><b id="pm2">000°</b><span id="pm2l">Cap suivi</span></div>
-      <div><b id="pm3">0 km</b><span id="pm3l">Distance</span></div>
+      <p class="ttl" id="pmTtl">Départ</p>
+      <div><b id="pm1">2009–2021</b><span id="pm1l"></span></div>
+      <div><b id="pm2"></b><span id="pm2l"></span></div>
+      <div><b id="pm3">Éducateur, Formateur, Directeur dans le secteur sportif</b><span id="pm3l"></span></div>
+    </div>
     </div>
     <ol class="pl-list" id="pList" aria-label="Projets"></ol>
-    <div class="bigword" aria-hidden="true">Trace</div>
     <svg id="mapSvg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <g id="world">
       <defs>
@@ -100,6 +112,8 @@
     <div class="head">
       <p class="eyebrow">Monter · Expériences</p>
       <h2 id="h-map">Chaque projet, une étape avec sa preuve</h2>
+      <p class="tot" id="mapTot" aria-hidden="true">Km 180 · D+ 10 200 m</p>
+      <p class="sr-only">Parcours complet : 180 km et 10 200 mètres de dénivelé positif.</p>
     </div>
     <article class="mcard" id="c0">
       <p class="eyebrow">Km 0 · Sommet</p>
@@ -126,7 +140,6 @@
 
   <!-- 3. Flaque -->
   <section class="scene s3" id="s3" aria-labelledby="h-flaque">
-    <div class="bigword" aria-hidden="true">Foulée</div>
     <canvas id="waterCanvas" aria-hidden="true"></canvas>
     <div id="mist" aria-hidden="true"></div>
     <canvas id="shoeCanvas" aria-hidden="true"></canvas>
@@ -147,7 +160,6 @@
   <!-- 4. Bivouac -->
   <section class="scene s4" id="s4" aria-labelledby="h-biv">
     <div id="sky4" aria-hidden="true"></div>
-    <div class="bigword" aria-hidden="true">Nuit</div>
     <div class="stars" id="stars" aria-hidden="true"></div>
     <svg class="tent" id="tent" viewBox="0 0 300 120" aria-hidden="true"><path d="M0 120 L0 104 L96 104 L150 22 L204 104 L300 104 L300 120Z" fill="#121B2B"/></svg>
     <div class="ball" id="ball" aria-hidden="true"></div>
@@ -158,6 +170,7 @@
       <div class="cnt-links">
         <button type="button" class="cnt" data-k="email">E-mail</button>
         <button type="button" class="cnt" data-k="linkedin">LinkedIn</button>
+        <button type="button" class="cnt" data-k="github">GitHub</button>
         <button type="button" class="cnt" data-k="rdv">Prendre rendez-vous</button>
       </div>
       <form class="cnt-form" id="cntForm" novalidate>
@@ -178,7 +191,6 @@
 </main>
 
 
-<button type="button" class="skipintro" id="skipIntro" aria-label="Passer l'intro et aller à mon profil">Passer l'intro</button>
 
 <footer class="perma">
   <p class="copy">© 2026 Adrien Neyron · Dev × Trail × Formation</p>
@@ -187,6 +199,7 @@
     <button type="button" id="ftContact">Contact</button>
     <button type="button" data-dlg="legal">Mentions légales</button>
     <button type="button" data-dlg="a11y">Accessibilité</button>
+    <a class="ft-admin" href="/admin" data-site="/admin">Admin</a>
   </nav>
 </footer>
 
@@ -202,6 +215,17 @@
     </ul>
     <p class="facts">Développeur front-end : Vue 3, TypeScript, accessibilité RGAA. Missions à la DGFiP (Paris) et sur Click2SellSite (Lyon).</p>
     <div class="sh-actions"><a class="sh-main" href="/cv-adrien-neyron.pdf" download>Télécharger le CV (PDF)</a><button type="button" class="sh-alt" id="proBack">Revenir au sentier</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlgTool" class="sheet" aria-labelledby="toolT">
+  <div class="sh-head"><div><p class="eyebrow" id="toolE"></p><h2 id="toolT"></h2><p class="sh-status" id="toolS"></p></div><button type="button" class="sh-x" id="toolX">Fermer</button></div>
+  <div class="sh-body">
+    <p class="lead" id="toolL"></p>
+    <ul class="tool-pts" id="toolP"></ul>
+    <ul class="tool-tags" id="toolK" aria-label="Technologies"></ul>
+    <p class="tool-note" id="toolN" hidden></p>
+    <div class="sh-actions" id="toolActs"><button type="button" class="sh-alt" id="toolBack">Revenir à l'atelier</button></div>
   </div>
 </dialog>
 
@@ -242,7 +266,8 @@
   <p class="tlbl" id="tourLbl" aria-hidden="true"></p>
 </div>
 <div class="grain" aria-hidden="true"></div>
-<div class="altrail" aria-hidden="true"><i class="ln"></i><i class="tk" style="top:2%"></i><i class="tk" style="top:19%"></i><i class="tk" style="top:41%"></i><i class="tk" style="top:67%"></i><i class="tk" style="top:84.5%"></i><i class="dot" id="railDot"></i></div>
+<div class="altrail" aria-hidden="true"><i class="ln"></i><i class="ln done" id="railDone"></i><i class="tk" style="top:2%"></i><i class="tk" style="top:19%"></i><i class="tk" style="top:41%"></i><i class="tk" style="top:67%"></i><i class="tk" style="top:84.5%"></i><i class="dot" id="railDot"><svg viewBox="0 0 20 28" aria-hidden="true" focusable="false"><path d="M8 2h4v13h5L10 26 3 15h5z" fill="#F2FBF8" stroke="#06241C" stroke-opacity=".55" stroke-width=".8" stroke-linejoin="round"/><path d="M8.6 3.2v12.6M11.4 3.2v12.6" stroke="#00F5A0" stroke-opacity=".5" stroke-width=".6"/></svg></i></div>
 <div class="hud" id="hud" aria-hidden="true">ALT <b id="alt">2 480</b> m · <span id="mode">Boussole</span><br><span id="live2"></span></div>
 <p class="hint" id="hint" aria-hidden="true"></p>
-<button type="button" class="cta" id="cta" title="Lance un parcours guidé de toute la boucle. Vous pouvez le mettre en pause ou reprendre la main à tout moment."><span class="lg">Commencer l'expédition</span><span class="sm">Commencer</span><span aria-hidden="true"> →</span></button>
+<button type="button" class="cta" id="cta" aria-describedby="ctaDesc"><svg class="ring" aria-hidden="true" focusable="false" viewBox="0 0 44 44"><circle class="orbit" cx="22" cy="22" r="20" fill="none" stroke="#E26D3B" stroke-opacity=".7" stroke-width="1" stroke-dasharray="1.2 3.4"/><circle cx="22" cy="22" r="15" fill="none" stroke="#E26D3B" stroke-width="1.4"/><path d="M15 22h13M23.5 16.5L29 22l-5.5 5.5" fill="none" stroke="#FFD9C2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="txt"><span class="lg">Commencer l'expédition</span><span class="sm">Commencer</span></span></button>
+<span id="ctaDesc" class="sr-only">Lance un parcours guidé de toute la boucle. Vous pouvez le mettre en pause ou reprendre la main à tout moment.</span>
