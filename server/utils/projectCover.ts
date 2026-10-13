@@ -83,11 +83,6 @@ const CATEGORY_QUERIES: Record<string, string> = {
   "Autre":          "mountain trail",
 };
 
-/** Un projet a-t-il une photo mise par Adri dans /admin ? (priorité absolue) */
-export function hasAdminCover(p: CoverFields): boolean {
-  return Boolean(p.cover) && p.coverSource !== "unsplash";
-}
-
 /**
  * Détermine la source d'une cover reçue du formulaire /admin.
  * - vide → aucune source (une photo sera cherchée à l'enregistrement)

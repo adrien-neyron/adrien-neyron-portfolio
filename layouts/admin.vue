@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "~/assets/css/main.css";
 import { ref, watch } from "vue";
 import { useAuth0 } from "@auth0/auth0-vue";
 import { LogOut, LayoutDashboard, PlusCircle, Home, UserCircle, Cpu, NotebookPen, Menu, X } from "lucide-vue-next";

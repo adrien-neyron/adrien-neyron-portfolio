@@ -4,6 +4,7 @@
    @nuxtjs/color-mode), au lieu du réglage système par défaut de Tailwind 4. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+
 ::-moz-selection { background: var(--color-accent); color: #fafafa; }
 ::selection      { background: var(--color-accent); color: #fafafa; }
 ::-webkit-scrollbar { width: 0px; background: transparent; }

@@ -4,15 +4,62 @@
  * → flaque → bivouac → retour). Portage du prototype HTML (voir docs/ascension-boucle.md).
  *
  * - Le balisage (loop.html) est rendu côté serveur : tout le texte est dans le HTML (SEO, lecteurs
- *   d'écran, sans JavaScript). La 3D et les interactions démarrent au montage, côté client seulement.
+ *   d'écran, sans JavaScript). Le premier écran (titre, accroche, montre en SVG) s'affiche sans JavaScript.
+ * - La 3D et les interactions (three.js + loop.js, ~250 Ko compressés et plusieurs secondes de calcul sur un
+ *   téléphone moyen) ne démarrent qu'à la première interaction : souris, toucher, défilement, molette ou clavier.
+ *   Premier affichage léger et immédiat (Lighthouse mobile) ; la classe `html.loop-live` marque le démarrage.
  * - Les styles (loop.css) visent html et body : toutes leurs règles sont donc cantonnées derrière la
- *   classe `html.loop-on`, posée ici au rendu serveur puis retirée au démontage. Ils restent chargés
- *   après la navigation (33 Ko) mais ne s'appliquent plus à aucune autre page.
+ *   classe `html.loop-on`, posée ici au rendu serveur puis retirée au démontage. Ils sont intégrés au HTML
+ *   (balise <style>, retirée en quittant la page) pour ne pas bloquer le premier affichage.
  *   Si loop.css est modifié : relancer scripts/scope-loop-css.cjs (voir docs/ascension-boucle.md).
+ * - Le contenu éditable (projets, carnet, profil, contact) vient de /api/loop-content (admin) et remplace
+ *   les textes par défaut de loop.js ; voir docs/admin-boucle.md.
  * - Three.js r128 est importé sous l'alias `three-r128` (le reste du site garde sa version de three).
  */
 import markup from '~/assets/loop/loop.html?raw'
-import loopCss from '~/assets/loop/loop.css?url'
+import loopCss from '~/assets/loop/loop.css?inline'
+
+/**
+ * Textes du premier écran saisis dans /admin (profil : surtitre, titre, sous-texte). Insérés dans le HTML rendu
+ * côté serveur : ni clignotement au chargement, ni attente de la 3D, et lisibles sans JavaScript.
+ * Champ vide, API en panne ou plus de 2 s : le texte de loop.html est conservé.
+ */
+const { data: loopContent } = await useFetch<{ hero?: { eyebrow?: string; title?: string; lede?: string } | null; toolsHead?: { eyebrow?: string; title?: string; lede?: string } | null }>('/api/loop-content', {
+  key: 'loop-hero',
+  timeout: 2000,
+  default: () => null,
+})
+const escHtml = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+const swap = (html: string, open: string, close: string, text?: string) => {
+  const t = (text || '').trim()
+  if (!t) return html
+  const i = html.indexOf(open)
+  const j = i < 0 ? -1 : html.indexOf(close, i)
+  return j < 0 ? html : html.slice(0, i + open.length) + escHtml(t) + html.slice(j)
+}
+const page = computed(() => {
+  const h = loopContent.value?.hero
+  const t = loopContent.value?.toolsHead
+  let html = markup
+  if (h) {
+    html = swap(html, '<p class="eyebrow who">', '</p>', h.eyebrow)
+    html = swap(html, '<h1 id="h1">', '</h1>', h.title)
+    html = swap(html, '<p class="lede">', '</p>', h.lede)
+    html = swap(html, '<p class="gate-tag">', '</p>', h.title)
+  }
+  if (t) {
+    // Étape « S'équiper » : on cible le bloc #head2 pour ne pas toucher aux autres surtitres / paragraphes
+    const i = html.indexOf('id="head2"')
+    if (i >= 0) {
+      const head = html.slice(i)
+      let sub = swap(head, '<p class="eyebrow">', '</p>', t.eyebrow)
+      sub = swap(sub, '<h2>', '</h2>', t.title)
+      sub = swap(sub, '<p class="sub">', '</p>', t.lede)
+      html = html.slice(0, i) + sub
+    }
+  }
+  return html
+})
 
 useHead({
   htmlAttrs: { class: 'loop-on' },
@@ -24,33 +71,147 @@ useHead({
         "Portfolio d'Adri, développeur front-end (Vue 3, TypeScript, accessibilité RGAA/WCAG) : 17 ans de sport avant le code. Une expédition à parcourir : projets, outils, carnet, contact.",
     },
   ],
+  // Écran de la corde déjà vu dans cette session : masqué dès le premier affichage (pas de clignotement avant l'hydratation)
+  script: [{ key: 'gate-seen', innerHTML: "try{var th=localStorage.getItem('asc-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=th}catch(e){}try{if(sessionStorage.getItem('cordee-gate-vu')==='1')document.documentElement.classList.add('gate-seen')}catch(e){}try{var v=JSON.parse(localStorage.getItem('cordee-needle-'+innerWidth+'x'+innerHeight)||'null');if(v){var s=document.documentElement.style;s.setProperty('--pnx',v.x+'px');s.setProperty('--pny',v.y+'px');s.setProperty('--pns',v.s)}}catch(e){}" }],
+  // Styles de la boucle intégrés au HTML (environ 12 Ko compressés) : pas de feuille de style à attendre avant l'affichage
+  style: [{ key: 'loop-css', textContent: loopCss }],
+  // Police des titres (Cormorant Garamond, servie par le site) : préchargée, c'est elle qui dessine le titre du premier écran
   link: [
-    { rel: 'stylesheet', href: loopCss },
-    // Polices : DM Serif Display, Inter et JetBrains Mono sont déjà chargées par nuxt.config.ts ;
-    // la boucle y ajoute seulement l'italique de DM Serif Display (titres et mots en filigrane).
-    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@1&display=swap' },
+    { rel: 'preload', href: '/loop/fonts/cormorant-garamond-latin-500-italic.woff2', as: 'font', type: 'font/woff2', crossorigin: '' },
   ],
 })
 
 let loop: { destroy: () => void } | null = null
+let gone = false
+const WAKE = ['pointermove', 'pointerdown', 'touchstart', 'wheel', 'scroll', 'keydown'] as const
 
-onMounted(async () => {
-  document.documentElement.classList.add('loop-on')
-  const [THREE, { initLoop }] = await Promise.all([
+/** Contenu éditable de l'accueil (server/api/loop-content.get.ts) : jamais bloquant, {} si l'API échoue ou tarde (3 s). */
+async function loadContent(): Promise<Record<string, unknown>> {
+  try {
+    const ctl = new AbortController()
+    const timer = setTimeout(() => ctl.abort(), 3000)
+    const res = await fetch('/api/loop-content', { signal: ctl.signal, headers: { accept: 'application/json' } })
+    clearTimeout(timer)
+    return res.ok ? await res.json() : {}
+  } catch {
+    return {}
+  }
+}
+
+/** Téléchargement et évaluation des modules (three.js, loop.js, chargeur 3D) et du contenu admin : sans rien démarrer. */
+let prepared: Promise<[typeof import('three-r128'), typeof import('~/assets/loop/loop.js'), typeof import('~/assets/loop/GLTFLoader.r128.js'), Record<string, unknown>]> | null = null
+function prepare() {
+  return (prepared ??= Promise.all([
     import('three-r128'),
     import('~/assets/loop/loop.js'),
-  ])
-  loop = initLoop(THREE)
+    // chargeur du modèle 3D de la chaussure (public/models/trail-shoe.glb)
+    import('~/assets/loop/GLTFLoader.r128.js'),
+    // contenu saisi dans l'admin (projets, carnet, profil, contact) ; en cas d'échec, la boucle garde ses textes par défaut
+    loadContent(),
+  ]))
+}
+
+/** Démarre la boucle : la montre 3D remplace la boussole 2D et son chargement (altitude, calage du nord) se joue à l'écran. */
+let started = false
+async function start() {
+  if (started) return
+  started = true
+  WAKE.forEach((t) => removeEventListener(t, onWake))
+  const [THREE, { initLoop }, { GLTFLoader }, content] = await prepare()
+  if (gone) return   // page quittée pendant le téléchargement
+  document.documentElement.classList.add('loop-live')
+  loop = initLoop(THREE, { GLTFLoader, content })
+}
+
+/** Tant que l'écran de la corde est ouvert, un geste ne fait que préparer les modules ; sinon il démarre la boucle. */
+let gateOpen = false
+function onWake() {
+  WAKE.forEach((t) => removeEventListener(t, onWake))
+  if (gateOpen) void prepare()
+  else void start()
+}
+
+/**
+ * Écran d'accueil « corde en C » (#gate, voir docs/ecran-accueil-corde.md) : affiché une fois par session,
+ * avant la montre. Le bouton « Dénouer la corde » défait le nœud (animation CSS, ignorée si mouvement réduit),
+ * puis révèle l'accueil. Pendant l'écran : le reste de la page est inerte (clavier, lecteurs d'écran) et le
+ * défilement est bloqué. Sans JavaScript, l'écran est masqué par le <noscript> du balisage.
+ */
+const GATE_KEY = 'cordee-gate-vu'
+function setupGate(): boolean {
+  const gate = document.getElementById('gate')
+  if (!gate) return false
+  const root = document.documentElement
+  const others = Array.from(gate.parentElement?.children ?? []).filter((el) => el !== gate) as HTMLElement[]
+  const seen = () => { try { return sessionStorage.getItem(GATE_KEY) === '1' } catch { return false } }
+  const close = () => {
+    gate.hidden = true
+    root.classList.remove('gate-on', 'gate-waiting')
+    others.forEach((el) => el.removeAttribute('inert'))
+    try { sessionStorage.setItem(GATE_KEY, '1') } catch { /* stockage indisponible : l'écran reviendra au prochain chargement */ }
+    document.getElementById('main')?.focus({ preventScroll: true })
+  }
+  if (seen()) { gate.hidden = true; return false }
+  root.classList.add('gate-on')
+  others.forEach((el) => el.setAttribute('inert', ''))
+  const btn = document.getElementById('gateBtn') as HTMLButtonElement | null
+  btn?.focus({ preventScroll: true })
+  btn?.addEventListener('click', () => {
+    if (btn.disabled) return
+    btn.disabled = true
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const live = document.getElementById('live')
+    if (live) live.textContent = "Corde dénouée : l'ascension commence."
+    if (!reduce) gate.classList.add('gate-untie')
+    gateOpen = false
+    // La boucle démarre tout de suite : sous l'écran qui se dissout, la montre 3D se met en place et son chargement
+    // (altitude, calage du nord) se joue à l'écran. L'écran ne s'efface qu'une fois la montre 3D en place (8 s au plus).
+    void start()
+    const t0 = Date.now()
+    let leaving = false
+    const poll = () => {
+      const ready = root.classList.contains('loop-live')
+      const animDone = reduce || Date.now() - t0 > 1100
+      if (animDone && !ready) root.classList.add('gate-waiting')   // montre pas encore prête : logo et aiguille qui tournent
+      if (((ready && animDone) || Date.now() - t0 > 8000) && !leaving) {
+        leaving = true
+        if (reduce) return close()
+        gate.classList.add('gate-out')
+        return void setTimeout(close, 700)
+      }
+      if (!leaving) setTimeout(poll, 100)
+    }
+    poll()
+  })
+  return true
+}
+
+onMounted(() => {
+  document.documentElement.classList.add('loop-on')
+  gateOpen = setupGate()
+  const woke = !!(window as { __loopWake?: number }).__loopWake   // geste avant le montage, noté par server/plugins/home-low-priority-js.ts
+  if (gateOpen) {
+    // Écran de la corde : modules préchargés dès le premier affichage terminé, pour que la montre apparaisse sans attente au clic
+    setTimeout(() => void prepare(), woke ? 0 : 1500)
+    WAKE.forEach((t) => addEventListener(t, onWake, { once: true, passive: true }))
+    return
+  }
+  // Pas d'écran de la corde (déjà vu) : la boucle démarre d'elle-même peu après l'affichage, sans attendre de geste
+  if (woke) return void start()
+  WAKE.forEach((t) => addEventListener(t, onWake, { once: true, passive: true }))
+  setTimeout(() => void start(), 1200)
 })
 
 onBeforeUnmount(() => {
+  gone = true
+  WAKE.forEach((t) => removeEventListener(t, onWake))
   loop?.destroy()
   loop = null
-  document.documentElement.classList.remove('loop-on')
+  document.documentElement.classList.remove('loop-on', 'loop-live', 'gate-on', 'gate-seen', 'gate-waiting')
 })
 </script>
 
 <template>
   <!-- Contenu statique : Vue ne le met pas à jour, le script de la boucle le pilote -->
-  <div v-html="markup" />
+  <div v-html="page" />
 </template>

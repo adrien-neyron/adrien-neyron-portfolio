@@ -25,7 +25,6 @@ const today = new Date().toISOString().slice(0, 10);
 
 const form = ref<CarnetPayload>({
   slug: "", title: "", excerpt: "", category: "Dev", date: today, cover: "", content: "",
-  data: { elevation: "", heartRate: "", pace: "" },
   ...props.initial,
   data: { elevation: "", heartRate: "", pace: "", ...props.initial?.data },
 });

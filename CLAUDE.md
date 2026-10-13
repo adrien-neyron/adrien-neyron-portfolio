@@ -28,7 +28,6 @@ Copy `.env.example` to `.env` and fill in:
 
 This is a **Nuxt 3 portfolio** with a Nitro backend, redesigned around a "trail/outdoor" theme. Each route is its **own bespoke page** — `pages/index.vue`, `pages/about.vue`, `pages/contact.vue`, `pages/projects/*`, `pages/ai-tools.vue` — not a single-page scroll of stacked sections.
 
-**`components/sections/*.vue` (HomeSection, AboutSection, ContactSection, ProjectsSection) and `components/AppHeader.vue` are dead code** — leftovers from an earlier single-page design, not imported by any page or layout. Don't build on them; extend the real pages instead. (Candidates for deletion, but left in place for now — ask before removing.)
 
 ### Frontend
 
@@ -50,8 +49,6 @@ Stores in `stores/`, all following the same pattern — fetch the Mongo-backed A
 ### Composables
 
 - `useTextDecrypt` — Letter-by-letter text reveal animation (respects `prefers-reduced-motion`)
-- `usePopupSession` — One-time popup trigger using `sessionStorage`
-- `useSectionTrigger` — IntersectionObserver wrapper for scroll-triggered callbacks
 
 ### Backend (Nitro / `server/`)
 
@@ -88,7 +85,7 @@ Follows the standard Mongo-backed pattern above — **not** Nuxt Content: articl
 - Accent color: `#A84E20` (light) / `#E07840` (dark) — via `--color-accent`
 - Highlight color: `#E8A838` (light) / `#F0C050` (dark) — via `--color-highlight` (decorative use only — not contrast-checked for text, see the comment in `main.css`)
 - `--color-vue` / `--color-nuxt` — tech-stack badge colors used in `components/AppFooter.vue`, darkened in light mode (`#065F46` / `#166534`) to clear 4.5:1 contrast against `--color-bg`; full brand brightness (`#41B883` / `#00C16A`) in dark mode, where contrast against the dark background is already sufficient. Never hardcode the raw Vue/Nuxt brand hexes directly in a template — go through these tokens so contrast stays correct in both modes.
-- Dark mode: `@nuxtjs/color-mode` puts `.dark` on `<html>` (localStorage key `color-mode`, `preference: "system"` → follows the device until the visitor clicks `ThemeToggle`). Tailwind's `dark:` variant is redefined in `main.css` with `@custom-variant` so it follows that class instead of Tailwind 4's default `prefers-color-scheme` media query.
+- Dark mode: `@nuxtjs/color-mode` puts `.dark` on `<html>` (localStorage key `color-mode`, `preference: "system"` → follows the device until the visitor changes it in `SettingsGear`). Tailwind's `dark:` variant is redefined in `main.css` with `@custom-variant` so it follows that class instead of Tailwind 4's default `prefers-color-scheme` media query.
 - Page moment (`data-time` on `<html>`, set in `layouts/default.vue` from the route): `dawn` (/about), `day` (default: /, /projects, /ai-tools, /outils), `golden` (/carnet), `night` (/contact). Only `--color-bg` / `--color-surface` change (text/accent/muted keep their values, contrast re-checked ≥ 4.5:1 on every bg and surface). The visitor's Jour / Nuit choice always wins: `night` is a light "dusk" palette in light mode and the concept's blue night only in dark mode — never force dark mode on a page (the toggle must keep working everywhere). When adding a route, add it to `TIME_BY_SECTION`.
 
 ### Static Data (fallbacks only — not the source of truth once Mongo has data)
@@ -97,11 +94,10 @@ Follows the standard Mongo-backed pattern above — **not** Nuxt Content: articl
 - `data/ai-tools.ts` — original AI tools seed data, superseded by the `AiTool` collection
 - `data/projects.ts` — original projects seed data, superseded by the `Project` collection
 - `data/carnet.ts` — seed/fallback article for the Carnet, superseded by the `CarnetArticle` collection
-- `data/tooltip.json` — tooltip content, still static (not managed from the admin)
 
 ### Key Nuxt Modules
 
-`@pinia/nuxt`, `@nuxtjs/color-mode`, `@nuxt/image`, `@tresjs/nuxt` (Three.js), `@vueuse/motion/nuxt`
+`@pinia/nuxt`, `@nuxtjs/color-mode`, `@nuxt/image`, `@vueuse/motion/nuxt` (Three.js r128 is loaded only by the home page, as `three-r128`)
 
 ### Accessibility
 
@@ -130,8 +126,8 @@ Redesign in progress, decided in the claude.ai « Portfolio » project (docs `de
 - **Trail components** (`components/trail/`, auto-imported as `Trail*`) + pure helpers in `utils/trail.ts` (deterministic, SSR-safe — no `Math.random`):
   - `TrailContourBackground` — decorative static contour-line SVG (seeded), `aria-hidden`, fades out on the left so text stays readable.
   - `TrailElevationProfile` — race-bib style elevation profile (`points` 0–100, optional `milestones` spread evenly). Decorative (`aria-hidden`); the parent must give the text equivalent (figcaption listing the milestones). Milestone labels are hidden under 640px.
-  - `TrailTopoCard` — alternative topo-style project card (single stretched link, mini profile). **Not used for now**: Adri chose to keep the original `UiProjectCard` presentation on `/projects` (image, difficulty badge, status, role, tagline, impact, duration, stack, Code / Voir le projet links). Kept for a possible later use (e.g. home « À proximité »).
 - **Sentiers pages**: `/projects` loads projects server-side (`await store.fetchProjects()`), builds filters from the categories actually present, filter buttons use `aria-pressed`, result count in `aria-live`, and renders the original `UiProjectCard` cards (3-column grid, as before the redesign). `/projects/[id]` is the topo fiche: breadcrumb, « Sentier NN · place — coords », fiche technique `<dl>`, profile figure, sticky « Itinéraire » TOC (only sections present), sections Départ (`description`) / Passages délicats (`challenge`) / Itinéraire (`solution`) / Arrivée (`result` + `stats` + stack + links), previous/next neighbours. Texts are split into paragraphs on blank lines (`toParagraphs`).
+- **Trail shoe on the home loop (`assets/loop/loop.js`, `SHOE`)**: a real 3D model `public/models/trail-shoe.glb` (generated for free with Microsoft TRELLIS from a photo of Adri's own shoe, then `npx @gltf-transform/cli optimize … --compress false --simplify-ratio 0.5 --texture-compress false`) replaces the procedural shoe (`buildShoe`) as soon as it loads; missing/broken file → procedural shoe stays. `fitModel` auto-orients any GLB (yaw = narrowest width, toe = lower end → +x, then sole plane levelled from down-facing normals, scaled to `SHOE_GLB.len`); overrides in `SHOE_GLB` (`toe`, `right`). The left foot is the right one mirrored. `GLTFLoader` is vendored as `assets/loop/GLTFLoader.r128.js` because the package's copy imports `'three'` (the site's 0.178) instead of `three-r128`. Don't quantize/Draco/meshopt-compress the GLB: r128 + `fitModel` read raw attributes. Only free tools/assets.
 - **Navigation** (`TrailNav.vue`): metaphor + explicit label always visible (« Sentiers · Projets »), `aria-current` (`page` / `true` for a parent section); desktop nav from `xl`, burger below.
 
 ### Known gaps (not fixed as part of the backoffice work)
@@ -143,3 +139,7 @@ Redesign in progress, decided in the claude.ai « Portfolio » project (docs `de
 - `heroTitle` and `job1`/`job2` feed the homepage hero (`pages/index.vue`): `heroTitle` is split into a `UiTextDecrypt`-animated first word plus an accent-colored remainder (so the H1 stays readable whatever length is typed in the admin), and `job1`/`job2` render as the subtitle lines underneath it.
 - `pages/about.vue`'s tagline uses `label` instead — `job1`/`job2` turned out to be full marketing sentences rather than short titles, so joining them there read as garbled text; `summary` + `about` render in a "Mon histoire" section on that page.
 - `headerSubtitle` is not displayed anywhere at the moment (it was briefly slated for `pages/about.vue`, then dropped as redundant with `label`). The field and its admin input are kept in case it's wanted again later.
+
+### Admin → home loop
+
+The home loop (`assets/loop/loop.js`) is driven by `/admin` content through `GET /api/loop-content` (profile lead/facts/CV/contact/booking link, projects, AI tools, carnet). Hardcoded texts are the fallback (empty field or API failure = unchanged). New fields: `Profile.bookingUrl/loopLead/loopFacts`, `Project.order`. Escape every admin string with `esc()` before `innerHTML`. Details: `docs/admin-boucle.md`.

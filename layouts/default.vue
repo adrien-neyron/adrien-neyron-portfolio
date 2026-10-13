@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "~/assets/css/main.css";
 import { useVisitorStore } from "~/stores/visitor";
 
 const visitorStore = useVisitorStore();

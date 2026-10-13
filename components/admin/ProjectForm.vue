@@ -29,6 +29,7 @@ interface ProjectPayload {
   duration: string;
   category: string;
   // fiche topo (refonte « L'ascension »)
+  order?: number;
   place?: string;
   coords?: { lat?: number; lon?: number };
   startDate?: string;
@@ -56,7 +57,7 @@ const { difficultyLabel } = useDifficultyBadge();
 const form = ref<ProjectPayload>({
   slug: "", title: "", tagline: "", role: "",
   description: "", challenge: "", solution: "", result: "",
-  technologies: [], image_light: "", image_dark: "",
+  technologies: [],
   cover: "", coverCredit: "", coverCreditUrl: "",
   coverQuery: "",
   link: "", code: "",
@@ -442,6 +443,10 @@ function onSubmit() {
           <label for="pf-start" class="admin-label">Départ</label>
           <input id="pf-start" v-model="form.startDate" class="admin-input" placeholder="Mai 2026" />
         </div>
+      </div>
+      <div>
+        <label for="pf-order" class="admin-label">Rang sur le parcours de l'accueil <span class="normal-case font-normal">(0, 1, 2… ; vide : après les autres, par date de création)</span></label>
+        <input id="pf-order" v-model.number="form.order" type="number" min="0" step="1" class="admin-input md:w-40" />
       </div>
       <div>
         <label for="pf-profile" class="admin-label">Profil d'altitude <span class="normal-case font-normal">(valeurs 0 à 100 séparées par des virgules — vide : profil généré)</span></label>

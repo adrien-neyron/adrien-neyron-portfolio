@@ -9,13 +9,11 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "fr",
       },
+      // Polices servies par le site (sous-ensemble latin) : voir les @font-face en tête de assets/css/main.css.
+      // Inter (pages du site) et JetBrains Mono (accueil : tout le texte d'interface) sont préchargées : texte du premier affichage.
       link: [
-        { rel: "preconnect", href: "https://fonts.googleapis.com" },
-        { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
-        {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
-        },
+        { rel: "preload", href: "/fonts/inter-latin-variable.woff2", as: "font", type: "font/woff2", crossorigin: "" },
+        { rel: "preload", href: "/fonts/jetbrains-mono-latin-variable.woff2", as: "font", type: "font/woff2", crossorigin: "" },
       ],
     },
   },
@@ -24,7 +22,6 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxtjs/color-mode",
     "@nuxt/image",
-    "@tresjs/nuxt",
     "@vueuse/motion/nuxt",
   ],
 
@@ -44,7 +41,9 @@ export default defineNuxtConfig({
     "/callback":  { ssr: false },
   },
 
-  css: ["~/assets/css/main.css"],
+  // main.css (Tailwind + jetons du site) est importé par layouts/default.vue, layouts/admin.vue et
+  // pages/admin/login.vue : l'accueil (layout « loop ») ne l'embarque pas dans son premier affichage.
+  css: ["~/assets/css/fonts.css"],
 
   typescript: {
     strict: true,

@@ -30,6 +30,7 @@ export interface Project {
   category?: string;
   imageUrl?: string; // injecté côté vue selon le thème
   // fiche topo (refonte « L'ascension »)
+  order?: number;
   place?: string;
   coords?: { lat?: number; lon?: number };
   startDate?: string;

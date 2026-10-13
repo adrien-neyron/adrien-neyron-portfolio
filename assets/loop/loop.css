@@ -1,6 +1,6 @@
 html.loop-on{
-  --bg:#EDF0EE; --fg:#1B2A24; --muted:#56615B; --line:#AAB5B1;
-  --acc:#E0561B; --acc-text:#A63C15; --card:#E3E9E6;
+  --bg:#F4F8FA; --fg:#12222B; --muted:#435862; --line:#BCD0DA;
+  --acc:#DF6C4F; --acc-text:#B23F27; --card:#E3ECF1;
   --hh:72px;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
@@ -10,9 +10,13 @@ html.loop-on{
   html.loop-on:not([data-theme="light"]){--bg:#050811;--fg:#E6F4F1;--muted:#A8B9C0;--line:#26344A;--acc:#E26D3B;--acc-text:#E26D3B;--card:#121B2B}
 }
 html.loop-on[data-theme="dark"]{--bg:#050811;--fg:#E6F4F1;--muted:#A8B9C0;--line:#26344A;--acc:#E26D3B;--acc-text:#E26D3B;--card:#121B2B}
+/* Jetons « marque » : mêmes clés dans les deux thèmes (symétrie jour / nuit). Les composants ne citent que ces rôles. */
+html.loop-on,html.loop-on[data-theme="dark"]{--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--gate-bg:radial-gradient(120% 90% at 50% 40%,#0E1A2C 0%,#070B14 62%,#03050A 100%);--gate-fg:#F3E3CF;--gate-rest:#E9B48C;--gate-tag:#D9C3AE;--gate-focus:#FFD9C2;--gate-topo:#E26D3B;--gate-topo-a:.16;--gate-mtn:#0A0F1A;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}
+@media (prefers-color-scheme: dark){html.loop-on:not([data-theme="light"]){--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--gate-bg:radial-gradient(120% 90% at 50% 40%,#0E1A2C 0%,#070B14 62%,#03050A 100%);--gate-fg:#F3E3CF;--gate-rest:#E9B48C;--gate-tag:#D9C3AE;--gate-focus:#FFD9C2;--gate-topo:#E26D3B;--gate-topo-a:.16;--gate-mtn:#0A0F1A;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}}
+html.loop-on[data-theme="light"]{--brand:#27465C;--brand-hover:#16303F;--brand-fill:#F2EEE6;--brand-halo:rgba(252,247,238,.9);--sep:#27465C;--underline:#27465C;--focus:#1B1712;--ft:235,195,156;--gate-bg:radial-gradient(120% 90% at 50% 40%,#FFFCF7 0%,#F7EFE3 62%,#EBDFCF 100%);--gate-fg:#2C2825;--gate-rest:#8F2F1B;--gate-tag:#4E200E;--gate-focus:#1B1712;--gate-topo:#27465C;--gate-topo-a:.16;--gate-mtn:#CFD9DE;--needle-1:#D2672B;--needle-2:#A8401B;--needle-3:#4A4F55;--needle-4:#23272B;--needle-pivot:#1B1712;--muted:#435862}
 html.loop-on{scroll-padding-top:env(safe-area-inset-top,0px);color-scheme:light dark}
 html.loop-on *,html.loop-on *::before,html.loop-on *::after{box-sizing:border-box}
-html.loop-on body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.55 'Inter',system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+html.loop-on body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.55 'JetBrains Mono',ui-monospace,monospace;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 html.loop-on h1,html.loop-on h2,html.loop-on h3{font-family:var(--serif);font-weight:500;line-height:1.12;margin:0}
 html.loop-on p{margin:0}
 html.loop-on .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
@@ -24,7 +28,7 @@ html.loop-on .skip:focus{top:calc(env(safe-area-inset-top,0px) + 8px)}
 
 /* En-tête */
 html.loop-on header.top{position:fixed;top:0;left:0;right:0;z-index:30;padding:calc(env(safe-area-inset-top,0px) + 8px) 14px 8px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;background:linear-gradient(color-mix(in srgb,var(--bg) 80%,transparent) 50%,transparent)}
-html.loop-on .tg{min-height:44px;min-width:44px;padding:0 12px;border:1px solid var(--muted);background:transparent;color:var(--fg);border-radius:999px;font:500 13px 'Inter',sans-serif;cursor:pointer}
+html.loop-on .tg{min-height:44px;min-width:44px;padding:0 12px;border:1px solid var(--muted);background:transparent;color:var(--fg);border-radius:999px;font:500 13px 'JetBrains Mono',ui-monospace,monospace;cursor:pointer}
 html.loop-on .tg[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
 
 /* Structure de la boucle */
@@ -32,13 +36,25 @@ html.loop-on main{height:1800vh;position:relative}
 html.loop-on .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 html.loop-on .scene{position:absolute;inset:0;overflow:hidden;visibility:hidden;opacity:0}
 html.loop-on .scene canvas{position:absolute;z-index:1;inset:0;width:100%;height:100%;display:block}
+html.loop-on .camp-fx{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 88% 78% at 46% 52%,transparent 52%,rgba(2,4,9,.6) 100%)}
+html.loop-on .camp-fx::after{content:'';position:absolute;inset:0;opacity:.1;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 html.loop-on .head{position:absolute;left:50%;top:calc(var(--hh) + 6px);transform:translateX(-50%);width:min(560px,calc(100% - 32px));text-align:center;pointer-events:none}
 html.loop-on .head .eyebrow,html.loop-on .eyebrow{font:500 13px/1.3 'JetBrains Mono',monospace;color:var(--acc-text);margin-bottom:8px;letter-spacing:.02em}
 html.loop-on .head h1,html.loop-on .head h2{font-size:clamp(26px,4.4vw,44px);font-style:italic}
 html.loop-on .head p.sub{margin-top:10px;color:var(--muted);font-size:15px;max-width:44ch;margin-inline:auto}
 
 /* Scène 1 : boussole + instruments */
-html.loop-on #compassFallback{position:absolute;left:50%;top:50%;width:min(64vmin,420px);transform:translate(-50%,-50%);display:none}
+/* Avant la première interaction (3D pas encore chargée) : le premier écran est visible tel quel, montre en SVG,
+   sans l'écran de chargement ; loop.js prend la main ensuite (classe html.loop-live posée par LoopHome.vue) */
+html.loop-on:not(.loop-live):not([data-theme="light"]){--bg:#050811;--fg:#E6F4F1;--muted:#A8B9C0;--line:#26344A;--acc:#E26D3B;--acc-text:#E26D3B;--card:#121B2B}   /* palette « aube » de loop.js au départ de la boucle (sombre dans les deux modes) */
+html.loop-on:not(.loop-live) #s1{visibility:visible;opacity:1}
+html.loop-on:not(.loop-live) .loader{display:none}
+/* Préchargement : AUCUNE inscription, seule l'aiguille est visible. Les textes restent dans le DOM (opacity, pas display/visibility :
+   lecteurs d'écran et clavier ne sont pas touchés) et réapparaissent en fondu quand la 3D est là. */
+html.loop-on:not(.loop-live) header.top,html.loop-on:not(.loop-live) #head1,html.loop-on:not(.loop-live) footer.perma,html.loop-on:not(.loop-live) .altrail,html.loop-on:not(.loop-live) .hud,html.loop-on:not(.loop-live) .hint,html.loop-on:not(.loop-live) .cta{opacity:0!important}
+html.loop-on.loop-live header.top,html.loop-on.loop-live #head1,html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:sceneIn .8s ease-out .25s backwards}
+@media (prefers-reduced-motion:reduce){html.loop-on.loop-live header.top,html.loop-on.loop-live #head1,html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:none}}
+html.loop-on:not(.loop-live) .scene:not(#s1){display:none}   /* scènes suivantes pas encore mises en page : leurs polices ne sont pas téléchargées au premier affichage */
 html.loop-on #toolLines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 html.loop-on #toolLines line{stroke:var(--acc);stroke-width:1.5;stroke-dasharray:1;stroke-dashoffset:1;fill:none}
 html.loop-on .tools{list-style:none;margin:0;padding:0}
@@ -81,7 +97,7 @@ html.loop-on .mcard h3{font-size:22px;margin-bottom:4px}
 html.loop-on .mcard p{color:var(--fg);font-size:15px}
 html.loop-on .mcard .eyebrow{margin-bottom:4px}
 html.loop-on .mcard .proof{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;margin:8px 0 6px}
-html.loop-on .mcard .proof b{font:500 34px/1 var(--serif);color:var(--acc-text)}
+html.loop-on .mcard .proof b{font:500 30px/1 'JetBrains Mono',ui-monospace,monospace;color:var(--acc-text)}
 html.loop-on .mcard .proof span{font-size:14px}
 html.loop-on .mcard .role{font-size:14px;color:var(--muted)}
 html.loop-on .mcard .stack{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:10px 0 0;padding:0}
@@ -129,17 +145,17 @@ html.loop-on .hint{position:fixed;left:50%;transform:translateX(-50%);bottom:cal
 /* Pied de page permanent + raccourci recruteur */
 html.loop-on footer.perma{position:fixed;left:0;right:0;bottom:0;z-index:25;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0 6px;min-height:52px;padding:0 10px env(safe-area-inset-bottom,0px);background:linear-gradient(transparent,color-mix(in srgb,var(--bg) 82%,transparent) 40%);color:var(--fg);font-size:13px}
 html.loop-on footer.perma .copy{color:var(--muted);margin-right:10px;display:none}
-html.loop-on footer.perma a,html.loop-on footer.perma button{min-height:44px;min-width:44px;padding:0 8px;display:inline-flex;align-items:center;background:none;border:0;color:var(--fg);font:500 13px 'Inter',sans-serif;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px;cursor:pointer}
+html.loop-on footer.perma a,html.loop-on footer.perma button{min-height:44px;min-width:44px;padding:0 8px;display:inline-flex;align-items:center;background:none;border:0;color:var(--fg);font:500 13px 'JetBrains Mono',ui-monospace,monospace;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px;cursor:pointer}
 html.loop-on footer.perma a:hover,html.loop-on footer.perma button:hover{text-decoration-thickness:2px}
 @media (min-width:900px){html.loop-on footer.perma{justify-content:space-between;padding-inline:20px}html.loop-on footer.perma .copy{display:block;margin:0}}
 html.loop-on dialog{width:min(560px,calc(100% - 24px));max-height:82vh;max-height:82svh;overflow:auto;padding:22px 22px 18px;border:1px solid var(--muted);border-radius:16px;background:var(--bg);color:var(--fg)}
 html.loop-on dialog::backdrop{background:rgba(14,26,31,.62)}
 html.loop-on dialog h2{font-size:26px;margin-bottom:12px}
-html.loop-on dialog h3{font:600 15px 'Inter',sans-serif;margin:16px 0 4px}
+html.loop-on dialog h3{font:600 15px 'JetBrains Mono',ui-monospace,monospace;margin:16px 0 4px}
 html.loop-on dialog p,html.loop-on dialog li{font-size:15px;color:var(--fg)}
 html.loop-on dialog ul{margin:6px 0 0;padding-left:20px}
 html.loop-on dialog .todo{color:var(--acc-text);font-family:'JetBrains Mono',monospace;font-size:13px}
-html.loop-on dialog .x{position:sticky;float:right;top:0;min-height:44px;min-width:44px;border:1px solid var(--muted);border-radius:999px;background:transparent;color:var(--fg);font:500 14px 'Inter',sans-serif;padding:0 16px;cursor:pointer}
+html.loop-on dialog .x{position:sticky;float:right;top:0;min-height:44px;min-width:44px;border:1px solid var(--muted);border-radius:999px;background:transparent;color:var(--fg);font:500 14px 'JetBrains Mono',ui-monospace,monospace;padding:0 16px;cursor:pointer}
 html.loop-on body.static main{padding-bottom:60px}
 @media (max-width:899px){html.loop-on body.intro .hud{opacity:0}html.loop-on .hint{left:14px;transform:none;text-align:left;max-width:12ch}}
 
@@ -161,9 +177,9 @@ html.loop-on .altrail .dot{position:absolute;left:50%;top:0;width:12px;height:12
 html.loop-on body.static .altrail,html.loop-on body.static .grain{display:none}
 html.loop-on .head,html.loop-on .chip,html.loop-on .mcard,html.loop-on .pwrap,html.loop-on .bivtext,html.loop-on .loader,html.loop-on #toolLines{z-index:2}
 @media (max-width:899px){html.loop-on .altrail{right:4px;top:16vh;height:42vh}}
-html.loop-on #head1{width:min(900px,calc(100% - 32px))}
+html.loop-on #head1{width:min(900px,calc(100% - 32px));top:calc(var(--hh) - 10px)}   /* hero remonté vers l'en-tête : plus d'air au-dessus de la montre */
 html.loop-on #head1 h1{font-size:clamp(26px,3.8vw,46px)}
-@media (min-width:900px){html.loop-on #head1 .sub{max-width:62ch}}
+html.loop-on #head1 .who{font-size:14px;letter-spacing:.04em;margin-bottom:12px}   /* nom et métier, au-dessus de l'accroche */
 html.loop-on .setrow{margin:14px 0}
 html.loop-on .setrow p{font-size:14px;color:var(--muted);margin-top:6px}
 html.loop-on dialog .tg{min-width:180px;justify-content:center}
@@ -180,6 +196,11 @@ html.loop-on .spot{display:none}
 html.loop-on .hot{position:absolute;z-index:3;transform:translate(-50%,-50%);border-radius:50%;border:2px solid transparent;background:transparent;padding:0;cursor:pointer;visibility:hidden;opacity:0}
 html.loop-on .hot:hover,html.loop-on .hot:focus-visible{border-color:var(--acc);background:rgba(226,109,59,.10)}
 html.loop-on .hot[aria-pressed="true"]{border-color:var(--acc);background:rgba(226,109,59,.16)}
+/* boutons du boîtier de la montre : zone invisible de 44 px posée sur chaque bouton 3D (pas d'anneau) ; contour seulement au focus clavier */
+html.loop-on .push{position:absolute;z-index:4;width:44px;height:44px;transform:translate(-50%,-50%);border-radius:50%;border:0;background:transparent;padding:0;cursor:pointer;visibility:hidden;opacity:0}
+html.loop-on .push:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+html.loop-on body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont toutes affichées */
+html.loop-on #toolLines{display:none}   /* cartes de l'atelier : plus de trait vers la montre */
 html.loop-on .tip{position:absolute;z-index:4;max-width:240px;padding:10px 13px;background:rgba(10,12,16,.94);color:#E6F4F1;border:1px solid rgba(255,255,255,.25);border-radius:12px;pointer-events:none;opacity:0;visibility:hidden;transform:translate(-50%,0);transition:opacity .2s,visibility .2s}
 html.loop-on .tip.on{opacity:1;visibility:visible}
 html.loop-on .tip b{display:block;font:500 18px/1.2 var(--serif)}
@@ -205,7 +226,7 @@ html.loop-on body.static .bgfx{display:none}
 
 /* Transition : plongée dans le verre, ligne GPX qui s'échappe du cadran, perspective de chemin */
 html.loop-on .s2::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(var(--bg) 0%,transparent 48%);opacity:var(--fog,0)}
-html.loop-on .cta{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 58px);z-index:26;display:flex;align-items:center;gap:12px;min-height:52px;padding:2px 14px 2px 6px;border:0;border-radius:0;background:none;color:#E6F4F1;font:600 12.5px/1 'Inter',sans-serif;letter-spacing:.3em;text-transform:uppercase;text-shadow:0 0 14px rgba(5,8,17,.95),0 1px 2px rgba(5,8,17,.9);cursor:pointer;visibility:hidden;opacity:0;transform:translateX(-50%) perspective(620px) rotateX(24deg);transform-origin:50% 100%;transition:opacity .4s,color .25s,transform .35s;-webkit-box-reflect:below -3px linear-gradient(transparent 50%,rgba(230,244,241,.16))}
+html.loop-on .cta{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 58px);z-index:26;display:flex;align-items:center;gap:12px;min-height:52px;padding:2px 14px 2px 6px;border:0;border-radius:0;background:none;color:#E6F4F1;font:600 12.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.3em;text-transform:uppercase;text-shadow:0 0 14px rgba(5,8,17,.95),0 1px 2px rgba(5,8,17,.9);cursor:pointer;visibility:hidden;opacity:0;transform:translateX(-50%) perspective(620px) rotateX(24deg);transform-origin:50% 100%;transition:opacity .4s,color .25s,transform .35s;-webkit-box-reflect:below -3px linear-gradient(transparent 50%,rgba(230,244,241,.16))}
 html.loop-on .cta .ring{flex:none;width:40px;height:40px;overflow:visible;filter:drop-shadow(0 0 6px rgba(226,109,59,.45))}
 html.loop-on .cta .orbit{transform-origin:22px 22px;transform-box:view-box;animation:ctaOrbit 26s linear infinite}
 html.loop-on .cta .txt{position:relative;padding-bottom:6px}
@@ -226,14 +247,14 @@ html.loop-on #parcCanvas{position:absolute;inset:0;width:100%;height:100%;z-inde
 html.loop-on .plate{background:rgba(5,8,17,.80);border-radius:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#E6F4F1}
 html.loop-on .pl-stages{position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:5}
 html.loop-on .pl-stages ol{list-style:none;margin:0;padding:8px;display:flex;flex-direction:column;gap:2px}
-html.loop-on .pl-stages button{min-height:44px;min-width:44px;display:flex;align-items:center;gap:10px;padding:0 12px 0 8px;border:0;border-radius:10px;background:transparent;color:#A8B9C0;font:500 13px 'Inter',sans-serif;cursor:pointer;text-align:left}
+html.loop-on .pl-stages button{min-height:44px;min-width:44px;display:flex;align-items:center;gap:10px;padding:0 12px 0 8px;border:0;border-radius:10px;background:transparent;color:#A8B9C0;font:500 13px 'JetBrains Mono',ui-monospace,monospace;cursor:pointer;text-align:left}
 html.loop-on .pl-stages button i{font:500 12px 'JetBrains Mono',monospace;color:#A8B9C0}
 html.loop-on .pl-stages button[aria-current="true"],html.loop-on .pl-stages button:hover{color:#E6F4F1}
 html.loop-on .pl-stages button[aria-current="true"] i{color:#E26D3B}
 html.loop-on .pl-stages .lb{max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 html.loop-on .pl-metrics{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 66px);z-index:5;padding:12px 20px;display:grid;grid-template-columns:repeat(3,auto);gap:4px 28px;max-width:calc(100% - 24px)}
 html.loop-on .pl-metrics .ttl{grid-column:1/-1;font:500 13px 'JetBrains Mono',monospace;color:#E26D3B}
-html.loop-on .pl-metrics b{display:block;font:500 clamp(18px,3vw,28px)/1.1 var(--serif)}
+html.loop-on .pl-metrics b{display:block;font:500 clamp(16px,2.6vw,24px)/1.1 'JetBrains Mono',ui-monospace,monospace}
 html.loop-on .pl-metrics span{font:500 11px 'JetBrains Mono',monospace;color:#A8B9C0}
 html.loop-on .holo{position:absolute;z-index:4;left:0;top:0;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:260px;margin-left:-130px;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
 html.loop-on .holo.on{opacity:1;visibility:visible}
@@ -262,9 +283,14 @@ html.loop-on #shoeCanvas{position:absolute;inset:0;width:100%;height:100%;z-inde
 html.loop-on #mist{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 60% 22% at 28% 72%,rgba(200,225,215,.11),transparent 70%),radial-gradient(ellipse 70% 20% at 76% 62%,rgba(200,225,215,.08),transparent 70%),radial-gradient(ellipse 80% 18% at 50% 84%,rgba(200,225,215,.09),transparent 70%);animation:mist 20s ease-in-out infinite alternate}
 @keyframes mist{from{transform:translateX(-3%)}to{transform:translateX(3%)}}
 html.loop-on .pside{position:absolute;z-index:3;background:transparent;border:0;padding:0;cursor:pointer}
-html.loop-on .pbtn{pointer-events:auto;margin-top:10px;min-height:44px;padding:0 16px;border:1px solid var(--acc);border-radius:999px;background:transparent;color:var(--fg);font:600 14px 'Inter',sans-serif;cursor:pointer}
-html.loop-on .pbtn:hover,html.loop-on .pcard.hot .pbtn{background:var(--acc);color:#050811}
-html.loop-on .pcard.hot{border-color:var(--acc)}
+html.loop-on .pside:focus-visible{outline:2px solid var(--acc);outline-offset:-4px;border-radius:50%}
+html.loop-on .pcard.lit{border-color:var(--acc)}   /* « lit » et non « hot » : .hot est déjà la classe des points d'interaction de la boussole */
+/* Avec une souris, chaque carte n'apparaît qu'au survol (ou au focus clavier) de sa moitié de flaque ;
+   sur écran tactile (pas de survol), les deux cartes restent visibles pour annoncer le choix */
+@media (hover:hover) and (pointer:fine){
+  html.loop-on .pcard.on:not(.lit){opacity:0;visibility:hidden;transform:translateY(10px);transition-delay:0s}
+  html.loop-on .pcard.on.lit{transition-delay:0s}
+}
 html.loop-on .pwrap .head .sub{margin-top:8px;color:var(--muted);font-size:15px;max-width:44ch;margin-inline:auto}
 html.loop-on dialog.sheet{width:min(900px,calc(100% - 16px));max-height:94vh;max-height:94svh;padding:0;border-radius:18px;overflow:auto}
 html.loop-on dialog.sheet::backdrop{background:rgba(5,8,11,.74)}
@@ -282,7 +308,7 @@ html.loop-on .skills li{border:1px solid #2A3340;border-radius:12px;padding:12px
 html.loop-on .skills b{display:block;font:500 19px var(--serif);color:#E26D3B}html.loop-on .skills span{font-size:14px;color:#B9C2CA}
 html.loop-on .sheet .facts{font-size:15px;color:#B9C2CA;margin-bottom:18px}
 html.loop-on .sh-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-html.loop-on .sh-main,html.loop-on .sh-alt,html.loop-on .sh-x{min-height:44px;padding:0 18px;border-radius:999px;font:600 14px 'Inter',sans-serif;cursor:pointer;display:inline-flex;align-items:center;text-decoration:none}
+html.loop-on .sh-main,html.loop-on .sh-alt,html.loop-on .sh-x{min-height:44px;padding:0 18px;border-radius:999px;font:600 14px 'JetBrains Mono',ui-monospace,monospace;cursor:pointer;display:inline-flex;align-items:center;text-decoration:none}
 html.loop-on #dlgProfil .sh-main{background:#E26D3B;color:#050811;border:0}html.loop-on #dlgProfil .sh-alt,html.loop-on #dlgProfil .sh-x{background:transparent;color:#E6F4F1;border:1px solid #A8B9C0}
 html.loop-on #dlgCarnet .sh-main{background:#1B2A24;color:#F3EFE6;border:0}
 html.loop-on .sh-x{flex:none}
@@ -290,7 +316,7 @@ html.loop-on .compass-btn{flex:none;width:56px;height:56px;border-radius:50%;bor
 html.loop-on .compass-btn svg{width:100%;height:100%}
 html.loop-on .compass-btn:hover svg{transform:rotate(-20deg);transition:transform .3s}
 html.loop-on .sh-filters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-html.loop-on .sh-filters button{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid #56615B;background:transparent;color:#1B2A24;font:500 14px 'Inter',sans-serif;cursor:pointer}
+html.loop-on .sh-filters button{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid #56615B;background:transparent;color:#1B2A24;font:500 14px 'JetBrains Mono',ui-monospace,monospace;cursor:pointer}
 html.loop-on .sh-filters button[aria-pressed="true"]{background:#1B2A24;color:#F3EFE6;border-color:#1B2A24}
 html.loop-on .sh-note{font:500 13px 'JetBrains Mono',monospace;color:#A63C15;margin:6px 0 12px}
 html.loop-on .sh-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
@@ -302,25 +328,30 @@ html.loop-on .sh-list .bd{display:inline-block;margin-top:8px;font:500 11px 'Jet
 html.loop-on body.horspiste header.top,html.loop-on body.horspiste footer.perma{opacity:.2;transition:opacity .4s}
 
 /* Scène 4 : bivouac (feu de camp 3D, contact, recommencer l'aventure) */
+html.loop-on #sky4::before{content:'';position:absolute;inset:0;background:var(--topo,none) top center/100% auto no-repeat;opacity:.6;pointer-events:none}
 html.loop-on #sky4{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 55% 42% at 36% 70%,rgba(240,120,50,calc(var(--fire,.5)*.45)),transparent 72%),linear-gradient(to bottom,#070A14 0%,#0C0A0C 55%,#22110A 100%)}
 html.loop-on .s4 .tent,html.loop-on .s4 .ball{display:none}
-html.loop-on .bivtext{left:auto;right:4vw;top:15%;transform:none;width:min(410px,calc(100% - 28px));text-align:left;padding:18px 20px;background:rgba(18,27,43,.8);border:1px solid rgba(226,109,59,.35);border-radius:18px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);max-height:74vh;max-height:74svh;overflow:auto}
-html.loop-on .bivtext h2{font-size:clamp(28px,3.6vw,40px)}
-html.loop-on .cnt-links{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
-html.loop-on .cnt{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--acc);background:transparent;color:var(--fg);font:600 14px 'Inter',sans-serif;cursor:pointer}
+html.loop-on .bivtext{left:auto;right:4vw;top:15%;transform:none;width:min(430px,calc(100% - 28px));text-align:left;padding:20px 24px 18px;background:linear-gradient(160deg,rgba(40,30,28,.55),rgba(12,17,28,.72));border:1px solid rgba(226,140,80,.45);border-radius:22px;box-shadow:0 0 0 1px rgba(255,190,130,.06) inset,0 0 40px rgba(226,109,59,.16),0 24px 60px rgba(0,0,0,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);max-height:82vh;max-height:82svh;overflow:auto}
+html.loop-on .bivtext h2{font-size:clamp(30px,3.8vw,44px);color:#FFF1DD;line-height:1.1}
+html.loop-on .cnt-links{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 14px}
+html.loop-on .cnt{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid rgba(226,140,80,.8);background:rgba(226,109,59,.08);color:var(--fg);font:600 14px 'JetBrains Mono',ui-monospace,monospace;cursor:pointer}
 html.loop-on .cnt:hover,html.loop-on .cnt:focus-visible{background:var(--acc);color:#050811}
-html.loop-on .cnt-form label{display:block;font:500 12px 'JetBrains Mono',monospace;color:var(--muted);margin:10px 0 4px}
-html.loop-on .cnt-form input,html.loop-on .cnt-form textarea{width:100%;min-height:44px;padding:8px 12px;border-radius:10px;border:1px solid #6A5844;background:rgba(0,0,0,.4);color:#F3EADB;font:400 16px 'Inter',sans-serif}
-html.loop-on .cnt-form textarea{min-height:84px;resize:vertical}
-html.loop-on .cnt-form input:focus,html.loop-on .cnt-form textarea:focus{border-color:var(--acc)}
-html.loop-on .cnt-send{margin-top:12px;min-height:48px;padding:0 22px;border:0;border-radius:999px;background:var(--acc);color:#050811;font:600 15px 'Inter',sans-serif;cursor:pointer}
+html.loop-on .cnt-form .fld{position:relative;margin-top:10px}
+html.loop-on .cnt-form label{position:absolute;left:14px;top:14px;font:500 15px 'JetBrains Mono',ui-monospace,monospace;color:#C9BBA6;pointer-events:none;transition:all .16s ease;background:transparent;padding:0 4px}
+html.loop-on .cnt-form input:focus+label,html.loop-on .cnt-form textarea:focus+label,html.loop-on .cnt-form input:not(:placeholder-shown)+label,html.loop-on .cnt-form textarea:not(:placeholder-shown)+label{top:-8px;left:12px;font-size:12px;color:#F0B27F;background:#141A26}
+@media (prefers-reduced-motion:reduce){html.loop-on .cnt-form label{transition:none}}
+html.loop-on .cnt-form input,html.loop-on .cnt-form textarea{width:100%;min-height:48px;padding:12px 14px;border-radius:12px;border:1px solid rgba(226,140,80,.55);background:rgba(8,10,16,.45);color:#F3EADB;font:400 16px 'JetBrains Mono',ui-monospace,monospace}
+html.loop-on .cnt-form textarea{min-height:72px;resize:vertical}
+html.loop-on .cnt-form input:focus,html.loop-on .cnt-form textarea:focus{border-color:#F0B27F;outline:2px solid #F0B27F;outline-offset:2px}
+html.loop-on .cnt-send{margin-top:16px;width:100%;min-height:52px;padding:0 22px;border:0;border-radius:999px;background:linear-gradient(100deg,#CC7A4A,#EDB07C 55%,#D08655);color:#1A0E06;font:700 16px 'JetBrains Mono',ui-monospace,monospace;cursor:pointer;box-shadow:0 6px 22px rgba(226,109,59,.35)}
+html.loop-on .cnt-send:focus-visible{outline:2px solid #FFF1DD;outline-offset:3px}
 html.loop-on #cntStatus{min-height:1.4em;margin-top:8px;font:500 13px 'JetBrains Mono',monospace;color:var(--acc-text)}
 html.loop-on .restart{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);transform:translateX(-50%);z-index:3;width:170px;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;color:var(--acc);cursor:pointer;opacity:0;visibility:hidden}
 html.loop-on .restart svg{width:112px;height:112px;filter:drop-shadow(0 0 12px rgba(226,109,59,.7));transition:transform .3s}
 html.loop-on .restart:hover svg,html.loop-on .restart:focus-visible svg{transform:scale(1.1)}
 html.loop-on .restart .rs-ticks,html.loop-on .restart .rs-tick{transform-origin:100px 100px;animation:rs 16s linear infinite}
 @keyframes rs{to{transform:rotate(360deg)}}
-html.loop-on .restart span{font:600 14px 'Inter',sans-serif;color:var(--fg);text-shadow:0 0 8px rgba(0,0,0,.85)}
+html.loop-on .restart span{font:600 14px 'JetBrains Mono',ui-monospace,monospace;color:var(--fg);text-shadow:0 0 8px rgba(0,0,0,.85)}
 html.loop-on #warp{position:fixed;inset:0;width:100%;height:100%;z-index:21;pointer-events:none}
 html.loop-on body.static #warp{display:none}
 @media (prefers-reduced-motion:reduce){html.loop-on .restart .rs-ticks,html.loop-on .restart .rs-tick{animation:none}}
@@ -347,8 +378,6 @@ html.loop-on body.static main{height:auto}
 html.loop-on body.static .stage{position:static;height:auto;overflow:visible}
 html.loop-on body.static .scene{position:relative;inset:auto;min-height:100vh;min-height:100svh;visibility:visible!important;opacity:1!important;background:var(--bg);color:var(--fg)}
 html.loop-on body.static .hint,html.loop-on body.static .hud{display:none}
-html.loop-on .hud .sun{display:none}
-@media (min-width:900px){html.loop-on .hud .sun{display:inline}}
 html.loop-on body.static .ball{transform:translate(-50%,-50%) scale(1)!important}
 html.loop-on body.static .loader{display:none}
 @media (prefers-reduced-motion:reduce){html.loop-on *{scroll-behavior:auto!important}html.loop-on .pcard,html.loop-on .mcard{transition:none}}
@@ -369,12 +398,12 @@ html.loop-on .pl-metrics>div:nth-of-type(3) b{white-space:normal}
 @media (max-width:759px){html.loop-on .pl-metrics{width:calc(100% - 24px);box-sizing:border-box}html.loop-on .pl-metrics>div:nth-of-type(3) b{font-size:clamp(15px,4.2vw,18px);line-height:1.15}}
 @media (max-width:759px){html.loop-on .pl-metrics{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}}
 @media (max-width:759px){html.loop-on .bivtext{bottom:calc(env(safe-area-inset-bottom,0px) + 98px);max-height:46vh;max-height:46svh}}
-@media (max-width:759px){html.loop-on .bivtext textarea{height:76px;min-height:76px}html.loop-on .bivtext label{margin-top:6px}}
+@media (max-width:759px){html.loop-on .bivtext textarea{height:76px;min-height:76px}html.loop-on .bivtext .fld{margin-top:10px}html.loop-on .bivtext h2{font-size:28px}html.loop-on .bivtext{padding:16px 16px 14px}}
 
 /* En-tête : deux instruments, une boussole (rose des vents) pour les étapes et une roue crantée pour les outils */
 html.loop-on{--hh:68px}
 html.loop-on header.top{flex-wrap:nowrap}
-html.loop-on .burger{position:relative;min-height:48px;display:inline-flex;align-items:center;gap:10px;padding:4px 18px 4px 4px;border:1px solid rgba(226,140,100,.42);border-radius:999px;color:var(--fg);font:500 13px/1 'Inter',sans-serif;letter-spacing:.03em;cursor:pointer;background:linear-gradient(180deg,rgba(28,41,62,.82),rgba(8,12,22,.88));box-shadow:inset 0 1px 0 rgba(255,200,170,.14),0 8px 24px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:border-color .25s,box-shadow .25s}
+html.loop-on .burger{position:relative;min-height:48px;display:inline-flex;align-items:center;gap:10px;padding:4px 18px 4px 4px;border:1px solid rgba(226,140,100,.42);border-radius:999px;color:var(--fg);font:500 13px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.03em;cursor:pointer;background:linear-gradient(180deg,rgba(28,41,62,.82),rgba(8,12,22,.88));box-shadow:inset 0 1px 0 rgba(255,200,170,.14),0 8px 24px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:border-color .25s,box-shadow .25s}
 html.loop-on .burger:hover{border-color:rgba(226,109,59,.75)}
 html.loop-on .burger[aria-expanded="true"]{border-color:var(--acc);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 0 0 3px rgba(226,109,59,.2),0 8px 24px rgba(0,0,0,.4)}
 html.loop-on .orb{flex:none;width:38px;height:38px;border-radius:50%;padding:2px;background:conic-gradient(from 200deg,#F6BC98,#8E4223,#FFE4D2,#7A3719,#EFA77F,#8E4223,#F6BC98);box-shadow:0 2px 6px rgba(0,0,0,.55)}
@@ -393,12 +422,12 @@ html.loop-on .mh .mr{width:50px;height:50px;margin:-6px 0 -4px;opacity:.95}
 html.loop-on .menu ol{counter-reset:st;list-style:none;margin:0;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 html.loop-on .menu ol button{position:relative;width:100%;box-sizing:border-box;min-height:56px;padding:6px 14px 6px 12px;display:grid;grid-template-columns:34px 1fr;align-items:center;column-gap:4px;border:0;border-radius:14px;background:none;color:var(--fg);text-align:left;cursor:pointer}
 html.loop-on .menu ol button::before{counter-increment:st;content:counter(st,decimal-leading-zero);grid-row:1/3;font:500 12px/1 'JetBrains Mono',monospace;letter-spacing:.06em;color:#E26D3B}
-html.loop-on .menu ol .m{grid-column:2;font:400 19px/1.15 var(--serif)}
-html.loop-on .menu ol .l{grid-column:2;color:var(--muted);font:400 12px/1.2 'Inter',sans-serif}
+html.loop-on .menu ol .m{grid-column:2;font:500 15px/1.25 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.02em}
+html.loop-on .menu ol .l{grid-column:2;color:var(--muted);font:400 12px/1.2 'JetBrains Mono',ui-monospace,monospace}
 html.loop-on .menu ol button:hover{background:rgba(230,244,241,.07)}
 html.loop-on .menu ol button[aria-current="true"]{background:linear-gradient(90deg,rgba(226,109,59,.2),rgba(226,109,59,.04))}
 html.loop-on .menu ol button[aria-current="true"]::after{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:3px;background:#E26D3B;box-shadow:0 0 10px rgba(226,109,59,.7)}
-html.loop-on .menu .tg{position:relative;width:calc(100% - 16px);margin:0 8px;box-sizing:border-box;min-height:56px;padding:6px 14px;display:grid;grid-template-columns:22px 1fr auto;align-items:center;column-gap:14px;border:0;border-radius:14px;background:none;color:var(--fg);font:500 15px/1.2 'Inter',sans-serif;text-align:left;cursor:pointer}
+html.loop-on .menu .tg{position:relative;width:calc(100% - 16px);margin:0 8px;box-sizing:border-box;min-height:56px;padding:6px 14px;display:grid;grid-template-columns:22px 1fr auto;align-items:center;column-gap:14px;border:0;border-radius:14px;background:none;color:var(--fg);font:500 15px/1.2 'JetBrains Mono',ui-monospace,monospace;text-align:left;cursor:pointer}
 html.loop-on .menu .tg svg{width:20px;height:20px;fill:none;stroke:#E9A27F;stroke-width:1.6}
 html.loop-on .menu .tg:hover{background:rgba(230,244,241,.07)}
 html.loop-on .menu .tg[aria-pressed]::after{content:"";width:42px;height:24px;border-radius:999px;background:radial-gradient(circle at 50% 50%,#FFE9DB 0 8px,transparent 8.5px) 1px 0/24px 24px no-repeat,rgba(120,86,68,.5);box-shadow:inset 0 0 0 1px rgba(226,140,100,.4);transition:background-position .25s,background-color .25s}
@@ -420,7 +449,7 @@ html.loop-on .pwrap .head::before{content:"";position:absolute;inset:-14px -40px
 html.loop-on header.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;flex-wrap:nowrap;gap:8px}
 html.loop-on header.top .hm-l{justify-self:start}html.loop-on header.top .hm-r{justify-self:end}
 html.loop-on #menuSteps{left:14px;right:auto}
-html.loop-on .brand{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:48px;padding:0 6px;color:#EE9468;text-decoration:none}
+html.loop-on .brand{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:48px;padding:0 6px;color:var(--brand);text-decoration:none}
 html.loop-on .brand .logo{width:23px;height:32px;overflow:visible;filter:drop-shadow(0 2px 7px rgba(226,109,59,.4));transform-origin:50% 6%;animation:brandSwing 9s ease-in-out infinite}
 html.loop-on .brand .bn{font:400 13px/1 var(--serif);font-variant:small-caps;letter-spacing:.2em;text-indent:.2em;white-space:nowrap}
 html.loop-on .brand .fl{width:56px;height:6px;opacity:.9}
@@ -459,7 +488,7 @@ html.loop-on .tool-note{margin:4px 0 12px;color:#A8B9C0;font-size:13px;line-heig
 html.loop-on .tool-note[hidden]{display:none}
 html.loop-on .pl-dock{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 66px);z-index:5;display:flex;flex-direction:column;align-items:center;gap:10px;width:max-content;max-width:calc(100% - 24px)}
 html.loop-on .pl-dock .pl-metrics{position:static;transform:none;left:auto;bottom:auto}
-html.loop-on .pl-more{min-height:44px;padding:0 18px;border:1px solid rgba(226,109,59,.75);border-radius:999px;background:rgba(5,8,17,.7);color:#E6F4F1;font:600 13px 'Inter',sans-serif;letter-spacing:.04em;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html.loop-on .pl-more{min-height:44px;padding:0 18px;border:1px solid rgba(226,109,59,.75);border-radius:999px;background:rgba(5,8,17,.7);color:#E6F4F1;font:600 13px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 html.loop-on .pl-more[hidden]{display:none}
 html.loop-on .pl-more:hover,html.loop-on .pl-more:focus-visible{background:#E26D3B;color:#050811}
 html.loop-on .menu a.tg{text-decoration:none}
@@ -474,18 +503,18 @@ html.loop-on{--hh:60px;--serif:'Cordée Serif','DM Serif Display',Georgia,serif}
 html.loop-on header.top{background:none;padding:calc(env(safe-area-inset-top,0px) + 6px) 14px 0;display:flex;justify-content:center;align-items:flex-start;gap:0;pointer-events:none}
 html.loop-on header.top>*{pointer-events:auto}
 html.loop-on .topnav{display:flex;align-items:center;gap:4px}
-html.loop-on .topnav .sep{width:1px;height:12px;background:rgba(226,140,100,.5)}
-html.loop-on .burger{min-height:44px;padding:0 16px;gap:0;border:0;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:#E6F4F1;font:500 11.5px/1 'Inter',sans-serif;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 0 14px rgba(5,8,17,.95),0 1px 2px rgba(5,8,17,.8);opacity:.92}
+html.loop-on .topnav .sep{width:1px;height:12px;background:var(--sep)}
+html.loop-on .burger{min-height:44px;padding:0 16px;gap:0;border:0;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:#E6F4F1;font:500 11.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 0 14px rgba(5,8,17,.95),0 1px 2px rgba(5,8,17,.8);opacity:.92}
 html.loop-on .burger .orb{display:none}
 html.loop-on .burger .lbl{margin-right:-.34em}
-html.loop-on .burger::after{content:"";position:absolute;left:16px;right:16px;bottom:8px;height:1px;background:linear-gradient(90deg,transparent,#E26D3B,transparent);transform:scaleX(0);transition:transform .4s}
+html.loop-on .burger::after{content:"";position:absolute;left:16px;right:16px;bottom:8px;height:1px;background:linear-gradient(90deg,transparent,var(--underline),transparent);transform:scaleX(0);transition:transform .4s}
 html.loop-on .burger:hover,html.loop-on .burger[aria-expanded="true"]{border:0;box-shadow:none;opacity:1}
 html.loop-on .burger:hover::after,html.loop-on .burger[aria-expanded="true"]::after{transform:scaleX(1)}
 html.loop-on .burger[aria-expanded="true"]{color:#FFE2CC}
-html.loop-on .brand{position:absolute;left:14px;top:calc(env(safe-area-inset-top,0px) + 6px);display:flex;flex-direction:row;align-items:center;gap:10px;min-height:44px;padding:0;color:#EE9468}
+html.loop-on .brand{position:absolute;left:14px;top:calc(env(safe-area-inset-top,0px) + 6px);display:flex;flex-direction:row;align-items:center;gap:10px;min-height:44px;padding:0;color:var(--brand)}
 html.loop-on .brand .logo{width:17px;height:24px;filter:drop-shadow(0 1px 5px rgba(226,109,59,.35))}
 html.loop-on .brand .fl{display:none}
-html.loop-on .brand .bn{display:none;font:500 10.5px/1 'Inter',sans-serif;font-variant:normal;letter-spacing:.34em;text-indent:0;text-transform:uppercase;opacity:.9}
+html.loop-on .brand .bn{display:none;font:500 10.5px/1 'JetBrains Mono',ui-monospace,monospace;font-variant:normal;letter-spacing:.34em;text-indent:0;text-transform:uppercase;opacity:.9}
 @media (min-width:640px){html.loop-on .brand .bn{display:inline}}
 html.loop-on #menuSteps,html.loop-on #menuTools,html.loop-on .menu{left:50%;right:auto;top:calc(var(--hh) - 4px);transform:translateX(-50%);animation:menuIn2 .22s ease-out}
 @keyframes menuIn2{from{opacity:0;transform:translate(-50%,-6px)}to{opacity:1;transform:translate(-50%,0)}}
@@ -501,7 +530,7 @@ html.loop-on .pl-stages button:hover .dot,html.loop-on .pl-stages button:focus-v
 html.loop-on .pl-stages .stip{position:absolute;right:34px;top:50%;display:flex;gap:10px;align-items:baseline;white-space:nowrap;opacity:0;pointer-events:none;transform:translate(6px,-50%);transition:opacity .2s,transform .2s;text-shadow:0 0 12px rgba(5,8,17,.95),0 1px 2px rgba(5,8,17,.9)}
 html.loop-on .pl-stages button:hover .stip,html.loop-on .pl-stages button:focus-visible .stip{opacity:1;transform:translate(0,-50%)}
 html.loop-on .pl-stages .stip i{font:500 11px 'JetBrains Mono',monospace;color:#E26D3B;letter-spacing:.1em}
-html.loop-on .pl-stages .stip .lb{max-width:none;font:500 12px 'Inter',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#E6F4F1}
+html.loop-on .pl-stages .stip .lb{max-width:none;font:500 12px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#E6F4F1}
 /* bloc de données du bas : sans libellés ni séparateur */
 html.loop-on .pl-metrics.plate,html.loop-on .pl-dock .pl-metrics{background:rgba(5,8,17,.5);border:0;box-shadow:none;padding:8px 14px;gap:2px 22px;-webkit-backdrop-filter:none;backdrop-filter:none}
 html.loop-on .pl-metrics span,html.loop-on .pl-metrics hr{display:none}
@@ -509,7 +538,8 @@ html.loop-on .pl-metrics .ttl{border:0;opacity:.85;letter-spacing:.06em}
 /* textes : interligne généreux, libellés techniques qui s'effacent */
 html.loop-on .head .sub,html.loop-on .mcard .role,html.loop-on .lead,html.loop-on .pcard p,html.loop-on .sh-body p,html.loop-on .bivtext p,html.loop-on .tool-pts li{line-height:1.78}
 html.loop-on .head .sub{max-width:36em;margin-left:auto;margin-right:auto}
-html.loop-on .hud{font-size:11px;opacity:calc(.5*var(--hudk,1))}   /* s'efface pendant la traversée de la carte */
+html.loop-on .hud{font:300 13px/1.4 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;opacity:calc(.62*var(--hudk,1))}
+html.loop-on .hud b{font-weight:400}   /* s'efface pendant la traversée de la carte */
 html.loop-on .hint{opacity:.7}
 html.loop-on .pl-stages.plate{background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 @media (max-width:899px){html.loop-on .pl-dock{bottom:calc(env(safe-area-inset-bottom,0px) + 104px)}}
@@ -517,9 +547,15 @@ html.loop-on .brand{min-width:44px;justify-content:center;left:6px}
 @media (min-width:640px){html.loop-on .brand{padding-right:6px}}
 
 /* Accroche de l'accueil (texte long) : deux lignes sur ordinateur, resserrée sur écran bas ; pied de page qui tient sur 360 px */
-@media (min-width:900px){html.loop-on #head1 .sub{max-width:84ch}}
-@media (max-height:700px){html.loop-on #head1 h1{font-size:clamp(24px,3.2vw,38px)}html.loop-on #head1 .sub{font-size:13.5px;line-height:1.55}}
+@media (max-height:700px){html.loop-on #head1 h1{font-size:clamp(24px,3.2vw,38px)}html.loop-on #head2 .sub{font-size:13.5px;line-height:1.55}}
 @media (max-width:389px){html.loop-on footer.perma a,html.loop-on footer.perma button{padding:0 4px;font-size:12px}}
+/* Pied de page : icônes filaires cuivrées ; le libellé apparaît en info-bulle au survol et au focus */
+html.loop-on footer.perma nav{display:flex;align-items:center;gap:2px}
+html.loop-on footer.perma .ico{position:relative;justify-content:center;padding:0;color:var(--acc-text);text-decoration:none;border-radius:999px;transition:background .2s}
+html.loop-on footer.perma .ico:hover,html.loop-on footer.perma .ico:focus-visible{background:color-mix(in srgb,var(--acc) 14%,transparent)}
+html.loop-on footer.perma .ico::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 4px);left:50%;transform:translate(-50%,4px);padding:4px 8px;border-radius:6px;background:var(--card);color:var(--fg);font:500 12px 'JetBrains Mono',ui-monospace,monospace;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+html.loop-on footer.perma .ico:hover::after,html.loop-on footer.perma .ico:focus-visible::after{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){html.loop-on footer.perma .ico::after{transition:none}}
 
 /* Étapes de la carte : les points sont posés SUR la barre de progression (même axe, même hauteur) ; la pastille de progression les parcourt */
 html.loop-on .pl-stages{position:absolute;right:10px;top:22vh;height:56vh;width:16px;transform:none;z-index:14}
@@ -569,8 +605,250 @@ html.loop-on .pl-list .km,html.loop-on #pList .km{color:#E8F1F3;font-weight:600}
 
 /* Un seul bloc d'interaction par étape : le bloc 3D (qu'on touche) et un bouton contextuel sous lui ; plus de plaque qui répète titre, résultat et kilomètres. Seul le Départ, qui n'a pas de bloc, garde sa plaque, rendue opaque */
 html.loop-on .pl-dock.on-proj .pl-metrics{display:none}
-html.loop-on .pl-more{min-height:52px;min-width:min(264px,calc(100vw - 48px));padding:0 28px;border:0;border-radius:999px;background:#FF8A57;color:#0A0F1A;font:700 15px/1.2 'Inter',sans-serif;letter-spacing:.01em;box-shadow:0 0 0 1px rgba(255,138,87,.55),0 10px 30px rgba(255,138,87,.3);-webkit-backdrop-filter:none;backdrop-filter:none}
+html.loop-on .pl-more{min-height:52px;min-width:min(264px,calc(100vw - 48px));padding:0 28px;border:0;border-radius:999px;background:#FF8A57;color:#0A0F1A;font:700 15px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.01em;box-shadow:0 0 0 1px rgba(255,138,87,.55),0 10px 30px rgba(255,138,87,.3);-webkit-backdrop-filter:none;backdrop-filter:none}
 html.loop-on .pl-more:hover,html.loop-on .pl-more:focus-visible{background:#FFFFFF;color:#0A0F1A}
 html.loop-on .pl-more:focus-visible{outline:3px solid #FFFFFF;outline-offset:3px}
 html.loop-on .pl-dock .pl-metrics.plate{background:#050811;border:1px solid rgba(255,255,255,.2);box-shadow:0 8px 28px rgba(0,0,0,.55)}
 @media (max-width:899px){html.loop-on .pl-dock{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)}}
+
+/* ---------- Mode jour : contrastes (11/10/2026) ----------
+   La palette claire (E_DAY dans loop.js) pose --bg, --fg, --muted et --acc-text ; ces règles font suivre le texte posé
+   directement sur le fond (menu, titres, accroches) au lieu des blancs et oranges de la nuit, et remplacent les halos noirs
+   par des halos de la couleur du fond. Rapports visés : 7:1 pour le texte (fg #12222B sur #F4F8FA ≈ 15:1,
+   muted #435862 ≈ 7,3:1, accent #B23F27 ≈ 5,6:1). En s'enfonçant vers la forêt et le bivouac, les variables repassent au sombre : ces règles restent justes. */
+html.loop-on[data-theme="light"] #head1,html.loop-on[data-theme="light"] #head2,html.loop-on[data-theme="light"] .pwrap .head{text-shadow:0 0 6px var(--bg),0 0 14px var(--bg),0 0 26px var(--bg)}
+html.loop-on[data-theme="light"] .pwrap .head::before{background:radial-gradient(closest-side,color-mix(in srgb,var(--bg) 82%,transparent),transparent)}
+html.loop-on[data-theme="light"] .head .eyebrow,html.loop-on[data-theme="light"] .eyebrow{color:var(--acc-text)}
+html.loop-on[data-theme="light"] .head p.sub,html.loop-on[data-theme="light"] .pwrap .head .sub{color:var(--muted)}
+html.loop-on[data-theme="light"] .head p.tot{color:var(--fg);text-shadow:0 0 6px var(--bg),0 0 14px var(--bg)}
+html.loop-on[data-theme="light"] .burger{color:var(--fg);text-shadow:0 0 6px var(--bg),0 0 14px var(--bg);opacity:1}
+html.loop-on[data-theme="light"] .burger[aria-expanded="true"]{color:var(--acc-text)}
+html.loop-on[data-theme="light"] .restart span{color:var(--fg);text-shadow:0 0 6px var(--bg),0 0 12px var(--bg)}
+html.loop-on[data-theme="light"] .chip.soon{background:var(--card)}
+html.loop-on[data-theme="light"] .chip.soon b,html.loop-on[data-theme="light"] .chip.soon span.d{color:var(--fg);opacity:1}
+html.loop-on[data-theme="light"] .altrail{--rl:var(--muted);--rd:var(--acc-text);--rg:rgba(178,63,39,.35);--ra:var(--acc-text);--rh:var(--fg)}
+html.loop-on[data-theme="light"] .altrail .ln{opacity:.7}
+
+/* Bivouac de jour (feu éteint) : ciel clair, pas d'étoiles, vignette douce ; la scène 3D passe en soleil et brume claire (CAMP, dayC dans loop.js) */
+html.loop-on[data-theme="light"] #sky4{background:radial-gradient(ellipse 55% 42% at 36% 70%,rgba(240,120,50,calc(var(--fire,0)*.45)),transparent 72%),linear-gradient(to bottom,#BCD7EA 0%,#D9E8F1 42%,#EFE6D4 100%)}
+html.loop-on[data-theme="light"] #sky4::before{opacity:.22;filter:invert(1) brightness(.55)}
+html.loop-on[data-theme="light"] .stars{display:none}
+html.loop-on[data-theme="light"] .camp-fx{background:radial-gradient(ellipse 90% 80% at 46% 52%,transparent 60%,rgba(70,58,44,.26) 100%)}
+html.loop-on[data-theme="light"] .camp-fx::after{opacity:.06}
+
+/* Bivouac de jour : carte de contact claire (verre dépoli clair, encre foncée), repères en bas à gauche plus lisibles */
+html.loop-on[data-theme="light"] .bivtext{background:linear-gradient(160deg,rgba(255,252,246,.9),rgba(244,236,222,.94));border:1px solid rgba(168,64,27,.45);box-shadow:0 0 0 1px rgba(255,255,255,.55) inset,0 18px 50px rgba(60,40,20,.28)}
+html.loop-on[data-theme="light"] .bivtext h2{color:var(--fg)}
+html.loop-on[data-theme="light"] .cnt{border-color:rgba(168,64,27,.8);background:rgba(168,64,27,.08)}
+html.loop-on[data-theme="light"] .cnt-form label{color:#5A4F42}
+html.loop-on[data-theme="light"] .cnt-form input:focus+label,html.loop-on[data-theme="light"] .cnt-form textarea:focus+label,html.loop-on[data-theme="light"] .cnt-form input:not(:placeholder-shown)+label,html.loop-on[data-theme="light"] .cnt-form textarea:not(:placeholder-shown)+label{color:#A8401B;background:#F6F0E6}
+html.loop-on[data-theme="light"] .cnt-form input,html.loop-on[data-theme="light"] .cnt-form textarea{border-color:rgba(168,64,27,.6);background:rgba(255,255,255,.75);color:#1F1A14}
+html.loop-on[data-theme="light"] .cnt-form input:focus,html.loop-on[data-theme="light"] .cnt-form textarea:focus{border-color:#A8401B;outline-color:#A8401B}
+html.loop-on[data-theme="light"] .cnt-send:focus-visible{outline-color:#1F1A14}
+html.loop-on[data-theme="light"] .hud{opacity:calc(.92*var(--hudk,1));font-weight:500;color:var(--fg);text-shadow:0 0 6px var(--bg),0 0 12px var(--bg)}
+
+/* ===== Écran d'accueil « corde en C » (intro avant la montre) ===== */
+html.loop-on .gate{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:var(--gate-bg);color:var(--gate-fg);overflow:hidden;transition:opacity .7s ease,visibility .7s}
+html.loop-on .gate[hidden]{display:none}
+html.loop-on .gate.gate-out{opacity:0;visibility:hidden}
+html.loop-on .gate-bg{position:absolute;inset:0;width:100%;height:100%}
+html.loop-on .gate-mtn{position:absolute;left:0;right:0;bottom:0;width:100%;height:24%}
+html.loop-on .gate-glow{position:absolute;left:50%;top:44%;width:min(120vw,820px);aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(226,109,59,.38),rgba(226,109,59,.12) 55%,transparent 75%);animation:gateGlow 4.5s ease-in-out infinite}
+html.loop-on .gate-in{position:relative;display:flex;flex-direction:column;align-items:center;gap:clamp(14px,3vh,26px);padding:24px 20px;text-align:center;max-width:720px}
+html.loop-on .gate-name{--cw:clamp(190px,54vw,310px);display:flex;align-items:center;justify-content:center;margin:0;font-weight:500}
+html.loop-on .gate-c{width:var(--cw);height:var(--cw);flex:none;overflow:visible}
+html.loop-on .gate-rest{margin-left:calc(var(--cw) * -.3);font:500 italic clamp(2.1rem,9vw,3.6rem)/1 var(--serif);color:var(--gate-rest);letter-spacing:.01em;text-shadow:0 0 22px rgba(226,109,59,.45)}
+html.loop-on .gate-tag{margin:0;font:italic 500 clamp(1.05rem,3.4vw,1.35rem)/1.3 var(--serif);color:var(--gate-tag)}
+html.loop-on .gate-btn{margin-top:clamp(8px,2vh,18px);font:600 clamp(.95rem,3vw,1.1rem)/1.25 'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase;color:#1A0E08;background:linear-gradient(180deg,#F2A271,#E26D3B);border:0;border-radius:999px;padding:16px 28px;min-height:48px;width:fit-content;max-width:min(100%,24em);text-wrap:balance;cursor:pointer;box-shadow:0 0 0 1px rgba(255,217,194,.35),0 10px 30px rgba(226,109,59,.35);transition:transform .2s,box-shadow .2s}
+html.loop-on .gate-btn:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(255,217,194,.6),0 14px 36px rgba(226,109,59,.5)}
+html.loop-on .gate-btn:focus-visible{outline:3px solid var(--gate-focus);outline-offset:4px}
+html.loop-on .gate-embers{position:absolute;inset:0;pointer-events:none}
+html.loop-on .gate-embers i{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:#F6A66F;box-shadow:0 0 8px 2px rgba(246,166,111,.7);opacity:0;animation:gateEmber 9s linear infinite}
+html.loop-on .gate-embers i:nth-child(1){left:12%;animation-delay:0s}html.loop-on .gate-embers i:nth-child(2){left:24%;animation-delay:2.2s;animation-duration:11s}html.loop-on .gate-embers i:nth-child(3){left:36%;animation-delay:5s}html.loop-on .gate-embers i:nth-child(4){left:47%;animation-delay:1s;animation-duration:12s}html.loop-on .gate-embers i:nth-child(5){left:58%;animation-delay:3.6s}html.loop-on .gate-embers i:nth-child(6){left:67%;animation-delay:6.4s;animation-duration:10s}html.loop-on .gate-embers i:nth-child(7){left:76%;animation-delay:.6s}html.loop-on .gate-embers i:nth-child(8){left:84%;animation-delay:4.2s;animation-duration:13s}html.loop-on .gate-embers i:nth-child(9){left:92%;animation-delay:7.4s}html.loop-on .gate-embers i:nth-child(10){left:5%;animation-delay:8s;animation-duration:12s}
+@keyframes gateGlow{0%,100%{opacity:.8;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
+@keyframes gateEmber{0%{transform:translate(0,0);opacity:0}10%{opacity:.9}100%{transform:translate(22px,-78vh);opacity:0}}
+/* Dénouer : la corde se retire, le nœud se défait */
+html.loop-on .gate .gm{transition:stroke-dashoffset 1.1s cubic-bezier(.6,0,.3,1)}
+html.loop-on .gate.gate-untie .gm{stroke-dashoffset:1}
+html.loop-on .gate .knot{transform-box:fill-box;transform-origin:center;transition:transform .9s cubic-bezier(.6,0,.3,1),opacity .9s}
+html.loop-on .gate.gate-untie .knot{transform:rotate(200deg) scale(0);opacity:0}
+html.loop-on .gate.gate-untie .gate-rest,html.loop-on .gate.gate-untie .gate-tag,html.loop-on .gate.gate-untie .gate-btn{opacity:0;transition:opacity .6s}
+html.loop-on.gate-on{overflow:hidden}
+@media (prefers-reduced-motion:reduce){html.loop-on .gate-glow,html.loop-on .gate-embers i{animation:none}html.loop-on .gate-embers{display:none}html.loop-on .gate,html.loop-on .gate .gm,html.loop-on .gate .knot,html.loop-on .gate-btn{transition:none!important}}
+@media (forced-colors:active){html.loop-on .gate{background:Canvas;color:CanvasText}html.loop-on .gate-btn{border:2px solid ButtonText;background:ButtonFace;color:ButtonText}}
+
+/* ===== Audit UX/UI : lisibilité, un seul départ, accès recruteur ===== */
+/* Halos de texte et couleurs pilotés par la palette (--bg, --fg) : lisibles de jour comme de nuit, au lieu d'un halo noir et d'un texte blanc fixes */
+html.loop-on #head1,html.loop-on #head2,html.loop-on .pwrap .head,html.loop-on .head p.tot{text-shadow:0 0 12px color-mix(in srgb,var(--bg) 92%,transparent),0 0 3px color-mix(in srgb,var(--bg) 85%,transparent)}
+html.loop-on header.top .burger{color:var(--fg);opacity:1;text-shadow:0 0 12px color-mix(in srgb,var(--bg) 92%,transparent),0 0 3px color-mix(in srgb,var(--bg) 85%,transparent)}
+html.loop-on .head p.tot,html.loop-on .head .km{color:var(--fg)}
+html.loop-on #head1 .who{font-weight:600}
+/* Accroche : métier et valeur en clair, sous le titre */
+html.loop-on #head1 .lede{margin:12px auto 0;max-width:min(44ch,100%);font:400 clamp(11.5px,3.1vw,14px)/1.65 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.02em;color:var(--fg)}
+@media (max-height:700px){html.loop-on #head1 .lede{font-size:12.5px;margin-top:8px}}
+/* Bureau : le sous-texte s'étend (2 lignes au lieu de 4) et gagne en taille */
+@media (min-width:900px){html.loop-on #head1 .lede{max-width:min(72ch,100%);font-size:clamp(14px,1.2vw,16px);line-height:1.7;letter-spacing:.035em}}
+@media (min-width:900px) and (max-height:700px){html.loop-on #head1 .lede{font-size:14px}}
+/* CV et Contact : boutons nommés, toujours visibles dans le pied de page */
+html.loop-on footer.perma .ico.lbl{gap:7px;padding:0 14px;min-width:0;border:1px solid color-mix(in srgb,var(--acc-text) 55%,transparent);color:var(--fg);font:600 13px 'JetBrains Mono',ui-monospace,monospace;background:color-mix(in srgb,var(--card) 70%,transparent)}
+html.loop-on footer.perma .ico.lbl svg{color:var(--acc-text);flex:none}
+html.loop-on footer.perma .ico.lbl:hover,html.loop-on footer.perma .ico.lbl:focus-visible{background:color-mix(in srgb,var(--acc) 22%,var(--card))}
+html.loop-on footer.perma .ico.lbl::after{display:none}
+html.loop-on footer.perma nav{gap:6px}
+/* Cartes de l'atelier : fond plus net, lisible devant la montre */
+html.loop-on .chip{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-color:color-mix(in srgb,var(--fg) 28%,var(--line))}
+html.loop-on .chip span.d{color:var(--fg);opacity:.85}
+
+/* Écran de la corde déjà vu dans la session : masqué dès le premier rendu */
+html.loop-on.gate-seen .gate{display:none}
+
+/* Préchargement : le logo au-dessus de l'aiguille de la boussole qui tourne. L'aiguille est au centre du cadran de la montre,
+   même forme (orange au nord, blanche au sud) : en fondu, elle se confond avec l'aiguille de la montre 3D. */
+html.loop-on .preload{position:fixed;inset:0;z-index:450;pointer-events:none;opacity:0;transition:opacity 1s ease}
+/* Aiguille : mêmes facettes et mêmes couleurs que l'aiguille 3D de la montre. Avant le démarrage elle tourne seule (sens anti-horaire,
+   comme la 3D) ; ensuite loop.js (preSync) lui donne la matrice écran de l'aiguille 3D à chaque image. */
+html.loop-on .pre-needle{position:absolute;left:var(--pnx,50%);top:var(--pny,48.8%);width:24px;height:68px;margin:-38px 0 0 -12px;scale:var(--pns,.46);overflow:visible;transform-origin:12px 38px;animation:preSpin 1.7s linear infinite}
+html.loop-on .pre-needle.sync{left:0;top:0;margin:0;scale:none;animation:none}
+@keyframes preSpin{to{transform:rotate(-360deg)}}
+html.loop-on .preload.go{opacity:1;transition:none}
+html.loop-on .pre-needle{transition:opacity .3s ease}
+html.loop-on .preload.fade .pre-needle{opacity:0;transition-delay:.15s}
+/* La scène 3D apparaît en fondu au lieu d'une coupe franche : l'aiguille HTML la recouvre pendant ce temps */
+html.loop-on.loop-live #compassCanvas,html.loop-on.loop-live #aurora{animation:sceneIn .7s ease-out}
+@keyframes sceneIn{from{opacity:0}}
+html.loop-on .preload.done{visibility:hidden}
+html.loop-on:not(.loop-live):not(.gate-on) .preload,html.loop-on.gate-waiting .preload{opacity:1}
+@media (prefers-reduced-motion:reduce){html.loop-on .pre-needle{animation:none}html.loop-on .preload,html.loop-on .preload.go,html.loop-on .pre-needle{transition:none}html.loop-on.loop-live #compassCanvas,html.loop-on.loop-live #aurora{animation:none}}
+
+/* Mode jour : le sol de l'accueil est en dalles de sable clair ; le bouton de visite guidée passe en texte sombre à halo clair (contraste AA) */
+html.loop-on[data-theme="light"] .cta{color:var(--fg);text-shadow:0 0 6px var(--bg),0 0 14px var(--bg),0 0 26px var(--bg)}
+html.loop-on[data-theme="light"] .cta:hover,html.loop-on[data-theme="light"] .cta:focus-visible{color:var(--fg)}
+
+/* ===== Accessibilité du mode jour (revue du 12/10/2026) =====
+   Cibles : texte 4,5:1 minimum ; contours de boutons et de champs, icônes et anneaux de focus 3:1 minimum (WCAG 1.4.3, 1.4.11, 2.4.7). */
+/* Fiches « Profil » et « Outil » : fond nuit dans les deux modes. Le paragraphe d'accroche héritait du texte sombre du mode jour (1:1) */
+html.loop-on #dlgProfil .lead,html.loop-on #dlgTool .lead{color:#E6F4F1}
+/* Anneau de focus clair dans ces fiches sombres (le cuivre foncé du mode jour y tombe sous 3:1) */
+html.loop-on #dlgProfil :focus-visible,html.loop-on #dlgTool :focus-visible{outline-color:#FFB48A}
+/* Pastilles du pied de page (CV, Contact) : contour plein, au lieu de 55 % de transparence (≈ 2:1) */
+html.loop-on[data-theme="light"] footer.perma .ico.lbl{border:1px solid var(--acc-text);background:color-mix(in srgb,var(--card) 94%,transparent)}
+html.loop-on[data-theme="light"] footer.perma .ico{color:#9E3418}
+/* Puces de contact et champs du formulaire du bivouac : contours pleins */
+html.loop-on[data-theme="light"] .cnt{border-color:#A8401B;background:rgba(168,64,27,.10)}
+html.loop-on[data-theme="light"] .cnt-form input,html.loop-on[data-theme="light"] .cnt-form textarea{border-color:#A8401B}
+/* « Voir la fiche » / « Définir la prochaine étape » : fond cuivre foncé, texte blanc (≈ 5,7:1), focus sombre */
+html.loop-on[data-theme="light"] .pl-more{background:#B23F27;color:#FFFFFF;box-shadow:0 8px 24px rgba(178,63,39,.28)}
+html.loop-on[data-theme="light"] .pl-more:hover{background:#8F2F1B;color:#FFFFFF}
+html.loop-on[data-theme="light"] .pl-more:focus-visible{background:#8F2F1B;color:#FFFFFF;outline:3px solid var(--fg);outline-offset:3px}
+/* « Visite guidée » : vrai bouton (fond et contour) au lieu d'un texte posé sur le sable */
+html.loop-on[data-theme="light"] .cta{padding:2px 20px 2px 6px;border:1px solid var(--acc-text);border-radius:999px;background:color-mix(in srgb,var(--bg) 90%,transparent);text-shadow:none;box-shadow:0 4px 18px rgba(18,34,43,.18)}
+html.loop-on[data-theme="light"] .cta:hover,html.loop-on[data-theme="light"] .cta:focus-visible{background:var(--bg)}
+/* Ligne d'altitude / météo : pastille claire pour rester lisible sur le sol sombre du bivouac */
+html.loop-on[data-theme="light"] .hud{padding:3px 12px;border-radius:999px;background:color-mix(in srgb,var(--bg) 88%,transparent);text-shadow:none}
+/* Indicateur de chargement de l'accueil (« Boussole prête… ») : pastille claire et texte sombre sur le sable */
+html.loop-on[data-theme="light"] .loader{padding:8px 14px 10px;border-radius:14px;background:color-mix(in srgb,var(--bg) 90%,transparent)}
+html.loop-on[data-theme="light"] .loader p{color:var(--fg)}
+/* Cartes cliquables de l'atelier : contour plein à 3,6:1 (le contour pâle d'origine tombait vers 1,5:1) */
+html.loop-on[data-theme="light"] .chip{border-color:#6B8089}
+
+
+/* Mode jour : menus « Étapes » et « Outils » (panneau clair, texte sombre, contrastes ≥ 4,5:1 / 3:1) */
+html.loop-on[data-theme="light"] .menu{background:linear-gradient(180deg,rgba(247,249,248,.98),rgba(232,238,235,.99));border:1px solid #A8401B;box-shadow:0 18px 44px rgba(18,34,43,.28),inset 0 1px 0 rgba(255,255,255,.8)}
+html.loop-on[data-theme="light"] .mh{border-bottom-color:rgba(168,64,27,.35);background:repeating-linear-gradient(90deg,rgba(168,64,27,.55) 0 1px,transparent 1px 8px) left bottom/100% 5px no-repeat}
+html.loop-on[data-theme="light"] .mh .t{color:var(--muted)}
+html.loop-on[data-theme="light"] .menu ol button::before{color:var(--acc-text)}
+html.loop-on[data-theme="light"] .menu ol .l{color:var(--muted)}
+html.loop-on[data-theme="light"] .menu ol button:hover,html.loop-on[data-theme="light"] .menu .tg:hover{background:rgba(18,34,43,.08)}
+html.loop-on[data-theme="light"] .menu ol button[aria-current="true"]{background:linear-gradient(90deg,rgba(168,64,27,.18),rgba(168,64,27,.04))}
+html.loop-on[data-theme="light"] .menu ol button[aria-current="true"]::after{background:var(--acc-text);box-shadow:none}
+html.loop-on[data-theme="light"] .menu .tg svg{stroke:var(--acc-text)}
+html.loop-on[data-theme="light"] .menu .tg[aria-pressed="true"] svg{stroke:var(--acc-text)}
+html.loop-on[data-theme="light"] .menu .tg[aria-pressed]::after{background:radial-gradient(circle at 50% 50%,#FFFFFF 0 8px,transparent 8.5px) 1px 0/24px 24px no-repeat,#6B8089;box-shadow:inset 0 0 0 1px #4F6670}
+html.loop-on[data-theme="light"] .menu .tg[aria-pressed="true"]::after{background-position:17px 0,0 0;background-color:#A8401B;box-shadow:inset 0 0 0 1px #8F2F1B}
+html.loop-on[data-theme="light"] #openSet::after{border-color:var(--acc-text)}
+html.loop-on[data-theme="light"] .topnav .sep{background:var(--sep)}
+
+/* Typographie : deux familles seulement. Serif (Cordée Serif) pour les titres et le récit ; JetBrains Mono pour tout le reste (surtitres, textes, boutons, menus, cadran de la montre, pied de page).
+   La monospace est plus large que l'ancienne sans-serif : les textes d'introduction sont resserrés pour tenir sur 3 à 4 lignes. */
+html.loop-on .head p.sub,html.loop-on .pwrap .head .sub{font-size:clamp(11.5px,3.1vw,13.5px);line-height:1.6;letter-spacing:.02em;max-width:min(46ch,100%)}
+@media (min-width:900px){html.loop-on .head p.sub,html.loop-on .pwrap .head .sub{font-size:clamp(13px,1.1vw,15px);max-width:min(64ch,100%)}}
+
+/* Mode jour : fond de l'accueil « brume abricot » (image de référence) : ciel abricot clair au sommet, brume gris-bleu à l'horizon, sol de sable beige, filaire gris-bleu.
+   Ciel = calque fixe sous les canvas (body::after), opacité --sky pilotée par loop.js ; remplace l'aurore menthe. Textes foncés (≥ 7:1) sur la zone abricot. */
+html.loop-on[data-theme="light"] body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:var(--sky,0);background:linear-gradient(180deg,#EBC39C 0%,#ECCDB5 18%,#DDD8D4 34%,#C8D7E1 48%,#D2DDE3 58%,#DDE5E8 64%,#CBB79D 100%)}
+html.loop-on[data-theme="light"] #main{z-index:1}
+html.loop-on[data-theme="light"] #aurora{display:none}
+html.loop-on[data-theme="light"] #head1 .lede{color:#4E200E}
+html.loop-on[data-theme="light"] #head1 .eyebrow{color:#7A2A0D}
+html.loop-on[data-theme="light"] .cta{padding:2px 30px;border:0;background:#A8401B;color:#FFFFFF;text-shadow:none;box-shadow:0 8px 22px rgba(120,50,20,.35)}
+html.loop-on[data-theme="light"] .cta .ring{display:none}
+html.loop-on[data-theme="light"] .cta:hover,html.loop-on[data-theme="light"] .cta:focus-visible{background:#8F2F1B;color:#FFFFFF}
+html.loop-on[data-theme="light"] .cta:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
+
+/* ===== Hero : hiérarchie typographique, paragraphe resserré, scrim atmosphérique ===== */
+html.loop-on #head1 .who{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px}   /* sur-titre : 12 px, capitales, interlettrage accentué */
+html.loop-on #head1 h1{font-size:clamp(2rem,8.6vw,2.2rem);line-height:1.12}   /* citation : un cran au-dessus (2,2 rem) */
+html.loop-on #head1 .lede{max-width:min(520px,100%)}   /* 3 lignes équilibrées sur ordinateur */
+@media (min-width:900px){html.loop-on #head1 h1{font-size:clamp(2.4rem,3.9vw,3.1rem)}html.loop-on #head1 .lede{max-width:min(520px,100%);font-size:16px;line-height:1.65;letter-spacing:.03em}}
+html.loop-on[data-theme="light"] #head1 .who{color:#9A4A1B}   /* cuivre brûlé */
+html.loop-on[data-theme="light"] #head1 .lede{color:#2C2825;opacity:.85}   /* anthracite bronze */
+/* scrim : lueur crème très douce derrière le texte (pas de boîte), pour isoler le texte du ciel et du sol 3D */
+html.loop-on #head1{isolation:isolate}
+html.loop-on[data-theme="light"] #head1::before{content:"";position:absolute;z-index:-1;inset:-44px -16px -40px;pointer-events:none;background:radial-gradient(ellipse closest-side at 50% 50%,rgba(252,247,238,.88) 0%,rgba(252,247,238,.7) 50%,rgba(252,247,238,0) 100%)}
+
+/* ===== Accueil grand écran : disposition asymétrique (texte à gauche, montre à droite en 3/4) ===== */
+@media (min-width:1000px){
+  html.loop-on #head1{left:clamp(48px,6vw,120px);top:calc(var(--hh) + clamp(40px,16vh,170px));transform:none;width:min(440px,34vw);text-align:left}
+  html.loop-on #head1 .lede{margin-left:0;margin-right:0;max-width:min(440px,100%);font-size:15px;line-height:1.65;letter-spacing:.03em}
+  html.loop-on #head1 h1{font-size:clamp(2.2rem,3.4vw,3rem)}
+  html.loop-on[data-theme="light"] #head1::before{inset:-52px -90px -96px -64px}
+  /* « S'équiper » : symétrique de l'accueil, texte à droite, montre à gauche */
+  html.loop-on #head2{left:auto;right:clamp(48px,6vw,120px);top:calc(var(--hh) + clamp(8px,3vh,40px));transform:none;width:min(440px,34vw);text-align:left;isolation:isolate}
+  html.loop-on #head2 .sub{margin-inline:0;max-width:min(440px,100%);font-size:15px;line-height:1.65}
+  html.loop-on[data-theme="light"] #head2::before{content:"";position:absolute;z-index:-1;inset:-52px -64px -96px -90px;pointer-events:none;background:radial-gradient(ellipse closest-side at 50% 50%,rgba(252,247,238,.88) 0%,rgba(252,247,238,.7) 50%,rgba(252,247,238,0) 100%)}
+}
+
+/* Marque « Cordée » : alignée sur la marge du contenu et centrée dans l'en-tête ; sans fond. Couleur = jeton --brand (jour : ardoise #27465C, 6,3:1 sur l'abricot ; nuit : cuivre #EE9468) */
+@media (min-width:1000px){html.loop-on .brand{left:clamp(48px,6vw,120px);top:calc((var(--hh) - 52px) / 2)}}
+html.loop-on[data-theme="light"] .brand .logo{filter:none}
+html.loop-on[data-theme="light"] .brand .logo path{stroke:var(--brand)}
+html.loop-on[data-theme="light"] .brand .bn{font-weight:700;opacity:1;font-size:12px;letter-spacing:.3em;text-shadow:0 0 6px var(--brand-halo),0 0 12px var(--brand-halo)}
+@media (min-width:900px){html.loop-on[data-theme="light"] .brand .bn{font-size:14px}}
+html.loop-on[data-theme="light"] .brand .logo path:nth-of-type(3){stroke:#FCF7EE}
+html.loop-on[data-theme="light"] .brand .logo rect{stroke:var(--brand);fill:var(--brand-fill)}
+html.loop-on .brand:hover{color:var(--brand-hover)}
+html.loop-on[data-theme="light"] .brand:hover .logo rect,html.loop-on[data-theme="light"] .brand:hover .logo path{stroke:var(--brand-hover)}
+html.loop-on[data-theme="light"] .brand:hover .logo path:nth-of-type(3){stroke:#FCF7EE}
+html.loop-on .brand:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:8px}
+
+/* Écran de la corde et préchargement : ils suivent le mode jour ou nuit (clair : fond crème, relief ardoise ; nuit : fond noir d'origine) */
+html.loop-on[data-theme="light"] .gate-bg .topo{stroke:var(--gate-topo);stroke-opacity:var(--gate-topo-a)}
+html.loop-on[data-theme="light"] .gate-rest{text-shadow:none}
+html.loop-on[data-theme="light"] .gate-mtn path{fill:var(--gate-mtn)}
+html.loop-on[data-theme="light"] .gate-glow{background:radial-gradient(closest-side,rgba(226,109,59,.2),rgba(226,109,59,.06) 55%,transparent 75%)}
+html.loop-on[data-theme="light"] .gate-embers{display:none}
+html.loop-on[data-theme="light"] 
+:root[data-theme="light"] .gate-btn:hover{box-shadow:0 0 0 1px rgba(110,46,12,.4),0 14px 30px rgba(168,64,27,.3)}
+
+/* Aiguille de préchargement en mode jour : directement aux couleurs finales de l'aiguille 3D (pas de changement de teinte au relais) */
+html.loop-on .pre-needle path:nth-of-type(1){fill:var(--needle-1)}
+html.loop-on .pre-needle path:nth-of-type(2){fill:var(--needle-2)}
+html.loop-on .pre-needle path:nth-of-type(3){fill:var(--needle-3)}
+html.loop-on .pre-needle path:nth-of-type(4){fill:var(--needle-4)}
+html.loop-on .pre-needle circle{fill:var(--needle-pivot)}
+
+/* Séparateur « Étapes | Outils » et soulignement des boutons : même ardoise que le logo en mode jour */
+html.loop-on[data-theme="light"] .burger::after{height:2px}
+
+/* Pied de page : bande de 62 px (au lieu de 52) ; le copyright et les boutons CV / Contact sont centrés verticalement dans la bande (pas de marge basse asymétrique) */
+html.loop-on footer.perma{min-height:62px;padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* Bandeau du pied de page : le dégradé démarre beaucoup plus haut (≈ 22 % de la hauteur, 120 à 240 px) et reprend la couleur du haut du fond :
+   nuit = bleu nuit du ciel `#050811` ; jour = abricot du sommet du ciel `#EBC39C` */
+html.loop-on footer.perma{background:none;isolation:isolate}
+html.loop-on footer.perma::before{content:"";position:absolute;left:0;right:0;bottom:0;height:clamp(120px,22vh,240px);z-index:-1;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(var(--ft),0) 0%,rgba(var(--ft),.32) 38%,rgba(var(--ft),.72) 72%,rgba(var(--ft),.94) 100%)}
+html.loop-on[data-theme="light"] footer.perma .copy{color:#4E200E}
+
+/* Boutons « Étapes » et « Outils » de l'en-tête : encre #12222B en mode jour (contraste ≈ 10:1 sur l'abricot) */
+html.loop-on[data-theme="light"] header.top .burger,html.loop-on[data-theme="light"] header.top .burger .lbl,html.loop-on[data-theme="light"] header.top .burger[aria-expanded="true"]{color:#12222B}

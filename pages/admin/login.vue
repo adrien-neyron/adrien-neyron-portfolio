@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "~/assets/css/main.css";   // pas de layout ici : Tailwind importé directement
 import { useAuth0 } from "@auth0/auth0-vue";
 import { Lock } from "lucide-vue-next";
 

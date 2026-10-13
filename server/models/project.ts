@@ -28,6 +28,7 @@ export interface IProject extends Document {
   status?: string;
   impact?: string;
   // Refonte « L'ascension » — fiche topo (tous optionnels, rétrocompatibles)
+  order?: number;                                  // rang sur le parcours de l'accueil (0 = premier) ; vide : ordre de création
   place?: string;                                  // « Lyon », « Paris »…
   coords?: { lat?: number; lon?: number };          // coordonnées affichées sur la fiche
   startDate?: string;                               // « Mai 2026 »
@@ -67,6 +68,7 @@ const ProjectSchema = new Schema<IProject>(
     category:   String,
     status:     String,
     impact:     String,
+    order:      Number,
     place:      String,
     coords: {
       lat: Number,

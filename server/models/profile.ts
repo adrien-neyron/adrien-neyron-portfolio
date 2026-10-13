@@ -30,6 +30,19 @@ export interface IProfile extends Document {
   about: string[];
   pictureUrl?: string;
   cvUrl?: string;
+  bookingUrl?: string;   // lien de prise de rendez-vous (bouton du Bivouac)
+  loopLead?: string;     // accueil : accroche de la fiche « Le Randonneur »
+  loopFacts?: string;    // accueil : ligne de faits de la fiche « Le Randonneur »
+  loopEyebrow?: string;  // accueil : surtitre au-dessus du titre
+  loopTitle?: string;    // accueil : titre (h1) et accroche de l'écran de la corde
+  loopLede?: string;     // accueil : sous-texte sous le titre
+  loopDialName?: string;   // accueil : nom affiché sur le cadran de la montre
+  loopDialRole?: string;   // accueil : ligne de titre du cadran
+  loopDialXpLabel?: string; // accueil : libellé de l'expérience (cadran)
+  loopDialXpValue?: string; // accueil : valeur de l'expérience (cadran)
+  loopToolsEyebrow?: string; // accueil, étape « S'équiper » : surtitre
+  loopToolsTitle?: string;   // accueil, étape « S'équiper » : titre
+  loopToolsLede?: string;    // accueil, étape « S'équiper » : paragraphe
   url?: string;
   keywords?: string;
   location: IProfileLocation;
@@ -53,6 +66,19 @@ const ProfileSchema = new Schema<IProfile>(
     about:          { type: [String], default: [] },
     pictureUrl:     String,
     cvUrl:          String,
+    bookingUrl:     String,
+    loopLead:       String,
+    loopFacts:      String,
+    loopEyebrow:    String,
+    loopTitle:      String,
+    loopLede:       String,
+    loopDialName:   String,
+    loopDialRole:   String,
+    loopDialXpLabel: String,
+    loopDialXpValue: String,
+    loopToolsEyebrow: String,
+    loopToolsTitle: String,
+    loopToolsLede:  String,
     url:            String,
     keywords:       String,
     location: {
