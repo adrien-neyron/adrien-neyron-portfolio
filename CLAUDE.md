@@ -12,7 +12,14 @@ npm run build      # Production build
 npm run generate   # Static site generation
 npm run preview    # Preview production build locally
 npm run lint       # Run ESLint
+npm test           # Unit tests (Vitest)
+npm run test:coverage  # Unit tests + coverage thresholds
+npm run test:e2e   # Playwright e2e + axe a11y (needs `npm run build` first)
 ```
+
+## Tests
+
+Voir `docs/tests.md`. Avant tout push : `npm test` ; avant une release : `npm run build && npm run test:e2e`. Toute route `server/api/admin/**` doit appeler `await requireAdminWrite(event)` en premier (test `apiGuards`). Accessibilité : 0 violation axe hors `color-contrast` ; la dette de contraste est dans `tests/e2e/a11y-baseline.json` et ne doit pas augmenter. La CI est dans `.github/workflows/ci.yml`.
 
 ## Environment Variables
 

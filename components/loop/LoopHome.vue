@@ -18,48 +18,19 @@
  */
 import markup from '~/assets/loop/loop.html?raw'
 import loopCss from '~/assets/loop/loop.css?inline'
+import { applyLoopContent, type LoopContentTexts } from '~/utils/loopMarkup'
 
 /**
  * Textes du premier écran saisis dans /admin (profil : surtitre, titre, sous-texte). Insérés dans le HTML rendu
  * côté serveur : ni clignotement au chargement, ni attente de la 3D, et lisibles sans JavaScript.
  * Champ vide, API en panne ou plus de 2 s : le texte de loop.html est conservé.
  */
-const { data: loopContent } = await useFetch<{ hero?: { eyebrow?: string; title?: string; lede?: string } | null; toolsHead?: { eyebrow?: string; title?: string; lede?: string } | null }>('/api/loop-content', {
+const { data: loopContent } = await useFetch<LoopContentTexts>('/api/loop-content', {
   key: 'loop-hero',
   timeout: 2000,
   default: () => null,
 })
-const escHtml = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-const swap = (html: string, open: string, close: string, text?: string) => {
-  const t = (text || '').trim()
-  if (!t) return html
-  const i = html.indexOf(open)
-  const j = i < 0 ? -1 : html.indexOf(close, i)
-  return j < 0 ? html : html.slice(0, i + open.length) + escHtml(t) + html.slice(j)
-}
-const page = computed(() => {
-  const h = loopContent.value?.hero
-  const t = loopContent.value?.toolsHead
-  let html = markup
-  if (h) {
-    html = swap(html, '<p class="eyebrow who">', '</p>', h.eyebrow)
-    html = swap(html, '<h1 id="h1">', '</h1>', h.title)
-    html = swap(html, '<p class="lede">', '</p>', h.lede)
-    html = swap(html, '<p class="gate-tag">', '</p>', h.title)
-  }
-  if (t) {
-    // Étape « S'équiper » : on cible le bloc #head2 pour ne pas toucher aux autres surtitres / paragraphes
-    const i = html.indexOf('id="head2"')
-    if (i >= 0) {
-      const head = html.slice(i)
-      let sub = swap(head, '<p class="eyebrow">', '</p>', t.eyebrow)
-      sub = swap(sub, '<h2>', '</h2>', t.title)
-      sub = swap(sub, '<p class="sub">', '</p>', t.lede)
-      html = html.slice(0, i) + sub
-    }
-  }
-  return html
-})
+const page = computed(() => applyLoopContent(markup, loopContent.value))
 
 useHead({
   htmlAttrs: { class: 'loop-on' },

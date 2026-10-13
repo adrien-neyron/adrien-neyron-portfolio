@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Gauge, Info } from "lucide-vue-next";
+import { TERRAINS, computePace, formatDuree, formatAllure, type Terrain } from "~/utils/allure";
 
 useHead({
   title: "Calculateur d'allure trail D+ | Adrien Neyron",
@@ -21,72 +22,29 @@ const deniveleNegatifRaw = ref(""); // optionnel — vide = suit le D+
 const allureMinRaw = ref("6");
 const allureSecRaw = ref("00");
 
-type Terrain = "facile" | "modere" | "technique";
 const terrain = ref<Terrain>("modere");
-const terrainOptions: { value: Terrain; label: string; coeff: number }[] = [
-  { value: "facile", label: "Facile", coeff: 0.85 },
-  { value: "modere", label: "Modéré", coeff: 1 },
-  { value: "technique", label: "Technique", coeff: 1.3 },
-];
+const terrainOptions = TERRAINS;
 
-function toNumber(raw: string, fallback = 0): number {
-  const n = parseFloat(raw.trim().replace(",", "."));
-  return Number.isFinite(n) && n >= 0 ? n : fallback;
-}
-
-const distance = computed(() => toNumber(distanceRaw.value, 0));
-const denivelePositif = computed(() => toNumber(denivelePositifRaw.value, 0));
-const deniveleNegatif = computed(() =>
-  deniveleNegatifRaw.value.trim() === ""
-    ? denivelePositif.value
-    : toNumber(deniveleNegatifRaw.value, denivelePositif.value)
+// Logique de calcul pure : utils/allure.ts (testée dans tests/unit/allure.test.ts)
+const calc = computed(() =>
+  computePace({
+    distanceRaw: distanceRaw.value,
+    denivelePositifRaw: denivelePositifRaw.value,
+    deniveleNegatifRaw: deniveleNegatifRaw.value,
+    allureMinRaw: allureMinRaw.value,
+    allureSecRaw: allureSecRaw.value,
+    terrain: terrain.value,
+  })
 );
-const allureMin = computed(() => toNumber(allureMinRaw.value, 0));
-const allureSec = computed(() => toNumber(allureSecRaw.value, 0));
-const allurePlatMinParKm = computed(() => allureMin.value + allureSec.value / 60);
-
-// ─── Calcul — règle de Naismith adaptée à la course à pied ────────────
-// Naismith original (randonnée) : +10 min par 100 m de D+, D- considéré
-// gratuit. Ajustement course à pied : le D+ coûte un peu moins cher (les
-// traileurs grimpent plus vite qu'un randonneur sur un dénivelé roulant),
-// et le D- n'est pas gratuit — la réception, le freinage et la technicité
-// coûtent du temps même quand la pente aide. Les deux pénalités sont
-// modulées par la technicité du terrain choisie.
-const MINUTES_PAR_100M_MONTEE = 8;
-const MINUTES_PAR_100M_DESCENTE = 2;
-
-const coeffTerrain = computed(() => terrainOptions.find((t) => t.value === terrain.value)?.coeff ?? 1);
-
-const tempsPlatMin = computed(() => distance.value * allurePlatMinParKm.value);
-const tempsMonteeMin = computed(() => (denivelePositif.value / 100) * MINUTES_PAR_100M_MONTEE * coeffTerrain.value);
-const tempsDescenteMin = computed(() => (deniveleNegatif.value / 100) * MINUTES_PAR_100M_DESCENTE * coeffTerrain.value);
-const tempsTotalMin = computed(() => tempsPlatMin.value + tempsMonteeMin.value + tempsDescenteMin.value);
-
-const allureEquivalenteMinParKm = computed(() => (distance.value > 0 ? tempsTotalMin.value / distance.value : 0));
-
-const tempsOptimisteMin = computed(() => tempsTotalMin.value * 0.9);
-const tempsPessimisteMin = computed(() => tempsTotalMin.value * 1.1);
-
-const resultatValide = computed(() => distance.value > 0 && allurePlatMinParKm.value > 0);
-
-// ─── Formatage ──────────────────────────────────────────────────────
-function formatDuree(minutes: number): string {
-  if (!Number.isFinite(minutes) || minutes < 0) return "—";
-  const totalSec = Math.round(minutes * 60);
-  const h = Math.floor(totalSec / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  if (h > 0) return `${h} h ${String(m).padStart(2, "0")}`;
-  const s = totalSec % 60;
-  return `${m} min ${String(s).padStart(2, "0")}`;
-}
-
-function formatAllure(minParKm: number): string {
-  if (!Number.isFinite(minParKm) || minParKm <= 0) return "—";
-  const totalSec = Math.round(minParKm * 60);
-  const m = Math.floor(totalSec / 60);
-  const s = totalSec % 60;
-  return `${m}'${String(s).padStart(2, "0")}/km`;
-}
+const denivelePositif = computed(() => calc.value.dPlus);
+const tempsPlatMin = computed(() => calc.value.tempsPlatMin);
+const tempsMonteeMin = computed(() => calc.value.tempsMonteeMin);
+const tempsDescenteMin = computed(() => calc.value.tempsDescenteMin);
+const tempsTotalMin = computed(() => calc.value.tempsTotalMin);
+const allureEquivalenteMinParKm = computed(() => calc.value.allureEquivalenteMinParKm);
+const tempsOptimisteMin = computed(() => calc.value.tempsOptimisteMin);
+const tempsPessimisteMin = computed(() => calc.value.tempsPessimisteMin);
+const resultatValide = computed(() => calc.value.valide);
 </script>
 
 <template>

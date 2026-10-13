@@ -1,0 +1,5 @@
+{
+  "_doc": "Nombre MAXIMAL de noeuds en échec 'color-contrast' par thème et page. Ne peut que baisser : corriger un contraste puis diminuer la valeur ici. Toute autre règle axe doit rester à 0.",
+  "light": { "/": 0, "/about": 4, "/projects": 6, "/carnet": 1, "/ai-tools": 5, "/contact": 0, "/camp-de-base": 5, "/outils/allure-denivele": 1 },
+  "dark":  { "/": 0, "/about": 2, "/projects": 1, "/carnet": 2, "/ai-tools": 6, "/contact": 2, "/camp-de-base": 3, "/outils/allure-denivele": 2 }
+}

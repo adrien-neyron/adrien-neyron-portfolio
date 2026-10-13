@@ -27,3 +27,8 @@ logs
 # Editor
 .vscode
 .idea
+
+# Tests
+test-results/
+playwright-report/
+coverage/
