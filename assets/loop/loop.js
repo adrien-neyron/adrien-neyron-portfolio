@@ -2952,8 +2952,10 @@ function buildBlocks(){
   const sc=document.createElement('canvas');sc.width=sc.height=128;{const x=sc.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(0,0,0,.65)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
   const shTex=new THREE.CanvasTexture(sc);
   STOPS.forEach((st,si)=>{
-    if(!st.proj)return;
-    const pr=st.proj,cnv=document.createElement('canvas');cnv.width=512;cnv.height=384;
+    // le Départ a aussi son cairn (étape 00) : mêmes pierres, gravé avec la période et le métier d'avant le code (version courte : la gravure tient sur 2 lignes, le texte complet reste sur la plaque) ; il n'a pas de fiche projet
+    const pr=st.proj||(si===0?{id:'depart',title:st.name,stage:'Étape 00',place:'Grandes Platières',when:st.period,result:'Éducateur, formateur et directeur dans le sport',tags:['Management','Formation','Outdoor']}:null);
+    if(!pr)return;
+    const cnv=document.createElement('canvas');cnv.width=512;cnv.height=384;
     const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=8;tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
     const geo=new THREE.ExtrudeGeometry(stoneShape(si*1.9),{depth:1.4,bevelEnabled:true,bevelThickness:1.1,bevelSize:1,bevelSegments:4,curveSegments:6});
     const top=new THREE.MeshStandardMaterial({map:tex,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
@@ -2965,7 +2967,7 @@ function buildBlocks(){
     const nx=-dz,nz=dx,side1=1;   // le cairn est posé sur la trace : le wire le traverse
     const bx=pt.x,bz=pt.z,by=pt.y+CLEAR;
     holder.position.set(bx,by,bz);
-    const camAt=curve.getPointAt(clamp(t-.03));
+    const camAt=t>0?curve.getPointAt(clamp(t-.03)):pt.clone().multiplyScalar(2).sub(curve.getPointAt(.03));   // au Départ, rien avant la trace : on prolonge la trace en arrière
     const faceYaw=Math.atan2(camAt.x-bx,camAt.z-bz);holder.rotation.y=faceYaw;
     const shadow=new THREE.Mesh(new THREE.PlaneGeometry(34,29),new THREE.MeshBasicMaterial({map:shTex,transparent:true,depthWrite:false,opacity:.55}));
     shadow.rotation.x=-Math.PI/2;shadow.position.set(bx,terrainAt(bx,bz)+.4,bz);scene.add(shadow);
@@ -2973,7 +2975,7 @@ function buildBlocks(){
     const rockM=new THREE.MeshStandardMaterial({color:STONE,roughness:.96,metalness:0,flatShading:true,envMap:env,envMapIntensity:.12,transparent:true});
     const cairn=new THREE.Group();for(let k=0;k<4;k++){const m=new THREE.Mesh(ROCKS[(k+si)%4],rockM);m.rotation.y=(k*2.1+si)%6.283;cairn.add(m)}scene.add(cairn);
     // perle enfilée sur le wire, dans le jeu : pleine sur le cairn actif, simple point sur les cairns passés, absente sur ceux à venir
-    const bead=new THREE.Mesh(new THREE.SphereGeometry(.42,18,12),new THREE.MeshBasicMaterial({color:0xF2FBF8,transparent:true}));{const bp=curve.getPointAt(clamp(t-11/curve.getLength()));bead.position.copy(bp)}scene.add(bead);   // à la sortie du cairn, côté caméra : visible, et enfilée sur le wire
+    const bead=new THREE.Mesh(new THREE.SphereGeometry(.42,18,12),new THREE.MeshBasicMaterial({color:0xF2FBF8,transparent:true}));{const bp=curve.getPointAt(clamp(t+(si===0?11:-11)/curve.getLength()));bead.position.copy(bp)}scene.add(bead);   // à la sortie du cairn, côté caméra : visible, et enfilée sur le wire
     const bk={holder,mesh,shadow,cairn,bead,mats:[top,side,rockM],vis:si===1?1:.3,proj:pr,base:by,lift:0,stopIdx:si,tex,canvas:cnv,faceYaw,pos:new THREE.Vector3(bx,by,bz),t,ty:pt.y,pt:new THREE.Vector3(pt.x,0,pt.z),n:[nx*side1,nz*side1],camAt:new THREE.Vector3(camAt.x,0,camAt.z)};
     blocks.push(bk);paintBlock(bk);
   });
@@ -3032,7 +3034,7 @@ function rig(p,dt,snap,intro=0){
     if(!staticMode&&Math.abs(cam.fov-baseFov())>.01){cam.fov=baseFov();cam.updateProjectionMatrix()}
   }
   // à l'arrêt sur un cairn, la boule se pose sur le wire juste devant lui (côté caméra) : elle est la perle du cairn actif, jamais enfouie dans les pierres
-  const tb=clamp(t-(STOPS[aw].proj?mw*11/curve.getLength():0));
+  const tb=clamp(t+(blk?(aw===0?1:-1)*mw*11/curve.getLength():0));   // au Départ, la boule se pose juste après le cairn (rien avant la trace)
   ball.position.copy(curve.getPointAt(tb));ball.scale.setScalar(lerp(1,.62,sm(0,.03,t)));   // boule au départ, perle ensuite
   {const tg=curve.getTangentAt(clamp(tb,.0005,.9995));v3.copy(ball.position).add(tg);ball.lookAt(v3);ball.userData.core.rotation.x=tb*curve.getLength()/(1.7*ball.scale.x)}   // orientée sur la trace, elle roule en avançant
   FATS.forEach(m=>{m.uniforms.uT.value=tb;m.uniforms.uTime.value=reduce?0:tNow});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
