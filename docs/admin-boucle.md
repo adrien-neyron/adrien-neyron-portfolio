@@ -27,9 +27,40 @@ L'accueil (boucle 3D, `components/loop/LoopHome.vue` + `assets/loop/loop.js`) li
 | Profil | `bookingUrl` | bouton « Prendre rendez-vous » (masqué tant qu'il est vide) |
 | Projets | `title`, `tagline`, `technologies`, `place` | bloc 3D du projet, liste d'étapes, carte de l'atelier |
 | Projets | `description`, `challenge`, `solution`, `result`, `impact`, `technologies`, `link`, `code` | fiche détaillée (Défi / Solution / Résultat / Impact, liens) |
+| Projets | `stats` (fiche topo → chiffres clés) | fiche détaillée : chiffres clés sous le titre (3 au plus). Vide → ceux de `data/projects.ts` s'il y en a, sinon aucun bloc (rien d'inventé) |
+| Projets | `cover`, `coverCredit`, `coverCreditUrl` (photo d'ambiance) | fiche détaillée : photo sous verre (inclinaison 3D au survol de la souris, coupée en mouvement réduit) et crédit. Vide → photo de `data/projects.ts` s'il y en a, sinon pas de photo |
 | Projets | `order` | ordre de lecture des projets ajoutés en plus |
 | Outils IA | nom, accroche | carte « Équipement IA » (nombre d'outils, liste, étiquettes) |
 | Carnet | titre, extrait, catégorie, date | liste du carnet (du plus récent au plus ancien), filtres |
+
+## Fiche projet (carte des projets)
+
+Ouverte par « Voir la fiche » à un arrêt de la carte (`openStop` → `openProject` → `showSheet`, classe `is-proj` sur `#dlgTool`) : surtitre complété par le kilomètre et l'altitude de l'étape sur la trace (`Km … · Altitude … m`, mêmes calculs que la carte), titre en Cormorant italique, chiffres clés (`#toolStats`), photo sous verre (`#toolM`), badges techno gravés (lueur cuivre en cascade à l'ouverture, coupée en mouvement réduit). Pendant l'arrêt, le relief autour du bloc du projet s'allume en rouge cuivré (uniformes `uF` / `uFk` du shader du terrain, réglés dans `rig()`).
+
+## Cairns (blocs des projets sur la carte)
+
+Chaque projet est un cairn sobre posé **sur** la trace, en une seule matière (pierre mate, `STONE` ; les `mat` cuir / pierre / métal ne servent plus, `paintBlock` peint toujours la pierre) : 2 galets facettés sous le wire, un jeu de `GAP` = 0,28 unité (≈ 3 px à l'arrêt) où passe le wire, 2 galets au-dessus, puis la pierre gravée au contour irrégulier (`stoneShape`) qui porte le texte. Les galets ont dessus et dessous plats (`rockGeo`), donc le jeu reste net ; tout est placé dans `placeBlocks()`.
+
+États (réglés dans `rig()`) : cairn actif à 100 %, la boule posée devant lui faisant la perle ; cairns passés à 80 % avec un petit point ; cairns à venir à 30 %, sans perle. Les cairns à 30 % passent sous 3:1 de contraste : c'est acceptable parce que la même information (étapes, étape courante) est donnée en texte par la liste des étapes, la plaque et l'annonce `#live`. Au survol ou à l'arrêt, la pierre gravée se soulève légèrement. Pas d'anneau au sol.
+
+## Fiche d'étape (résumé automatique)
+
+À l'arrêt sur un cairn (caméra posée depuis 0,5 s, `updateCard()` appelé par `updateUi`), un résumé compact `#stopCard` apparaît à droite (en bas sur téléphone) : étape · lieu, Km et altitude, titre, chiffres clés, accroche sur 3 lignes, 4 technos au plus, bouton « Fiche complète » (ouvre la fenêtre `#dlgTool`) et bouton « Masquer les résumés d'étape » (mémorisé pour la session, `sessionStorage` `asc-card-off` ; le bouton « Voir la fiche » revient). Il remplace le bouton « Voir la fiche » et les étiquettes flottantes tant qu'il est affiché, et disparaît en repartant.
+
+Ce n'est **pas** une fenêtre modale : une modale à chaque arrêt bloquerait le défilement et volerait le focus (changement de contexte non demandé, RGAA 7.4 / WCAG 3.2.2). C'est un `aside` étiqueté par son titre, sans prise de focus ; l'étape est déjà annoncée par `#live`. Sur téléphone, chiffres clés et technos sont masqués (2 lignes d'accroche). Hors vue statique uniquement ; mouvement réduit : simple fondu.
+
+## Câble et pulse lumineux (trace des projets, « ISO »)
+
+La trace est un câble technique (`FAT_V` / `FAT_F`, spline lisse issue de la `CatmullRomCurve3`, traits d'épaisseur constante à l'écran), en deux passes :
+- **câble inactif** sur toute la trace, 3 px, bleu ardoise mat `#1E293B` (trait plein non éclairé : la « rugosité 0,8 » n'a pas d'effet sur une ligne sans lumière). Attention : la nuit, `#1E293B` sur `#050811` donne ≈ 1,4:1, le parcours à venir est donc très discret ; c'est acceptable seulement parce que la liste des étapes, la plaque et `#live` donnent la même information. Le jour, contraste élevé ;
+- **pulse actif** sur la partie parcourue (`glow`) : cyan électrique `#00F2FE` à la tête qui évolue vers le bleu glacier `#38BDF8` derrière ; couleur émissive ×2,5 (`uBoost`), cœur blanc-chaud, halo et « bloom » (trois profils gaussiens en travers du câble, 26 px) et ondes d'énergie qui courent vers la tête (`uTime`). Pas d'éclat renforcé à la tête ni d'aura dans le sol autour de la boule (retirés à la demande d'Adrien : la boule reste nette). Mélange additif la nuit ; le jour, mélange normal en `#0891B2` → `#0369A1`, sans surbrillance.
+- **Bloom** : pas de post-traitement. Un `EffectComposer` + `UnrealBloomPass` demanderait d'embarquer 6 modules d'exemples r128 (comme `GLTFLoader`), un rendu supplémentaire plein écran à chaque image et ferait perdre la transparence du canevas (la carte est posée sur le ciel CSS). Le halo est donc calculé dans le shader du câble : même effet « fibre sous tension », sans coût.
+- **Avancement** : `uT` (l'« uProgress » de la spec) est recalculé à chaque image depuis le défilement (`param(p)`), donc lié à 100 % au scroll, dans les deux sens. GSAP ScrollTrigger n'est pas utilisé : la boucle pilote déjà toute la scène au défilement, l'ajouter doublerait la source de vérité.
+- Mouvement réduit : ondes figées (temps à 0), le pulse reste allumé. Vue statique : câble entièrement allumé.
+
+**La boule** est une perle cuivre laquée (`MeshPhysicalMaterial` avec vernis, reflets de l'environnement), gravée de courbes de niveau qui roulent avec elle, et enfilée sur le wire entre deux bagues givrées orientées sur la trace (`lookAt` sur la tangente). À l'arrêt sur un cairn, elle se pose sur le wire 11 unités devant lui, côté caméra : elle fait la perle du cairn actif et n'est jamais enfouie dans les pierres. Le wire parcouru s'arrête sur elle (`uT` = position de la boule). La pierre gravée du cairn actif est dessinée au premier plan (`renderOrder` 10, sans test de profondeur) : le wire ne passe jamais sur son texte.
+
+Supprimés : halo émeraude, faisceau (`beam`), lueur (sprite) autour de la boule. L'ancienne carte SVG (`#mapSvg`, `pool`, `beamGlow`, `updateMap`) n'est plus appelée ; elle est conservée en attendant une décision de suppression.
 
 ## Textes du premier écran (rendu serveur)
 

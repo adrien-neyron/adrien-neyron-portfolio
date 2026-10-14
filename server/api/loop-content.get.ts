@@ -71,6 +71,13 @@ export default defineEventHandler(async (event) => {
         result: str(p.result),
         impact: str(p.impact),
         technologies: (p.technologies || []).map(str).filter(Boolean),
+        // chiffres clés et photo d'ambiance de la fiche : seulement s'ils sont saisis (chiffre sans valeur écarté)
+        stats: (p.stats || [])
+          .map((x) => ({ value: str(x?.value), label: str(x?.label) }))
+          .filter((x) => x.value),
+        cover: str(p.cover),
+        coverCredit: str(p.coverCredit),
+        coverCreditUrl: str(p.coverCreditUrl),
         place: str(p.place),
         startDate: str(p.startDate),
         status: str(p.status),

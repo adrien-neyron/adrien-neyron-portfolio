@@ -43,7 +43,7 @@ useHead({
     },
   ],
   // Écran de la corde déjà vu dans cette session : masqué dès le premier affichage (pas de clignotement avant l'hydratation)
-  script: [{ key: 'gate-seen', innerHTML: "try{var th=localStorage.getItem('asc-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=th}catch(e){}try{if(sessionStorage.getItem('cordee-gate-vu')==='1')document.documentElement.classList.add('gate-seen')}catch(e){}try{var v=JSON.parse(localStorage.getItem('cordee-needle-'+innerWidth+'x'+innerHeight)||'null');if(v){var s=document.documentElement.style;s.setProperty('--pnx',v.x+'px');s.setProperty('--pny',v.y+'px');s.setProperty('--pns',v.s)}}catch(e){}" }],
+  script: [{ key: 'gate-seen', innerHTML: "try{var th=localStorage.getItem('asc-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=th}catch(e){}try{if(sessionStorage.getItem('cordee-gate-vu')==='1')document.documentElement.classList.add('gate-seen')}catch(e){}" }],
   // Styles de la boucle intégrés au HTML (environ 12 Ko compressés) : pas de feuille de style à attendre avant l'affichage
   style: [{ key: 'loop-css', textContent: loopCss }],
   // Police des titres (Cormorant Garamond, servie par le site) : préchargée, c'est elle qui dessine le titre du premier écran
@@ -134,7 +134,8 @@ function setupGate(): boolean {
     try { sessionStorage.setItem(GATE_KEY, '1') } catch { /* stockage indisponible : l'écran reviendra au prochain chargement */ }
     document.getElementById('main')?.focus({ preventScroll: true })
   }
-  if (seen()) { gate.hidden = true; return false }
+  // déjà vu : classe aussi posée ici (retour sur l'accueil sans rechargement), elle autorise l'aiguille du préchargement
+  if (seen()) { gate.hidden = true; root.classList.add('gate-seen'); return false }
   root.classList.add('gate-on')
   others.forEach((el) => el.setAttribute('inert', ''))
   const skipBtn = document.getElementById('gateSkip') as HTMLButtonElement | null

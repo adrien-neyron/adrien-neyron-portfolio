@@ -229,17 +229,14 @@ html.loop-on body.static .bgfx{display:none}
 
 /* Transition : plongée dans le verre, ligne GPX qui s'échappe du cadran, perspective de chemin */
 html.loop-on .s2::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(var(--bg) 0%,transparent 48%);opacity:var(--fog,0)}
-html.loop-on .cta{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 58px);z-index:26;display:flex;align-items:center;gap:12px;min-height:52px;padding:2px 14px 2px 6px;border:0;border-radius:0;background:none;color:#E6F4F1;font:600 12.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.3em;text-transform:uppercase;text-shadow:0 0 14px rgba(5,8,17,.95),0 1px 2px rgba(5,8,17,.9);cursor:pointer;visibility:hidden;opacity:0;transform:translateX(-50%) perspective(620px) rotateX(24deg);transform-origin:50% 100%;transition:opacity .4s,color .25s,transform .35s;-webkit-box-reflect:below -3px linear-gradient(transparent 50%,rgba(230,244,241,.16))}
-html.loop-on .cta .ring{flex:none;width:40px;height:40px;overflow:visible;filter:drop-shadow(0 0 6px rgba(226,109,59,.45))}
-html.loop-on .cta .orbit{transform-origin:22px 22px;transform-box:view-box;animation:ctaOrbit 26s linear infinite}
+html.loop-on .cta{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 58px);z-index:26;display:flex;align-items:center;gap:12px;min-height:52px;padding:2px 14px;border:0;border-radius:0;background:none;color:#E6F4F1;font:600 12.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.3em;text-transform:uppercase;text-shadow:0 0 14px rgba(5,8,17,.95),0 1px 2px rgba(5,8,17,.9);cursor:pointer;visibility:hidden;opacity:0;transform:translateX(-50%) perspective(620px) rotateX(24deg);transform-origin:50% 100%;transition:opacity .4s,color .25s,transform .35s;-webkit-box-reflect:below -3px linear-gradient(transparent 50%,rgba(230,244,241,.16))}
+html.loop-on .cta .play{flex:none;width:18px;height:18px;margin-bottom:6px}   /* icône « lecture » : couleur du texte, alignée sur le texte souligné */
 html.loop-on .cta .txt{position:relative;padding-bottom:6px}
-html.loop-on .cta .txt::after{content:"";position:absolute;left:0;right:.3em;bottom:0;height:1px;background:linear-gradient(90deg,#E26D3B,rgba(226,109,59,0));transform-origin:left;transform:scaleX(.35);transition:transform .35s}
+html.loop-on .cta .txt::after{content:"";position:absolute;left:0;right:.3em;bottom:0;height:1px;background:linear-gradient(90deg,transparent,var(--underline),transparent);transform:scaleX(0);transition:transform .4s}   /* même soulignement que Étapes / Outils (.burger::after) : il grandit depuis le centre au survol */
 html.loop-on .cta:hover,html.loop-on .cta:focus-visible{color:#FFFFFF}
 html.loop-on .cta:hover .txt::after,html.loop-on .cta:focus-visible .txt::after{transform:scaleX(1)}
-html.loop-on .cta:hover .orbit,html.loop-on .cta:focus-visible .orbit{animation-duration:6s}
 html.loop-on .cta .sm{display:none}
-@keyframes ctaOrbit{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){html.loop-on .cta .orbit{animation:none}html.loop-on .cta,html.loop-on .cta .txt::after{transition:none}}
+@media (prefers-reduced-motion:reduce){html.loop-on .cta,html.loop-on .cta .txt::after{transition:none}}
 html.loop-on body.static .cta{display:none}
 @media (max-width:899px){html.loop-on .cta .lg{display:none}html.loop-on .cta .sm{display:inline}}
 
@@ -489,6 +486,29 @@ html.loop-on .chip .cb b,html.loop-on .chip .cb .d{padding-right:14px}
 /* Fiches : plusieurs liens, note ; carte des projets : bouton de fiche au-dessus de la plaque ; administration */
 html.loop-on .tool-note{margin:4px 0 12px;color:#A8B9C0;font-size:13px;line-height:1.4}
 html.loop-on .tool-note[hidden]{display:none}
+/* Fiche projet (carte des projets, classe is-proj) : kilomètre et altitude de l'étape, titre de marque, chiffres clés sous le titre,
+   photo d'ambiance sous verre (bordure cuivre et or, inclinaison 3D et reflet qui suivent la souris), badges techno gravés */
+html.loop-on #dlgTool .eyebrow .gps{display:block;margin-top:4px;color:#A8B9C0;letter-spacing:.08em}
+html.loop-on #dlgTool.is-proj h2{font-size:clamp(36px,6vw,60px);font-weight:500;line-height:1.02;letter-spacing:.005em}
+html.loop-on .sh-stats{list-style:none;margin:4px 0 22px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+html.loop-on .sh-stats[hidden]{display:none}
+html.loop-on .sh-stats li{display:flex;flex-direction:column;gap:8px;padding:12px 2px 0;border-top:1px solid rgba(226,140,100,.55)}
+html.loop-on .sh-stats b{font:600 30px/1 'JetBrains Mono',ui-monospace,monospace;color:#F0A27A;letter-spacing:-.01em}
+html.loop-on .sh-stats span{font:500 11.5px/1.5 'JetBrains Mono',ui-monospace,monospace;text-transform:uppercase;letter-spacing:.1em;color:#B9C2CA}
+html.loop-on .sh-media{margin:0 0 22px;perspective:1100px}
+html.loop-on .sh-media[hidden]{display:none}
+html.loop-on .sh-glass{position:relative;padding:9px;border:1px solid transparent;border-radius:16px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02)) padding-box,linear-gradient(#121B2B,#121B2B) padding-box,linear-gradient(135deg,rgba(240,192,80,.9),rgba(226,109,59,.6) 38%,rgba(226,109,59,.12) 68%,rgba(240,192,80,.65)) border-box;box-shadow:0 26px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+html.loop-on .sh-glass.tilt{transition:transform .12s ease-out}
+html.loop-on .sh-glass img{display:block;width:100%;aspect-ratio:2.7/1;object-fit:cover;border-radius:10px;background:#0B111C;filter:saturate(.9) contrast(1.04)}
+html.loop-on .sh-glass::after{content:"";position:absolute;inset:9px;border-radius:10px;pointer-events:none;background:radial-gradient(circle at var(--gx,25%) var(--gy,0%),rgba(255,255,255,.24),rgba(255,255,255,0) 46%),linear-gradient(115deg,rgba(255,255,255,.1),rgba(255,255,255,0) 36%);opacity:.5;transition:opacity .35s}
+html.loop-on .sh-glass.tilt::after{opacity:1}
+html.loop-on .sh-media figcaption{margin-top:8px;font:500 12px/1.4 'JetBrains Mono',ui-monospace,monospace;color:#A8B9C0}
+html.loop-on .sh-media figcaption:empty{display:none}
+html.loop-on .sh-media figcaption a{color:inherit;text-underline-offset:3px}
+html.loop-on #dlgTool .tool-tags li{padding:5px 11px;border-radius:4px;border-color:rgba(226,140,100,.45);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.22));box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.45);font:500 11.5px/1.5 'JetBrains Mono',ui-monospace,monospace;text-transform:uppercase;letter-spacing:.12em;color:#DCE4E8;text-shadow:0 1px 0 rgba(0,0,0,.6);animation:tagGlow 1.5s ease-out var(--d,0ms) both}
+@keyframes tagGlow{40%{border-color:rgba(255,180,138,.95);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.45),0 0 14px rgba(226,109,59,.45)}}
+@media (max-width:640px){html.loop-on .sh-glass img{aspect-ratio:16/9}}
+@media (prefers-reduced-motion:reduce){html.loop-on .sh-glass,html.loop-on .sh-glass::after{transition:none;transform:none}html.loop-on #dlgTool .tool-tags li{animation:none}}
 html.loop-on .pl-dock{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 66px);z-index:5;display:flex;flex-direction:column;align-items:center;gap:10px;width:max-content;max-width:calc(100% - 24px)}
 html.loop-on .pl-dock .pl-metrics{position:static;transform:none;left:auto;bottom:auto}
 html.loop-on .pl-more{min-height:44px;padding:0 18px;border:1px solid rgba(226,109,59,.75);border-radius:999px;background:rgba(5,8,17,.7);color:#E6F4F1;font:600 13px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -694,9 +714,9 @@ html.loop-on.gate-seen .gate{display:none}
 /* Préchargement : le logo au-dessus de l'aiguille de la boussole qui tourne. L'aiguille est au centre du cadran de la montre,
    même forme (orange au nord, blanche au sud) : en fondu, elle se confond avec l'aiguille de la montre 3D. */
 html.loop-on .preload{position:fixed;inset:0;z-index:450;pointer-events:none;opacity:0;transition:opacity 1s ease}
-/* Aiguille : mêmes facettes et mêmes couleurs que l'aiguille 3D de la montre. Avant le démarrage elle tourne seule (sens anti-horaire,
-   comme la 3D) ; ensuite loop.js (preSync) lui donne la matrice écran de l'aiguille 3D à chaque image. */
-html.loop-on .pre-needle{position:absolute;left:var(--pnx,50%);top:var(--pny,48.8%);width:24px;height:68px;margin:-38px 0 0 -12px;scale:var(--pns,.46);overflow:visible;transform-origin:12px 38px;animation:preSpin 1.7s linear infinite}
+/* Aiguille : mêmes facettes et mêmes couleurs que l'aiguille 3D de la montre. Avant le démarrage elle tourne seule au centre de
+   l'écran (sens anti-horaire, comme la 3D) ; ensuite loop.js (preSync) la fait glisser jusqu'au centre du cadran de la montre 3D. */
+html.loop-on .pre-needle{position:absolute;left:50%;top:50%;width:24px;height:68px;margin:-38px 0 0 -12px;scale:.46;overflow:visible;transform-origin:12px 38px;animation:preSpin 1.7s linear infinite}
 html.loop-on .pre-needle.sync{left:0;top:0;margin:0;scale:none;animation:none}
 @keyframes preSpin{to{transform:rotate(-360deg)}}
 html.loop-on .preload.go{opacity:1;transition:none}
@@ -706,7 +726,7 @@ html.loop-on .preload.fade .pre-needle{opacity:0;transition-delay:.15s}
 html.loop-on.loop-live #compassCanvas,html.loop-on.loop-live #aurora{animation:sceneIn .7s ease-out}
 @keyframes sceneIn{from{opacity:0}}
 html.loop-on .preload.done{visibility:hidden}
-html.loop-on:not(.loop-live):not(.gate-on) .preload,html.loop-on.gate-waiting .preload{opacity:1}
+html.loop-on.gate-seen:not(.loop-live) .preload{opacity:1}   /* seulement sans l'écran de la corde (déjà vu, classe posée dès le premier rendu) : jamais par-dessus */
 @media (prefers-reduced-motion:reduce){html.loop-on .pre-needle{animation:none}html.loop-on .preload,html.loop-on .preload.go,html.loop-on .pre-needle{transition:none}html.loop-on.loop-live #compassCanvas,html.loop-on.loop-live #aurora{animation:none}}
 
 /* Mode jour : le sol de l'accueil est en dalles de sable clair ; le bouton de visite guidée passe en texte sombre à halo clair (contraste AA) */
@@ -770,8 +790,9 @@ html.loop-on[data-theme="light"] #aurora{display:none}
 html.loop-on[data-theme="light"] #head1 .lede{color:#4E200E}
 html.loop-on[data-theme="light"] #head1 .eyebrow{color:#7A2A0D}
 html.loop-on[data-theme="light"] .cta{padding:2px 30px;border:0;background:#A8401B;color:#FFFFFF;text-shadow:none;box-shadow:0 8px 22px rgba(120,50,20,.35)}
-html.loop-on[data-theme="light"] .cta .ring{display:none}
+
 html.loop-on[data-theme="light"] .cta:hover,html.loop-on[data-theme="light"] .cta:focus-visible{background:#8F2F1B;color:#FFFFFF}
+html.loop-on[data-theme="light"] .cta .txt::after{height:2px;background:linear-gradient(90deg,transparent,currentColor,transparent)}   /* sur la pastille cuivre : soulignement blanc, comme le texte */
 html.loop-on[data-theme="light"] .cta:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
 
 /* ===== Hero : hiérarchie typographique, paragraphe resserré, scrim atmosphérique ===== */
@@ -848,3 +869,50 @@ html.loop-on.hero-split #head1 .lede{margin-left:0;margin-right:0}
   html.loop-on:not([data-theme="light"]) #head1::before,html.loop-on:not([data-theme="light"]) #head2::before{content:"";position:absolute;z-index:-1;inset:-56px -72px -80px -72px;pointer-events:none;background:radial-gradient(ellipse closest-side at 50% 50%,rgba(5,8,17,.88) 0%,rgba(5,8,17,.74) 55%,rgba(5,8,17,0) 100%)}
   html.loop-on #head2 .sub,html.loop-on #head2 h2,html.loop-on #head1 .lede{color:var(--fg)}
 }
+
+/* ---------- Fiche d'étape : résumé compact à l'arrêt sur un cairn (non modal, sans prise de focus) ---------- */
+html.loop-on .stop-card{position:absolute;z-index:6;right:64px;top:50%;width:min(340px,30vw);box-sizing:border-box;padding:18px 20px 16px;border-radius:14px;background:rgba(5,8,17,.86);border:1px solid rgba(226,140,100,.35);box-shadow:0 18px 44px rgba(0,0,0,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#E6F4F1;
+  opacity:0;visibility:hidden;transform:translate(14px,-50%);transition:opacity .35s ease,transform .45s cubic-bezier(.2,.7,.2,1),visibility 0s linear .45s}
+html.loop-on .stop-card.on{opacity:1;visibility:visible;transform:translate(0,-50%);transition:opacity .35s ease,transform .45s cubic-bezier(.2,.7,.2,1),visibility 0s}
+html.loop-on .stop-card .sc-e{margin:0 0 6px;font:500 11.5px/1.5 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:#FF8A57}
+html.loop-on .stop-card .sc-e .gps{display:block;color:#C9D4D9;letter-spacing:.04em;text-transform:none}
+html.loop-on .stop-card h3{margin:0 0 10px;font:italic 500 clamp(26px,2.4vw,34px)/1.05 'Cordée Serif','DM Serif Display',Georgia,serif;color:#FFFFFF}
+html.loop-on .sc-stats{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-wrap:wrap;gap:6px 16px}
+html.loop-on .sc-stats[hidden]{display:none}
+html.loop-on .sc-stats li{display:flex;align-items:baseline;gap:6px}
+html.loop-on .sc-stats b{white-space:nowrap;font:600 18px/1.1 'JetBrains Mono',ui-monospace,monospace;color:#F0A27A}
+html.loop-on .sc-stats span{font:500 11px/1.3 'JetBrains Mono',ui-monospace,monospace;color:#C9D4D9}
+html.loop-on .stop-card .sc-l{margin:0 0 12px;font:400 14px/1.5 Inter,system-ui,sans-serif;color:#D5DEE2;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+html.loop-on .sc-tags{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+html.loop-on .sc-tags li{padding:3px 8px;border:1px solid rgba(226,140,100,.45);border-radius:4px;font:500 10.5px/1.5 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:#DCE4E8}
+html.loop-on .sc-acts{display:flex;align-items:center;gap:8px}
+html.loop-on .sc-more{flex:1;min-height:44px;padding:0 16px;border:0;border-radius:999px;background:#FF8A57;color:#0A0F1A;font:700 13.5px/1.2 'JetBrains Mono',ui-monospace,monospace;cursor:pointer}
+html.loop-on .sc-more:hover,html.loop-on .sc-more:focus-visible{background:#FFFFFF}
+html.loop-on .sc-x{flex:none;width:44px;height:44px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:transparent;color:#E6F4F1;font:400 22px/1 Inter,system-ui,sans-serif;cursor:pointer}
+html.loop-on .sc-x:hover,html.loop-on .sc-x:focus-visible{background:rgba(255,255,255,.12)}
+html.loop-on .sc-more:focus-visible,html.loop-on .sc-x:focus-visible{outline:3px solid #FFFFFF;outline-offset:3px}
+/* la carte remplace le bouton « Voir la fiche » et les étiquettes flottantes : un seul bloc d'information à l'écran */
+html.loop-on #s2.card-on .pl-dock,html.loop-on #s2.card-on #pTags{opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s linear .25s}
+html.loop-on body.static .stop-card{display:none}
+@media (max-width:899px){
+  html.loop-on .stop-card{left:12px;right:52px;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);width:auto;padding:14px 16px 12px;transform:translateY(14px)}
+  html.loop-on .stop-card.on{transform:none}
+  html.loop-on .stop-card h3{font-size:26px;margin-bottom:6px}
+  html.loop-on .stop-card .sc-l{-webkit-line-clamp:2;font-size:13.5px;margin-bottom:10px}
+  html.loop-on .sc-tags,html.loop-on .sc-stats,html.loop-on .sc-stats[hidden]{display:none}
+}
+@media (max-height:620px) and (min-width:900px){html.loop-on .stop-card .sc-l{-webkit-line-clamp:2}html.loop-on .sc-tags{display:none}}
+@media (prefers-reduced-motion:reduce){html.loop-on .stop-card,html.loop-on .stop-card.on{transition:opacity .2s,visibility 0s}html.loop-on .stop-card{transform:translate(0,-50%)}}
+@media (prefers-reduced-motion:reduce) and (max-width:899px){html.loop-on .stop-card{transform:none}}
+html.loop-on[data-theme="light"] .stop-card{background:rgba(252,247,238,.94);border-color:rgba(178,63,39,.3);box-shadow:0 14px 36px rgba(60,40,20,.18);color:var(--fg)}
+html.loop-on[data-theme="light"] .stop-card .sc-e{color:#8F2F1B}
+html.loop-on[data-theme="light"] .stop-card .sc-e .gps,html.loop-on[data-theme="light"] .sc-stats span{color:#435862}
+html.loop-on[data-theme="light"] .stop-card h3{color:#12222B}
+html.loop-on[data-theme="light"] .sc-stats b{color:#8F2F1B}
+html.loop-on[data-theme="light"] .stop-card .sc-l{color:#24343C}
+html.loop-on[data-theme="light"] .sc-tags li{color:#24343C;border-color:rgba(143,47,27,.4)}
+html.loop-on[data-theme="light"] .sc-more{background:#B23F27;color:#FFFFFF}
+html.loop-on[data-theme="light"] .sc-more:hover,html.loop-on[data-theme="light"] .sc-more:focus-visible{background:#8F2F1B}
+html.loop-on[data-theme="light"] .sc-x{color:#12222B;border-color:rgba(18,34,43,.3)}
+html.loop-on[data-theme="light"] .sc-x:hover,html.loop-on[data-theme="light"] .sc-x:focus-visible{background:rgba(18,34,43,.08)}
+html.loop-on[data-theme="light"] .sc-more:focus-visible,html.loop-on[data-theme="light"] .sc-x:focus-visible{outline-color:#12222B}

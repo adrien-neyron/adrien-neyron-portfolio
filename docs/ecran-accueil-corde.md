@@ -29,12 +29,12 @@ Compromis performance : le préchargement après 1,5 s remplace le démarrage «
 - `forced-colors` : fond aux couleurs système.
 - Sans JavaScript : l'écran est masqué, le contenu reste accessible.
 
-## Préchargement : logo et aiguille
-Quand la montre n'est pas encore prête, la seule chose visible est le logo Cordée (le mousqueton) **au-dessus** de l'aiguille de la boussole qui tourne (`#preload`, balayage puis calage sur le nord, animation `preSpin`).
-- L'aiguille a la forme de celle du cadran de la montre (orange au nord, blanche au sud) et se place au centre du cadran (`top: 49,2 %`, 18 × 80 px). Quand la boucle démarre, le préchargement s'efface en fondu de 1 s pendant que la montre 3D arrive : les deux aiguilles se confondent.
-- La **boussole 2D de secours a été supprimée** (`#compassFallback` : balisage, CSS et appel dans `loop.js`). Si la 3D n'est pas disponible, la page montre le titre et l'accroche sans cadran.
-- Le logo apparaît aussi au-dessus de l'écran d'accueil si, après l'animation, la montre n'est pas prête (classe `html.gate-waiting`, réseau lent).
-- Mouvement réduit : l'aiguille est fixe. Sans JavaScript : le `<noscript>` masque ce préchargement.
+## Préchargement : l'aiguille
+L'aiguille de la boussole qui tourne (`#preload`, animation `preSpin`) n'apparaît **que sans l'écran de la corde** (déjà vu dans la session, classe `html.gate-seen`) et seulement avant la 3D. Elle n'est jamais affichée par-dessus l'écran de la corde : pendant celui-ci, la montre se charge dessous, sans aiguille.
+- Avant la 3D, elle tourne **au centre de l'écran**. Quand la montre 3D apparaît, `preSync` (`loop.js`) la fait glisser du centre de l'écran au centre du cadran en 0,9 s (`PRE_TRAVEL`, lissage `k²(3−2k)`), en prenant peu à peu la taille, la rotation et la perspective de l'aiguille 3D. L'aiguille 3D reste masquée pendant le trajet (`preTraveling()`), puis réapparaît dessous et l'aiguille HTML s'efface.
+- Si le visiteur quitte le premier écran pendant ce trajet (clic sur une étape, défilement rapide), `preEnd()` retire aussitôt l'aiguille HTML : avant ce correctif, elle restait figée au centre de l'écran par-dessus la carte.
+- Elle a la forme de celle du cadran (orange au nord, blanche au sud).
+- Mouvement réduit : aiguille fixe, pas de trajet. Sans JavaScript : le `<noscript>` masque ce préchargement.
 - Décoratif (`aria-hidden`) ; l'état est annoncé par `#live`.
 
 ## Relais préchargement → scène 3D (anti-sursaut)
@@ -42,7 +42,7 @@ Quand la montre n'est pas encore prête, la seule chose visible est le logo Cord
 Trois causes possibles d'un « sursaut » au relais, toutes traitées :
 - **Coupe franche de la scène 3D** : `#compassCanvas` et `#aurora` apparaissent en fondu (`sceneIn`, 0,7 s) dès `html.loop-live`, désactivé en `prefers-reduced-motion`.
 - **Saut de vitesse de l'aiguille** : l'aiguille HTML tournait à 3,7 rad/s, la 3D à 7–15 rad/s. `updateCompass` fait monter la vitesse de 3,7 vers celle du chargement sur ~0,9 s (lissage `k²(3−2k)`).
-- **Relais aiguille/scène** : classe `fade` sur `#preload` à 0,55 s ; l'aiguille HTML reste opaque jusqu'à ce que la scène soit visible, puis disparaît en 0,3 s.
+- **Relais aiguille/scène** : classe `fade` sur `#preload` à l'arrivée de l'aiguille au centre du cadran (0,95 s) ; elle disparaît en 0,3 s au-dessus de l'aiguille 3D réapparue.
 
 Mesure (localhost) : canvas 0,43 → 1 pendant que l'aiguille HTML reste à 1, puis l'aiguille tombe à 0 : aucune image où les deux sont partiellement transparentes.
 

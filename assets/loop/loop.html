@@ -79,6 +79,17 @@
       <div><b id="pm3">Éducateur, Formateur, Directeur dans le secteur sportif</b><span id="pm3l"></span></div>
     </div>
     </div>
+    <aside class="stop-card" id="stopCard" aria-labelledby="scT">
+      <p class="sc-e" id="scE"></p>
+      <h3 id="scT"></h3>
+      <ul class="sc-stats" id="scStats" aria-label="Chiffres clés" hidden></ul>
+      <p class="sc-l" id="scL"></p>
+      <ul class="sc-tags" id="scK" aria-label="Technologies"></ul>
+      <div class="sc-acts">
+        <button type="button" class="sc-more" id="scMore" aria-haspopup="dialog">Fiche complète<span class="sr-only n"></span><span aria-hidden="true"> →</span></button>
+        <button type="button" class="sc-x" id="scX"><span aria-hidden="true">×</span><span class="sr-only">Masquer les résumés d'étape</span></button>
+      </div>
+    </aside>
     <ol class="pl-list" id="pList" aria-label="Projets"></ol>
     <svg id="mapSvg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <g id="world">
@@ -189,7 +200,7 @@
 
 
 <footer class="perma">
-  <p class="copy">© 2026 Adrien Neyron · Dev × Trail × Formation</p>
+  <p class="copy">© 2026 Adrien Neyron · Front-End Dev × Accessibilité Numérique</p>
   <nav aria-label="Pied de page">
     <a class="ico lbl" href="/cv-adrien-neyron.pdf" download data-tip="CV (PDF)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11v6m-3-3 3 3 3-3"/></svg><span class="t">CV</span><span class="sr-only"> (PDF, téléchargement)</span></a>
     <button type="button" class="ico lbl" id="ftContact" data-tip="Contact"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><span class="t">Contact</span></button>
@@ -217,6 +228,8 @@
 <dialog id="dlgTool" class="sheet" aria-labelledby="toolT">
   <div class="sh-head"><div><p class="eyebrow" id="toolE"></p><h2 id="toolT"></h2><p class="sh-status" id="toolS"></p></div><button type="button" class="sh-x" id="toolX">Fermer</button></div>
   <div class="sh-body">
+    <ul class="sh-stats" id="toolStats" aria-label="Chiffres clés" hidden></ul>
+    <figure class="sh-media" id="toolM" hidden><div class="sh-glass"><img id="toolImg" alt="" decoding="async"></div><figcaption id="toolMc"></figcaption></figure>
     <p class="lead" id="toolL"></p>
     <ul class="tool-pts" id="toolP"></ul>
     <ul class="tool-tags" id="toolK" aria-label="Technologies"></ul>
@@ -276,5 +289,5 @@
 <div class="altrail" aria-hidden="true"><i class="ln"></i><i class="ln done" id="railDone"></i><i class="tk" style="top:2%"></i><i class="tk" style="top:19%"></i><i class="tk" style="top:41%"></i><i class="tk" style="top:67%"></i><i class="tk" style="top:84.5%"></i><i class="dot" id="railDot"><svg viewBox="0 0 20 28" aria-hidden="true" focusable="false"><path d="M8 2h4v13h5L10 26 3 15h5z" fill="#F2FBF8" stroke="#06241C" stroke-opacity=".55" stroke-width=".8" stroke-linejoin="round"/><path d="M8.6 3.2v12.6M11.4 3.2v12.6" stroke="#00F5A0" stroke-opacity=".5" stroke-width=".6"/></svg></i></div>
 <div class="hud" id="hud" aria-hidden="true"><span id="hudAlt" hidden>ALT <b id="alt"></b> m · </span><span id="live2"></span><span id="hudWx" hidden></span></div>
 <p class="hint" id="hint" aria-hidden="true"></p>
-<button type="button" class="cta" id="cta" aria-describedby="ctaDesc"><svg class="ring" aria-hidden="true" focusable="false" viewBox="0 0 44 44"><circle class="orbit" cx="22" cy="22" r="20" fill="none" stroke="#E26D3B" stroke-opacity=".7" stroke-width="1" stroke-dasharray="1.2 3.4"/><circle cx="22" cy="22" r="15" fill="none" stroke="#E26D3B" stroke-width="1.4"/><path d="M15 22h13M23.5 16.5L29 22l-5.5 5.5" fill="none" stroke="#FFD9C2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="txt"><span class="lg">Lancer la visite guidée</span><span class="sm">Visite guidée</span></span></button>
+<button type="button" class="cta" id="cta" aria-describedby="ctaDesc"><svg class="play" aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10 7.8v8.4c0 .5.5.8.9.5l6.3-4.2c.4-.3.4-.8 0-1.1l-6.3-4.2c-.4-.3-.9 0-.9.5z" fill="currentColor"/></svg><span class="txt"><span class="lg">Lancer la visite guidée</span><span class="sm">Visite guidée</span></span></button>
 <span id="ctaDesc" class="sr-only">Lance un parcours guidé de toute la boucle. Vous pouvez le mettre en pause ou reprendre la main à tout moment.</span>

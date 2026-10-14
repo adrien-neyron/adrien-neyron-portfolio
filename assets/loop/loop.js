@@ -2,6 +2,7 @@
  * Usage : const loop = initLoop(THREE, { GLTFLoader }); … loop.destroy() au démontage de la page.
  * GLTFLoader (facultatif) : charge le modèle 3D de la chaussure (SHOE_GLB) ; sans lui, la chaussure procédurale reste affichée.
  * Prérequis : le balisage de loop.html est déjà dans le DOM, loop.css est chargée, three@0.128.0. */
+import {projects as SITE_PROJECTS} from '~/data/projects';   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
 export function initLoop(THREE,LOADERS={}){
   const __ac=new AbortController(),__sig=__ac.signal,__ivs=[];let DEAD=false;
   // les écouteurs de la fenêtre sont annulés à la destruction
@@ -147,6 +148,13 @@ const shortT=t=>String(t).split(/\s[—–-]\s/)[0];   // titre court pour les b
 const CMS_ALIAS={dgfip:/dgfip/,c2s:/click2sell|c2s|yepgarage/,hello:/hello\s?stay/,stock:/stockpulse/,runfit:/runfit/,coach:/coachflow/,jsa:/job-?\s?search|automator/,asc:/ascension|portfolio/};   // id de la boucle → mots du slug ou du titre en base
 const CMS_MAP={},CMS_USED=new Set();
 Object.keys(CMS_ALIAS).forEach(id=>{const m=(CMS.projects||[]).find(p=>!CMS_USED.has(p)&&CMS_ALIAS[id].test((p.slug+' '+p.title).toLowerCase()));if(m){CMS_USED.add(m);CMS_MAP[id]=m}});
+/* Fiches projets : chiffres clés (stats) et photo d'ambiance (cover). Repli = données du site (data/projects.ts), remplacées par
+   celles de l'admin quand elles y sont saisies. Rien d'inventé : sans chiffres ni photo, la fiche n'affiche ni l'un ni l'autre. */
+const sheetExtras=(f,a)=>{
+  const st=(a.stats||[]).filter(x=>x&&x.value);if(st.length)f.stats=st.map(x=>({value:String(x.value),label:String(x.label||'')}));
+  if(a.cover)Object.assign(f,{cover:a.cover,coverCredit:a.coverCredit||'',coverCreditUrl:a.coverCreditUrl||''});
+};
+Object.keys(CMS_ALIAS).forEach(id=>{const f=PROJECT_INFO[id],sp=SITE_PROJECTS.find(p=>CMS_ALIAS[id].test((p.id+' '+p.title).toLowerCase()));if(f&&sp)sheetExtras(f,sp)});
 const cmsLinks=a=>{const L=[];const u=okUrl(a.link),c=okUrl(a.code);if(u)L.push({l:'Voir le projet',u});if(c)L.push({l:'Code sur GitHub',u:c});return L};
 const cmsPts=a=>[['Défi',a.challenge],['Solution',a.solution],['Résultat',a.result],['Impact',a.impact]].filter(x=>x[1]).map(x=>x[0]+' : '+x[1]);
 Object.keys(CMS_MAP).forEach(id=>{
@@ -156,6 +164,7 @@ Object.keys(CMS_MAP).forEach(id=>{
   const pts=cmsPts(a);if(pts.length)f.pts=pts;
   if(a.technologies&&a.technologies.length)f.k=a.technologies;
   const lk=cmsLinks(a);if(lk.length){f.links=lk;delete f.note}
+  sheetExtras(f,a);
   if(a.place&&/^Étape/.test(f.e||'')){const q=f.e.split(' · ');q[1]=a.place;f.e=q.join(' · ')}
   const ti={runfit:1,jsa:3,coach:4}[id];if(ti!==undefined){if(a.title)TOOLS[ti].n=a.title;if(a.tagline)TOOLS[ti].d=a.tagline}
 });
@@ -292,8 +301,8 @@ const cv=$('#compassCanvas');
 let strapLow=null,skyK=-1;
 let renderer,scene3,cam,group,needle,dialTex,dialCanvas,bezelTex,bezelCanvas,vis=10,strapApply=null,readCanvas=null,readTex=null,lastReadDeg=-1,lastReadKey='',aimKey=null,toolAim=-1,dialTool=-1,dialOver=null,pinnedKey=null,hoverKey=null,roMesh=null,topoMesh=null,topoTex=null,lastInto=null;
 /* ---------- Montre GPS outdoor, inspirée des séries Garmin Fenix et Enduro ---------- */
-const DIAL_NIGHT={bg:'#050607',pat:'rgba(255,255,255,.05)',tickBig:'#E6F4F1',tick:'rgba(200,210,216,.6)',ring:'rgba(255,255,255,.35)',N:'#E26D3B',card:'#E6F4F1',inter:'#9AA4AB',deg:'#B8C0C6',lab:'#AEB8BF',val:'#E6F4F1',qual:'#C9D1D6',rTitle:'#E6F4F1',rDesc:'#B9C2CA',rCap:'#C9D1D6'};
-const DIAL_DAY={bg:'#F2EEE6',pat:'rgba(60,40,20,.045)',tickBig:'#1B1712',tick:'rgba(27,23,18,.62)',ring:'rgba(27,23,18,.45)',N:'#A8401B',card:'#1B1712',inter:'#5F584D',deg:'#554E43',lab:'#554E43',val:'#1B1712',qual:'#3F392F',rTitle:'#1B1712',rDesc:'#3F392F',rCap:'#554E43'};
+const DIAL_NIGHT={bg:'#050607',pat:'rgba(255,255,255,.05)',tickBig:'#E6F4F1',tick:'rgba(200,210,216,.6)',ring:'rgba(255,255,255,.35)',N:'#E26D3B',card:'#E6F4F1',inter:'#9AA4AB',deg:'#B8C0C6',lab:'#AEB8BF',val:'#E6F4F1',qual:'#C9D1D6',rTitle:'#E6F4F1',rDesc:'#B9C2CA'};
+const DIAL_DAY={bg:'#F2EEE6',pat:'rgba(60,40,20,.045)',tickBig:'#1B1712',tick:'rgba(27,23,18,.62)',ring:'rgba(27,23,18,.45)',N:'#A8401B',card:'#1B1712',inter:'#5F584D',deg:'#554E43',lab:'#554E43',val:'#1B1712',qual:'#3F392F',rTitle:'#1B1712',rDesc:'#3F392F'};
 const dialPal=()=>theme==='light'?DIAL_DAY:DIAL_NIGHT;   // cadran clair en mode jour (contrastes ≥ 4,5:1 sur le papier #F2EEE6)
 function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, traits blancs ; jour : fond papier, traits encre
   const P=dialPal(),c=dialCanvas||(dialCanvas=document.createElement('canvas'));
@@ -468,9 +477,8 @@ function makeStrapFade(){   // opacité : le bracelet s'efface vers le bout, sur
 }
 /* Lecture du cap (plaque transparente au centre de l'écran) */
 function makeReadout(){readCanvas=document.createElement('canvas');readCanvas.width=512;readCanvas.height=256;readTex=new THREE.CanvasTexture(readCanvas);drawReadout(0,true);return readTex}
-const DIRS=['N','NE','E','SE','S','SO','O','NO'];
 function drawReadout(deg,force){
-  const d=Math.round(deg)%360,info=aimKey&&HOT[aimKey]||(toolAim>=0&&TOOLS[toolAim]?{t:TOOLS[toolAim].n,d:TOOLS[toolAim].d}:null),key=info?'i:'+(aimKey||'t'+toolAim):'h:'+d;   // survol d'un bouton du boîtier : l'écran de la montre affiche le contenu de la carte (titre et description), sans faire apparaître de nouvelle carte
+  const info=aimKey&&HOT[aimKey]||(toolAim>=0&&TOOLS[toolAim]?{t:TOOLS[toolAim].n,d:TOOLS[toolAim].d}:null),key=info?'i:'+(aimKey||'t'+toolAim):'h';   // survol d'un bouton du boîtier : l'écran de la montre affiche le contenu de la carte (titre et description), sans faire apparaître de nouvelle carte
   if(!force&&key===lastReadKey)return;lastReadKey=key;
   if(dialTool!==toolAim&&dialTex){dialTool=toolAim;dialOver=toolAim>=0&&TOOLS[toolAim]?TOOLS[toolAim]:null;makeDial();dialTex.needsUpdate=true}
   const P=dialPal(),x=readCanvas.getContext('2d');x.clearRect(0,0,512,256);x.textAlign='center';x.textBaseline='alphabetic';
@@ -488,10 +496,7 @@ function drawReadout(deg,force){
     const words=info.d.split(' ');let line='',y=176;
     words.forEach(w=>{const t=line?line+' '+w:w;if(x.measureText(t).width>470&&line){x.fillText(line,256,y);y+=38;line=w}else line=t});
     x.fillText(line,256,y);
-  }else{
-    x.fillStyle=P.rCap;x.font='500 34px "JetBrains Mono", monospace';x.textAlign='left';x.fillText('CAP '+DIRS[Math.round(d/45)%8],64,56);x.textAlign='center';
-    x.fillStyle=P.N;x.font='700 96px "JetBrains Mono", monospace';x.fillText(String(d).padStart(3,'0')+'°',256,176);
-  }
+  }   // sans survol : rien (ni cap ni degrés), le cadran reste dégagé
   readTex.needsUpdate=true;
 }
 let topoDay=false;
@@ -826,29 +831,37 @@ function sizeThree(){
   {const D0=cam.position.z,sc0=sceneryCalc().s;scene3.fog.near=D0+30*sc0;scene3.fog.far=D0+225*sc0}   // le sol se fond dans la nuit vers l'horizon
 }
 let nRot=0,nVel=0,lastTool=-1;
-/* ---------- Préchargement : l'aiguille HTML (#preload) épouse l'aiguille 3D ----------
-   Avant le démarrage, l'aiguille HTML tourne seule. Dès la première image 3D, elle prend l'angle de départ de l'aiguille 3D,
-   puis sa matrice écran exacte (position, taille, rotation, perspective) est recalculée à chaque image pendant son fondu :
-   les deux aiguilles se superposent au pixel près, le passage de l'une à l'autre est invisible. */
+/* ---------- Préchargement : l'aiguille HTML (#preload) rejoint l'aiguille 3D ----------
+   Avant le démarrage, l'aiguille HTML tourne seule au centre de l'écran. Quand la montre 3D apparaît, elle glisse du centre
+   de l'écran au centre du cadran (PRE_TRAVEL s) en prenant peu à peu la matrice écran exacte de l'aiguille 3D (position,
+   taille, rotation, perspective), qui reste masquée pendant le trajet. À l'arrivée, l'aiguille 3D réapparaît dessous et
+   l'aiguille HTML s'efface : le relais est invisible.
+   Écran de la corde ouvert au démarrage : il recouvre la montre pendant le chargement, l'aiguille HTML n'apparaît pas. */
 const preEl=document.querySelector('#preload .pre-needle'),preBox=document.getElementById('preload'),_preV=new THREE.Vector3();
-let preT0=-1,preSaved=false;
+const PRE_TRAVEL=reduce?0:.9,PRE_S0=.46;   // durée du trajet ; échelle de l'aiguille HTML au centre (CSS .pre-needle)
+let preT0=-1;
 function preAngle(){   // angle écran (sens horaire, CSS) de l'aiguille HTML -> rotation de l'aiguille 3D (sens anti-horaire)
   const m=/matrix\(([^)]+)\)/.exec(getComputedStyle(preEl).transform||'');if(!m)return 0;
   const v=m[1].split(',').map(Number);return -Math.atan2(v[1],v[0]);
 }
+const preTraveling=()=>preT0>=0&&tNow-preT0<PRE_TRAVEL;   // aiguille HTML en route vers le cadran : l'aiguille 3D attend
+function preEnd(){if(!preEl||preT0===-2)return;preEl.classList.remove('sync');preBox.classList.add('fade','done');preT0=-2}
 function preSync(){
   if(!preEl||preT0===-2)return;
-  if(preT0===-1){preT0=tNow;preEl.classList.add('sync');preBox.classList.add('go')}
-  if(tNow-preT0>.55)preBox.classList.add('fade');   // le logo s'efface d'abord ; l'aiguille HTML reste opaque jusqu'à ce que la scène 3D soit visible
-  if(tNow-preT0>1.6){preEl.classList.remove('sync');preBox.classList.add('done');preT0=-2;return}
+  if(preT0===-1){
+    if(!root.classList.contains('gate-seen')||root.classList.contains('gate-on')){preBox.classList.add('done');preT0=-2;return}
+    preT0=tNow;preEl.classList.add('sync');preBox.classList.add('go');
+  }
+  const t=tNow-preT0;
+  if(t>PRE_TRAVEL+.05)preBox.classList.add('fade');   // arrivée : l'aiguille 3D est visible dessous, l'aiguille HTML s'efface
+  if(t>PRE_TRAVEL+.6){preEl.classList.remove('sync');preBox.classList.add('done');preT0=-2;return}
   needle.updateWorldMatrix(true,false);cam.updateMatrixWorld();
   const r=cv.getBoundingClientRect(),P=(x,y)=>{_preV.set(x,y,0);needle.localToWorld(_preV);_preV.project(cam);return[r.left+(_preV.x*.5+.5)*r.width,r.top+(.5-_preV.y*.5)*r.height]};
   const O=P(0,0),X=P(.01,0),Y=P(0,-.01);   // 1 unité du dessin SVG = 0,01 de l'espace de l'aiguille ; le dessin a son pivot en (12 px, 38 px)
-  preEl.style.transform=`matrix(${X[0]-O[0]},${X[1]-O[1]},${Y[0]-O[0]},${Y[1]-O[1]},${O[0]-12},${O[1]-38})`;
-  preEl.style.opacity=needle.visible?'':'0';
-  if(!preSaved&&tNow-preT0>1.5){   // position mesurée gardée : le prochain préchargement part exactement de là (script d'en-tête de LoopHome.vue)
-    preSaved=true;try{localStorage.setItem('cordee-needle-'+innerWidth+'x'+innerHeight,JSON.stringify({x:+O[0].toFixed(1),y:+O[1].toFixed(1),s:+Math.hypot(X[0]-O[0],X[1]-O[1]).toFixed(3)}))}catch(e){}
-  }
+  const k=PRE_TRAVEL?clamp(t/PRE_TRAVEL):1,e=k*k*(3-2*k);
+  const f=lerp(PRE_S0/Math.max(1e-3,Math.hypot(X[0]-O[0],X[1]-O[1])),1,e);   // taille : celle du centre de l'écran -> celle du cadran
+  const ox=lerp(innerWidth/2,O[0],e),oy=lerp(innerHeight/2,O[1],e);   // pivot : centre de l'écran -> centre du cadran
+  preEl.style.transform=`matrix(${(X[0]-O[0])*f},${(X[1]-O[1])*f},${(Y[0]-O[0])*f},${(Y[1]-O[1])*f},${ox-12},${oy-38})`;
 }
 let lastSpx=-1e9;const DIAL={r:0,cx:0,cy:0};   // rayon et centre du cadran à l'écran (px CSS), pour caler la carte sur les lignes du verre
 const tiltS={x:0,y:0,vx:0,vy:0};let lastBlinkOn=false;const MAP_LINE=new THREE.Color(0xE26D3B);
@@ -914,7 +927,7 @@ function updateCompass(p,dt){
   // métamorphose : les aiguilles s'effacent, les données du cadran se dilatent en relief topographique
   const nf=p<.5?1-sm(.29,.33,p):sm(.96,1,p),tf=p<.5?sm(.19,.26,p):1-sm(.96,1,p);
   const tw=transW(p),bk=needleBlink(tNow),no=nf*(1-tw*(1-bk));   // pendant la transition, l'aiguille reste visible et clignote : c'est elle qui fait le halo
-  needle.children.forEach(m=>{m.material.opacity=no});needle.visible=no>.01;needle.scale.setScalar(1+.4*(1-nf)+tw*.18*bk);
+  needle.children.forEach(m=>{m.material.opacity=no});needle.visible=no>.01&&!preTraveling();needle.scale.setScalar(1+.4*(1-nf)+tw*.18*bk);
   {const on=tw>.2&&bk>.5;if(on&&!lastBlinkOn&&!paused&&!reduce)tickSoft();lastBlinkOn=on}
   roMesh.material.opacity=p<.5?1-sm(.17,.22,p):sm(.96,1,p);
   topoMesh.material.opacity=tf;topoMesh.visible=tf>.01;
@@ -2047,9 +2060,15 @@ $$('.sh-filters button').forEach(b=>b.addEventListener('click',()=>{
   [...carList.children].forEach(li=>{li.hidden=b.dataset.f!=='all'&&li.dataset.c!==b.dataset.f});
 }));
 function openProfile(){root.style.overflow='hidden';dlgProfil.showModal()}
-function showSheet(title,f,opener,back){   // fiche descriptive : atelier (outils) et carte (projets)
-  $('#toolE').textContent=f.e;$('#toolT').textContent=title;$('#toolS').textContent=f.st;$('#toolL').textContent=f.l;
-  $('#toolP').innerHTML=(f.pts||[]).map(x=>`<li>${esc(x)}</li>`).join('');$('#toolK').innerHTML=(f.k||[]).map(x=>`<li>${esc(x)}</li>`).join('');
+function showSheet(title,f,opener,back,proj){   // fiche descriptive : atelier (outils) et carte (projets) ; proj.gps = « Km … · Altitude … m » de l'étape sur la trace
+  const gps=proj&&proj.gps;dlgTool.classList.toggle('is-proj',!!proj);
+  $('#toolE').innerHTML=esc(f.e)+(gps?`<span class="sr-only"> · </span><span class="gps">${esc(gps)}</span>`:'');$('#toolT').textContent=title;$('#toolS').textContent=f.st;$('#toolL').textContent=f.l;
+  $('#toolP').innerHTML=(f.pts||[]).map(x=>`<li>${esc(x)}</li>`).join('');$('#toolK').innerHTML=(f.k||[]).map((x,i)=>`<li style="--d:${i*70}ms">${esc(x)}</li>`).join('');
+  // chiffres clés (3 au plus) juste sous le titre, puis la photo d'ambiance sous verre ; absents des données = rien d'affiché
+  const sl=$('#toolStats');sl.innerHTML=(f.stats||[]).slice(0,3).map(x=>`<li><b>${esc(x.value)}</b> <span>${esc(x.label)}</span></li>`).join('');sl.hidden=!sl.children.length;
+  const fig=$('#toolM'),img=$('#toolImg'),src=okUrl(f.cover);fig.hidden=!src;
+  if(src){if(img.getAttribute('src')!==src)img.src=src;const cu=okUrl(f.coverCreditUrl);
+    $('#toolMc').innerHTML=f.coverCredit?'Photo : '+(cu?`<a href="${esc(cu)}" target="_blank" rel="noopener">${esc(f.coverCredit)}<span class="sr-only"> (nouvel onglet)</span></a>`:esc(f.coverCredit)):''}
   const nt=$('#toolN');nt.textContent=f.note||'';nt.hidden=!f.note;
   const acts=$('#toolActs'),bk=$('#toolBack');acts.querySelectorAll('.dyn').forEach(a=>a.remove());
   (f.links||[]).forEach((x,j)=>{if(x.go){const b=document.createElement('button');b.type='button';b.className='dyn '+(j?'sh-alt':'sh-main');b.textContent=x.l;b.addEventListener('click',()=>{dlgTool.close();jumpTo(.845);live.textContent='Contact. Posons le sac.'});acts.insertBefore(b,bk);return}
@@ -2057,7 +2076,14 @@ function showSheet(title,f,opener,back){   // fiche descriptive : atelier (outil
   bk.textContent=back;toolOpener=opener||null;root.style.overflow='hidden';dlgTool.showModal();
 }
 function openTool(i,opener){const t=TOOLS[i],f=TOOL_INFO[i];if(!f)return;showSheet(t.n,f,opener,"Revenir à l'atelier")}
-function openProject(id,opener){const f=PROJECT_INFO[id];if(!f)return;showSheet(f.t,f,opener,'Revenir à la carte')}
+function openProject(id,opener,gps){const f=PROJECT_INFO[id];if(!f)return;showSheet(f.t,f,opener,'Revenir à la carte',{gps})}
+$('#toolImg').addEventListener('error',()=>{$('#toolM').hidden=true});   // photo introuvable : la fiche reste sans média
+{ // photo sous verre : légère inclinaison 3D qui suit la souris, reflet de la vitre sous le pointeur (souris seulement, jamais en mouvement réduit)
+  const gl=$('#toolM .sh-glass');
+  gl.addEventListener('pointermove',e=>{if(reduce||e.pointerType!=='mouse')return;const r=gl.getBoundingClientRect(),x=clamp((e.clientX-r.left)/r.width),y=clamp((e.clientY-r.top)/r.height);
+    gl.style.setProperty('--ry',((x-.5)*9).toFixed(2)+'deg');gl.style.setProperty('--rx',((.5-y)*7).toFixed(2)+'deg');gl.style.setProperty('--gx',(x*100).toFixed(1)+'%');gl.style.setProperty('--gy',(y*100).toFixed(1)+'%');gl.classList.add('tilt')});
+  gl.addEventListener('pointerleave',()=>{gl.classList.remove('tilt');gl.style.setProperty('--rx','0deg');gl.style.setProperty('--ry','0deg')});
+}
 let toolOpener=null;
 dlgTool.addEventListener('close',()=>{const o=toolOpener;toolOpener=null;if(o&&o.isConnected&&getComputedStyle(o).visibility!=='hidden')o.focus({preventScroll:true})});   // le focus revient sur la carte qui a ouvert la fiche
 $('#tools').addEventListener('click',e=>{const b=e.target.closest('.cb');if(!b)return;openTool([...$('#tools').children].indexOf(b.closest('li')),b)});
@@ -2189,7 +2215,7 @@ function draw(p,dt){
     c.li.style.transform=isMobile()?`translateY(${(1-o)*10}px)`:`scale(${.92+.08*o})`;
     c.ln.style.strokeDashoffset=1-clamp((p-(CS+i*CST))/.03);c.ln.style.opacity=o;
   });
-  if(S[0].style.visibility==='visible'){updateCompass(p,dt);drawAurora(tNow+20)}
+  if(S[0].style.visibility==='visible'){updateCompass(p,dt);drawAurora(tNow+20)}else preEnd();   // premier écran quitté pendant le trajet de l'aiguille : on la retire, sinon elle resterait figée au centre de la carte
   if(THREE_OK&&group)placePush(S[0].style.visibility==='visible'?p:-1);
   // s2
   S[1].style.setProperty('--hd',(p<.5?sm(.262,.292,p):1).toFixed(3));
@@ -2697,7 +2723,7 @@ PROJECTS.forEach(p=>{const a=CMS_MAP[p.id];if(!a)return;
   if(extra.length){
     const mats=['stone','leather','metal'];
     const add=extra.map((a,i)=>{const id='x'+i;
-      PROJECT_INFO[id]={t:a.title,e:'Sentier · '+(a.place||'Projet'),st:a.status||'Projet',l:a.description||a.tagline||'',pts:cmsPts(a),k:a.technologies||[],links:cmsLinks(a)};
+      PROJECT_INFO[id]={t:a.title,e:'Sentier · '+(a.place||'Projet'),st:a.status||'Projet',l:a.description||a.tagline||'',pts:cmsPts(a),k:a.technologies||[],links:cmsLinks(a)};sheetExtras(PROJECT_INFO[id],a);
       return {id,title:shortT(a.title),place:a.place||'Projet',stage:'Sentier',tags:(a.technologies||[]).slice(0,4),result:a.tagline||a.category||'',mat:mats[i%3],t:0}});
     const at=PROJECTS.findIndex(p=>p.id==='asc');PROJECTS.splice(at<0?PROJECTS.length-1:at,0,...add);
     const line=PROJECTS.filter(p=>p.id!=='next');line.forEach((p,i)=>{p.t=+(.08+i*(.8/Math.max(1,line.length-1))).toFixed(4)});
@@ -2784,47 +2810,57 @@ function stopWeight(i,p){const s=STOPS[i];return Math.min(sm(s.a-.05,s.a,p),1-sm
 
 /* ---------- Scène ---------- */
 const OK=THREE_OK;
-let renderer,scene,cam,curve,tube,tubeSeg=1400,ball,halo,mat,beam,ray;
+let renderer,scene,cam,curve,tube,tubeSeg=1400,ball,mat,ray;
 const camPos=OK?new THREE.Vector3():{},camTgt=OK?new THREE.Vector3():{};
-/* Trace en traits d'épaisseur constante à l'écran (en pixels, quelle que soit la distance de la caméra), claire et froide pour se distinguer des courbes de niveau cuivrées */
-const FAT_V='attribute vec3 aStart,aEnd;attribute float aSel,aSide,aT;uniform vec2 uRes;uniform float uW,uCap;varying float vT,vSide;void main(){vT=aT;vSide=aSide;mat4 M=projectionMatrix*modelViewMatrix;vec4 a=M*vec4(aStart,1.),b=M*vec4(aEnd,1.);float nr=.1;if(a.w<nr&&b.w<nr){gl_Position=vec4(2.,2.,2.,1.);return;}if(a.w<nr)a=mix(a,b,(nr-a.w)/(b.w-a.w));if(b.w<nr)b=mix(b,a,(nr-b.w)/(a.w-b.w));vec2 sa=a.xy/a.w*uRes*.5,sb=b.xy/b.w*uRes*.5,d=sb-sa;float l=length(d);d=l>1e-4?d/l:vec2(1.,0.);bool e=aSel>.5;vec4 c=e?b:a;vec2 sc=e?sb:sa;sc+=d*(e?1.:-1.)*uCap*uW*.5;vec2 o=vec2(-d.y,d.x)*aSide*uW*.5;gl_Position=vec4((sc+o)/(uRes*.5)*c.w,c.z,c.w);}';
-const FAT_F='precision highp float;uniform vec3 uColor;uniform float uAlpha,uT,uMode,uLh,uSoft;varying float vT,vSide;void main(){float a=uAlpha;if(uMode>.5&&uMode<1.5){if(vT>uT)discard;}else if(uMode>1.5){float f=smoothstep(uT-uLh,uT,vT)*step(vT,uT);if(f<=0.)discard;a*=f;}else if(uMode<-.5){if(vT<uT)discard;}gl_FragColor=vec4(uColor,a*(1.-smoothstep(uSoft,1.,abs(vSide))));}';
+/* Câble (la cordée) : spline lisse en traits d'épaisseur constante à l'écran (pixels). Deux passes :
+   - le câble mat sur toute la trace (mode 0), bleu-noir discret ;
+   - l'onde lumineuse sur la partie parcourue (mode 1, uGlow) : cœur net et halo doux en travers, ondes d'énergie qui courent vers la tête (uTime, figées en mouvement réduit),
+     couleur cyan-bleu loin derrière qui vire au cuivre-or à la tête, éclat maximal à la tête. Elle avance et recule exactement avec le défilement (uT = position de la tête). */
+const FAT_V='attribute vec3 aStart,aEnd;attribute float aSel,aSide,aT;uniform vec2 uRes;uniform float uW,uCap,uLen;varying float vT,vSide,vS;'+
+  'void main(){vT=aT;vSide=aSide;vS=aT*uLen;mat4 M=projectionMatrix*modelViewMatrix;vec4 a=M*vec4(aStart,1.),b=M*vec4(aEnd,1.);float nr=.1;if(a.w<nr&&b.w<nr){gl_Position=vec4(2.,2.,2.,1.);return;}if(a.w<nr)a=mix(a,b,(nr-a.w)/(b.w-a.w));if(b.w<nr)b=mix(b,a,(nr-b.w)/(a.w-b.w));'+
+  'vec2 sa=a.xy/a.w*uRes*.5,sb=b.xy/b.w*uRes*.5,d=sb-sa;float l=length(d);d=l>1e-4?d/l:vec2(1.,0.);bool e=aSel>.5;vec4 c=e?b:a;vec2 sc=e?sb:sa;float W=uW+1.;sc+=d*(e?1.:-1.)*uCap*W*.5;vec2 o=vec2(-d.y,d.x)*aSide*W*.5;gl_Position=vec4((sc+o)/(uRes*.5)*c.w,c.z,c.w);}';
+const FAT_F='precision highp float;uniform vec3 uColor,uC2;uniform float uAlpha,uT,uMode,uW,uGlow,uTime,uLen,uBoost;varying float vT,vSide,vS;'+
+  'void main(){if(uMode>.5&&vT>uT)discard;float a=uAlpha;vec3 col=uColor;'+
+  'if(uGlow>.5){float d=abs(vSide),dh=max(0.,uT*uLen-vS);float core=exp(-d*d*70.),glow=exp(-d*d*9.)*.5,bloom=exp(-d*d*2.2)*.22;'+
+  'float wave=.6+.4*smoothstep(.35,1.,sin(vS*.16-uTime*5.));'+
+  'col=mix(uC2,uColor,smoothstep(0.,90.,dh))*uBoost;col=mix(min(col,vec3(1.)),vec3(1.),core*.3);a*=clamp((core+glow+bloom)*(.55*wave+.45),0.,1.);}'+
+  'else{a*=clamp(uW*.5+.5-abs(vSide)*(uW+1.)*.5,0.,1.);}'+
+  'if(a<=.003)discard;gl_FragColor=vec4(col,a);}';
 const FATS=[];
 function fatGeo(pts){const m=pts.length-1,S=new Float32Array(m*12),E=new Float32Array(m*12),sel=new Float32Array(m*4),sd=new Float32Array(m*4),tt=new Float32Array(m*4),idx=[];   // un quadrilatère par segment, découpé au plan proche de la caméra dans le shader
   for(let i=0;i<m;i++){const a=pts[i],b=pts[i+1];for(let k=0;k<4;k++){const v=i*4+k;S.set([a.x,a.y,a.z],v*3);E.set([b.x,b.y,b.z],v*3);sel[v]=k>>1;sd[v]=k&1?1:-1;tt[v]=(i+(k>>1))/m}
     const q=i*4;idx.push(q,q+1,q+2,q+1,q+3,q+2)}
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(S,3));g.setAttribute('aStart',new THREE.BufferAttribute(S,3));g.setAttribute('aEnd',new THREE.BufferAttribute(E,3));g.setAttribute('aSel',new THREE.BufferAttribute(sel,1));g.setAttribute('aSide',new THREE.BufferAttribute(sd,1));g.setAttribute('aT',new THREE.BufferAttribute(tt,1));g.setIndex(idx);return g}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(S,3));g.setAttribute('aStart',new THREE.BufferAttribute(S,3));g.setAttribute('aEnd',new THREE.BufferAttribute(E,3));g.setAttribute('aSel',new THREE.BufferAttribute(sel,1));g.setAttribute('aSide',new THREE.BufferAttribute(sd,1));g.setAttribute('aT',new THREE.BufferAttribute(tt,1));g.setIndex(idx);g.userData.m=m;return g}
 function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:o.add?THREE.AdditiveBlending:THREE.NormalBlending,vertexShader:FAT_V,fragmentShader:FAT_F,
-    uniforms:{uRes:{value:new THREE.Vector2(1,1)},uW:{value:o.w},uCap:{value:o.cap==null?1:o.cap},uColor:{value:new THREE.Color(o.c)},uAlpha:{value:o.a},uT:{value:0},uMode:{value:o.mode},uLh:{value:.08},uSoft:{value:o.soft==null?.45:o.soft}}});
+    uniforms:{uRes:{value:new THREE.Vector2(1,1)},uW:{value:o.w},uCap:{value:o.cap==null?1:o.cap},uColor:{value:new THREE.Color(o.c)},uC2:{value:new THREE.Color(o.c2||o.c)},uAlpha:{value:o.a},uT:{value:0},uMode:{value:o.mode},
+      uLen:{value:geo.userData.len},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
   m.userData.cw=o.w;m.userData.o=o;FATS.push(m);const mesh=new THREE.Mesh(geo,m);mesh.frustumCulled=false;mesh.renderOrder=o.order||2;scene.add(mesh);return mesh}
-const CLEAR=10.5;   // hauteur du bloc au-dessus de la trace : elle passe dessous
+const CLEAR=8.6,GAP=.28;   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 function paintBlock(b){
-  const c=b.canvas,x=c.getContext('2d'),W=c.width,Hh=c.height,pr=b.proj;
+  const c=b.canvas,x=c.getContext('2d'),W=c.width,Hh=c.height,pr=Object.assign({},b.proj,{mat:'stone'});   // une seule matière : pierre mate
   let seed=b.proj.title.length*13+7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
   if(pr.mat==='stone'){
     const g=x.createLinearGradient(0,0,W,Hh);g.addColorStop(0,'#BDB6AA');g.addColorStop(1,'#A29B8F');x.fillStyle=g;x.fillRect(0,0,W,Hh);
     for(let i=0;i<5000;i++){x.fillStyle=rnd()<.5?'rgba(255,255,255,'+(.03+rnd()*.05)+')':'rgba(30,26,20,'+(.04+rnd()*.07)+')';x.fillRect(rnd()*W,rnd()*Hh,1+rnd()*2,1+rnd()*2)}
     x.lineWidth=1.3;for(let i=0;i<9;i++){x.strokeStyle='rgba(235,228,215,'+(.12+rnd()*.12)+')';x.beginPath();let px=rnd()*W,py=rnd()*Hh;x.moveTo(px,py);for(let k=0;k<7;k++){px+=30+rnd()*50;py+=(rnd()-.5)*60;x.lineTo(px,py)}x.stroke()}
     const gl=x.createLinearGradient(0,0,W,Hh*.6);gl.addColorStop(0,'rgba(255,255,255,.22)');gl.addColorStop(.35,'rgba(255,255,255,0)');x.fillStyle=gl;x.fillRect(0,0,W,Hh);
-  }else if(pr.mat==='metal'){
-    const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,'#A9AFB5');g.addColorStop(.5,'#CDD2D6');g.addColorStop(1,'#A5AAB0');x.fillStyle=g;x.fillRect(0,0,W,Hh);
-    for(let i=0;i<1400;i++){const y=rnd()*Hh,px=rnd()*W,l=40+rnd()*260;x.strokeStyle=(rnd()<.5?'rgba(255,255,255,':'rgba(0,0,0,')+(.04+rnd()*.08)+')';x.lineWidth=.6+rnd()*1.1;x.beginPath();x.moveTo(px,y);x.lineTo(px+l,y+(rnd()-.5));x.stroke()}
-    x.strokeStyle='rgba(0,0,0,.35)';x.lineWidth=3;x.strokeRect(14,14,W-28,Hh-28);x.strokeStyle='rgba(255,255,255,.25)';x.lineWidth=1.5;x.strokeRect(17,17,W-34,Hh-34);
-    [[26,26],[W-26,26],[26,Hh-26],[W-26,Hh-26]].forEach(([sx,sy])=>{x.fillStyle='#5E6368';x.beginPath();x.arc(sx,sy,7,0,6.283);x.fill();x.strokeStyle='rgba(255,255,255,.4)';x.lineWidth=1.5;x.beginPath();x.arc(sx,sy,7,0,6.283);x.stroke()});
+  }else if(pr.mat==='metal'){   // schiste : gris bleuté, feuilleté en strates
+    const g=x.createLinearGradient(0,0,W*.3,Hh);g.addColorStop(0,'#B4BABD');g.addColorStop(1,'#979EA2');x.fillStyle=g;x.fillRect(0,0,W,Hh);
+    for(let i=0;i<60;i++){const y=rnd()*Hh;x.strokeStyle=(rnd()<.5?'rgba(255,255,255,':'rgba(20,28,34,')+(.05+rnd()*.08)+')';x.lineWidth=1+rnd()*3;x.beginPath();x.moveTo(0,y);for(let px=0;px<=W;px+=32)x.lineTo(px,y+Math.sin(px*.012+i)*6+(rnd()-.5)*3);x.stroke()}
+    for(let i=0;i<3500;i++){x.fillStyle=rnd()<.5?'rgba(255,255,255,'+(.03+rnd()*.05)+')':'rgba(20,26,30,'+(.04+rnd()*.06)+')';x.fillRect(rnd()*W,rnd()*Hh,1+rnd()*2,1+rnd()*2)}
   }else if(pr.mat==='ghost'){
     const g=x.createLinearGradient(0,0,W,Hh);g.addColorStop(0,'#22344D');g.addColorStop(.5,'#16233A');g.addColorStop(1,'#101B2E');x.fillStyle=g;x.fillRect(0,0,W,Hh);
     x.strokeStyle='rgba(150,190,230,.10)';x.lineWidth=1;for(let i=-Hh;i<W;i+=26){x.beginPath();x.moveTo(i,Hh);x.lineTo(i+Hh,0);x.stroke()}
     const gl=x.createLinearGradient(0,0,W,Hh*.6);gl.addColorStop(0,'rgba(255,255,255,.20)');gl.addColorStop(.4,'rgba(255,255,255,0)');x.fillStyle=gl;x.fillRect(0,0,W,Hh);
     x.setLineDash([14,12]);x.lineWidth=3;x.strokeStyle='rgba(20,8,2,.55)';x.strokeRect(25,25,W-50,Hh-50);x.strokeStyle='#F0A27A';x.strokeRect(23.5,23.5,W-50,Hh-50);x.setLineDash([]);
-  }else{
-    x.fillStyle='#7A4A2B';x.fillRect(0,0,W,Hh);
-    const g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'rgba(255,190,130,.10)');g.addColorStop(1,'rgba(0,0,0,.25)');x.fillStyle=g;x.fillRect(0,0,W,Hh);
-    for(let i=0;i<8000;i++){x.fillStyle=rnd()<.6?'rgba(30,14,5,'+(.10+rnd()*.15)+')':'rgba(255,205,150,'+(.04+rnd()*.06)+')';x.beginPath();x.arc(rnd()*W,rnd()*Hh,.5+rnd()*1.4,0,6.283);x.fill()}
-    x.setLineDash([16,11]);x.lineWidth=3;x.strokeStyle='rgba(20,8,2,.6)';x.strokeRect(25,25,W-50,Hh-50);x.strokeStyle='#E8D8B8';x.strokeRect(23.5,23.5,W-50,Hh-50);x.setLineDash([]);
+  }else{   // grès : ocre chaud, grain de sable et veines
+    const g=x.createLinearGradient(0,0,W,Hh);g.addColorStop(0,'#D2B38C');g.addColorStop(1,'#BC9A70');x.fillStyle=g;x.fillRect(0,0,W,Hh);
+    for(let i=0;i<7000;i++){x.fillStyle=rnd()<.55?'rgba(70,40,15,'+(.05+rnd()*.08)+')':'rgba(255,240,215,'+(.05+rnd()*.07)+')';x.fillRect(rnd()*W,rnd()*Hh,1+rnd()*1.5,1+rnd()*1.5)}
+    for(let i=0;i<7;i++){const y=rnd()*Hh;x.strokeStyle='rgba(150,95,50,'+(.10+rnd()*.1)+')';x.lineWidth=4+rnd()*8;x.beginPath();x.moveTo(0,y);x.bezierCurveTo(W*.3,y+(rnd()-.5)*60,W*.7,y+(rnd()-.5)*60,W,y+(rnd()-.5)*40);x.stroke()}
   }
   // typographie lisible, contraste visé AAA : encre pleine selon la matière (noir sur pierre et métal clairs, blanc sur cuir et verre sombre), graisse 600 à 700, tailles agrandies
-  const TX={stone:{ink:'#0A0805',hi:'rgba(255,255,255,.35)',fill:'rgba(255,255,255,.30)'},metal:{ink:'#08090A',hi:'rgba(255,255,255,.4)',fill:'rgba(255,255,255,.30)'},leather:{ink:'#FFFFFF',sh:'rgba(20,8,2,.85)',fill:'rgba(0,0,0,.28)'},ghost:{ink:'#FFFFFF',sh:'rgba(0,0,0,.8)',fill:'rgba(0,0,0,.28)',stage:'#FFC4A0'}}[pr.mat];
+  const TX={stone:{ink:'#0A0805',hi:'rgba(255,255,255,.35)',fill:'rgba(255,255,255,.30)'},metal:{ink:'#05080A',hi:'rgba(255,255,255,.4)',fill:'rgba(255,255,255,.30)'},leather:{ink:'#140A03',hi:'rgba(255,240,220,.4)',fill:'rgba(255,248,236,.30)'},ghost:{ink:'#FFFFFF',sh:'rgba(0,0,0,.8)',fill:'rgba(0,0,0,.28)',stage:'#FFC4A0'}}[pr.mat];
   x.textAlign='center';x.textBaseline='alphabetic';
   const SERIF='"Cordée Serif", "DM Serif Display", Georgia, serif',MONO='"JetBrains Mono", monospace',cx=W/2,ty=Hh/2,oy=(pr.tags&&pr.tags.length)?-30:0;x.save();x.translate(0,oy);
   let size=58;x.font='italic 600 '+size+'px '+SERIF;while(x.measureText(pr.title).width>W-90&&size>28){size-=3;x.font='italic 600 '+size+'px '+SERIF}
@@ -2864,10 +2900,10 @@ function initScene(){
   for(let j=0;j<=NZ;j++)for(let i=0;i<=NX;i++){const k=j*(NX+1)+i;pos.setY(k,H[k]);pos.setX(k,bx0+i*cell);pos.setZ(k,bz0+j*cell)}
   mat=new THREE.ShaderMaterial({
     extensions:{derivatives:true},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
-    uniforms:{cLo:{value:new THREE.Vector3(.78,.44,.18)},cHi:{value:new THREE.Vector3(1,.70,.42)},cGrid:{value:new THREE.Vector3(.35,.55,.75)},cstep:{value:20*SC*EX},uMin:{value:hmin},uMax:{value:hmax},uGlow:{value:1},uC:{value:new THREE.Vector2((bx0+bx1)/2,(bz0+bz1)/2)},uR0:{value:Math.round(.8*RFAR)},uR1:{value:RFAR}},
+    uniforms:{cLo:{value:new THREE.Vector3(.78,.44,.18)},cHi:{value:new THREE.Vector3(1,.70,.42)},cGrid:{value:new THREE.Vector3(.35,.55,.75)},cstep:{value:20*SC*EX},uMin:{value:hmin},uMax:{value:hmax},uGlow:{value:1},uC:{value:new THREE.Vector2((bx0+bx1)/2,(bz0+bz1)/2)},uR0:{value:Math.round(.8*RFAR)},uR1:{value:RFAR},uF:{value:new THREE.Vector2()},uFk:{value:0},uFR:{value:90},cF:{value:new THREE.Vector3(1,.28,.08)}},
     vertexShader:'varying float vH;varying vec3 vW;varying vec3 vView;void main(){vH=position.y;vW=position;vec4 mv=modelViewMatrix*vec4(position,1.);vView=mv.xyz;gl_Position=projectionMatrix*mv;}',
     fragmentShader:`precision highp float;
-      uniform vec3 cLo,cHi,cGrid;uniform float cstep,uMin,uMax,uGlow,uR0,uR1;uniform vec2 uC;
+      uniform vec3 cLo,cHi,cGrid,cF;uniform float cstep,uMin,uMax,uGlow,uR0,uR1,uFk,uFR;uniform vec2 uC,uF;
       varying float vH;varying vec3 vW;varying vec3 vView;
       void main(){
         float t=smoothstep(uMin,uMax,vH);
@@ -2878,78 +2914,96 @@ function initScene(){
         float depthFade=1.-smoothstep(240.,640.,length(vView));
         vec3 col=mix(cLo,cHi,t)*(.7+.6*master)*uGlow;
         col=mix(col,cGrid,grid*(1.-line)*.6);
-        float a=clamp(line*.55+master*.85+grid*.13,0.,1.)*edge*depthFade;
+        float fz=uFk*(1.-smoothstep(uFR*.25,uFR,length(vW.xz-uF)));   // étape du projet affiché : son relief s'allume en cuivre
+        col=mix(col,cF*(1.1+.6*master),fz);
+        float a=clamp((line*.55+master*.85+grid*.13)*(1.+fz*1.4)+line*fz*.25,0.,1.)*edge*depthFade;
         gl_FragColor=vec4(col,a);}`
   });
   const tm=new THREE.Mesh(g,mat);tm.renderOrder=2;scene.add(tm);
   const pts=P.map(p=>new THREE.Vector3(p.x,Math.max(p.y,terrainAt(p.x,p.z)+.8)+1.6,p.z));
   curve=new THREE.CatmullRomCurve3(pts,false,'centripetal');
   const pathPts=Array.from({length:tubeSeg+1},(_,i)=>curve.getPointAt(i/tubeSeg)),fgeo=fatGeo(pathPts);
-  // de la plus large à la plus fine : halo émeraude de toute la trace, partie à venir en blanc givre atténué, partie parcourue en blanc givre plein, lueur émeraude autour de la position
-  fatLine(fgeo,{w:24,c:0x00F5A0,a:.13,mode:0,add:true,soft:0,cap:0,order:1});
-  fatLine(fgeo,{w:3,c:0xA9BDC4,a:1,mode:-1,order:2});
-  tube=fatLine(fgeo,{w:4.6,c:0xF2FBF8,a:1,mode:1,order:3});
-  beam=fatLine(fgeo,{w:14,c:0x00F5A0,a:.7,mode:2,add:true,soft:0,cap:0,order:3});
-  ball=new THREE.Mesh(new THREE.SphereGeometry(2.4,20,14),new THREE.MeshBasicMaterial({color:0xE26D3B}));scene.add(ball);
-  const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);
-  gr.addColorStop(0,'rgba(226,109,59,.9)');gr.addColorStop(.35,'rgba(226,109,59,.28)');gr.addColorStop(1,'rgba(226,109,59,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
-  halo=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));halo.scale.set(34,34,1);scene.add(halo);
+  fgeo.userData.len=curve.getLength();
+  // câble inactif : bleu ardoise mat #1E293B sur toute la trace (3 px) ; pulse actif sur la partie parcourue : cyan électrique #00F2FE à la tête vers bleu glacier #38BDF8 derrière,
+  // émissif ×2,5 et halo large dans le shader (« fil chaud / fibre optique sous tension »), à la place d'un Bloom en post-traitement (voir docs/admin-boucle.md)
+  fatLine(fgeo,{w:3,c:0x1E293B,cl:0x1E293B,a:1,al:1,mode:0,order:2});
+  tube=fatLine(fgeo,{w:26,c:0x38BDF8,c2:0x00F2FE,cl:0x0369A1,c2l:0x0891B2,a:1,al:1,boost:2.5,boostl:1,mode:1,glow:true,add:true,cap:0,order:3});
+  /* boule travaillée : perle cuivre laquée (vernis, reflets de l'environnement) gravée de courbes de niveau qui roulent avec elle, enfilée sur le wire entre deux bagues givrées orientées sur la trace */
+  {const bc=document.createElement('canvas');bc.width=512;bc.height=256;const x=bc.getContext('2d'),g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'#F08A55');g.addColorStop(.5,'#E26D3B');g.addColorStop(1,'#B8481F');x.fillStyle=g;x.fillRect(0,0,512,256);
+    x.lineWidth=2;for(let k=0;k<14;k++){x.strokeStyle=k%5===0?'rgba(255,226,200,.7)':'rgba(120,40,12,.45)';x.beginPath();for(let i=0;i<=64;i++){const u=i/64*512,v=18+k*16+Math.sin(i/64*Math.PI*4+k*.9)*6+Math.sin(i/64*Math.PI*10+k)*2;i?x.lineTo(u,v):x.moveTo(u,v)}x.stroke()}
+    const tx=new THREE.CanvasTexture(bc);tx.anisotropy=4;const envB=makeEnvP();
+    ball=new THREE.Group();
+    const core=new THREE.Mesh(new THREE.SphereGeometry(1.7,40,28),new THREE.MeshPhysicalMaterial({map:tx,roughness:.32,metalness:.15,clearcoat:1,clearcoatRoughness:.12,envMap:envB,envMapIntensity:1.2,emissive:0x3A1206,emissiveIntensity:.35}));
+    const ringM=new THREE.MeshStandardMaterial({color:0xE6EEF0,roughness:.22,metalness:.9,envMap:envB,envMapIntensity:1.4});
+    [-1,1].forEach(sg=>{const r=new THREE.Mesh(new THREE.TorusGeometry(.62,.16,12,32),ringM);r.position.z=sg*1.52;ball.add(r)});   // bagues : l'axe du tore suit z, donc la trace
+    ball.add(core);ball.userData.core=core;scene.add(ball)}
   buildBlocks();
 }
 function buildBlocks(){
   const env=makeEnvP();
-  const shp=new THREE.Shape(),w=8,h=6,r=1.6;
-  shp.moveTo(-w+r,-h);shp.lineTo(w-r,-h);shp.quadraticCurveTo(w,-h,w,-h+r);shp.lineTo(w,h-r);shp.quadraticCurveTo(w,h,w-r,h);shp.lineTo(-w+r,h);shp.quadraticCurveTo(-w,h,-w,h-r);shp.lineTo(-w,-h+r);shp.quadraticCurveTo(-w,-h,-w+r,-h);
-  const geo=new THREE.ExtrudeGeometry(shp,{depth:5,bevelEnabled:true,bevelThickness:.7,bevelSize:.7,bevelSegments:3,curveSegments:6});
+  /* Cairn sobre, une seule matière (pierre mate) : 2 pierres sous le wire, un jeu où il passe, 2 pierres au-dessus, puis la pierre gravée (contour irrégulier, bords arrondis) */
+  const w=8,h=6,stoneShape=seed=>{const s=new THREE.Shape(),N=40;for(let i=0;i<N;i++){const a=i/N*Math.PI*2,c=Math.cos(a),sn=Math.sin(a),e=.25,k=1+.045*Math.sin(a*3+seed)+.03*Math.sin(a*7+seed*2.3);
+      const x=Math.sign(c)*Math.pow(Math.abs(c),e)*w*k,y=Math.sign(sn)*Math.pow(Math.abs(sn),e)*h*k;i?s.lineTo(x,y):s.moveTo(x,y)}s.closePath();return s};
+  const rockGeo=seed=>{const g=new THREE.IcosahedronGeometry(1,2),p=g.attributes.position,v=new THREE.Vector3();   // galet facetté : bruit stable par position (sommets partagés identiques), dessus et dessous aplatis pour l'empilement
+    for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);const n=1+.16*(hash(v.x*2.7+seed,v.z*2.7+v.y*1.9)-.5);v.multiplyScalar(n);v.y=clamp(v.y,-.62,.7);p.setXYZ(i,v.x,v.y,v.z)}
+    g.computeVertexNormals();return g};
+  const ROCKS=[0,1,2,3].map(i=>rockGeo(i*3.7+1));
+  const STONE=0x9A9387;
   const sc=document.createElement('canvas');sc.width=sc.height=128;{const x=sc.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(0,0,0,.65)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
   const shTex=new THREE.CanvasTexture(sc);
-  const cfg={stone:{rough:.32,met:.05},metal:{rough:.72,met:.5},leather:{rough:.62,met:0},ghost:{rough:.18,met:.2}};
   STOPS.forEach((st,si)=>{
     if(!st.proj)return;
     const pr=st.proj,cnv=document.createElement('canvas');cnv.width=512;cnv.height=384;
     const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=8;tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
-    const ghost=pr.mat==='ghost',top=new THREE.MeshStandardMaterial({map:tex,roughness:cfg[pr.mat].rough,metalness:cfg[pr.mat].met,envMap:env,envMapIntensity:pr.mat==='metal'?.45:1.1,transparent:ghost,opacity:ghost?.88:1,depthWrite:!ghost});
-    const side=new THREE.MeshStandardMaterial({color:ghost?0x2A3C58:pr.mat==='leather'?0x4A2A16:pr.mat==='metal'?0x6B7076:0x57524A,roughness:.6,metalness:pr.mat==='metal'?.8:.05,envMap:env,envMapIntensity:.8,transparent:ghost,opacity:ghost?.88:1,depthWrite:!ghost});
+    const geo=new THREE.ExtrudeGeometry(stoneShape(si*1.9),{depth:1.4,bevelEnabled:true,bevelThickness:1.1,bevelSize:1,bevelSegments:4,curveSegments:6});
+    const top=new THREE.MeshStandardMaterial({map:tex,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
+    const side=new THREE.MeshStandardMaterial({color:STONE,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
     const mesh=new THREE.Mesh(geo,[top,side]);mesh.rotation.x=-Math.PI/2+.42;mesh.position.y=0;
     const holder=new THREE.Group();holder.add(mesh);holder.scale.setScalar(1.3);scene.add(holder);
     const t=st.t,pt=curve.getPointAt(t),a=curve.getPointAt(clamp(t-.03)),b=curve.getPointAt(clamp(t+.03));
     let dx=b.x-a.x,dz=b.z-a.z;const dl=Math.hypot(dx,dz)||1;dx/=dl;dz/=dl;
-    const side1=1,nx=-dz,nz=dx;
+    const nx=-dz,nz=dx,side1=1;   // le cairn est posé sur la trace : le wire le traverse
     const bx=pt.x,bz=pt.z,by=pt.y+CLEAR;
     holder.position.set(bx,by,bz);
     const camAt=curve.getPointAt(clamp(t-.03));
     const faceYaw=Math.atan2(camAt.x-bx,camAt.z-bz);holder.rotation.y=faceYaw;
     const shadow=new THREE.Mesh(new THREE.PlaneGeometry(34,29),new THREE.MeshBasicMaterial({map:shTex,transparent:true,depthWrite:false,opacity:.55}));
     shadow.rotation.x=-Math.PI/2;shadow.position.set(bx,terrainAt(bx,bz)+.4,bz);scene.add(shadow);
-    // balise d'altitude : mât et anneau lumineux
-    const pole=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,28,8),new THREE.MeshBasicMaterial({color:0xE26D3B,transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false}));
-    const gy0=terrainAt(bx,bz),ph=Math.max(4,by-gy0);pole.scale.y=ph/28;pole.position.set(bx,gy0+ph/2,bz);scene.add(pole);
-    const ring=new THREE.Mesh(new THREE.RingGeometry(12,13.2,48),new THREE.MeshBasicMaterial({color:0xE26D3B,transparent:true,opacity:.55,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));
-    ring.rotation.x=-Math.PI/2;ring.position.set(bx,terrainAt(bx,bz)+.6,bz);scene.add(ring);
-    const bk={holder,mesh,shadow,pole,ring,proj:pr,base:by,lift:0,stopIdx:si,tex,canvas:cnv,faceYaw,pos:new THREE.Vector3(bx,by,bz),t,ty:pt.y,pt:new THREE.Vector3(pt.x,0,pt.z),n:[nx*side1,nz*side1],camAt:new THREE.Vector3(camAt.x,0,camAt.z)};
+    // pierres du cairn (placées par placeBlocks)
+    const rockM=new THREE.MeshStandardMaterial({color:STONE,roughness:.96,metalness:0,flatShading:true,envMap:env,envMapIntensity:.12,transparent:true});
+    const cairn=new THREE.Group();for(let k=0;k<4;k++){const m=new THREE.Mesh(ROCKS[(k+si)%4],rockM);m.rotation.y=(k*2.1+si)%6.283;cairn.add(m)}scene.add(cairn);
+    // perle enfilée sur le wire, dans le jeu : pleine sur le cairn actif, simple point sur les cairns passés, absente sur ceux à venir
+    const bead=new THREE.Mesh(new THREE.SphereGeometry(.42,18,12),new THREE.MeshBasicMaterial({color:0xF2FBF8,transparent:true}));{const bp=curve.getPointAt(clamp(t-11/curve.getLength()));bead.position.copy(bp)}scene.add(bead);   // à la sortie du cairn, côté caméra : visible, et enfilée sur le wire
+    const bk={holder,mesh,shadow,cairn,bead,mats:[top,side,rockM],vis:si===1?1:.3,proj:pr,base:by,lift:0,stopIdx:si,tex,canvas:cnv,faceYaw,pos:new THREE.Vector3(bx,by,bz),t,ty:pt.y,pt:new THREE.Vector3(pt.x,0,pt.z),n:[nx*side1,nz*side1],camAt:new THREE.Vector3(camAt.x,0,camAt.z)};
     blocks.push(bk);paintBlock(bk);
   });
+  placeBlocks();
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>blocks.forEach(paintBlock));
 }
 const baseFov=()=>cam.aspect<.9?54:42;
 /* Sur écran étroit : blocs plus près du sentier et champ de vision plus large, pour qu'ils restent dans l'image */
 function placeBlocks(){
   blocks.forEach(bk=>{
-    const bx=bk.pt.x,bz=bk.pt.z,gy=terrainAt(bx,bz),ph=Math.max(4,bk.ty+CLEAR-gy);
+    const bx=bk.pt.x,bz=bk.pt.z,gy=terrainAt(bx,bz);
     bk.base=bk.ty+CLEAR;bk.faceYaw=Math.atan2(bk.camAt.x-bx,bk.camAt.z-bz);
     bk.holder.position.set(bx,bk.base,bz);bk.pos.set(bx,bk.base,bz);
-    bk.shadow.position.set(bx,gy+.4,bz);bk.pole.scale.y=ph/28;bk.pole.position.set(bx,gy+ph/2,bz);bk.ring.position.set(bx,gy+.6,bz);
+    bk.shadow.position.set(bx,gy+.4,bz);
+    // 2 pierres sous le wire (du sol, un peu enterrées, jusqu'au jeu), 2 au-dessus (du jeu jusque sous la pierre gravée) ; dessus et dessous plats : le jeu est net
+    const wy=bk.ty,lo0=Math.min(gy-.5,wy-GAP/2-1.2),lo1=wy-GAP/2,hi0=wy+GAP/2,hi1=Math.max(hi0+1.6,bk.base-3.4);
+    const span=[[lo0,(lo0+lo1)/2,6.4],[(lo0+lo1)/2,lo1,5.6],[hi0,(hi0+hi1)/2,5.2],[(hi0+hi1)/2,hi1,4.4]];
+    bk.cairn.children.forEach((m,k)=>{const [y0,y1,r]=span[k],th=y1-y0,sy=th/1.32;   // la géométrie va de −0,62 à +0,7 (1,32)
+      m.scale.set(r*(1+.08*Math.sin(k*2.3)),sy,r*(.86+.08*Math.cos(k*1.7)));m.position.set(bx+Math.sin(k*2.9)*.35,y0+.62*sy,bz+Math.cos(k*3.3)*.35)});
   });
 }
 function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return;renderer.setSize(w,h,false);{const bs=renderer.getDrawingBufferSize(new THREE.Vector2()),k=bs.x/w;FATS.forEach(m=>{m.uniforms.uRes.value.copy(bs);m.uniforms.uW.value=m.userData.cw*k})}cam.aspect=w/h;if(!staticMode)cam.fov=baseFov();cam.updateProjectionMatrix();placeBlocks()}
 
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
 const v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
-let curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
+let stopW=0,curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
 function rig(p,dt,snap,intro=0){
   const t=param(p);
   let aw=0,bd=9;for(let i=0;i<NS;i++){const d=Math.abs(p-(STOPS[i].a+STOPS[i].b)/2);if(d<bd){bd=d;aw=i}}
-  const mw=stopWeight(aw,p);activeStop=aw;
+  const mw=stopWeight(aw,p);activeStop=aw;stopW=mw;
   const pt=curve.getPointAt(clamp(t)),a=curve.getPointAt(clamp(t-.05)),b=curve.getPointAt(clamp(t+.05));
   let dx=b.x-a.x,dz=b.z-a.z;const dl=Math.hypot(dx,dz)||1;dx/=dl;dz/=dl;
   const ahead=curve.getPointAt(clamp(t+.035));
@@ -2958,7 +3012,8 @@ function rig(p,dt,snap,intro=0){
   const gh=terrainAt(v1.x,v1.z)+22;if(v1.y<gh)v1.y=gh;
   v2.copy(ahead);v2.y+=14;   // regard qui garde les crêtes dans l'image
   const blk=blocks.find(x=>x.stopIdx===aw);
-  if(blk&&mw>0){v2.lerp(blk.pos,mw*(cam.aspect<.9?1:.55))}   // téléphone : à l'arrêt, la caméra vise exactement le bloc (centré, jamais rogné sur le côté)
+  if(blk&&mw>0){v2.lerp(blk.pos,mw*(cam.aspect<.9?1:.55))}
+  {const u=mat.uniforms,fk=blk&&STOPS[aw].proj?mw:0;if(blk)u.uF.value.set(blk.pos.x,blk.pos.z);u.uFk.value+=(fk-u.uFk.value)*(snap?1:1-Math.exp(-dt*4))}   // relief de l'étape : s'allume à l'arrêt, s'éteint en repartant   // téléphone : à l'arrêt, la caméra vise exactement le bloc (centré, jamais rogné sur le côté)
   const k=snap?1:1-Math.exp(-dt*5);
   if(intro>.001){
     // début : vue de dessus à hauteur fixe (KAPPA x rayon), centrée sous le cadran ; le champ de vision est celui qui donne au sol la taille du cadran : les courbes de la carte recouvrent celles du verre
@@ -2976,19 +3031,28 @@ function rig(p,dt,snap,intro=0){
     cam.position.copy(camPos);cam.up.set(0,1,0);cam.lookAt(camTgt);
     if(!staticMode&&Math.abs(cam.fov-baseFov())>.01){cam.fov=baseFov();cam.updateProjectionMatrix()}
   }
-  ball.position.set(pt.x,pt.y+2.2,pt.z);halo.position.copy(ball.position);
-  const nowS=performance.now()/1000;FATS.forEach(m=>{m.uniforms.uT.value=clamp(t);m.uniforms.uLh.value=.08*(1+.14*Math.sin(nowS*3))});
+  // à l'arrêt sur un cairn, la boule se pose sur le wire juste devant lui (côté caméra) : elle est la perle du cairn actif, jamais enfouie dans les pierres
+  const tb=clamp(t-(STOPS[aw].proj?mw*11/curve.getLength():0));
+  ball.position.copy(curve.getPointAt(tb));ball.scale.setScalar(lerp(1,.62,sm(0,.03,t)));   // boule au départ, perle ensuite
+  {const tg=curve.getTangentAt(clamp(tb,.0005,.9995));v3.copy(ball.position).add(tg);ball.lookAt(v3);ball.userData.core.rotation.x=tb*curve.getLength()/(1.7*ball.scale.x)}   // orientée sur la trace, elle roule en avançant
+  FATS.forEach(m=>{m.uniforms.uT.value=tb;m.uniforms.uTime.value=reduce?0:tNow});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
   blocks.forEach((bk,i)=>{
     const sel=(hoverIdx===bk.stopIdx||pinnedIdx===bk.stopIdx)?1:0,act=(aw===bk.stopIdx)?mw*.5:0;
     bk.lift+=(Math.max(sel,act)-bk.lift)*(1-Math.exp(-dt*7));
     const l=ease(bk.lift);
-    bk.holder.position.y=bk.base+l*5.4;
+    bk.holder.position.y=bk.base+l*2.6;   // la pierre gravée se soulève un peu du cairn
     bk.shadow.scale.setScalar(1+.25*l);bk.shadow.material.opacity=.6-.3*l;
     bk.holder.rotation.y=bk.faceYaw+clamp((curT-bk.t)*8,-.55,.55)*.5;
     bk.mesh.rotation.x=-Math.PI/2+.42-.12*l;
-    bk.pole.material.opacity=.45+.4*l;bk.ring.material.opacity=.35+.45*l;
+    // état : cairn actif à 100 % (la boule posée devant lui fait la perle), passés à 80 % avec un point, à venir à 30 %
+    const st=bk.stopIdx===aw?2:bk.stopIdx<aw?1:0,goal=[.3,.8,1][st];
+    bk.vis+=(goal-bk.vis)*(snap?1:1-Math.exp(-dt*6));
+    bk.mats.forEach(m=>{m.opacity=bk.vis;m.depthWrite=bk.vis>.97});
+    {const on=st===2;bk.mesh.renderOrder=on?10:0;if(bk.mats[0].depthTest===on){bk.mats[0].depthTest=bk.mats[1].depthTest=!on}}   // la pierre gravée du cairn actif passe devant le wire et les courbes : son texte reste lisible
+    const bs=[0,.38,0][st];   // cairn actif : la boule elle-même fait la perle
+    bk.bead.scale.setScalar(Math.max(.001,bk.bead.scale.x+(bs-bk.bead.scale.x)*(snap?1:1-Math.exp(-dt*6))));bk.bead.visible=bk.bead.scale.x>.02;
   });
 }
 
@@ -3001,11 +3065,11 @@ let parcLt=null;
 function parcTheme(L){   // carte de jour : relief en teintes cuivre foncé en mélange normal (l'additif s'efface sur fond clair), trace encre
   if(!mat)return;parcLt=L;
   mat.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;mat.needsUpdate=true;
-  mat.uniforms.cLo.value.set(...(L?[.55,.22,.07]:[.78,.44,.18]));mat.uniforms.cHi.value.set(...(L?[.80,.38,.13]:[1,.70,.42]));mat.uniforms.cGrid.value.set(...(L?[.20,.34,.48]:[.35,.55,.75]));
+  mat.uniforms.cLo.value.set(...(L?[.55,.22,.07]:[.78,.44,.18]));mat.uniforms.cHi.value.set(...(L?[.80,.38,.13]:[1,.70,.42]));mat.uniforms.cGrid.value.set(...(L?[.20,.34,.48]:[.35,.55,.75]));mat.uniforms.cF.value.set(...(L?[.62,.12,.03]:[1,.28,.08]));
   FATS.forEach(m=>{const o=m.userData.o;if(!o)return;
-    m.blending=(o.add&&!L)?THREE.AdditiveBlending:THREE.NormalBlending;m.needsUpdate=true;
-    const c=L?(o.add?0x0E9C74:o.mode<0?0x6F8590:0x0B2E3A):o.c;m.uniforms.uColor.value.set(c);m.uniforms.uAlpha.value=L&&o.add?o.a*.8:o.a});
-  if(halo){halo.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;halo.material.opacity=L?.55:1;halo.material.needsUpdate=true}
+    m.blending=(o.add&&!L)?THREE.AdditiveBlending:THREE.NormalBlending;m.needsUpdate=true;   // l'additif s'efface sur fond clair
+    m.uniforms.uColor.value.set(L?o.cl:o.c);m.uniforms.uC2.value.set(L?(o.c2l||o.cl):(o.c2||o.c));m.uniforms.uAlpha.value=L?o.al:o.a;m.uniforms.uBoost.value=L?(o.boostl||1):(o.boost||1)});
+  blocks.forEach(b=>{b.bead.material.color.set(L?0x0B2E3A:0xF2FBF8)});
 }
 function updateSky(p){
   if(parcLt!==(theme==='light'))parcTheme(theme==='light');
@@ -3051,8 +3115,27 @@ function gotoStop(i){const s=STOPS[i];cinematicTo(PC0+PCW*(s.a+s.b)/2)}
 const mapTot=$('#mapTot');let totK=-1,totG=-1;
 const mK=$('#pmKm'),mT=$('#pmTtl'),m1=$('#pm1'),m1l=$('#pm1l'),m2=$('#pm2'),m2l=$('#pm2l'),m3=$('#pm3'),m3l=$('#pm3l'),plMore=$('#plMore');
 const plDock=plMore.parentElement;
-function openStop(id,opener){if(id==='next'){jumpTo(.845);live.textContent='Contact. Posons le sac.';return}openProject(id,opener)}   // un seul geste par étape : ouvrir la fiche (la dernière étape mène au contact)
+function openStop(id,opener){if(id==='next'){jumpTo(.845);live.textContent='Contact. Posons le sac.';return}const pr=PROJECTS.find(p=>p.id===id);openProject(id,opener,pr?'Km '+fmtN(kmAt(pr.t))+' · Altitude '+fmtN(altAt(pr.t))+' m':'')}   // un seul geste par étape : ouvrir la fiche (la dernière étape mène au contact)
 plMore.addEventListener('click',()=>openStop(plMore.dataset.id,plMore));
+/* Fiche d'étape : à l'arrêt sur un cairn (caméra posée), un résumé compact apparaît sur le côté (en bas sur téléphone), sans prendre le focus ni bloquer le défilement ;
+   « Fiche complète » ouvre la fenêtre détaillée. Elle disparaît en repartant. Le visiteur peut la masquer pour la session (le bouton « Voir la fiche » revient). */
+const sCard=$('#stopCard'),sMore=$('#scMore'),s2el=$('#s2');let cardIdx=-1,cardOff=false;try{cardOff=sessionStorage.getItem('asc-card-off')==='1'}catch(e){}
+function fillCard(pr){const f=PROJECT_INFO[pr.id];
+  $('#scE').innerHTML=esc(pr.stage+' · '+pr.place)+'<span class="sr-only"> · </span><span class="gps">'+esc('Km '+fmtN(kmAt(pr.t))+' · Altitude '+fmtN(altAt(pr.t))+' m')+'</span>';
+  $('#scT').textContent=f.t;$('#scL').textContent=f.l||pr.result||'';
+  const sl=$('#scStats');sl.innerHTML=(f.stats||[]).slice(0,3).map(x=>`<li><b>${esc(x.value)}</b> <span>${esc(x.label)}</span></li>`).join('');sl.hidden=!sl.children.length;
+  $('#scK').innerHTML=(f.k||pr.tags||[]).slice(0,4).map(x=>`<li>${esc(x)}</li>`).join('');
+  sMore.dataset.id=pr.id;sMore.querySelector('.n').textContent=' : '+f.t}
+function updateCard(){
+  const as=STOPS[activeStop],ok=!staticMode&&!cardOff&&as&&as.proj&&as.proj.id!=='next'&&PROJECT_INFO[as.proj.id];
+  const cand=!ok?-1:stopW>.9?activeStop:(stopW>.55&&cardIdx===activeStop?activeStop:-1);   // hystérésis : apparaît caméra posée, reste jusqu'au vrai départ
+  const now=performance.now();if(cand!==updateCard.c){updateCard.c=cand;updateCard.t=now}
+  const want=cand>=0&&now-updateCard.t<500?cardIdx:cand;   // arrêt d'au moins 0,5 s : rien ne clignote aux étapes survolées pendant un saut
+  if(want===cardIdx)return;
+  if(cardIdx>=0&&want<0&&sCard.contains(document.activeElement))plMore.focus({preventScroll:true});   // le focus ne se perd pas dans une carte qui disparaît
+  cardIdx=want;if(want>=0)fillCard(as.proj);sCard.classList.toggle('on',want>=0);s2el.classList.toggle('card-on',want>=0)}
+sMore.addEventListener('click',()=>openStop(sMore.dataset.id,sMore));
+$('#scX').addEventListener('click',()=>{cardOff=true;try{sessionStorage.setItem('asc-card-off','1')}catch(e){}updateCard();plMore.focus({preventScroll:true});live.textContent='Résumés d\'étape masqués. Le bouton Voir la fiche reste disponible.'});
 let lastShown=-2;
 function updateUi(p){
   const sel=pinnedIdx>=0?pinnedIdx:(ptrIdx>=0?ptrIdx:(focusIdx>=0?focusIdx:-1));
@@ -3068,6 +3151,7 @@ function updateUi(p){
   if(cur!==lastShown){lastShown=cur;if(cur>=0)live.textContent='Étape '+cur+' : '+st.name+(st.proj?'':', '+st.period+', '+st.role)+'. '+kmSpeech(t)}
   // étiquettes
   holos.forEach(h=>{const i=+h.dataset.i;const on=(i===sel)||(sel<0&&i===activeStop);h.classList.toggle('on',on)});
+  updateCard();
 }
 const _v=OK?new THREE.Vector3():null;
 function placeHolos(){
@@ -3102,11 +3186,11 @@ addEventListener('keydown',e=>{if(e.key==='Escape')pinnedIdx=-1});
 function staticView(){
   if(!inited)return;resize();updateSky(.3);
   const c=curve.getPointAt(.5),ext=Math.max(bx1-bx0-2*pad,bz1-bz0-2*pad)*1.12,hs=Math.max(900,ext*.5/Math.tan(14*Math.PI/180));camPos.set(c.x,hs,c.z+70);camTgt.set(c.x,0,c.z);cam.position.copy(camPos);cam.lookAt(camTgt);cam.fov=28;cam.updateProjectionMatrix();
-  FATS.forEach(m=>{m.uniforms.uT.value=1});beam.visible=false;halo.visible=false;
+  FATS.forEach(m=>{m.uniforms.uT.value=1;m.uniforms.uTime.value=0});
   blocks.forEach(b=>{b.lift=0;b.holder.position.y=b.base});
   renderer.render(scene,cam);
 }
-function dynamicView(){if(!inited)return;beam.visible=true;halo.visible=true;resize()}
+function dynamicView(){if(!inited)return;resize()}
 let inited=false;
 function ensure(){if(inited||!OK)return;inited=true;initScene();resize();camPos.set(0,0,0);camTgt.set(0,0,0);first=true}
 let first=true,lastT=0;
