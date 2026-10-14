@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useAuth0 } from "@auth0/auth0-vue";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 
-const { idTokenClaims } = useAuth0();
-const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
+const { getToken } = useAdminSession();
 const router  = useRouter();
 const loading = ref(false);
 const error   = ref("");

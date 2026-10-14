@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useAuth0 } from "@auth0/auth0-vue";
-import { Pencil, Trash2, PlusCircle, Download } from "lucide-vue-next";
+import { Pencil, Trash2, PlusCircle, Download, Eye } from "lucide-vue-next";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 
-const { idTokenClaims } = useAuth0();
-const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
+const { isAdmin, getToken, list } = useAdminSession();
 
 interface AiToolRow {
   id: string;
@@ -25,10 +23,7 @@ async function fetchTools() {
   loading.value = true;
   error.value   = "";
   try {
-    const token = getToken();
-    tools.value = await $fetch<AiToolRow[]>("/api/admin/ai-tools", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    tools.value = await list<AiToolRow>("ai-tools");
   } catch (e: unknown) {
     const fe = e as { statusCode?: number; statusMessage?: string; message?: string };
     error.value = `Erreur ${fe.statusCode ?? "?"} — ${fe.statusMessage ?? fe.message ?? "inconnu"}`;
@@ -79,6 +74,7 @@ onMounted(fetchTools);
         </p>
       </div>
       <div class="flex items-center gap-3">
+        <template v-if="isAdmin">
         <button
           :disabled="seeding"
           class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition hover:opacity-80 disabled:opacity-50"
@@ -96,6 +92,7 @@ onMounted(fetchTools);
           <PlusCircle :size="16" />
           Nouvel outil
         </NuxtLink>
+        </template>
       </div>
     </div>
 
@@ -107,7 +104,7 @@ onMounted(fetchTools);
 
     <div v-else-if="tools.length === 0" class="text-center py-20" style="color: var(--color-muted);">
       Aucun outil.
-      <NuxtLink to="/admin/ai-tools/new" style="color: var(--color-accent);">Créer le premier →</NuxtLink>
+      <NuxtLink v-if="isAdmin" to="/admin/ai-tools/new" style="color: var(--color-accent);">Créer le premier →</NuxtLink>
     </div>
 
     <div v-else class="rounded-xl border overflow-hidden" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
@@ -117,7 +114,7 @@ onMounted(fetchTools);
             <th class="text-left px-4 py-3 font-semibold" style="color: var(--color-muted);">Nom</th>
             <th class="text-left px-4 py-3 font-semibold hidden md:table-cell" style="color: var(--color-muted);">Fournisseur</th>
             <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell" style="color: var(--color-muted);">Catégorie</th>
-            <th class="px-4 py-3" />
+            <th class="px-4 py-3"><span class="sr-only">Actions</span></th>
           </tr>
         </thead>
         <tbody>
@@ -133,8 +130,8 @@ onMounted(fetchTools);
             </td>
             <td class="px-4 py-3 hidden md:table-cell" style="color: var(--color-muted);">{{ tool.provider }}</td>
             <td class="px-4 py-3 hidden lg:table-cell" style="color: var(--color-muted);">{{ tool.category }}</td>
-            <td class="px-4 py-3">
-              <div class="flex items-center justify-end gap-2">
+            <td class="px-4 py-3 text-right">
+              <div v-if="isAdmin" class="flex items-center justify-end gap-2">
                 <NuxtLink
                   :to="`/admin/ai-tools/${tool.id}/edit`"
                   class="p-1.5 rounded-lg transition hover:opacity-80"
@@ -152,6 +149,14 @@ onMounted(fetchTools);
                   <Trash2 :size="15" />
                 </button>
               </div>
+              <NuxtLink
+                v-else
+                :to="`/admin/ai-tools/${tool.id}/edit`"
+                class="admin-row-action"
+                :aria-label="`Consulter ${tool.name}`"
+              >
+                <Eye :size="15" aria-hidden="true" />
+              </NuxtLink>
             </td>
           </tr>
         </tbody>

@@ -4,6 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 -Le projet est un portfolio design qui présente mes appétences pour le développement, l'analyse et le code javascript avec une spécialisation en vue.js
 
+## Règles pour toute évolution du portfolio
+
+- **Accessibilité** : WCAG 2.1 AA + RGAA. Texte ≥ 4,5:1, composants et focus ≥ 3:1, cibles ≥ 44 px, focus visible, tout au clavier, `prefers-reduced-motion` respecté, contenu 100 % HTML (la 3D reste décorative, `aria-hidden`). Un raccourci clavier a toujours un bouton équivalent.
+- **Performance** : 3D chargée après le contenu, DPR ≤ 1.5, pause hors écran, pas de JS bloquant. Pas de régression Lighthouse mobile (perf ≥ 90, a11y 100).
+- **Cohérence** : couleurs uniquement via les rôles (tokens) — jamais de couleur brute. Accueil (boucle) : rôles de `docs/charte-graphique.md` (`--bg`, `--fg`, `--acc`, `--brand`…). Pages Nuxt et /admin : tokens de `assets/css/main.css` (`--color-bg`, `--color-surface`, `--color-text`, `--color-muted`, `--color-accent`, `--color-secondary`, `--color-highlight` décoratif uniquement, `--color-vue`, `--color-nuxt`). Symétrie jour/nuit. Vocabulaire de l'aventure (sentier, étape, cordée, bivouac).
+- **Méthode** : un changement = une branche courte, un commit clair. Ne toucher qu'aux fichiers nécessaires.
+- **Documentation** : à chaque étape, mettre à jour la doc concernée (`docs/` dans le dépôt ; `design/` / `dev/` côté projet claude.ai) et ce CLAUDE.md. Une fonctionnalité non documentée n'est pas terminée.
+- **Fin d'étape** : lister ce qui a été vérifié (contrastes, clavier, Lighthouse) et ce qui n'a pas pu l'être.
+
 ## Commands
 
 ```bash
@@ -26,7 +35,7 @@ Voir `docs/tests.md`. Avant tout push : `npm test` ; avant une release : `npm ru
 Copy `.env.example` to `.env` and fill in:
 - `MONGODB_URI` — MongoDB connection string (stores projects, profile, AI tools)
 - `POSTGRES_URL` — PostgreSQL connection string (stores visitor tracking)
-- `AUTH0_DOMAIN` / `AUTH0_CLIENT_ID` — Auth0 SPA app, used to gate `/admin/**`
+- `AUTH0_DOMAIN` / `AUTH0_CLIENT_ID` — Auth0 SPA app, used to recognise the admin on `/admin/**` (visitors browse it read-only without logging in)
 - `ADMIN_EMAIL` — the only email allowed to write via the admin API (`requireAdminWrite`)
 - `BLOB_READ_WRITE_TOKEN` — Vercel Blob store token, used by `/api/admin/upload` for image/CV uploads from the admin
 - `GEMINI_API_KEY` — Gemini API key (free, no credit card — aistudio.google.com/apikey), used by `/api/admin/carnet/generate` to draft/improve Carnet articles from the admin
@@ -63,7 +72,7 @@ Two databases:
 - **MongoDB** (via Mongoose, `server/lib/mongodb.ts`) — Projects (`server/models/project.ts`), Profile singleton (`server/models/profile.ts`), AI tools (`server/models/aiTool.ts`), Carnet articles (`server/models/carnetArticle.ts`).
 - **PostgreSQL** (via pg pool, `server/lib/pgsql.ts`) — Stores visitor count and visitor log.
 
-Public API routes in `server/api/` (no auth): `GET /api/projects`, `GET /api/profile`, `GET /api/ai-tools`, `GET /api/carnet`, `GET /api/visitors`, `POST /api/visitors`.
+Public API routes in `server/api/` (no auth): `GET /api/projects`, `GET /api/profile`, `GET /api/ai-tools`, `GET /api/carnet`, `GET /api/visitors`, `POST /api/visitors`, `GET /api/auth/role` (`{ role: "admin" | "lecteur" }` from the optional Bearer token, via `isAdminRequest` — never throws, UI hint only).
 
 Admin API routes in `server/api/admin/` (all behind `requireAdminWrite` from `server/utils/requireAuth.ts` — verifies the Auth0 JWT and checks the email against `ADMIN_EMAIL`):
 - Projects: `GET/POST /api/admin/projects`, `PUT/DELETE /api/admin/projects/[id]`, `POST /api/admin/seed` (imports the static list into Mongo, upsert-only-on-insert)
@@ -74,7 +83,7 @@ Admin API routes in `server/api/admin/` (all behind `requireAdminWrite` from `se
 
 ### Admin backoffice (`/admin/**`)
 
-Auth0-gated (`middleware/admin.ts` + `layouts/admin.vue`). Each managed entity follows the same pattern: Mongoose model → public `GET` → admin CRUD → Pinia store with fallback → admin list/form page(s) → `components/admin/*Form.vue`. When adding a new manageable entity, copy the Projects implementation (`server/models/project.ts`, `server/api/admin/projects/*`, `stores/projects.ts`, `pages/admin/projects/*`, `components/admin/ProjectForm.vue`) rather than inventing a new pattern.
+**Readable by everyone, writable only by `ADMIN_EMAIL`** (details: `docs/admin-lecture-seule.md`). `middleware/admin.ts` never forces a login: it picks up an existing Auth0 session and asks `GET /api/auth/role`; `composables/useAdminSession.ts` exposes `isAdmin`, `getToken`, `login`/`logout` and `list(entity)` (admin → `/api/admin/*` with the token, visitor → the public `GET` routes, same data, `id` mapped from `_id`). Visitors get a « Visite en lecture seule » banner (`layouts/admin.vue`), no create/import/delete actions, a « Consulter » link per row, `*/new` redirected to the list, and every `components/admin/*Form.vue` takes a `readonly` prop that wraps the form in `<fieldset class="admin-form-body" disabled>` (values kept at text contrast, submit button removed, `onSubmit` returns early). The UI is cosmetic — the real lock is `requireAdminWrite` on every `server/api/admin/**` route. New admin forms must take `readonly` too. Each managed entity follows the same pattern: Mongoose model → public `GET` → admin CRUD → Pinia store with fallback → admin list/form page(s) → `components/admin/*Form.vue`. When adding a new manageable entity, copy the Projects implementation (`server/models/project.ts`, `server/api/admin/projects/*`, `stores/projects.ts`, `pages/admin/projects/*`, `components/admin/ProjectForm.vue`) rather than inventing a new pattern.
 
 ### Carnet (blog) — `/carnet/**`
 

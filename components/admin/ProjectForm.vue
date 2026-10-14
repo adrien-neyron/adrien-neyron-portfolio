@@ -42,7 +42,7 @@ interface ProjectPayload {
 // vers `image_light` / `image_dark` attendus par le formulaire.
 type InitialProject = Partial<ProjectPayload> & { image?: { light?: string; dark?: string } };
 
-const props = defineProps<{ initial?: InitialProject; loading?: boolean }>();
+const props = defineProps<{ initial?: InitialProject; loading?: boolean; readonly?: boolean }>();
 const emit  = defineEmits<{ submit: [payload: ProjectPayload] }>();
 
 // Un projet enregistré avant le renommage de septembre 2026 peut encore
@@ -181,6 +181,7 @@ watch(() => form.value.title, (val) => {
 });
 
 function onSubmit() {
+  if (props.readonly) return;
   form.value.technologies = techInput.value
     .split(",")
     .map((t) => t.trim())
@@ -206,274 +207,277 @@ function onSubmit() {
 </script>
 
 <template>
-  <form class="space-y-6" @submit.prevent="onSubmit">
+  <form @submit.prevent="onSubmit">
+    <!-- Lecture seule (visiteur) : fieldset désactivé = aucun champ ni bouton actionnable, valeurs lisibles -->
+    <fieldset :disabled="readonly" class="admin-form-body space-y-6">
 
-    <!-- Titre + Slug -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="admin-label">Titre *</label>
-        <input v-model="form.title" required class="admin-input" placeholder="Boutique Trail Running" />
-      </div>
-      <div>
-        <label class="admin-label">Slug *</label>
-        <input v-model="form.slug" required class="admin-input font-mono text-sm" placeholder="boutique-trail-running" />
-      </div>
-    </div>
-
-    <!-- Tagline + Rôle -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="admin-label">Tagline</label>
-        <input v-model="form.tagline" class="admin-input" placeholder="Sentier commercial — e-commerce…" />
-      </div>
-      <div>
-        <label class="admin-label">Rôle</label>
-        <input v-model="form.role" class="admin-input" placeholder="Développeur Full-Stack" />
-      </div>
-    </div>
-
-    <!-- Description -->
-    <div>
-      <label class="admin-label">Description</label>
-      <textarea v-model="form.description" rows="3" class="admin-input resize-none" />
-    </div>
-
-    <!-- Défi + Solution -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="admin-label">Défi</label>
-        <textarea v-model="form.challenge" rows="4" class="admin-input resize-none" />
-      </div>
-      <div>
-        <label class="admin-label">Solution</label>
-        <textarea v-model="form.solution" rows="4" class="admin-input resize-none" />
-      </div>
-    </div>
-
-    <!-- Résultat -->
-    <div>
-      <label class="admin-label">Résultat</label>
-      <textarea v-model="form.result" rows="2" class="admin-input resize-none" />
-    </div>
-
-    <!-- Technologies -->
-    <div>
-      <label class="admin-label">Technologies <span class="text-xs text-(--color-muted)">(séparées par des virgules)</span></label>
-      <input v-model="techInput" class="admin-input" placeholder="Nuxt 3, TypeScript, PostgreSQL…" />
-    </div>
-
-    <!-- Images -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="admin-label">Image mode clair</label>
-        <input v-model="form.image_light" class="admin-input mb-2" placeholder="/recentprojects/mon-projet-light.png" />
-        <AdminFileUpload v-model="form.image_light" accept="image/*" label="Uploader une image" />
-      </div>
-      <div>
-        <label class="admin-label">Image mode sombre</label>
-        <input v-model="form.image_dark" class="admin-input mb-2" placeholder="/recentprojects/mon-projet-dark.png" />
-        <AdminFileUpload v-model="form.image_dark" accept="image/*" label="Uploader une image" />
-      </div>
-    </div>
-
-    <!-- Photo d'ambiance : affichée avec le traitement « grain skate »
-         (N&B contrasté + grain 16 mm) sur les cartes et en tête de fiche.
-         Priorité : ta photo (admin) > photo Unsplash stockée en base.
-         Les captures ci-dessus restent nettes dans la section « Départ ». -->
-    <fieldset class="flex flex-col gap-4 border border-(--color-muted)/30 rounded-lg p-4">
-      <legend class="admin-label px-1">Photo d'ambiance (grain skate)</legend>
-
-      <div class="flex flex-col md:flex-row gap-4 items-start">
-        <!-- Aperçu avec le filtre du site (décoratif) -->
-        <div class="grain-photo w-full md:w-72 aspect-video rounded-lg shrink-0">
-          <img v-if="form.cover" :src="form.cover" alt="" class="w-full h-full object-cover" />
+      <!-- Titre + Slug -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="admin-label">Titre *</label>
+          <input v-model="form.title" required class="admin-input" placeholder="Boutique Trail Running" />
         </div>
-        <div class="flex flex-col gap-2 min-w-0">
-          <p id="pf-cover-origin" class="text-sm text-(--color-text)">
-            <span
-              class="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mr-1 align-middle"
-              :class="form.coverSource === 'unsplash' ? 'bg-(--color-muted)/15 text-(--color-text)' : 'bg-(--color-accent)/15 text-(--color-text)'"
-            >{{ !form.cover ? "Vide" : form.coverSource === "unsplash" ? "Unsplash" : "Backoffice" }}</span>
-            {{ coverOrigin }}
-          </p>
-          <p v-if="form.cover && form.coverCredit" class="text-xs text-(--color-muted)">
-            Crédit : <a :href="form.coverCreditUrl" target="_blank" rel="noopener noreferrer" class="underline">{{ form.coverCredit }}<span class="sr-only"> (nouvel onglet)</span></a>
-          </p>
-          <button v-if="form.cover" type="button" class="self-start text-xs underline text-(--color-muted) hover:text-(--color-accent) min-h-11" @click="clearCover">
-            Retirer la photo
-          </button>
+        <div>
+          <label class="admin-label">Slug *</label>
+          <input v-model="form.slug" required class="admin-input font-mono text-sm" placeholder="boutique-trail-running" />
         </div>
       </div>
 
-      <!-- 1. Ta photo : prioritaire -->
-      <div>
-        <label for="pf-cover" class="admin-label">Ta photo (URL ou upload) — prioritaire</label>
-        <input
-          id="pf-cover"
-          :value="form.coverSource === 'unsplash' ? '' : form.cover"
-          class="admin-input mb-2"
-          placeholder="https://… ou upload ci-dessous"
-          aria-describedby="pf-cover-origin"
-          @change="onManualCover(($event.target as HTMLInputElement).value.trim())"
-        />
-        <AdminFileUpload
-          :model-value="form.coverSource === 'unsplash' ? '' : form.cover"
-          accept="image/*"
-          label="Uploader une photo"
-          @update:model-value="onManualCover"
-        />
+      <!-- Tagline + Rôle -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="admin-label">Tagline</label>
+          <input v-model="form.tagline" class="admin-input" placeholder="Sentier commercial — e-commerce…" />
+        </div>
+        <div>
+          <label class="admin-label">Rôle</label>
+          <input v-model="form.role" class="admin-input" placeholder="Développeur Full-Stack" />
+        </div>
       </div>
 
-      <!-- 2. Sinon : suggestions Unsplash -->
-      <div class="flex flex-col gap-2">
-        <label for="pf-cover-query" class="admin-label">Mots-clés Unsplash <span class="normal-case font-normal">(anglais de préférence — vide : déduits de la description)</span></label>
-        <div class="flex gap-2">
-          <input id="pf-cover-query" v-model="form.coverQuery" class="admin-input" placeholder="tire stack garage" />
-          <button
-            type="button"
-            :disabled="searching"
-            class="shrink-0 px-4 min-h-11 rounded-lg border border-(--color-accent) text-(--color-text) text-sm font-medium hover:bg-(--color-accent)/10 disabled:opacity-50"
-            @click="searchCovers(false)"
-          >
-            {{ searching ? "Recherche…" : "Chercher" }}
-          </button>
-        </div>
-        <p class="sr-only" aria-live="polite">{{ searchStatus }}</p>
-        <p v-if="searchError" role="alert" class="text-xs text-red-700 dark:text-red-400">{{ searchError }}</p>
+      <!-- Description -->
+      <div>
+        <label class="admin-label">Description</label>
+        <textarea v-model="form.description" rows="3" class="admin-input resize-none" />
+      </div>
 
-        <fieldset v-if="suggestions.length" class="mt-1">
-          <legend class="text-xs text-(--color-muted) mb-2">Choisis une photo (aperçu avec le filtre du site)</legend>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <label
-              v-for="c in suggestions"
-              :key="c.id"
-              class="flex flex-col gap-1 cursor-pointer rounded-lg p-1 border-2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-(--color-accent)"
-              :class="form.coverUnsplashId === c.id ? 'border-(--color-accent)' : 'border-transparent'"
-            >
-              <input
-                type="radio"
-                name="pf-cover-pick"
-                class="sr-only"
-                :value="c.id"
-                :checked="form.coverUnsplashId === c.id"
-                @change="pickSuggestion(c)"
-              />
-              <span class="grain-photo block aspect-video rounded-md">
-                <img :src="c.thumb" alt="" class="w-full h-full object-cover" loading="lazy" />
-              </span>
-              <span class="text-xs text-(--color-text) truncate">{{ c.alt || "Photo sans description" }}</span>
-              <span class="text-[11px] text-(--color-muted) truncate">{{ c.credit }}</span>
-            </label>
+      <!-- Défi + Solution -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="admin-label">Défi</label>
+          <textarea v-model="form.challenge" rows="4" class="admin-input resize-none" />
+        </div>
+        <div>
+          <label class="admin-label">Solution</label>
+          <textarea v-model="form.solution" rows="4" class="admin-input resize-none" />
+        </div>
+      </div>
+
+      <!-- Résultat -->
+      <div>
+        <label class="admin-label">Résultat</label>
+        <textarea v-model="form.result" rows="2" class="admin-input resize-none" />
+      </div>
+
+      <!-- Technologies -->
+      <div>
+        <label class="admin-label">Technologies <span class="text-xs text-(--color-muted)">(séparées par des virgules)</span></label>
+        <input v-model="techInput" class="admin-input" placeholder="Nuxt 3, TypeScript, PostgreSQL…" />
+      </div>
+
+      <!-- Images -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="admin-label">Image mode clair</label>
+          <input v-model="form.image_light" class="admin-input mb-2" placeholder="/recentprojects/mon-projet-light.png" />
+          <AdminFileUpload v-model="form.image_light" accept="image/*" label="Uploader une image" />
+        </div>
+        <div>
+          <label class="admin-label">Image mode sombre</label>
+          <input v-model="form.image_dark" class="admin-input mb-2" placeholder="/recentprojects/mon-projet-dark.png" />
+          <AdminFileUpload v-model="form.image_dark" accept="image/*" label="Uploader une image" />
+        </div>
+      </div>
+
+      <!-- Photo d'ambiance : affichée avec le traitement « grain skate »
+           (N&B contrasté + grain 16 mm) sur les cartes et en tête de fiche.
+           Priorité : ta photo (admin) > photo Unsplash stockée en base.
+           Les captures ci-dessus restent nettes dans la section « Départ ». -->
+      <fieldset class="flex flex-col gap-4 border border-(--color-muted)/30 rounded-lg p-4">
+        <legend class="admin-label px-1">Photo d'ambiance (grain skate)</legend>
+
+        <div class="flex flex-col md:flex-row gap-4 items-start">
+          <!-- Aperçu avec le filtre du site (décoratif) -->
+          <div class="grain-photo w-full md:w-72 aspect-video rounded-lg shrink-0">
+            <img v-if="form.cover" :src="form.cover" alt="" class="w-full h-full object-cover" />
           </div>
-          <button type="button" :disabled="searching" class="mt-2 text-xs underline text-(--color-muted) hover:text-(--color-accent) min-h-11" @click="searchCovers(true)">
-            Autres photos
-          </button>
-        </fieldset>
-      </div>
+          <div class="flex flex-col gap-2 min-w-0">
+            <p id="pf-cover-origin" class="text-sm text-(--color-text)">
+              <span
+                class="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mr-1 align-middle"
+                :class="form.coverSource === 'unsplash' ? 'bg-(--color-muted)/15 text-(--color-text)' : 'bg-(--color-accent)/15 text-(--color-text)'"
+              >{{ !form.cover ? "Vide" : form.coverSource === "unsplash" ? "Unsplash" : "Backoffice" }}</span>
+              {{ coverOrigin }}
+            </p>
+            <p v-if="form.cover && form.coverCredit" class="text-xs text-(--color-muted)">
+              Crédit : <a :href="form.coverCreditUrl" target="_blank" rel="noopener noreferrer" class="underline">{{ form.coverCredit }}<span class="sr-only"> (nouvel onglet)</span></a>
+            </p>
+            <button v-if="form.cover" type="button" class="self-start text-xs underline text-(--color-muted) hover:text-(--color-accent) min-h-11" @click="clearCover">
+              Retirer la photo
+            </button>
+          </div>
+        </div>
 
+        <!-- 1. Ta photo : prioritaire -->
+        <div>
+          <label for="pf-cover" class="admin-label">Ta photo (URL ou upload) — prioritaire</label>
+          <input
+            id="pf-cover"
+            :value="form.coverSource === 'unsplash' ? '' : form.cover"
+            class="admin-input mb-2"
+            placeholder="https://… ou upload ci-dessous"
+            aria-describedby="pf-cover-origin"
+            @change="onManualCover(($event.target as HTMLInputElement).value.trim())"
+          />
+          <AdminFileUpload
+            :model-value="form.coverSource === 'unsplash' ? '' : form.cover"
+            accept="image/*"
+            label="Uploader une photo"
+            @update:model-value="onManualCover"
+          />
+        </div>
+
+        <!-- 2. Sinon : suggestions Unsplash -->
+        <div class="flex flex-col gap-2">
+          <label for="pf-cover-query" class="admin-label">Mots-clés Unsplash <span class="normal-case font-normal">(anglais de préférence — vide : déduits de la description)</span></label>
+          <div class="flex gap-2">
+            <input id="pf-cover-query" v-model="form.coverQuery" class="admin-input" placeholder="tire stack garage" />
+            <button
+              type="button"
+              :disabled="searching"
+              class="shrink-0 px-4 min-h-11 rounded-lg border border-(--color-accent) text-(--color-text) text-sm font-medium hover:bg-(--color-accent)/10 disabled:opacity-50"
+              @click="searchCovers(false)"
+            >
+              {{ searching ? "Recherche…" : "Chercher" }}
+            </button>
+          </div>
+          <p class="sr-only" aria-live="polite">{{ searchStatus }}</p>
+          <p v-if="searchError" role="alert" class="text-xs text-red-700 dark:text-red-400">{{ searchError }}</p>
+
+          <fieldset v-if="suggestions.length" class="mt-1">
+            <legend class="text-xs text-(--color-muted) mb-2">Choisis une photo (aperçu avec le filtre du site)</legend>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <label
+                v-for="c in suggestions"
+                :key="c.id"
+                class="flex flex-col gap-1 cursor-pointer rounded-lg p-1 border-2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-(--color-accent)"
+                :class="form.coverUnsplashId === c.id ? 'border-(--color-accent)' : 'border-transparent'"
+              >
+                <input
+                  type="radio"
+                  name="pf-cover-pick"
+                  class="sr-only"
+                  :value="c.id"
+                  :checked="form.coverUnsplashId === c.id"
+                  @change="pickSuggestion(c)"
+                />
+                <span class="grain-photo block aspect-video rounded-md">
+                  <img :src="c.thumb" alt="" class="w-full h-full object-cover" loading="lazy" />
+                </span>
+                <span class="text-xs text-(--color-text) truncate">{{ c.alt || "Photo sans description" }}</span>
+                <span class="text-[11px] text-(--color-muted) truncate">{{ c.credit }}</span>
+              </label>
+            </div>
+            <button type="button" :disabled="searching" class="mt-2 text-xs underline text-(--color-muted) hover:text-(--color-accent) min-h-11" @click="searchCovers(true)">
+              Autres photos
+            </button>
+          </fieldset>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="pf-cover-credit" class="admin-label">Crédit photo</label>
+            <input id="pf-cover-credit" v-model="form.coverCredit" class="admin-input" placeholder="Prénom Nom / Unsplash" />
+          </div>
+          <div>
+            <label for="pf-cover-credit-url" class="admin-label">Lien du crédit</label>
+            <input id="pf-cover-credit-url" v-model="form.coverCreditUrl" type="url" class="admin-input" placeholder="https://unsplash.com/photos/…" />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Liens -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label for="pf-cover-credit" class="admin-label">Crédit photo</label>
-          <input id="pf-cover-credit" v-model="form.coverCredit" class="admin-input" placeholder="Prénom Nom / Unsplash" />
+          <label class="admin-label">Lien démo (optionnel)</label>
+          <input v-model="form.link" type="url" class="admin-input" placeholder="https://…" />
         </div>
         <div>
-          <label for="pf-cover-credit-url" class="admin-label">Lien du crédit</label>
-          <input id="pf-cover-credit-url" v-model="form.coverCreditUrl" type="url" class="admin-input" placeholder="https://unsplash.com/photos/…" />
+          <label class="admin-label">Lien code source (optionnel)</label>
+          <input v-model="form.code" type="url" class="admin-input" placeholder="https://github.com/…" />
         </div>
+      </div>
+
+      <!-- Difficulté / Durée / Catégorie -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="admin-label">Difficulté *</label>
+          <select v-model="form.difficulty" required class="admin-input">
+            <option>Apprentissage</option>
+            <option>Side Project</option>
+            <option>Professionnel</option>
+          </select>
+        </div>
+        <div>
+          <label class="admin-label">Durée *</label>
+          <input v-model="form.duration" required class="admin-input" placeholder="3 mois" />
+        </div>
+        <div>
+          <label class="admin-label">Catégorie *</label>
+          <select v-model="form.category" required class="admin-input">
+            <option>E-commerce</option>
+            <option>Outil métier</option>
+            <option>LMS</option>
+            <option>IA</option>
+            <option>Automatisation</option>
+            <option>SI</option>
+            <option>Autre</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Fiche topo (refonte « L'ascension ») -->
+      <fieldset class="space-y-4 border-t pt-6" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
+        <legend class="admin-label">Fiche topo — carte et profil</legend>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label for="pf-place" class="admin-label">Lieu</label>
+            <input id="pf-place" v-model="form.place" class="admin-input" placeholder="Lyon" />
+          </div>
+          <div>
+            <label for="pf-lat" class="admin-label">Latitude</label>
+            <input id="pf-lat" v-model="latInput" inputmode="decimal" class="admin-input font-mono" placeholder="45.764" />
+          </div>
+          <div>
+            <label for="pf-lon" class="admin-label">Longitude</label>
+            <input id="pf-lon" v-model="lonInput" inputmode="decimal" class="admin-input font-mono" placeholder="4.836" />
+          </div>
+          <div>
+            <label for="pf-start" class="admin-label">Départ</label>
+            <input id="pf-start" v-model="form.startDate" class="admin-input" placeholder="Mai 2026" />
+          </div>
+        </div>
+        <div>
+          <label for="pf-order" class="admin-label">Rang sur le parcours de l'accueil <span class="normal-case font-normal">(0, 1, 2… ; vide : après les autres, par date de création)</span></label>
+          <input id="pf-order" v-model.number="form.order" type="number" min="0" step="1" class="admin-input md:w-40" />
+        </div>
+        <div>
+          <label for="pf-profile" class="admin-label">Profil d'altitude <span class="normal-case font-normal">(valeurs 0 à 100 séparées par des virgules — vide : profil généré)</span></label>
+          <input id="pf-profile" v-model="profileInput" class="admin-input font-mono" placeholder="18, 25, 40, 38, 60, 72, 85" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="pf-milestones" class="admin-label">Étapes du profil <span class="normal-case font-normal">(une par ligne : « Libellé — détail »)</span></label>
+            <textarea id="pf-milestones" v-model="milestonesInput" rows="4" class="admin-input resize-y font-mono" placeholder="Départ — Base Vue 3 migrée&#10;Sprint RGAA — Remédiation" />
+          </div>
+          <div>
+            <label for="pf-stats" class="admin-label">Chiffres clés « Arrivée » <span class="normal-case font-normal">(une par ligne : « valeur | libellé »)</span></label>
+            <textarea id="pf-stats" v-model="statsInput" rows="4" class="admin-input resize-y font-mono" placeholder="−50 % | de temps de traitement" />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Submit -->
+      <div v-if="!readonly" class="flex justify-end pt-2">
+        <button
+          type="submit"
+          :disabled="loading"
+          class="px-6 py-2.5 rounded-lg bg-(--color-accent) text-white font-medium transition hover:opacity-90 disabled:opacity-50"
+        >
+          {{ loading ? "Enregistrement…" : "Enregistrer le projet" }}
+        </button>
       </div>
     </fieldset>
-
-    <!-- Liens -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="admin-label">Lien démo (optionnel)</label>
-        <input v-model="form.link" type="url" class="admin-input" placeholder="https://…" />
-      </div>
-      <div>
-        <label class="admin-label">Lien code source (optionnel)</label>
-        <input v-model="form.code" type="url" class="admin-input" placeholder="https://github.com/…" />
-      </div>
-    </div>
-
-    <!-- Difficulté / Durée / Catégorie -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div>
-        <label class="admin-label">Difficulté *</label>
-        <select v-model="form.difficulty" required class="admin-input">
-          <option>Apprentissage</option>
-          <option>Side Project</option>
-          <option>Professionnel</option>
-        </select>
-      </div>
-      <div>
-        <label class="admin-label">Durée *</label>
-        <input v-model="form.duration" required class="admin-input" placeholder="3 mois" />
-      </div>
-      <div>
-        <label class="admin-label">Catégorie *</label>
-        <select v-model="form.category" required class="admin-input">
-          <option>E-commerce</option>
-          <option>Outil métier</option>
-          <option>LMS</option>
-          <option>IA</option>
-          <option>Automatisation</option>
-          <option>SI</option>
-          <option>Autre</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Fiche topo (refonte « L'ascension ») -->
-    <fieldset class="space-y-4 border-t pt-6" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
-      <legend class="admin-label">Fiche topo — carte et profil</legend>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label for="pf-place" class="admin-label">Lieu</label>
-          <input id="pf-place" v-model="form.place" class="admin-input" placeholder="Lyon" />
-        </div>
-        <div>
-          <label for="pf-lat" class="admin-label">Latitude</label>
-          <input id="pf-lat" v-model="latInput" inputmode="decimal" class="admin-input font-mono" placeholder="45.764" />
-        </div>
-        <div>
-          <label for="pf-lon" class="admin-label">Longitude</label>
-          <input id="pf-lon" v-model="lonInput" inputmode="decimal" class="admin-input font-mono" placeholder="4.836" />
-        </div>
-        <div>
-          <label for="pf-start" class="admin-label">Départ</label>
-          <input id="pf-start" v-model="form.startDate" class="admin-input" placeholder="Mai 2026" />
-        </div>
-      </div>
-      <div>
-        <label for="pf-order" class="admin-label">Rang sur le parcours de l'accueil <span class="normal-case font-normal">(0, 1, 2… ; vide : après les autres, par date de création)</span></label>
-        <input id="pf-order" v-model.number="form.order" type="number" min="0" step="1" class="admin-input md:w-40" />
-      </div>
-      <div>
-        <label for="pf-profile" class="admin-label">Profil d'altitude <span class="normal-case font-normal">(valeurs 0 à 100 séparées par des virgules — vide : profil généré)</span></label>
-        <input id="pf-profile" v-model="profileInput" class="admin-input font-mono" placeholder="18, 25, 40, 38, 60, 72, 85" />
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label for="pf-milestones" class="admin-label">Étapes du profil <span class="normal-case font-normal">(une par ligne : « Libellé — détail »)</span></label>
-          <textarea id="pf-milestones" v-model="milestonesInput" rows="4" class="admin-input resize-y font-mono" placeholder="Départ — Base Vue 3 migrée&#10;Sprint RGAA — Remédiation" />
-        </div>
-        <div>
-          <label for="pf-stats" class="admin-label">Chiffres clés « Arrivée » <span class="normal-case font-normal">(une par ligne : « valeur | libellé »)</span></label>
-          <textarea id="pf-stats" v-model="statsInput" rows="4" class="admin-input resize-y font-mono" placeholder="−50 % | de temps de traitement" />
-        </div>
-      </div>
-    </fieldset>
-
-    <!-- Submit -->
-    <div class="flex justify-end pt-2">
-      <button
-        type="submit"
-        :disabled="loading"
-        class="px-6 py-2.5 rounded-lg bg-(--color-accent) text-white font-medium transition hover:opacity-90 disabled:opacity-50"
-      >
-        {{ loading ? "Enregistrement…" : "Enregistrer le projet" }}
-      </button>
-    </div>
   </form>
 </template>
 
