@@ -33,7 +33,9 @@ const QDPR=()=>[1.5,1,.75][QC.tier];
 let charte='expe';try{charte=localStorage.getItem('asc-charte')||'expe'}catch(e){}
 let theme='light';
 try{theme=localStorage.getItem('asc-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
-let staticMode=reduce, paused=false, loaded=false;
+/* Vue statique d'office : mouvement réduit, connexion lente / économie de données / appareil léger (décidé par la page, LOADERS.lite), ou choix mémorisé du visiteur */
+let prefStatic=false;try{prefStatic=localStorage.getItem('asc-static')==='1'}catch(e){}
+let staticMode=reduce||!!(LOADERS&&LOADERS.lite)||prefStatic, paused=false, loaded=false;
 let tNow=0, pS=0, last=performance.now(), loadT0=performance.now();
 let seen=false;try{seen=localStorage.getItem('asc-seen')==='1'}catch(e){}
 const LOAD_MS=reduce||seen?450:2600;
@@ -877,8 +879,8 @@ function updateCompass(p,dt){
   drawReadout(((-needle.rotation.z*180/Math.PI)%360+360)%360);
   const zi=sm(.2,.30,p),scl=p<.5?lerp(1,4.6,zi):lerp(4.6,1,sm(.95,1,p));
   const sc=sceneryCalc();stand.scale.setScalar(scl);stand.position.y=sc.yD-FOOT*scl;
-  const hk=LAY.sx?(staticMode?1:(p<.5?sm(.02,.06,p)*(1-sm(.075,.12,p)):0)):0;const hk2=LAY.sx&&!staticMode&&p<.5?sm(.09,.125,p)*(1-sm(.17,.21,p)):0;stand.position.x=(hk-hk2)*LAY.sx/(LAY.W||1)*vis*cam.aspect;   // « S'équiper » (grand écran) : la montre passe de l'autre côté (à gauche), le texte est à droite ; elle revient au centre avant le zoom
-     // accueil large : la montre démarre au centre, glisse à droite quand le texte apparaît, puis revient au centre avant le zoom
+  const hk=LAY.sx?(staticMode?1:(p<.5?1-sm(.075,.12,p):0)):0;const hk2=LAY.sx&&!staticMode&&p<.5?sm(.09,.125,p)*(1-sm(.17,.21,p)):0;stand.position.x=(hk-hk2)*LAY.sx/(LAY.W||1)*vis*cam.aspect;   // « S'équiper » (grand écran) : la montre passe de l'autre côté (à gauche), le texte est à droite ; elle revient au centre avant le zoom
+     // accueil large : la montre est à droite et le texte à gauche dès l'arrivée ; elle passe à gauche pour « S'équiper », puis revient au centre avant le zoom
     // le centre du cadran reste fixe pendant le zoom
   scenery.position.y=sceneryNear.position.y=sc.yD-FOOT;scenery.scale.setScalar(sc.s);
   // l'accueil se fond dans la carte : le sol et les rochers s'effacent d'abord, le massif se couche pour devenir le quadrillage de la carte (et prend sa teinte cuivre), l'aurore s'éteint en virant au cuivre
@@ -2176,8 +2178,8 @@ function draw(p,dt){
   setVisible(S[2],trap(p,.51,.55,.77,.81));
   setVisible(S[3],trap(p,.78,.82,.97,.985));
   // s1
-  const split=LAY.sx>0&&!staticMode;CS=split?.17:.07;CST=split?.012:STEP;CSP=split?.12:.07;CEND=split?[.26,.29]:[.24,.28];CREV=split?[.20,.225]:[.19,.22];   // grand écran : la montre seule au centre, puis le texte apparaît pendant qu'elle glisse à droite
-  head1.style.opacity=split?(p<.5?sm(.03,.06,p)*(1-sm(.075,.10,p)):0):Math.max(1-sm(.04,.08,p),sm(.96,1,p));
+  const split=LAY.sx>0&&!staticMode;CS=split?.17:.07;CST=split?.012:STEP;CSP=split?.12:.07;CEND=split?[.26,.29]:[.24,.28];CREV=split?[.20,.225]:[.19,.22];   // grand écran : accueil = texte à gauche, montre à droite
+  document.documentElement.classList.toggle('hero-split',split);head1.style.opacity=split?(p<.5?1-sm(.075,.10,p):0):Math.max(1-sm(.04,.08,p),sm(.96,1,p));
   head2.style.opacity=split?trap(p,.11,.14,.17,.20):trap(p,.08,.11,.24,.28);   // le titre « S'équiper » attend que l'accroche ait disparu
   chips.forEach((c,i)=>{
     const o=hoverCards()
@@ -2276,7 +2278,8 @@ $('#railNav').addEventListener('click',()=>closeMenus(null));
 $('#openSet').addEventListener('click',()=>closeMenus(null));
 $('#brand').addEventListener('click',e=>{e.preventDefault();staticMode?scrollTo(0,0):jumpTo(.0004);$('#main').focus({preventScroll:true})});
 $('#tgPause').addEventListener('click',e=>{paused=!paused;document.body.classList.toggle('paused',paused);e.currentTarget.setAttribute('aria-pressed',String(paused))});
-$('#tgStatic').addEventListener('click',()=>setStatic(!staticMode));
+$('#tgStatic').addEventListener('click',()=>{setStatic(!staticMode);try{localStorage.setItem('asc-static',staticMode?'1':'0')}catch(e){}});
+$('#loadSkip').addEventListener('click',()=>{finishLoad();$('#main').focus({preventScroll:true})});
 $('#tgNight').addEventListener('click',e=>{
   theme=theme==='dark'?'light':'dark';root.dataset.theme=theme;if(strapApply)strapApply(theme==='dark');applyDialTheme();
   try{localStorage.setItem('asc-theme',theme)}catch(err){}

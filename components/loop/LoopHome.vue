@@ -52,6 +52,7 @@ useHead({
   ],
 })
 
+const intro = ref<{ play: (g: HTMLElement, o: { isReady: () => boolean; maxWait: number }) => Promise<boolean>; prepare: () => Promise<unknown> } | null>(null)
 let loop: { destroy: () => void } | null = null
 let gone = false
 const WAKE = ['pointermove', 'pointerdown', 'touchstart', 'wheel', 'scroll', 'keydown'] as const
@@ -72,6 +73,7 @@ async function loadContent(): Promise<Record<string, unknown>> {
 /** Téléchargement et évaluation des modules (three.js, loop.js, chargeur 3D) et du contenu admin : sans rien démarrer. */
 let prepared: Promise<[typeof import('three-r128'), typeof import('~/assets/loop/loop.js'), typeof import('~/assets/loop/GLTFLoader.r128.js'), Record<string, unknown>]> | null = null
 function prepare() {
+  void intro.value?.prepare().catch(() => {})   // GSAP et le moteur d'éclats, pour que la transition démarre sans attente
   return (prepared ??= Promise.all([
     import('three-r128'),
     import('~/assets/loop/loop.js'),
@@ -80,6 +82,16 @@ function prepare() {
     // contenu saisi dans l'admin (projets, carnet, profil, contact) ; en cas d'échec, la boucle garde ses textes par défaut
     loadContent(),
   ]))
+}
+
+/**
+ * Appareil ou connexion qui ne supporteront pas l'intro 3D : économiseur de données, 2G / « slow-2g », ou 2 Go de
+ * mémoire ou moins. La boucle démarre alors directement en vue statique (toutes les scènes, sans animation), sans
+ * attendre la 3D ; le visiteur peut la réactiver dans les réglages. API absente (Safari, Firefox) : on ne présume rien.
+ */
+function isLiteDevice(): boolean {
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string }; deviceMemory?: number }
+  return !!nav.connection?.saveData || /^(slow-)?2g$/.test(nav.connection?.effectiveType ?? '') || (nav.deviceMemory !== undefined && nav.deviceMemory <= 2)
 }
 
 /** Démarre la boucle : la montre 3D remplace la boussole 2D et son chargement (altitude, calage du nord) se joue à l'écran. */
@@ -91,7 +103,7 @@ async function start() {
   const [THREE, { initLoop }, { GLTFLoader }, content] = await prepare()
   if (gone) return   // page quittée pendant le téléchargement
   document.documentElement.classList.add('loop-live')
-  loop = initLoop(THREE, { GLTFLoader, content })
+  loop = initLoop(THREE, { GLTFLoader, content, lite: isLiteDevice() })
 }
 
 /** Tant que l'écran de la corde est ouvert, un geste ne fait que préparer les modules ; sinon il démarre la boucle. */
@@ -104,7 +116,7 @@ function onWake() {
 
 /**
  * Écran d'accueil « corde en C » (#gate, voir docs/ecran-accueil-corde.md) : affiché une fois par session,
- * avant la montre. Le bouton « Dénouer la corde » défait le nœud (animation CSS, ignorée si mouvement réduit),
+ * avant la montre. Le bouton « Commencer l'ascension » ouvre l'écran (fondu CSS, ignoré si mouvement réduit),
  * puis révèle l'accueil. Pendant l'écran : le reste de la page est inerte (clavier, lecteurs d'écran) et le
  * défilement est bloqué. Sans JavaScript, l'écran est masqué par le <noscript> du balisage.
  */
@@ -125,26 +137,33 @@ function setupGate(): boolean {
   if (seen()) { gate.hidden = true; return false }
   root.classList.add('gate-on')
   others.forEach((el) => el.setAttribute('inert', ''))
-  const btn = document.getElementById('gateBtn') as HTMLButtonElement | null
-  btn?.focus({ preventScroll: true })
-  btn?.addEventListener('click', () => {
-    if (btn.disabled) return
-    btn.disabled = true
+  const skipBtn = document.getElementById('gateSkip') as HTMLButtonElement | null
+  skipBtn?.focus({ preventScroll: true })
+  // Ouverture : au clic (accélérateur) ou toute seule (voir plus bas). `maxWait` = délai maximal avant de refermer l'écran
+  // si la montre 3D n'est pas prête une fois le nœud défait.
+  let opening = false
+  const untie = async (maxWait = 4000) => {
+    if (opening) return
+    opening = true
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
     const live = document.getElementById('live')
-    if (live) live.textContent = "Corde dénouée : l'ascension commence."
-    if (!reduce) gate.classList.add('gate-untie')
+    if (live) live.textContent = "L'ascension commence."
     gateOpen = false
-    // La boucle démarre tout de suite : sous l'écran qui se dissout, la montre 3D se met en place et son chargement
-    // (altitude, calage du nord) se joue à l'écran. L'écran ne s'efface qu'une fois la montre 3D en place (8 s au plus).
+    // La boucle démarre tout de suite : sous l'écran, la montre 3D se met en place et son chargement (altitude, calage du nord) se joue à l'écran.
     void start()
+    // 1) Transition en éclats (IntroTransition.vue) : l'écran se fissure et tombe quand la montre est prête (maxWait au plus).
+    //    `false` = impossible (mouvement réduit, pas de WebGL, erreur) et le DOM n'a pas été touché : on retombe sur le fondu.
+    const shattered = await intro.value?.play(gate, { isReady: () => root.classList.contains('loop-live'), maxWait }).catch(() => false)
+    if (shattered) return close()
+    // 2) Repli : la corde se dénoue (CSS), puis fondu, quand la montre 3D est en place (maxWait au plus).
+    if (!reduce) gate.classList.add('gate-untie')
     const t0 = Date.now()
     let leaving = false
     const poll = () => {
       const ready = root.classList.contains('loop-live')
       const animDone = reduce || Date.now() - t0 > 1100
       if (animDone && !ready) root.classList.add('gate-waiting')   // montre pas encore prête : logo et aiguille qui tournent
-      if (((ready && animDone) || Date.now() - t0 > 8000) && !leaving) {
+      if (((ready && animDone) || Date.now() - t0 > maxWait) && !leaving) {
         leaving = true
         if (reduce) return close()
         gate.classList.add('gate-out')
@@ -153,7 +172,32 @@ function setupGate(): boolean {
       if (!leaving) setTimeout(poll, 100)
     }
     poll()
+  }
+  // Plus de bouton central : un clic n'importe où sur l'écran (sauf « Passer l'intro ») ouvre tout de suite.
+  gate.addEventListener('click', (e) => { if (!(e.target as HTMLElement).closest('#gateSkip')) untie() })
+  // « Passer l'intro » : on ferme l'écran tout de suite, sans attendre la 3D, et on passe en vue statique (mémorisée)
+  document.getElementById('gateSkip')?.addEventListener('click', () => {
+    if (opening) return
+    opening = true
+    try { localStorage.setItem('asc-static', '1') } catch { /* stockage indisponible : la vue statique s'applique pour cette visite seulement */ }
+    const live = document.getElementById('live')
+    if (live) live.textContent = 'Intro passée : le contenu est affiché directement.'
+    gateOpen = false
+    void start()
+    close()
   })
+  // Ouverture automatique : aucun clic n'est exigé. La 3D se charge dès 1,5 s ; l'écran s'ouvre seul dès qu'elle est
+  // prête (logo visible au moins 1,8 s), au plus tard 4,5 s après l'affichage, quelle que soit la connexion.
+  const tShown = Date.now()
+  let loading = false
+  const auto = () => {
+    if (opening) return
+    const elapsed = Date.now() - tShown
+    if (!loading && elapsed > 1500) { loading = true; gateOpen = false; void start() }
+    if ((root.classList.contains('loop-live') && elapsed > 1800) || elapsed > 4500) return untie(1500)
+    setTimeout(auto, 150)
+  }
+  setTimeout(auto, 150)
   return true
 }
 
@@ -185,4 +229,6 @@ onBeforeUnmount(() => {
 <template>
   <!-- Contenu statique : Vue ne le met pas à jour, le script de la boucle le pilote -->
   <div v-html="page" />
+  <!-- Transition d'ouverture en éclats (canvas WebGL téléporté dans <body>, absent du DOM hors transition) -->
+  <LoopIntroTransition ref="intro" />
 </template>
