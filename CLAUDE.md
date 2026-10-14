@@ -150,3 +150,6 @@ Redesign in progress, decided in the claude.ai « Portfolio » project (docs `de
 ### Admin → home loop
 
 The home loop (`assets/loop/loop.js`) is driven by `/admin` content through `GET /api/loop-content` (profile lead/facts/CV/contact/booking link, projects, AI tools, carnet). Hardcoded texts are the fallback (empty field or API failure = unchanged). New fields: `Profile.bookingUrl/loopLead/loopFacts`, `Project.order`. Escape every admin string with `esc()` before `innerHTML`. Details: `docs/admin-boucle.md`.
+
+### Intro transition (gate → 3D)
+Opening the rope gate plays a WebGL shatter ("craquelure et chute"): `components/loop/IntroTransition.vue` + `utils/introShatter.ts` (Voronoi shards, all motion in the vertex shader from `uProgress`, GSAP `expo.inOut`) + `utils/introSnapshot.ts` (2D-canvas copy of `#gate`; SVG paint is inlined, defs must keep author attributes, referenced gradients/filters are copied in). Any failure or `prefers-reduced-motion` → `play()` returns `false` and the old CSS fade runs. GSAP lag smoothing is disabled during the transition so slow GPUs never drag it out. Details: `docs/intro-craquelure.md`.
