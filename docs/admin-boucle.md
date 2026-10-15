@@ -66,6 +66,18 @@ La trace est un câble technique (`FAT_V` / `FAT_F`, spline lisse issue de la `C
 
 Supprimés : la boule (perle cuivre et ses bagues), halo émeraude, faisceau (`beam`), lueur (sprite) autour de la boule. L'ancienne carte SVG (`#mapSvg`, `pool`, `beamGlow`, `updateMap`) n'est plus appelée ; elle est conservée en attendant une décision de suppression.
 
+## Pluie sur le dernier cairn : transition vers la flaque
+
+Après la dernière étape (« À déterminer »), la carte ne s'éteint plus d'un coup : il se met à pleuvoir sur le cairn, puis on arrive à la flaque (« Persévérer »).
+
+- **Progression** : `rainR = clamp((p − 0,478) / 0,062)` est passé à `PARC.update(l, dt, intro, rain)`. Bruine dès l'arrêt sur le cairn (p ≈ 0,486), averse ensuite.
+- **Gouttes** : un `InstancedMesh` de 110 gouttes étirées, qui tombent dans un disque de 18 unités autour du cairn. Chaque goutte calcule son point d'impact à sa naissance (lancer de rayon sur la stèle et les pierres, sinon le sol). À l'impact, un anneau s'élargit et s'efface, orienté selon la normale de la surface.
+- **Pierre mouillée** : la stèle et les pierres foncent et deviennent plus brillantes (rugosité 0,95 → 0,42). Elles reviennent à l'état sec quand on remonte.
+- **Caméra** : à partir de `rainR` = 0,2, zoom avant sur la stèle (34 unités, 58 sur écran étroit), puis zoom arrière très haut au-dessus du cairn (175 unités). L'axe de vue reste celui de l'arrêt.
+- **Fondu** : la carte reste visible jusqu'à 0,525 puis s'efface jusqu'à 0,555 ; la flaque apparaît de 0,53 à 0,56. Le défilement étiré (`WK_V`) va jusqu'à 0,555 : la pluie et les zooms se jouent dans la portion lente de la page.
+- **Couleurs** : en mode nuit, gouttes et anneaux en eau claire (`#CFE8F2`) ; en mode jour, à l'encre de la carte (`#27465C`, rôle `--brand` du jour).
+- **Mouvement réduit** : pas de gouttes ni de zoom. L'accueil passe de toute façon en vue statique.
+
 ## Textes du premier écran (rendu serveur)
 
 Surtitre, titre et sous-texte ne passent pas par `loop.js` : `LoopHome.vue` appelle `/api/loop-content` côté serveur (`useFetch`, 2 s maximum) et remplace ces textes dans le HTML de `loop.html` avant l'envoi. Résultat : pas de clignotement entre le texte par défaut et le texte admin, et le texte reste lisible sans JavaScript (SEO, lecteurs d'écran). Champ vide, base indisponible ou délai dépassé : le texte de `loop.html` est conservé. Les valeurs sont échappées avant insertion. Après un enregistrement dans l'admin, compter jusqu'à une minute (cache CDN de l'API). Champs : Admin → Profil → « Accueil « L'ascension » » (limites : 80, 120 et 260 caractères).

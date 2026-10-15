@@ -13,8 +13,8 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const ease=t=>t*t*(3-2*t);
 const sm=(a,b,x)=>ease(clamp((x-a)/(b-a)));
 const trap=(p,a,b,c,d)=>p<=a||p>=d?0:p<b?(p-a)/(b-a):p<=c?1:(d-p)/(d-c);
-/* Le défilement brut est étiré : la scène des projets (progression 0,30 à 0,52) occupe la moitié de la page */
-const WK_R=[0,.17,.68,1],WK_V=[0,.30,.52,1];
+/* Le défilement brut est étiré : la scène des projets (progression 0,30 à 0,555, pluie sur le dernier cairn comprise) occupe la moitié de la page */
+const WK_R=[0,.17,.68,1],WK_V=[0,.30,.555,1];
 function warp(r){for(let i=0;i<3;i++)if(r<=WK_R[i+1])return lerp(WK_V[i],WK_V[i+1],(r-WK_R[i])/(WK_R[i+1]-WK_R[i]));return 1}
 function unwarp(v){for(let i=0;i<3;i++)if(v<=WK_V[i+1])return lerp(WK_R[i],WK_R[i+1],(v-WK_V[i])/(WK_V[i+1]-WK_V[i]));return 1}
 const TAU=Math.PI*2;
@@ -2213,7 +2213,7 @@ restartBtn.addEventListener('click',restartAdventure);
 /* ---------- Boucle : rendu ---------- */
 const NAMES=['Se repérer','S\'équiper','Monter','Persévérer','Se poser'];
 let curName=-1;
-function sceneIndex(p){return p<.07?0:p<.27?1:p<.53?2:p<.80?3:p<.95?4:0}
+function sceneIndex(p){return p<.07?0:p<.27?1:p<.545?2:p<.80?3:p<.95?4:0}
 /* Deux palettes pour la barre de progression : la boucle (cuivre, la teinte de la marque) et la trace de la carte (blanc givre et émeraude, comme la trace) ; elle passe de l'une à l'autre en fondu quand la carte apparaît et disparaît */
 const RT_A={d:[240,162,122],l:[183,154,138],g:[226,109,59],a:[247,176,138],h:[255,226,204]},RT_B={d:[242,251,248],l:[169,189,196],g:[0,245,160],a:[242,251,248],h:[0,245,160]};
 function railTone(k){const el=railTone.el||(railTone.el=document.querySelector('.altrail'));if(!el)return;const q=Math.round(k*50);if(q===railTone.q)return;railTone.q=q;
@@ -2229,8 +2229,8 @@ function announce(i){
 function draw(p,dt){
   pal=palette(p);setVars(root,pal);updateBg(p);if(loaded)prewarm(p);
   setVisible(S[0],Math.max(trap(p,-1,0,.24,.30),trap(p,.95,1,2,3)));
-  {const mo=trap(p,.245,.29,.50,.54);setVisible(S[1],mo);document.documentElement.style.setProperty('--hudk',(1-mo).toFixed(3));railTone(mo)}   // altitude, scène et lieu en bas à gauche : masqués dans l'expérience de la trace
-  setVisible(S[2],trap(p,.51,.55,.77,.81));
+  {const mo=trap(p,.245,.29,.525,.555);setVisible(S[1],mo);document.documentElement.style.setProperty('--hudk',(1-mo).toFixed(3));railTone(mo)}   // altitude, scène et lieu en bas à gauche : masqués dans l'expérience de la trace
+  setVisible(S[2],trap(p,.53,.56,.77,.81));   // la flaque arrive en fondu pendant le zoom arrière au-dessus du dernier cairn sous la pluie
   setVisible(S[3],trap(p,.78,.82,.97,.985));
   // s1
   const split=LAY.sx>0&&!staticMode;CS=split?.17:.07;CST=split?.012:STEP;CSP=split?.12:.07;CEND=split?[.26,.29]:[.24,.28];CREV=split?[.20,.225]:[.19,.22];   // grand écran : accueil = texte à gauche, montre à droite
@@ -2248,7 +2248,7 @@ function draw(p,dt){
   if(THREE_OK&&group)placePush(S[0].style.visibility==='visible'?p:-1);
   // s2
   S[1].style.setProperty('--hd',(p<.5?sm(.262,.292,p):1).toFixed(3));
-  if(S[1].style.visibility==='visible'){PARC.ensure();PARC.update(clamp((p-.30)/.19),dt,1-sm(.31,.38,p))}
+  if(S[1].style.visibility==='visible'){PARC.ensure();PARC.update(clamp((p-.30)/.19),dt,1-sm(.31,.38,p),clamp((p-.478)/.062))}
   // s3
   if(S[2].style.visibility==='visible')drawPuddle(clamp((p-.55)/.24),dt);
   // s4
@@ -2830,7 +2830,7 @@ let hmin=1e9,hmax=-1e9;for(const h of H){if(h<hmin)hmin=h;if(h>hmax)hmax=h}
 
 /* ---------- Arrêts : départ, un par projet, bivouac ---------- */
 const STOPS=[{t:0,name:'Départ',ttl:'Départ',period:'2009–2021',role:'Éducateur, Formateur, Directeur dans le secteur sportif'}].concat(PROJECTS.slice().sort((a,b)=>a.t-b.t).map((p,i)=>({t:p.t,proj:p,name:p.title,ttl:p.stage+' · '+p.place})));
-const PC0=.30,PCW=.19;   // la carte se termine à 49 % : la scène suivante n'apparaît qu'à 51 %
+const PC0=.30,PCW=.19;   // la carte se termine à 49 % ; de 48 à 54 % il pleut sur le dernier cairn (zoom avant, zoom arrière), la flaque apparaît à 53 %
 const NS=STOPS.length,DW=.042,TRAV=(1-NS*DW)/(NS-1);
 STOPS.forEach((s,i)=>{s.a=i*(DW+TRAV);s.b=s.a+DW});
 function param(p){
@@ -3030,6 +3030,51 @@ function placeBlocks(){
       m.scale.set(r*(1+.08*Math.sin(k*2.3)),sy,r*(.86+.08*Math.cos(k*1.7)));m.position.set(bx+Math.sin(k*2.9)*.35,y0+.62*sy,bz+Math.cos(k*3.3)*.35)});
   });
 }
+/* ---------- Pluie sur le dernier cairn (« À déterminer ») : transition vers la flaque ----------
+   rainR (0 → 1) suit le défilement après la dernière étape : bruine dès l'arrêt, averse, la pierre se mouille ;
+   la caméra plonge sur la stèle (zoom avant) puis remonte très haut (zoom arrière) pendant que la flaque apparaît en fondu.
+   Chaque goutte connaît son point d'impact dès sa naissance (lancer de rayon sur la stèle et les pierres, sinon le sol) : elle éclate en anneau là où elle tombe.
+   prefers-reduced-motion : ni gouttes ni zoom, la pierre se mouille et le fondu fait la transition. */
+let rainR=0;const RAIN={on:false,drops:null,splash:[],n:110,acc:0,wet:-1};
+function rainInit(){
+  const DN=RAIN.n,g=new THREE.SphereGeometry(.1,6,4);g.scale(1,7,1);   // goutte étirée par la vitesse : un trait vu de partout
+  const m=new THREE.MeshBasicMaterial({color:0xCFE8F2,transparent:true,opacity:.75,depthWrite:false});
+  const im=new THREE.InstancedMesh(g,m,DN);im.frustumCulled=false;im.renderOrder=12;im.count=0;scene.add(im);
+  RAIN.drops={im,p:Array.from({length:DN},()=>({on:false,x:0,y:0,z:0,v:0,hy:0,hn:new THREE.Vector3(0,1,0)})),o:new THREE.Object3D(),ray:new THREE.Raycaster(),dn:new THREE.Vector3(0,-1,0),o3:new THREE.Vector3()};
+  const rg=new THREE.RingGeometry(.55,.8,28);
+  for(let i=0;i<34;i++){const r=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({color:0xCFE8F2,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));r.visible=false;r.renderOrder=12;r.userData.t=-1;scene.add(r);RAIN.splash.push(r)}
+  RAIN.on=true}
+function rainSpawn(d,bk){
+  const D=RAIN.drops,a=Math.random()*6.283,rr=Math.sqrt(Math.random())*18;   // disque de 18 unités autour du cairn (la stèle fait ≈ 10 de demi-largeur)
+  d.x=bk.pos.x+Math.cos(a)*rr;d.z=bk.pos.z+Math.sin(a)*rr;d.y=bk.base+26+Math.random()*34;d.v=62+Math.random()*16;d.on=true;
+  D.o3.set(d.x,bk.base+80,d.z);D.ray.set(D.o3,D.dn);
+  const hit=D.ray.intersectObjects([bk.mesh,...bk.cairn.children],false)[0];
+  if(hit){d.hy=hit.point.y;d.hn.copy(hit.face.normal).transformDirection(hit.object.matrixWorld)}else{d.hy=terrainAt(d.x,d.z)+.3;d.hn.set(0,1,0)}}
+function rainSplash(x,y,z,n){
+  const r=RAIN.splash.find(s=>s.userData.t<0);if(!r)return;
+  r.position.set(x+n.x*.15,y+n.y*.15,z+n.z*.15);r.lookAt(x+n.x,y+n.y,z+n.z);r.userData.t=0;r.visible=true}
+function rainStep(r,dt,bk){
+  const L=theme==='light',col=L?0x27465C:0xCFE8F2;   // jour : gouttes et anneaux à l'encre de la carte ; nuit : eau claire
+  // la pierre se mouille : plus sombre et plus brillante (sans gouttes en mouvement réduit)
+  {const w=sm(.05,.5,r);if(Math.abs(w-RAIN.wet)>.002){RAIN.wet=w;const[top,side,rock]=bk.mats;
+    top.roughness=side.roughness=rock.roughness=lerp(.95,.42,w);top.color.setScalar(lerp(1,.72,w));side.color.setHex(0x9A9387).multiplyScalar(lerp(1,.68,w));rock.color.setHex(0x9A9387).multiplyScalar(lerp(1,.68,w))}}
+  if(reduce)return;
+  if(!RAIN.on){if(r<=0)return;rainInit()}
+  const D=RAIN.drops,rate=r>0?lerp(40,220,sm(0,.35,r))*(1-sm(.9,1,r)):0;   // bruine à l'arrêt, averse pendant le zoom
+  D.im.material.color.setHex(col);D.im.material.opacity=L?.6:.75;
+  RAIN.acc+=rate*dt;
+  let k=0;
+  for(const d of D.p){
+    if(!d.on&&RAIN.acc>=1){RAIN.acc-=1;rainSpawn(d,bk)}
+    if(!d.on)continue;
+    d.y-=d.v*dt;
+    if(d.y<=d.hy){d.on=false;rainSplash(d.x,d.hy,d.z,d.hn);continue}
+    D.o.position.set(d.x,d.y,d.z);D.o.updateMatrix();D.im.setMatrixAt(k++,D.o.matrix)}
+  RAIN.acc=Math.min(RAIN.acc,4);D.im.count=k;D.im.instanceMatrix.needsUpdate=true;
+  RAIN.splash.forEach(s=>{if(s.userData.t<0)return;s.userData.t+=dt/.45;const u=s.userData.t;
+    if(u>=1){s.userData.t=-1;s.visible=false;return}
+    s.material.color.setHex(col);s.scale.setScalar(.6+2.4*u);s.material.opacity=(L?.55:.7)*(1-u)*(1-u)})}
+function rainHide(){if(!RAIN.on)return;RAIN.drops.im.count=0;RAIN.drops.p.forEach(d=>d.on=false);RAIN.splash.forEach(s=>{s.userData.t=-1;s.visible=false});RAIN.acc=0}
 function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return;renderer.setSize(w,h,false);{const bs=renderer.getDrawingBufferSize(new THREE.Vector2()),k=bs.x/w;FATS.forEach(m=>{m.uniforms.uRes.value.copy(bs);m.uniforms.uW.value=m.userData.cw*k})}cam.aspect=w/h;if(!staticMode)cam.fov=baseFov();cam.updateProjectionMatrix();placeBlocks()}
 
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
@@ -3050,6 +3095,12 @@ function rig(p,dt,snap,intro=0){
   v2.copy(ahead);v2.y+=14;   // regard qui garde les crêtes dans l'image
   const blk=blocks.find(x=>x.stopIdx===aw);
   if(blk&&mw>0){v2.lerp(blk.pos,mw*(cam.aspect<.9?1:.55))}
+  if(rainR>0&&!reduce&&!staticMode){   // pluie sur le dernier cairn : zoom avant sur la stèle mouillée, puis zoom arrière très haut, la flaque apparaît en fondu (draw)
+    const end=blocks.find(x=>x.t>=1);
+    if(end){const z=clamp((rainR-.2)/.8),zi=ease(sm(0,.45,z)),zo=ease(sm(.5,1,z));
+      let ex=v1.x-end.pos.x,ez=v1.z-end.pos.z;const el=Math.hypot(ex,ez)||1;ex/=el;ez/=el;   // on garde l'axe de vue de l'arrêt
+      v3.set(end.pos.x+ex*(cam.aspect<.9?58:34),end.base+10,end.pos.z+ez*(cam.aspect<.9?58:34));v1.lerp(v3,zi);v3.set(end.pos.x+ex*34,end.base+175,end.pos.z+ez*34);v1.lerp(v3,zo);
+      v3.set(end.pos.x,end.base+2.5,end.pos.z);v2.lerp(v3,Math.max(zi,zo))}}
   {const u=mat.uniforms,fk=blk&&STOPS[aw].proj?mw:0;if(blk)u.uF.value.set(blk.pos.x,blk.pos.z);u.uFk.value+=(fk-u.uFk.value)*(snap?1:1-Math.exp(-dt*4))}   // relief de l'étape : s'allume à l'arrêt, s'éteint en repartant   // téléphone : à l'arrêt, la caméra vise exactement le bloc (centré, jamais rogné sur le côté)
   const k=snap?1:1-Math.exp(-dt*5);
   if(intro>.001){
@@ -3249,12 +3300,14 @@ function dynamicView(){if(!inited)return;resize()}
 let inited=false;
 function ensure(){if(inited||!OK)return;inited=true;initScene();resize();camPos.set(0,0,0);camTgt.set(0,0,0);first=true}
 let first=true,lastT=0;
-function update(l,dt,intro){
+function update(l,dt,intro,rain=0){
   if(!inited)return;
+  rainR=staticMode?0:rain;
   const iL=1-sm(STOPS[0].b,STOPS[1].a,l);   // la vue de dessus (alignée sur le verre) ne dure que le temps du Départ, puis la caméra s'incline en rejoignant la première étape
   updateSky(l);rig(l,dt,first||iL>0,iL);first=false;
   {const tt=param(l),k=Math.round(kmAt(tt)),g=Math.round(gainAtT(tt)/10);if(k!==totK||g!==totG){totK=k;totG=g;mapTot.textContent=kmLine(tt)}}   /* sous le titre : kilomètre et dénivelé cumulés évoluent avec l'avancée sur la trace */
   pick();updateUi(l);
+  {const end=blocks.find(x=>x.t>=1);if(end)rainStep(rainR,dt,end);if(rainR<=0)rainHide()}
   renderer.render(scene,cam);placeHolos();
 }
 function sizeIt(){if(inited)resize()}
