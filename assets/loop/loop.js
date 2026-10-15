@@ -575,7 +575,7 @@ function initThree(){
   const orPoli=new THREE.MeshStandardMaterial({color:0xE6EAEE,metalness:.96,roughness:.14,envMap:env,envMapIntensity:1.7});
   // boîtier en polymère renforcé, lunette en acier brossé
   const body=new THREE.Mesh(new THREE.CylinderGeometry(2.46,2.5,.5,110),polymer);body.rotation.x=Math.PI/2;body.position.z=-.25;group.add(body);
-  const bp=[[1.98,-.02],[1.98,.07],[2.04,.13],[2.44,.13],[2.52,.05],[2.52,-.02]].map(([r,y])=>new THREE.Vector2(r,y));
+  const bp=[[2.52,-.02],[2.52,.05],[2.44,.13],[2.04,.13],[1.98,.07],[1.98,-.02]].map(([r,y])=>new THREE.Vector2(r,y));   // profil décrit de l'extérieur vers l'intérieur : LatheGeometry oriente alors les faces vers l'extérieur (flanc, dessus, bord intérieur) ; dans l'autre sens elles étaient retournées et la lunette devenait transparente selon l'angle
   const bg=new THREE.LatheGeometry(bp,128);bg.rotateX(Math.PI/2);group.add(new THREE.Mesh(bg,or));
   makeBezel();bezelTex=new THREE.CanvasTexture(bezelCanvas);bezelTex.anisotropy=8;
   const bz=new THREE.Mesh(new THREE.RingGeometry(2.05,2.43,128),new THREE.MeshStandardMaterial({map:bezelTex,color:0x5E5E5E,metalness:.7,roughness:.55,envMap:env,envMapIntensity:.32}));bz.position.z=.132;group.add(bz);
