@@ -300,7 +300,8 @@ const THREE_OK=!!THREE&&webglOK();
 const cv=$('#compassCanvas');
 let strapLow=null,skyK=-1;
 let renderer,scene3,cam,group,needle,dialTex,dialCanvas,bezelTex,bezelCanvas,vis=10,strapApply=null,readCanvas=null,readTex=null,lastReadDeg=-1,lastReadKey='',aimKey=null,toolAim=-1,dialTool=-1,dialOver=null,pinnedKey=null,hoverKey=null,roMesh=null,topoMesh=null,topoTex=null,lastInto=null;
-const NEEDLE_TIP=.44,DIAL_R=1.98;   // pointe nord de l'aiguille (pivot à .06 + losange de .38) et rayon du cadran, en unités de la montre : la trace des étapes démarre sous cette pointe
+const NEEDLE_TIP=.44,DIAL_R=1.98,NDL={ok:false,tip:[0,0],piv:[0,0]};   // NDL : pointe et pivot de l'aiguille du cadran à l'écran (px), recopiés par l'aiguille de la carte pendant la plongée
+   // pointe nord de l'aiguille (pivot à .06 + losange de .38) et rayon du cadran, en unités de la montre : la trace des étapes démarre sous cette pointe
 /* ---------- Montre GPS outdoor, inspirée des séries Garmin Fenix et Enduro ---------- */
 const DIAL_NIGHT={bg:'#050607',pat:'rgba(255,255,255,.05)',tickBig:'#E6F4F1',tick:'rgba(200,210,216,.6)',ring:'rgba(255,255,255,.35)',N:'#E26D3B',card:'#E6F4F1',inter:'#9AA4AB',deg:'#B8C0C6',lab:'#AEB8BF',val:'#E6F4F1',qual:'#C9D1D6',rTitle:'#E6F4F1',rDesc:'#B9C2CA'};
 const DIAL_DAY={bg:'#F2EEE6',pat:'rgba(60,40,20,.045)',tickBig:'#1B1712',tick:'rgba(27,23,18,.62)',ring:'rgba(27,23,18,.45)',N:'#A8401B',card:'#1B1712',inter:'#5F584D',deg:'#554E43',lab:'#554E43',val:'#1B1712',qual:'#3F392F',rTitle:'#1B1712',rDesc:'#3F392F'};
@@ -937,7 +938,9 @@ function updateCompass(p,dt){
   const into=p>.21&&p<.5;if(lastInto!==null&&into&&!lastInto){tick();swoosh();haptic([10,40,16])}lastInto=into;
   {stand.updateMatrixWorld(true);const e=new THREE.Vector3(1.98,0,.053),c0=new THREE.Vector3(0,0,.053);group.localToWorld(e);group.localToWorld(c0);e.project(cam);c0.project(cam);
    DIAL.r=Math.abs(e.x-c0.x)*LAY.W/2;DIAL.cx=(c0.x*.5+.5)*LAY.W;DIAL.cy=(.5-c0.y*.5)*LAY.H;
-   if(LAY.sx&&Math.abs(DIAL.cx-lastSpx)>1){lastSpx=DIAL.cx;const sp=$('#spot');sp.style.setProperty('--spx',DIAL.cx.toFixed(0)+'px')}}
+   if(LAY.sx&&Math.abs(DIAL.cx-lastSpx)>1){lastSpx=DIAL.cx;const sp=$('#spot');sp.style.setProperty('--spx',DIAL.cx.toFixed(0)+'px')}
+   e.set(0,.38,0);c0.set(0,0,0);needle.updateWorldMatrix(true,false);needle.localToWorld(e);needle.localToWorld(c0);e.project(cam);c0.project(cam);
+   NDL.tip[0]=(e.x*.5+.5)*LAY.W;NDL.tip[1]=(.5-e.y*.5)*LAY.H;NDL.piv[0]=(c0.x*.5+.5)*LAY.W;NDL.piv[1]=(.5-c0.y*.5)*LAY.H;NDL.ok=true}
   renderer.render(scene3,cam);
   preSync();
   placeHot(p);
@@ -2930,14 +2933,13 @@ function initScene(){
   // émissif ×2,5 et halo large dans le shader (« fil chaud / fibre optique sous tension »), à la place d'un Bloom en post-traitement (voir docs/admin-boucle.md)
   fatLine(fgeo,{w:3,c:0x1E293B,cl:0x1E293B,a:1,al:1,mode:0,order:2});
   tube=fatLine(fgeo,{w:26,c:0x38BDF8,c2:0x00F2FE,cl:0x0369A1,c2l:0x0891B2,a:1,al:1,boost:2.5,boostl:1,mode:1,glow:true,add:true,cap:0,order:3});
-  /* aiguille : la même que celle de la montre (losange braise au nord, argent au sud, mêmes proportions), à l'échelle du sol (RFIN / DIAL_R) ;
-     couchée sur la trace, nord vers l'avant, avec une arête centrale légèrement relevée. Au départ elle prend exactement la place de l'aiguille du cadran. */
-  {const k=RFIN/DIAL_R,W=.12*k,N=.38*k,S=.30*k,R=.04*k;   // matériaux transparents (opacité 1) : au Départ, l'aiguille est triée avec la pierre gravée et passe devant elle
+  /* aiguille de la carte : le triangle nord (braise, deux facettes) de l'aiguille du cadran, à l'échelle du sol (RFIN / DIAL_R) ; sa base est le pivot.
+     Couché sur la trace, pointe vers l'avant, avec une arête centrale légèrement relevée. Pendant la plongée, il recouvre exactement celui du cadran (voir NDL dans rig). */
+  {const k=RFIN/DIAL_R,W=.12*k,N=.38*k,R=.04*k;   // matériaux transparents (opacité 1) : au Départ, l'aiguille est triée avec la pierre gravée et passe devant elle
     ball=new THREE.Group();ball.userData.n=N;
     const face=(a,b,c,col)=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([...a,...b,...c],3));return new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide,transparent:true}))};
-    const tipN=[0,0,N],tipS=[0,0,-S],l=[-W,0,0],r=[W,0,0],c=[0,R,0];   // +z : direction de la trace (lookAt), +y : vers le ciel
-    [face(tipN,l,c,0xF59A5C),face(tipN,c,r,0xD4581F),face(tipS,c,l,0xDDE3E7),face(tipS,r,c,0x9AA3AA)].forEach(m=>ball.add(m));
-    const piv=new THREE.Mesh(new THREE.CircleGeometry(.035*k,20),new THREE.MeshBasicMaterial({color:0x0B0D10,side:THREE.DoubleSide,transparent:true}));piv.rotation.x=-Math.PI/2;piv.position.y=R+.02;ball.add(piv);
+    const tip=[0,0,N],l=[-W,0,0],r=[W,0,0],c=[0,R,0];   // +z : direction de la trace (lookAt), +y : vers le ciel
+    [face(tip,l,c,0xF59A5C),face(tip,c,r,0xD4581F)].forEach(m=>ball.add(m));
     scene.add(ball)}
   buildBlocks();
 }
@@ -3002,7 +3004,7 @@ function placeBlocks(){
 function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return;renderer.setSize(w,h,false);{const bs=renderer.getDrawingBufferSize(new THREE.Vector2()),k=bs.x/w;FATS.forEach(m=>{m.uniforms.uRes.value.copy(bs);m.uniforms.uW.value=m.userData.cw*k})}cam.aspect=w/h;if(!staticMode)cam.fov=baseFov();cam.updateProjectionMatrix();placeBlocks()}
 
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
-const v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
+const nT=OK?new THREE.Vector3():null,nP=OK?new THREE.Vector3():null,nQ=OK?new THREE.Quaternion():null,v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
 let stopW=0,curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
 function rig(p,dt,snap,intro=0){
   const t=param(p);
@@ -3039,8 +3041,14 @@ function rig(p,dt,snap,intro=0){
   // Au Départ, sa pointe est sur le départ de la trace, comme celle de l'aiguille du cadran pendant la plongée (rien avant la trace : le corps de l'aiguille dépasse en arrière)
   const tb=clamp(t-(blk&&aw>0?mw*11/curve.getLength():0));
   {const sc=lerp(1,.45,sm(0,.03,t)),tg=curve.getTangentAt(clamp(tb,.0005,.9995));
-   if(intro>.001)tg.lerp(v3.set(hd.x,0,hd.z),ease(intro)).normalize();   // pendant la vue de dessus : exactement l'axe de l'aiguille du cadran
    ball.scale.setScalar(sc);ball.position.copy(curve.getPointAt(tb)).addScaledVector(tg,-ball.userData.n*sc);v3.copy(ball.position).add(tg);ball.lookAt(v3);
+   if(intro>.001&&NDL.ok&&t<.006){   // vue de dessus : on reprend à l'écran la pointe et le pivot de l'aiguille du cadran (ramenés au plan de la trace), puis on glisse vers la trace en quittant le Départ
+     cam.updateMatrixWorld();const w=cv.clientWidth,h=cv.clientHeight,y=curve.getPointAt(0).y,e=ease(intro)*(1-sm(0,.006,t));   // dès que la trace avance, l'aiguille la rejoint (la caméra, elle, reste en vue de dessus un peu plus longtemps)
+    
+     const onPlane=(q,o)=>{o.set(q[0]/w*2-1,1-q[1]/h*2,.5).unproject(cam).sub(cam.position);return o.multiplyScalar((y-cam.position.y)/o.y).add(cam.position)};
+     onPlane(NDL.tip,nT);onPlane(NDL.piv,nP);const so=nT.distanceTo(nP)/ball.userData.n;
+     nQ.copy(ball.quaternion);v3.copy(ball.position);ball.position.copy(nP);ball.lookAt(nT);
+     nQ.slerp(ball.quaternion,e);ball.quaternion.copy(nQ);ball.position.copy(v3).lerp(nP,e);ball.scale.setScalar(lerp(sc,so,e))}
    const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // la pointe (et non le pivot) est sur la trace ; au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
   FATS.forEach(m=>{m.uniforms.uT.value=tb;m.uniforms.uTime.value=reduce?0:tNow});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
@@ -3077,7 +3085,7 @@ function parcTheme(L){   // carte de jour : relief en teintes cuivre foncé en m
     m.blending=(o.add&&!L)?THREE.AdditiveBlending:THREE.NormalBlending;m.needsUpdate=true;   // l'additif s'efface sur fond clair
     m.uniforms.uColor.value.set(L?o.cl:o.c);m.uniforms.uC2.value.set(L?(o.c2l||o.cl):(o.c2||o.c));m.uniforms.uAlpha.value=L?o.al:o.a;m.uniforms.uBoost.value=L?(o.boostl||1):(o.boost||1)});
   blocks.forEach(b=>{b.bead.material.color.set(L?0x0B2E3A:0xF2FBF8)});
-  if(ball){const cols=L?[0xD2672B,0xA8401B,0x4A4F55,0x23272B]:[0xF59A5C,0xD4581F,0xDDE3E7,0x9AA3AA];cols.forEach((h,i)=>ball.children[i].material.color.setHex(h));ball.children[4].material.color.setHex(L?0x1B1712:0x0B0D10)}   // mêmes teintes que l'aiguille du cadran
+  if(ball){(L?[0xD2672B,0xA8401B]:[0xF59A5C,0xD4581F]).forEach((h,i)=>ball.children[i].material.color.setHex(h))}   // mêmes teintes que le nord de l'aiguille du cadran
 }
 function updateSky(p){
   if(parcLt!==(theme==='light'))parcTheme(theme==='light');
