@@ -2930,15 +2930,15 @@ function initScene(){
   // émissif ×2,5 et halo large dans le shader (« fil chaud / fibre optique sous tension »), à la place d'un Bloom en post-traitement (voir docs/admin-boucle.md)
   fatLine(fgeo,{w:3,c:0x1E293B,cl:0x1E293B,a:1,al:1,mode:0,order:2});
   tube=fatLine(fgeo,{w:26,c:0x38BDF8,c2:0x00F2FE,cl:0x0369A1,c2l:0x0891B2,a:1,al:1,boost:2.5,boostl:1,mode:1,glow:true,add:true,cap:0,order:3});
-  /* boule travaillée : perle cuivre laquée (vernis, reflets de l'environnement) gravée de courbes de niveau qui roulent avec elle, enfilée sur le wire entre deux bagues givrées orientées sur la trace */
-  {const bc=document.createElement('canvas');bc.width=512;bc.height=256;const x=bc.getContext('2d'),g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'#F08A55');g.addColorStop(.5,'#E26D3B');g.addColorStop(1,'#B8481F');x.fillStyle=g;x.fillRect(0,0,512,256);
-    x.lineWidth=2;for(let k=0;k<14;k++){x.strokeStyle=k%5===0?'rgba(255,226,200,.7)':'rgba(120,40,12,.45)';x.beginPath();for(let i=0;i<=64;i++){const u=i/64*512,v=18+k*16+Math.sin(i/64*Math.PI*4+k*.9)*6+Math.sin(i/64*Math.PI*10+k)*2;i?x.lineTo(u,v):x.moveTo(u,v)}x.stroke()}
-    const tx=new THREE.CanvasTexture(bc);tx.anisotropy=4;const envB=makeEnvP();
-    ball=new THREE.Group();
-    const core=new THREE.Mesh(new THREE.SphereGeometry(1.7,40,28),new THREE.MeshPhysicalMaterial({map:tx,roughness:.32,metalness:.15,clearcoat:1,clearcoatRoughness:.12,envMap:envB,envMapIntensity:1.2,emissive:0x3A1206,emissiveIntensity:.35}));
-    const ringM=new THREE.MeshStandardMaterial({color:0xE6EEF0,roughness:.22,metalness:.9,envMap:envB,envMapIntensity:1.4});
-    [-1,1].forEach(sg=>{const r=new THREE.Mesh(new THREE.TorusGeometry(.62,.16,12,32),ringM);r.position.z=sg*1.52;ball.add(r)});   // bagues : l'axe du tore suit z, donc la trace
-    ball.add(core);ball.userData.core=core;scene.add(ball)}
+  /* aiguille : la même que celle de la montre (losange braise au nord, argent au sud, mêmes proportions), à l'échelle du sol (RFIN / DIAL_R) ;
+     couchée sur la trace, nord vers l'avant, avec une arête centrale légèrement relevée. Au départ elle prend exactement la place de l'aiguille du cadran. */
+  {const k=RFIN/DIAL_R,W=.12*k,N=.38*k,S=.30*k,R=.04*k;   // matériaux transparents (opacité 1) : au Départ, l'aiguille est triée avec la pierre gravée et passe devant elle
+    ball=new THREE.Group();ball.userData.n=N;
+    const face=(a,b,c,col)=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([...a,...b,...c],3));return new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide,transparent:true}))};
+    const tipN=[0,0,N],tipS=[0,0,-S],l=[-W,0,0],r=[W,0,0],c=[0,R,0];   // +z : direction de la trace (lookAt), +y : vers le ciel
+    [face(tipN,l,c,0xF59A5C),face(tipN,c,r,0xD4581F),face(tipS,c,l,0xDDE3E7),face(tipS,r,c,0x9AA3AA)].forEach(m=>ball.add(m));
+    const piv=new THREE.Mesh(new THREE.CircleGeometry(.035*k,20),new THREE.MeshBasicMaterial({color:0x0B0D10,side:THREE.DoubleSide,transparent:true}));piv.rotation.x=-Math.PI/2;piv.position.y=R+.02;ball.add(piv);
+    scene.add(ball)}
   buildBlocks();
 }
 function buildBlocks(){
@@ -3035,10 +3035,13 @@ function rig(p,dt,snap,intro=0){
     cam.position.copy(camPos);cam.up.set(0,1,0);cam.lookAt(camTgt);
     if(!staticMode&&Math.abs(cam.fov-baseFov())>.01){cam.fov=baseFov();cam.updateProjectionMatrix()}
   }
-  // à l'arrêt sur un cairn, la boule se pose sur le wire juste devant lui (côté caméra) : elle est la perle du cairn actif, jamais enfouie dans les pierres
-  const tb=clamp(t+(blk?(aw===0?1:-1)*mw*11/curve.getLength():0));   // au Départ, la boule se pose juste après le cairn (rien avant la trace)
-  ball.position.copy(curve.getPointAt(tb));ball.scale.setScalar(lerp(1,.62,sm(0,.03,t)));   // boule au départ, perle ensuite
-  {const tg=curve.getTangentAt(clamp(tb,.0005,.9995));v3.copy(ball.position).add(tg);ball.lookAt(v3);ball.userData.core.rotation.x=tb*curve.getLength()/(1.7*ball.scale.x)}   // orientée sur la trace, elle roule en avançant
+  // l'aiguille suit la trace, pointe en tête du pulse ; à l'arrêt sur un cairn, sa pointe s'arrête juste devant lui (côté caméra) et le désigne.
+  // Au Départ, sa pointe est sur le départ de la trace, comme celle de l'aiguille du cadran pendant la plongée (rien avant la trace : le corps de l'aiguille dépasse en arrière)
+  const tb=clamp(t-(blk&&aw>0?mw*11/curve.getLength():0));
+  {const sc=lerp(1,.45,sm(0,.03,t)),tg=curve.getTangentAt(clamp(tb,.0005,.9995));
+   if(intro>.001)tg.lerp(v3.set(hd.x,0,hd.z),ease(intro)).normalize();   // pendant la vue de dessus : exactement l'axe de l'aiguille du cadran
+   ball.scale.setScalar(sc);ball.position.copy(curve.getPointAt(tb)).addScaledVector(tg,-ball.userData.n*sc);v3.copy(ball.position).add(tg);ball.lookAt(v3);
+   const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // la pointe (et non le pivot) est sur la trace ; au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
   FATS.forEach(m=>{m.uniforms.uT.value=tb;m.uniforms.uTime.value=reduce?0:tNow});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
@@ -3050,12 +3053,12 @@ function rig(p,dt,snap,intro=0){
     bk.shadow.scale.setScalar(1+.25*l);bk.shadow.material.opacity=.6-.3*l;
     bk.holder.rotation.y=bk.faceYaw+clamp((curT-bk.t)*8,-.55,.55)*.5;
     bk.mesh.rotation.x=-Math.PI/2+.42-.12*l;
-    // état : cairn actif à 100 % (la boule posée devant lui fait la perle), passés à 80 % avec un point, à venir à 30 %
+    // état : cairn actif à 100 % (l'aiguille arrêtée devant lui le désigne), passés à 80 % avec un point, à venir à 30 %
     const st=bk.stopIdx===aw?2:bk.stopIdx<aw?1:0,goal=[.3,.8,1][st];
     bk.vis+=(goal-bk.vis)*(snap?1:1-Math.exp(-dt*6));
     bk.mats.forEach(m=>{m.opacity=bk.vis;m.depthWrite=bk.vis>.97});
     {const on=st===2;bk.mesh.renderOrder=on?10:0;if(bk.mats[0].depthTest===on){bk.mats[0].depthTest=bk.mats[1].depthTest=!on}}   // la pierre gravée du cairn actif passe devant le wire et les courbes : son texte reste lisible
-    const bs=[0,.38,0][st];   // cairn actif : la boule elle-même fait la perle
+    const bs=[0,.38,0][st];   // cairn actif : pas de perle, l'aiguille le désigne
     bk.bead.scale.setScalar(Math.max(.001,bk.bead.scale.x+(bs-bk.bead.scale.x)*(snap?1:1-Math.exp(-dt*6))));bk.bead.visible=bk.bead.scale.x>.02;
   });
 }
@@ -3074,6 +3077,7 @@ function parcTheme(L){   // carte de jour : relief en teintes cuivre foncé en m
     m.blending=(o.add&&!L)?THREE.AdditiveBlending:THREE.NormalBlending;m.needsUpdate=true;   // l'additif s'efface sur fond clair
     m.uniforms.uColor.value.set(L?o.cl:o.c);m.uniforms.uC2.value.set(L?(o.c2l||o.cl):(o.c2||o.c));m.uniforms.uAlpha.value=L?o.al:o.a;m.uniforms.uBoost.value=L?(o.boostl||1):(o.boost||1)});
   blocks.forEach(b=>{b.bead.material.color.set(L?0x0B2E3A:0xF2FBF8)});
+  if(ball){const cols=L?[0xD2672B,0xA8401B,0x4A4F55,0x23272B]:[0xF59A5C,0xD4581F,0xDDE3E7,0x9AA3AA];cols.forEach((h,i)=>ball.children[i].material.color.setHex(h));ball.children[4].material.color.setHex(L?0x1B1712:0x0B0D10)}   // mêmes teintes que l'aiguille du cadran
 }
 function updateSky(p){
   if(parcLt!==(theme==='light'))parcTheme(theme==='light');
