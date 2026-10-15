@@ -300,7 +300,7 @@ const THREE_OK=!!THREE&&webglOK();
 const cv=$('#compassCanvas');
 let strapLow=null,skyK=-1;
 let renderer,scene3,cam,group,needle,dialTex,dialCanvas,bezelTex,bezelCanvas,vis=10,strapApply=null,readCanvas=null,readTex=null,lastReadDeg=-1,lastReadKey='',aimKey=null,toolAim=-1,dialTool=-1,dialOver=null,pinnedKey=null,hoverKey=null,roMesh=null,topoMesh=null,topoTex=null,lastInto=null;
-const NEEDLE_PIV=.06,DIAL_R=1.98,NDL={ok:false,tip:[0,0],piv:[0,0]};   // pivot de l'aiguille (base du triangle nord) et rayon du cadran, en unités de la montre : la trace des étapes démarre sous ce pivot, l'aiguille la recouvre ; NDL : pointe et pivot de l'aiguille à l'écran (px), recopiés par l'aiguille de la carte pendant la plongée
+const NEEDLE_PIV=.06,DIAL_R=1.98,NDL={ok:false,w:0,tip:[0,0],piv:[0,0]};   // pivot de l'aiguille (base du triangle nord) et rayon du cadran, en unités de la montre : la trace des étapes démarre sous ce pivot, l'aiguille la recouvre ; NDL : pointe et pivot de l'aiguille à l'écran (px), recopiés par l'aiguille de la carte pendant la plongée
    // pointe nord de l'aiguille (pivot à .06 + losange de .38) et rayon du cadran, en unités de la montre : la trace des étapes démarre sous cette pointe
 /* ---------- Montre GPS outdoor, inspirée des séries Garmin Fenix et Enduro ---------- */
 const DIAL_NIGHT={bg:'#050607',pat:'rgba(255,255,255,.05)',tickBig:'#E6F4F1',tick:'rgba(200,210,216,.6)',ring:'rgba(255,255,255,.35)',N:'#E26D3B',card:'#E6F4F1',inter:'#9AA4AB',deg:'#B8C0C6',lab:'#AEB8BF',val:'#E6F4F1',qual:'#C9D1D6',rTitle:'#E6F4F1',rDesc:'#B9C2CA'};
@@ -929,6 +929,7 @@ function updateCompass(p,dt){
   // métamorphose : les aiguilles s'effacent, les données du cadran se dilatent en relief topographique
   const nf=p<.5?1-sm(.29,.33,p):sm(.96,1,p),tf=p<.5?sm(.19,.26,p):1-sm(.96,1,p);
   const tw=transW(p),bk=needleBlink(tNow),no=nf*(1-tw*(1-bk));   // pendant la transition, l'aiguille reste visible et clignote : c'est elle qui fait le halo
+  NDL.w=nf;   // la carte ne recopie l'aiguille du cadran que tant qu'elle est visible
   needle.children.forEach(m=>{m.material.opacity=no});needle.visible=no>.01&&!preTraveling();needle.scale.setScalar(1+.4*(1-nf)+tw*.18*bk);   // elle grandit autour de son pivot, posé sur le départ de la trace : en grandissant, elle recouvre un peu plus la trace
   {const on=tw>.2&&bk>.5;if(on&&!lastBlinkOn&&!paused&&!reduce)tickSoft();lastBlinkOn=on}
   roMesh.material.opacity=p<.5?1-sm(.17,.22,p):sm(.96,1,p);
@@ -2219,7 +2220,7 @@ function draw(p,dt){
     c.li.style.transform=isMobile()?`translateY(${(1-o)*10}px)`:`scale(${.92+.08*o})`;
     c.ln.style.strokeDashoffset=1-clamp((p-(CS+i*CST))/.03);c.ln.style.opacity=o;
   });
-  if(S[0].style.visibility==='visible'){updateCompass(p,dt);drawAurora(tNow+20)}else preEnd();   // premier écran quitté pendant le trajet de l'aiguille : on la retire, sinon elle resterait figée au centre de la carte
+  if(S[0].style.visibility==='visible'){updateCompass(p,dt);drawAurora(tNow+20)}else{preEnd();NDL.w=0}   // premier écran quitté pendant le trajet de l'aiguille : on la retire, sinon elle resterait figée au centre de la carte
   if(THREE_OK&&group)placePush(S[0].style.visibility==='visible'?p:-1);
   // s2
   S[1].style.setProperty('--hd',(p<.5?sm(.262,.292,p):1).toFixed(3));
@@ -2824,8 +2825,9 @@ const camPos=OK?new THREE.Vector3():{},camTgt=OK?new THREE.Vector3():{};
 const FAT_V='attribute vec3 aStart,aEnd;attribute float aSel,aSide,aT;uniform vec2 uRes;uniform float uW,uCap,uLen;varying float vT,vSide,vS;'+
   'void main(){vT=aT;vSide=aSide;vS=aT*uLen;mat4 M=projectionMatrix*modelViewMatrix;vec4 a=M*vec4(aStart,1.),b=M*vec4(aEnd,1.);float nr=.1;if(a.w<nr&&b.w<nr){gl_Position=vec4(2.,2.,2.,1.);return;}if(a.w<nr)a=mix(a,b,(nr-a.w)/(b.w-a.w));if(b.w<nr)b=mix(b,a,(nr-b.w)/(a.w-b.w));'+
   'vec2 sa=a.xy/a.w*uRes*.5,sb=b.xy/b.w*uRes*.5,d=sb-sa;float l=length(d);d=l>1e-4?d/l:vec2(1.,0.);bool e=aSel>.5;vec4 c=e?b:a;vec2 sc=e?sb:sa;float W=uW+1.;sc+=d*(e?1.:-1.)*uCap*W*.5;vec2 o=vec2(-d.y,d.x)*aSide*W*.5;gl_Position=vec4((sc+o)/(uRes*.5)*c.w,c.z,c.w);}';
-const FAT_F='precision highp float;uniform vec3 uColor,uC2;uniform float uAlpha,uT,uMode,uW,uGlow,uTime,uLen,uBoost;varying float vT,vSide,vS;'+
-  'void main(){if(uMode>.5&&vT>uT)discard;float a=uAlpha;vec3 col=uColor;'+
+/* uH0..uH1 : portion de la trace recouverte par l'aiguille (de sa base à sa pointe), jamais dessinée : ni le câble ni la lueur ne dépassent de l'aiguille, même dans un virage ; au départ (uH0 = 0), le bout arrondi du câble avant la trace est masqué aussi */
+const FAT_F='precision highp float;uniform vec3 uColor,uC2;uniform float uAlpha,uT,uMode,uW,uGlow,uTime,uLen,uBoost,uH0,uH1;varying float vT,vSide,vS;'+
+  'void main(){if(uMode>.5&&vT>uT)discard;if(vT<uH1&&(vT>uH0||uH0<=0.))discard;float a=uAlpha;vec3 col=uColor;'+
   'if(uGlow>.5){float d=abs(vSide),dh=max(0.,uT*uLen-vS);float core=exp(-d*d*70.),glow=exp(-d*d*9.)*.5,bloom=exp(-d*d*2.2)*.22;'+
   'float wave=.6+.4*smoothstep(.35,1.,sin(vS*.16-uTime*5.));'+
   'col=mix(uC2,uColor,smoothstep(0.,90.,dh))*uBoost;col=mix(min(col,vec3(1.)),vec3(1.),core*.3);a*=clamp((core+glow+bloom)*(.55*wave+.45),0.,1.);}'+
@@ -2838,7 +2840,7 @@ function fatGeo(pts){const m=pts.length-1,S=new Float32Array(m*12),E=new Float32
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(S,3));g.setAttribute('aStart',new THREE.BufferAttribute(S,3));g.setAttribute('aEnd',new THREE.BufferAttribute(E,3));g.setAttribute('aSel',new THREE.BufferAttribute(sel,1));g.setAttribute('aSide',new THREE.BufferAttribute(sd,1));g.setAttribute('aT',new THREE.BufferAttribute(tt,1));g.setIndex(idx);g.userData.m=m;return g}
 function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:o.add?THREE.AdditiveBlending:THREE.NormalBlending,vertexShader:FAT_V,fragmentShader:FAT_F,
     uniforms:{uRes:{value:new THREE.Vector2(1,1)},uW:{value:o.w},uCap:{value:o.cap==null?1:o.cap},uColor:{value:new THREE.Color(o.c)},uC2:{value:new THREE.Color(o.c2||o.c)},uAlpha:{value:o.a},uT:{value:0},uMode:{value:o.mode},
-      uLen:{value:geo.userData.len},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
+      uLen:{value:geo.userData.len},uH0:{value:0},uH1:{value:0},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
   m.userData.cw=o.w;m.userData.o=o;FATS.push(m);const mesh=new THREE.Mesh(geo,m);mesh.frustumCulled=false;mesh.renderOrder=o.order||2;scene.add(mesh);return mesh}
 const CLEAR=8.6,GAP=.28;   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
@@ -3047,13 +3049,13 @@ function rig(p,dt,snap,intro=0){
   const sc=lerp(1,.45,sm(0,.03,t)),nL=ball.userData.n*sc/curve.getLength(),tt=clamp(Math.max(tb,nL)),tB=clamp(tt-nL);
   {const pT=curve.getPointAt(tt);ball.position.copy(curve.getPointAt(tB));ball.scale.setScalar(Math.max(.01,ball.position.distanceTo(pT)/ball.userData.n));ball.lookAt(pT);
    if(intro>.001&&NDL.ok&&t<.006){   // vue de dessus : on reprend à l'écran la pointe et le pivot de l'aiguille du cadran (ramenés au plan de la trace), puis on glisse vers la trace en quittant le Départ
-     const y=curve.getPointAt(0).y,e=ease(intro)*(1-sm(0,.006,t));   // dès que la trace avance, l'aiguille la rejoint (la caméra, elle, reste en vue de dessus un peu plus longtemps)
+     const y=curve.getPointAt(0).y,e=ease(intro)*(1-sm(0,.006,t))*NDL.w;   // dès que la trace avance, l'aiguille la rejoint (la caméra, elle, reste en vue de dessus un peu plus longtemps)
      const s0=ball.scale.x;onPlane(NDL.tip,nT,y);onPlane(NDL.piv,nP,y);const so=nT.distanceTo(nP)/ball.userData.n;
      nQ.copy(ball.quaternion);v3.copy(ball.position);ball.position.copy(nP);ball.lookAt(nT);
      nQ.slerp(ball.quaternion,e);ball.quaternion.copy(nQ);ball.position.copy(v3).lerp(nP,e);ball.scale.setScalar(lerp(s0,so,e))}
    const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
   const tg0=tB;   // la lueur s'arrête à la base du triangle : elle ne dépasse jamais sa pointe
-  FATS.forEach(m=>{m.uniforms.uT.value=tg0;m.uniforms.uTime.value=reduce?0:tNow});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
+  FATS.forEach(m=>{m.uniforms.uT.value=tg0;m.uniforms.uH0.value=tB;m.uniforms.uH1.value=tt;m.uniforms.uTime.value=reduce?0:tNow});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
   blocks.forEach((bk,i)=>{
