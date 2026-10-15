@@ -300,7 +300,7 @@ const THREE_OK=!!THREE&&webglOK();
 const cv=$('#compassCanvas');
 let strapLow=null,skyK=-1;
 let renderer,scene3,cam,group,needle,dialTex,dialCanvas,bezelTex,bezelCanvas,vis=10,strapApply=null,readCanvas=null,readTex=null,lastReadDeg=-1,lastReadKey='',aimKey=null,toolAim=-1,dialTool=-1,dialOver=null,pinnedKey=null,hoverKey=null,roMesh=null,topoMesh=null,topoTex=null,lastInto=null;
-const NEEDLE_TIP=.44,DIAL_R=1.98,NDL={ok:false,tip:[0,0],piv:[0,0]};   // NDL : pointe et pivot de l'aiguille du cadran à l'écran (px), recopiés par l'aiguille de la carte pendant la plongée
+const NEEDLE_PIV=.06,DIAL_R=1.98,NDL={ok:false,tip:[0,0],piv:[0,0]};   // pivot de l'aiguille (base du triangle nord) et rayon du cadran, en unités de la montre : la trace des étapes démarre sous ce pivot, l'aiguille la recouvre ; NDL : pointe et pivot de l'aiguille à l'écran (px), recopiés par l'aiguille de la carte pendant la plongée
    // pointe nord de l'aiguille (pivot à .06 + losange de .38) et rayon du cadran, en unités de la montre : la trace des étapes démarre sous cette pointe
 /* ---------- Montre GPS outdoor, inspirée des séries Garmin Fenix et Enduro ---------- */
 const DIAL_NIGHT={bg:'#050607',pat:'rgba(255,255,255,.05)',tickBig:'#E6F4F1',tick:'rgba(200,210,216,.6)',ring:'rgba(255,255,255,.35)',N:'#E26D3B',card:'#E6F4F1',inter:'#9AA4AB',deg:'#B8C0C6',lab:'#AEB8BF',val:'#E6F4F1',qual:'#C9D1D6',rTitle:'#E6F4F1',rDesc:'#B9C2CA'};
@@ -929,7 +929,7 @@ function updateCompass(p,dt){
   // métamorphose : les aiguilles s'effacent, les données du cadran se dilatent en relief topographique
   const nf=p<.5?1-sm(.29,.33,p):sm(.96,1,p),tf=p<.5?sm(.19,.26,p):1-sm(.96,1,p);
   const tw=transW(p),bk=needleBlink(tNow),no=nf*(1-tw*(1-bk));   // pendant la transition, l'aiguille reste visible et clignote : c'est elle qui fait le halo
-  needle.children.forEach(m=>{m.material.opacity=no});needle.visible=no>.01&&!preTraveling();{const s=1+.4*(1-nf)+tw*.18*bk;needle.scale.setScalar(s);needle.position.y=NEEDLE_TIP-(NEEDLE_TIP-.06)*s}   // elle grandit vers l'arrière : sa pointe reste sur le départ de la trace
+  needle.children.forEach(m=>{m.material.opacity=no});needle.visible=no>.01&&!preTraveling();needle.scale.setScalar(1+.4*(1-nf)+tw*.18*bk);   // elle grandit autour de son pivot, posé sur le départ de la trace : en grandissant, elle recouvre un peu plus la trace
   {const on=tw>.2&&bk>.5;if(on&&!lastBlinkOn&&!paused&&!reduce)tickSoft();lastBlinkOn=on}
   roMesh.material.opacity=p<.5?1-sm(.17,.22,p):sm(.96,1,p);
   topoMesh.material.opacity=tf;topoMesh.visible=tf>.01;
@@ -2758,7 +2758,7 @@ const kmLine=t=>'Km '+fmtN(kmAt(t))+' · D+ '+fmtN(Math.round(gainAtT(t)/10)*10)
 const KAPPA=4,RFIN=44;   // KAPPA : hauteur de la caméra de dessus = KAPPA fois le rayon visible ; le champ de vision s'ajuste pour que le cadran ait la bonne taille
 //   // rayon de sol (en unités) visible au bord du cadran à la fin de la plongée
 const hd=(()=>{let tot=0;for(let i=1;i<P.length;i++)tot+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);let acc=0,q=P[P.length-1];for(let i=1;i<P.length;i++){acc+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);if(acc>=.05*tot){q=P[i];break}}const dx=q.x-P[0].x,dz=q.z-P[0].z,l=Math.hypot(dx,dz)||1;return {x:dx/l,z:dz/l}})();   // direction de la trace sur ses premiers 5 %
-const TIP=RFIN*NEEDLE_TIP/DIAL_R,C0={x:P[0].x-hd.x*TIP,z:P[0].z-hd.z*TIP};   // centre du cadran sur le sol : le départ de la trace est TIP plus loin dans l'axe de la trace, donc sous la pointe de l'aiguille (qui indique le nord pendant la plongée)
+const PIV=RFIN*NEEDLE_PIV/DIAL_R,C0={x:P[0].x-hd.x*PIV,z:P[0].z-hd.z*PIV};   // centre du cadran sur le sol : le départ de la trace est sous le pivot de l'aiguille, qui indique le nord pendant la plongée : son triangle nord recouvre le début de la trace
 const xs=P.map(p=>p.x),zs=P.map(p=>p.z),pad=170;
 const bx0=Math.min(...xs)-pad,bx1=Math.max(...xs)+pad,bz0=Math.min(...zs)-pad,bz1=Math.max(...zs)+pad;
 const cell0=7,NX0=Math.ceil((bx1-bx0)/cell0),NZ0=Math.ceil((bz1-bz0)/cell0);
@@ -2926,7 +2926,7 @@ function initScene(){
   // câble inactif : bleu ardoise mat #1E293B sur toute la trace (3 px) ; pulse actif sur la partie parcourue : cyan électrique #00F2FE à la tête vers bleu glacier #38BDF8 derrière,
   // émissif ×2,5 et halo large dans le shader (« fil chaud / fibre optique sous tension »), à la place d'un Bloom en post-traitement (voir docs/admin-boucle.md)
   fatLine(fgeo,{w:3,c:0x1E293B,cl:0x1E293B,a:1,al:1,mode:0,order:2});
-  tube=fatLine(fgeo,{w:26,c:0x38BDF8,c2:0x00F2FE,cl:0x0369A1,c2l:0x0891B2,a:1,al:1,boost:2.5,boostl:1,mode:1,glow:true,add:true,cap:0,order:3});
+  tube=fatLine(fgeo,{w:18,c:0x38BDF8,c2:0x00F2FE,cl:0x0369A1,c2l:0x0891B2,a:1,al:1,boost:2.5,boostl:1,mode:1,glow:true,add:true,cap:0,order:3});
   /* aiguille de la carte : le triangle nord (braise, deux facettes) de l'aiguille du cadran, à l'échelle du sol (RFIN / DIAL_R) ; sa base est le pivot.
      Couché sur la trace, pointe vers l'avant, avec une arête centrale légèrement relevée. Pendant la plongée, il recouvre exactement celui du cadran (voir NDL dans rig). */
   {const k=RFIN/DIAL_R,W=.12*k,N=.38*k,R=.04*k;   // matériaux transparents (opacité 1) : au Départ, l'aiguille est triée avec la pierre gravée et passe devant elle
@@ -2938,7 +2938,9 @@ function initScene(){
   buildBlocks();
 }
 const DEP_SIDE=17,DEP_BACK=20;   // cairn du Départ, en unités de sol : à gauche de la trace sur écran large (la pierre gravée fait ≈ 12 de demi-largeur), derrière l'aiguille sur écran étroit (sinon il sortirait de l'image)
-function depOff(){return cam.aspect<.9?[-hd.x*DEP_BACK,-hd.z*DEP_BACK]:[hd.z*DEP_SIDE,-hd.x*DEP_SIDE]}
+function depOff(bk){   // cairns des deux bouts de la trace : Départ (axe hd, recul derrière l'aiguille sur écran étroit) et dernière étape (axe de la fin de trace, au-delà du bout sur écran étroit)
+  const end=bk.stopIdx>0,d=end?(()=>{const g=curve.getTangentAt(1);const l=Math.hypot(g.x,g.z)||1;return {x:g.x/l,z:g.z/l}})():hd,k=end?1:-1;
+  return cam.aspect<.9?[k*d.x*DEP_BACK,k*d.z*DEP_BACK]:[d.z*DEP_SIDE,-d.x*DEP_SIDE]}
 function buildBlocks(){
   const env=makeEnvP();
   /* Cairn sobre, une seule matière (pierre mate) : 2 pierres sous le wire, un jeu où il passe, 2 pierres au-dessus, puis la pierre gravée (contour irrégulier, bords arrondis) */
@@ -2987,7 +2989,7 @@ const baseFov=()=>cam.aspect<.9?54:42;
 /* Sur écran étroit : blocs plus près du sentier et champ de vision plus large, pour qu'ils restent dans l'image */
 function placeBlocks(){
   blocks.forEach(bk=>{
-    const o=bk.stopIdx===0?depOff():[0,0],bx=bk.pt.x+o[0],bz=bk.pt.z+o[1],gy=terrainAt(bx,bz);
+    const o=(bk.stopIdx===0||bk.t>=1)?depOff(bk):[0,0],bx=bk.pt.x+o[0],bz=bk.pt.z+o[1],gy=terrainAt(bx,bz);
     bk.base=bk.ty+CLEAR;bk.faceYaw=Math.atan2(bk.camAt.x+o[0]-bx,bk.camAt.z+o[1]-bz);
     bk.holder.position.set(bx,bk.base,bz);bk.pos.set(bx,bk.base,bz);
     bk.shadow.position.set(bx,gy+.4,bz);
@@ -3003,6 +3005,8 @@ function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
 const nT=OK?new THREE.Vector3():null,nP=OK?new THREE.Vector3():null,nQ=OK?new THREE.Quaternion():null,v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
 let stopW=0,curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
+function onPlane(q,o,y){   // point de l'écran (px) -> point du plan horizontal de hauteur y, vu par la caméra de la carte
+  cam.updateMatrixWorld();o.set(q[0]/cv.clientWidth*2-1,1-q[1]/cv.clientHeight*2,.5).unproject(cam).sub(cam.position);return o.multiplyScalar((y-cam.position.y)/o.y).add(cam.position)}
 function rig(p,dt,snap,intro=0){
   const t=param(p);
   let aw=0,bd=9;for(let i=0;i<NS;i++){const d=Math.abs(p-(STOPS[i].a+STOPS[i].b)/2);if(d<bd){bd=d;aw=i}}
@@ -3029,25 +3033,27 @@ function rig(p,dt,snap,intro=0){
     camPos.copy(v1).lerp(camB.position,e);camTgt.copy(v2).lerp(v3.set(tx,gy,tz),e);
     cam.position.copy(camPos);cam.quaternion.slerpQuaternions(camA.quaternion,camB.quaternion,e);
     const fv=lerp(baseFov(),fovT,e);if(Math.abs(cam.fov-fv)>.01){cam.fov=fv;cam.updateProjectionMatrix()}
+    if(NDL.ok){   // calage fin : le départ de la trace (à sa vraie hauteur) tombe exactement sous le pivot de l'aiguille du cadran, sans jour entre les deux
+      const p0=curve.getPointAt(0);onPlane(NDL.piv,nT,p0.y);cam.position.x+=(p0.x-nT.x)*e;cam.position.z+=(p0.z-nT.z)*e}
   }else{
     camPos.lerp(v1,k);camTgt.lerp(v2,k);
     cam.position.copy(camPos);cam.up.set(0,1,0);cam.lookAt(camTgt);
     if(!staticMode&&Math.abs(cam.fov-baseFov())>.01){cam.fov=baseFov();cam.updateProjectionMatrix()}
   }
-  // l'aiguille suit la trace, pointe en tête du pulse ; à l'arrêt sur un cairn, sa pointe s'arrête juste devant lui (côté caméra) et le désigne.
-  // Au Départ, sa pointe est sur le départ de la trace, comme celle de l'aiguille du cadran pendant la plongée (rien avant la trace : le corps de l'aiguille dépasse en arrière)
-  const tb=clamp(t-(blk&&aw>0?mw*11/curve.getLength():0));
-  {const sc=lerp(1,.45,sm(0,.03,t)),tg=curve.getTangentAt(clamp(tb,.0005,.9995));
-   ball.scale.setScalar(sc);ball.position.copy(curve.getPointAt(tb)).addScaledVector(tg,-ball.userData.n*sc);v3.copy(ball.position).add(tg);ball.lookAt(v3);
+  // l'aiguille suit la trace, pointe en tête ; à l'arrêt sur un cairn, sa pointe s'arrête juste devant lui (côté caméra) et le désigne.
+  // Au Départ, son pivot est sur le départ de la trace et elle recouvre le début de la trace, comme l'aiguille du cadran pendant la plongée
+  const tb=clamp(t-(blk&&aw>0&&STOPS[aw].t<1?mw*11/curve.getLength():0));   // aux deux bouts de la trace (Départ, dernière étape), la pointe va exactement jusqu'au bout : leurs cairns sont posés à côté
+  // base et pointe du triangle sont toutes deux SUR la trace (corde entre deux points de la courbe) : il la recouvre, même dans les virages ; jamais avant le départ
+  const sc=lerp(1,.45,sm(0,.03,t)),nL=ball.userData.n*sc/curve.getLength(),tt=clamp(Math.max(tb,nL)),tB=clamp(tt-nL);
+  {const pT=curve.getPointAt(tt);ball.position.copy(curve.getPointAt(tB));ball.scale.setScalar(Math.max(.01,ball.position.distanceTo(pT)/ball.userData.n));ball.lookAt(pT);
    if(intro>.001&&NDL.ok&&t<.006){   // vue de dessus : on reprend à l'écran la pointe et le pivot de l'aiguille du cadran (ramenés au plan de la trace), puis on glisse vers la trace en quittant le Départ
-     cam.updateMatrixWorld();const w=cv.clientWidth,h=cv.clientHeight,y=curve.getPointAt(0).y,e=ease(intro)*(1-sm(0,.006,t));   // dès que la trace avance, l'aiguille la rejoint (la caméra, elle, reste en vue de dessus un peu plus longtemps)
-    
-     const onPlane=(q,o)=>{o.set(q[0]/w*2-1,1-q[1]/h*2,.5).unproject(cam).sub(cam.position);return o.multiplyScalar((y-cam.position.y)/o.y).add(cam.position)};
-     onPlane(NDL.tip,nT);onPlane(NDL.piv,nP);const so=nT.distanceTo(nP)/ball.userData.n;
+     const y=curve.getPointAt(0).y,e=ease(intro)*(1-sm(0,.006,t));   // dès que la trace avance, l'aiguille la rejoint (la caméra, elle, reste en vue de dessus un peu plus longtemps)
+     const s0=ball.scale.x;onPlane(NDL.tip,nT,y);onPlane(NDL.piv,nP,y);const so=nT.distanceTo(nP)/ball.userData.n;
      nQ.copy(ball.quaternion);v3.copy(ball.position);ball.position.copy(nP);ball.lookAt(nT);
-     nQ.slerp(ball.quaternion,e);ball.quaternion.copy(nQ);ball.position.copy(v3).lerp(nP,e);ball.scale.setScalar(lerp(sc,so,e))}
-   const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // la pointe (et non le pivot) est sur la trace ; au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
-  FATS.forEach(m=>{m.uniforms.uT.value=tb;m.uniforms.uTime.value=reduce?0:tNow});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
+     nQ.slerp(ball.quaternion,e);ball.quaternion.copy(nQ);ball.position.copy(v3).lerp(nP,e);ball.scale.setScalar(lerp(s0,so,e))}
+   const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
+  const tg0=tB;   // la lueur s'arrête à la base du triangle : elle ne dépasse jamais sa pointe
+  FATS.forEach(m=>{m.uniforms.uT.value=tg0;m.uniforms.uTime.value=reduce?0:tNow});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
   blocks.forEach((bk,i)=>{
