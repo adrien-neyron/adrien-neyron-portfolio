@@ -44,7 +44,7 @@ Le repli CSS de `:root` reprend désormais les valeurs du jour (l'ancien `--mute
 Texte ≥ 4,5:1 ; éléments graphiques et focus ≥ 3:1 ; focus visible 3 px sur la marque et la porte, dans les deux thèmes ; la couleur ne porte jamais seule l'information.
 
 ## Reste à migrer
-Cartes, menu, boutons CTA et formulaire de contact portent encore des couleurs du jour en dur (`#A8401B`, `#8F2F1B`, `#4E200E`…). Prochaine étape : les remplacer par des rôles (`--cta-bg`, `--cta-fg`, `--surface-border`…).
+Le bouton « Lancer la visite guidée » n'utilise que des rôles en mode jour (`--fg`, `--brand-halo`, `--brand-hover`, `--focus`, sans fond). Cartes, menu, autres boutons CTA et formulaire de contact portent encore des couleurs du jour en dur (`#A8401B`, `#8F2F1B`, `#4E200E`…). Prochaine étape : les remplacer par des rôles (`--cta-bg`, `--cta-fg`, `--surface-border`…).
 
 ## Historique
 - Essai du logo en `#0066FF` : abandonné, retour à l'ardoise (le jour) et au cuivre (la nuit).

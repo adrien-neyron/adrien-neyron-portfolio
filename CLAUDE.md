@@ -169,6 +169,9 @@ On the stages map the 3D stele (`paintBlock`) engraves **only the project name**
 ### Watch strap (buckle and keepers)
 In `buildStrapRing` the buckle and the two keepers are rounded, bevelled frames (`frame()`), sized from the strap stack at their position (`stackAt`) plus `RING_GAP` = 0.02 clearance, so they never clip the strap mesh. Buckle: brushed steel `steelBuckle` (metalness .8, roughness .3, env intensity .35); don't use `orPoli` there (its env reflections turn copper/cyan). Keepers: `keeperM`, same rubber colour as the strap, updated in `strapApply`. The buckle is assembled like a real tang buckle: the plain strap ends inside the hinge bar (`sA`, tube thicker than the strap); a rigid planar frame hangs from it to the end bar (`s1`); the holed strap goes under the end bar, crosses the frame plane at `sx` (bisection on `offB`), over the hinge, then lies on the plain strap through the keepers; the tongue goes through the hole placed exactly at `sx` and rests on the end bar. All on the ring's inner face (`D = -1`). Details: `docs/ascension-boucle.md`.
 
+### Guided-tour button (light mode)
+« Lancer la visite guidée » (`.cta`, `assets/loop/loop.source.css`) has no background or border in light mode: dark text `--fg` on one line, a dense `--brand-halo` text-shadow so it stays ≥ 4.5:1 over the dark rocks of the ground, focus ring `--focus`. Contrast was measured on the real background pixels, not on theoretical colours. Edit `loop.source.css`, then regenerate `loop.css` with `node scripts/scope-loop-css.cjs`.
+
 ### LatheGeometry orientation
 A `LatheGeometry` profile must be listed so its faces point outwards (the watch bezel goes outer edge → top → inner edge); listed the other way, back-face culling made the bezel rim see-through at some angles. Details: `docs/ascension-boucle.md`.
 

@@ -729,9 +729,12 @@ html.loop-live #compassCanvas,html.loop-live #aurora{animation:sceneIn .7s ease-
 html.gate-seen:not(.loop-live) .preload{opacity:1}   /* seulement sans l'écran de la corde (déjà vu, classe posée dès le premier rendu) : jamais par-dessus */
 @media (prefers-reduced-motion:reduce){.pre-needle{animation:none}.preload,.preload.go,.pre-needle{transition:none}html.loop-live #compassCanvas,html.loop-live #aurora{animation:none}}
 
-/* Mode jour : le sol de l'accueil est en dalles de sable clair ; le bouton de visite guidée passe en texte sombre à halo clair (contraste AA) */
-:root[data-theme="light"] .cta{color:var(--fg);text-shadow:0 0 6px var(--bg),0 0 14px var(--bg),0 0 26px var(--bg)}
-:root[data-theme="light"] .cta:hover,:root[data-theme="light"] .cta:focus-visible{color:var(--fg)}
+/* Mode jour : « Lancer la visite guidée » sans fond ni contour, texte sombre de la charte (--fg) à halo clair (--brand-halo), soulignement --underline. Focus --focus. */
+:root[data-theme="light"] .cta{padding:2px 14px;border:0;background:none;box-shadow:none;color:var(--fg);text-shadow:0 0 1px var(--brand-halo),0 0 2px var(--brand-halo),0 0 3px var(--brand-halo),0 0 5px var(--brand-halo),0 0 8px var(--brand-halo),0 0 12px var(--brand-halo),0 0 18px var(--brand-halo),0 0 26px var(--brand-halo)}   /* halo dense : le sol (rochers sombres) passe derrière, contraste mesuré ≥ 4,5:1 autour des lettres */
+:root[data-theme="light"] .cta .txt{white-space:nowrap}
+:root[data-theme="light"] .cta:hover,:root[data-theme="light"] .cta:focus-visible{color:var(--brand-hover)}
+:root[data-theme="light"] .cta .txt::after{height:2px}
+:root[data-theme="light"] .cta:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 
 /* ===== Accessibilité du mode jour (revue du 12/10/2026) =====
    Cibles : texte 4,5:1 minimum ; contours de boutons et de champs, icônes et anneaux de focus 3:1 minimum (WCAG 1.4.3, 1.4.11, 2.4.7). */
@@ -749,9 +752,6 @@ html.gate-seen:not(.loop-live) .preload{opacity:1}   /* seulement sans l'écran 
 :root[data-theme="light"] .pl-more{background:#B23F27;color:#FFFFFF;box-shadow:0 8px 24px rgba(178,63,39,.28)}
 :root[data-theme="light"] .pl-more:hover{background:#8F2F1B;color:#FFFFFF}
 :root[data-theme="light"] .pl-more:focus-visible{background:#8F2F1B;color:#FFFFFF;outline:3px solid var(--fg);outline-offset:3px}
-/* « Visite guidée » : vrai bouton (fond et contour) au lieu d'un texte posé sur le sable */
-:root[data-theme="light"] .cta{padding:2px 20px 2px 6px;border:1px solid var(--acc-text);border-radius:999px;background:color-mix(in srgb,var(--bg) 90%,transparent);text-shadow:none;box-shadow:0 4px 18px rgba(18,34,43,.18)}
-:root[data-theme="light"] .cta:hover,:root[data-theme="light"] .cta:focus-visible{background:var(--bg)}
 /* Ligne d'altitude / météo : pastille claire pour rester lisible sur le sol sombre du bivouac */
 :root[data-theme="light"] .hud{padding:3px 12px;border-radius:999px;background:color-mix(in srgb,var(--bg) 88%,transparent);text-shadow:none}
 /* Indicateur de chargement de l'accueil (« Boussole prête… ») : pastille claire et texte sombre sur le sable */
@@ -789,11 +789,6 @@ html.gate-seen:not(.loop-live) .preload{opacity:1}   /* seulement sans l'écran 
 :root[data-theme="light"] #aurora{display:none}
 :root[data-theme="light"] #head1 .lede{color:#4E200E}
 :root[data-theme="light"] #head1 .eyebrow{color:#7A2A0D}
-:root[data-theme="light"] .cta{padding:2px 30px;border:0;background:#A8401B;color:#FFFFFF;text-shadow:none;box-shadow:0 8px 22px rgba(120,50,20,.35)}
-
-:root[data-theme="light"] .cta:hover,:root[data-theme="light"] .cta:focus-visible{background:#8F2F1B;color:#FFFFFF}
-:root[data-theme="light"] .cta .txt::after{height:2px;background:linear-gradient(90deg,transparent,currentColor,transparent)}   /* sur la pastille cuivre : soulignement blanc, comme le texte */
-:root[data-theme="light"] .cta:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
 
 /* ===== Hero : hiérarchie typographique, paragraphe resserré, scrim atmosphérique ===== */
 #head1 .who{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px}   /* sur-titre : 12 px, capitales, interlettrage accentué */

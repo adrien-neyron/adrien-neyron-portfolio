@@ -29,7 +29,7 @@ Méthode : script de contraste sur les éléments à fond uni, mesure sur captur
 | Pastilles CV / Contact : contour à 55 % ≈ 2,3:1 | contour plein `--acc-text` (5,0:1) |
 | Champs du formulaire du bivouac : contour à 60 % ≈ 2,8:1 | contour plein `#A8401B` (6,2:1) ; puces de contact idem (5,1:1) |
 | « Voir la fiche » : texte sombre sur pêche, anneau de focus blanc invisible | fond `#B23F27`, texte blanc (5,8:1), focus sombre |
-| « Visite guidée » : texte nu sur le sable (≈ 4,8:1, aucune forme) | vrai bouton : pastille claire, contour 5,0:1, texte 14:1 |
+| « Visite guidée » : texte nu sur le sable (≈ 4,8:1, aucune forme) | (15/10/2026, à la demande d'Adrien) sans fond ni contour : texte `--fg`, halo dense `--brand-halo`, une seule ligne, focus `--focus`. Contraste mesuré sur les pixels réels du fond (rochers compris) : ≥ 4,85:1 en 390, 1280, 1440 et 820 px de large |
 | Ligne d'altitude / météo illisible sur le sol sombre du bivouac | pastille claire, texte 14:1 |
 | Indicateur « Boussole prête » gris sur le sable | pastille claire, texte sombre |
 | Bouton « Envoyer le message » : texte 4,6:1 au début du dégradé | dégradé éclairci, 5,8:1 |
