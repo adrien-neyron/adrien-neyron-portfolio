@@ -42,3 +42,10 @@ Texte toujours présent dans le HTML ; 3D décorative (`aria-hidden`) ; lien d'�
 4. Pages légales : remplacer les fenêtres « Mentions légales » et « Accessibilité » par de vraies pages ; renseigner SIRET, adresse, e-mail légal, état de conformité après audit.
 5. Son : le prototype synthétise ses sons ; le site a `NATURE.mp3`, `FEU_DE_CHEMINEE.mp3`, `NIGHT.mp3` : décider lesquels garder.
 6. Parité avec `/projects` : filtres par catégorie, compteur, fiche topo (annulés dans le prototype à la demande d'Adri).
+
+## Bracelet de la montre : boucle et passants
+
+`buildStrapRing` (`assets/loop/loop.js`). La boucle et les deux passants ne sont plus des pavés : ce sont des cadres à bords arrondis et biseautés (`ExtrudeGeometry` d'un rectangle arrondi percé), perpendiculaires à la sangle. Leurs dimensions intérieures sont calculées à leur position exacte sur la sangle (`stackAt` : épaisseurs présentes et largeur), plus un jeu de `RING_GAP` = 0,02 de chaque côté : aucune face ne traverse ni ne touche le maillage des sangles (pas de clipping ni de z-fighting).
+
+- **Boucle** : acier brossé `steelBuckle` (`MeshStandardMaterial`, metalness 0,8, roughness 0,3, carte de brossage, reflets d'environnement atténués à 0,35). Les teintes orange et cyan venaient des reflets cuivre et cyan de l'environnement sur l'acier poli `orPoli` (roughness 0,14, reflets ×1,7) ; il reste réservé aux poussoirs et aux vis. L'ardillon est une tige ronde posée sur la sangle du dessus, avec le même jeu.
+- **Passants** : `keeperM`, le même caoutchouc mat que la sangle, dont la couleur suit le thème (`strapApply` : noir de jour, blanc de nuit, comme la sangle).

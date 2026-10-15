@@ -396,7 +396,7 @@ function makeStrap(kind){   // bracelet silicone complet, large, mat et lisse, e
 }
 
 /* ---------- Bracelet fermé : anneau complet autour d'un poignet, boucle acier, ardillon, passants, queue percée ---------- */
-const RING_T=.34,RING_C=new THREE.Vector3(0,0,-2.9),RING_W0=3.25,RING_W1=2.6,TAIL=2.4;
+const RING_GAP=.02,RING_T=.34,RING_C=new THREE.Vector3(0,0,-2.9),RING_W0=3.25,RING_W1=2.6,TAIL=2.4;
 function ringCurve(k){   // trajet du bracelet dans le plan vertical : du patte haute, derrière le boîtier, jusqu'à la patte basse
   const P=[[2.7,-.52],[3.12,-.62],[3.55,-1.12],[3.85,-2.3],[3.62,-3.75],[2.8,-4.95],[1.4,-5.6],[0,-5.82]],pts=[];
   P.forEach(([y,z],i)=>pts.push(new THREE.Vector3(0,y*(i===0?1:k),z)));
@@ -456,17 +456,21 @@ function buildStrapRing(parent,matA,matB,matMetal,matRubber,foot){
   const wB=s=>{const q=s-sTip;return base(s)*(q<.5?Math.sqrt(Math.max(0,1-((.5-q)/.5)**2)):1)},offB=s=>(RING_T+.06)*(1-sm((s-(sb-.1))/.55));
   ringG.add(new THREE.Mesh(bandGeo(curve,L,{s0:sTip,s1:L,seg:Math.round(lenB/.12),w:wB,off:offB,v:s=>1-(s-sTip)/lenB}),matB));
   const place=(m,s,dz,dh)=>{const f=ringFrame(curve,s,L),Zr=new THREE.Vector3(1,0,0).cross(f.n);m.position.copy(f.p).addScaledVector(f.n,dh).addScaledVector(f.T,dz);m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(1,0,0),f.n,Zr));ringG.add(m);return f};
-  // boucle : cadre en acier autour des deux sangles, avec son ardillon
-  const sc=sb+.1,Wb=3.2,bar=new THREE.BoxGeometry(Wb,.95,.15),side=new THREE.BoxGeometry(.16,.95,.95);
-  place(new THREE.Mesh(bar,matMetal),sc,-.4,.2);place(new THREE.Mesh(bar,matMetal),sc,.4,.2);
-  [-1,1].forEach(sx=>{const m=new THREE.Mesh(side,matMetal);place(m,sc,0,.2);m.position.x=sx*(Wb/2-.08)});
-  place(new THREE.Mesh(new THREE.BoxGeometry(.16,.07,.8),matMetal),sc,0,.6);
-  // deux passants en caoutchouc autour des deux épaisseurs
-  [sb-.8,sb-1.4].forEach(s=>{
-    const Wk=base(s)+.14,pl=new THREE.BoxGeometry(Wk,.07,.28),sd=new THREE.BoxGeometry(.07,.88,.28);
-    place(new THREE.Mesh(pl,matRubber),s,0,.605);place(new THREE.Mesh(pl,matRubber),s,0,-.205);
-    [-1,1].forEach(sx=>{const m=new THREE.Mesh(sd,matRubber);place(m,s,0,.2);m.position.x=sx*Wk/2});
-  });
+  /* boucle et passants : cadres à bords arrondis et biseautés, perpendiculaires à la sangle, qui entourent les épaisseurs présentes à cet endroit
+     avec un jeu de RING_GAP (aucune face ne traverse ni ne touche le maillage des sangles : pas de clipping ni de z-fighting) */
+  const stackAt=s=>{const lo=-RING_T/2,hiA=RING_T/2,hiB=s>=sTip?offB(s)+RING_T/2:-1e9;return [lo,Math.max(hiA,hiB),Math.max(base(s),s>=sTip?wB(s):0)]};
+  const frame=(s,wall,depth,r,mat)=>{const [lo,hi,w]=stackAt(s),iw=w+2*RING_GAP,ih=hi-lo+2*RING_GAP,ow=iw+2*wall,oh=ih+2*wall;
+    const rr=(p,W,H,R)=>{const x=W/2,y=H/2;R=Math.min(R,x,y);p.moveTo(-x+R,-y);p.lineTo(x-R,-y);p.quadraticCurveTo(x,-y,x,-y+R);p.lineTo(x,y-R);p.quadraticCurveTo(x,y,x-R,y);p.lineTo(-x+R,y);p.quadraticCurveTo(-x,y,-x,y-R);p.lineTo(-x,-y+R);p.quadraticCurveTo(-x,-y,-x+R,-y);return p};
+    const sh=rr(new THREE.Shape(),ow,oh,r+wall);sh.holes.push(rr(new THREE.Path(),iw,ih,r));
+    const bv=Math.min(wall,depth)*.35,g=new THREE.ExtrudeGeometry(sh,{depth:depth-2*bv,bevelEnabled:true,bevelThickness:bv,bevelSize:bv*.6,bevelSegments:3,curveSegments:8});
+    g.translate(0,0,-(depth-2*bv)/2);   // centré sur la sangle dans le sens de la longueur ; le biseau reste à l'extérieur (bevelSize < jeu + épaisseur)
+    const m=new THREE.Mesh(g,mat);place(m,s,0,(lo+hi)/2);return {m,hi}};
+  // boucle : cadre en acier brossé autour des deux sangles, avec son ardillon posé sur la sangle du dessus
+  const sc=sb+.1,bk=frame(sc,.11,.3,.08,matMetal);
+  {const tg=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.78,16),matMetal);tg.rotation.x=Math.PI/2;
+   const h=new THREE.Group();h.add(tg);place(h,sc,-.3,bk.hi+RING_GAP+.045)}
+  // deux passants dans la matière du bracelet, autour des deux épaisseurs
+  [sb-.8,sb-1.4].forEach(s=>frame(s,.07,.28,.06,matRubber));
   // points bas de l'anneau (repère du boîtier), pour que le sol ne coupe jamais le bracelet quand la montre s'incline
   const low=[];for(let i=0;i<=160;i++){const f=ringFrame(curve,i/160*L,L);[-1,1].forEach(sx=>[-1,1].forEach(sn=>{const q=f.p.clone().addScaledVector(f.n,sn*(RING_T/2+.05));q.x=sx*(RING_W0/2);if(q.y<-1)low.push(q)}))}
   return {holes:[.9,1.32,1.74,2.16,2.58,3.0].map(q=>q/lenB),lenB,low};
@@ -577,14 +581,16 @@ function initThree(){
   const matA=new THREE.MeshStandardMaterial({color:0x9A9A9A,bumpScale:.5,roughness:.88,metalness:0,side:THREE.DoubleSide});
   const matB=new THREE.MeshStandardMaterial({color:0x9A9A9A,bumpScale:.5,roughness:.88,metalness:0,side:THREE.DoubleSide});
   const strapSide=new THREE.MeshStandardMaterial({color:0x0E0F10,roughness:.9,metalness:0});
-  strapApply=dark=>{dark=!dark;const kk=dark?'blanc':'noir';if(strapTex[kk]){[[matA,'A'],[matB,'B']].forEach(([m,q])=>{m.map=strapTex[kk][q];m.bumpMap=strapTex[kk][q];m.roughness=dark?.38:.9;m.bumpScale=dark?.08:.5;m.needsUpdate=true})}strapSide.color.set(dark?0xC9C9C3:0x0E0F10);strapSide.roughness=dark?.5:.9};
+  const keeperM=new THREE.MeshStandardMaterial({color:0x15171A,roughness:.9,metalness:0});   // passants : même caoutchouc mat que la sangle (couleur suivie dans strapApply)
+  const steelBuckle=new THREE.MeshStandardMaterial({color:0xB4BAC0,metalness:.8,roughness:.3,roughnessMap:brushed,envMap:env,envMapIntensity:.35});   // boucle : acier brossé, reflets d'environnement atténués (pas de teinte cuivre ni cyan)
+  strapApply=dark=>{dark=!dark;const kk=dark?'blanc':'noir';if(strapTex[kk]){[[matA,'A'],[matB,'B']].forEach(([m,q])=>{m.map=strapTex[kk][q];m.bumpMap=strapTex[kk][q];m.roughness=dark?.38:.9;m.bumpScale=dark?.08:.5;m.needsUpdate=true})}strapSide.color.set(dark?0xC9C9C3:0x0E0F10);strapSide.roughness=dark?.5:.9;keeperM.color.set(dark?0xECECE8:0x15171A);keeperM.roughness=dark?.38:.9};
   /* Bracelet fermé : anneau complet (voir buildStrapRing) ; les pattes et les vis restent sur le boîtier */
   [1,-1].forEach(sg=>{
     const lg=new THREE.Mesh(lgeo,polymer);lg.rotation.z=sg>0?0:Math.PI;lg.position.set(0,sg*1.95,-.42);group.add(lg);
     [-1,1].forEach(sx=>{const sc=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.03,6),orPoli);sc.rotation.x=Math.PI/2;sc.position.set(sx*1.6,sg*2.78,-.075);group.add(sc)});
   });
   {
-    const ring=buildStrapRing(group,matA,matB,orPoli,strapSide,FOOT);
+    const ring=buildStrapRing(group,matA,matB,steelBuckle,keeperM,FOOT);
     strapLow=ring.low;
     strapTex.noir={A:makeLoopStrap('noir',null),B:makeLoopStrap('noir',ring.holes)};
     strapTex.blanc={A:makeLoopStrap('blanc',null),B:makeLoopStrap('blanc',ring.holes)};

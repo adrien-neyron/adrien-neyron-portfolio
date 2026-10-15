@@ -166,5 +166,8 @@ The stages map starts with a cairn too: `buildBlocks` gives `STOPS[0]` (no proje
 ### Stages map: single source of text
 On the stages map the 3D stele (`paintBlock`) engraves **only the project name**; stage, place, summary, stats and techs live in the glass stop card `#stopCard` (`fillCard`, summary condensed by `brief()`, techs on one line). The section title is a small top-left overline (`#s2 .head`), never over the 3D. Don't engrave text back on the stone. Details: `docs/admin-boucle.md`.
 
+### Watch strap (buckle and keepers)
+In `buildStrapRing` the buckle and the two keepers are rounded, bevelled frames (`frame()`), sized from the strap stack at their position (`stackAt`) plus `RING_GAP` = 0.02 clearance, so they never clip the strap mesh. Buckle: brushed steel `steelBuckle` (metalness .8, roughness .3, env intensity .35); don't use `orPoli` there (its env reflections turn copper/cyan). Keepers: `keeperM`, same rubber colour as the strap, updated in `strapApply`. Details: `docs/ascension-boucle.md`.
+
 ### Intro transition (gate → 3D)
 Opening the rope gate plays a WebGL shatter ("craquelure et chute"): `components/loop/IntroTransition.vue` + `utils/introShatter.ts` (Voronoi shards, all motion in the vertex shader from `uProgress`, GSAP `expo.inOut`) + `utils/introSnapshot.ts` (2D-canvas copy of `#gate`; SVG paint is inlined, defs must keep author attributes, referenced gradients/filters are copied in). Any failure or `prefers-reduced-motion` → `play()` returns `false` and the old CSS fade runs. GSAP lag smoothing is disabled during the transition so slow GPUs never drag it out. Details: `docs/intro-craquelure.md`.
