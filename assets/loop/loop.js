@@ -449,49 +449,49 @@ function buildStrapRing(parent,matA,matB,matMetal,matRubber,foot){
   const k=ringScale(foot),curve=ringCurve(k),L=curve.getLength(),sb=L*.54,sTip=sb-TAIL,lenB=L-sTip,sm=x=>{x=Math.min(1,Math.max(0,x));return x*x*(3-2*x)};
   const base=s=>RING_W0-(RING_W0-RING_W1)*sm(Math.min(s,L-s)/(L*.5));
   const ringG=new THREE.Group();parent.add(ringG);
-  // sangle haute : de la patte haute jusqu'à la boucle
-  const sA=sb-.05,sAe=sb+.62;   // sA : barre de charnière de la boucle ; la sangle haute se prolonge sous la boucle jusqu'à sAe (cachée par la sangle percée), pour qu'il n'y ait pas de vide sous le cadre
-  ringG.add(new THREE.Mesh(bandGeo(curve,L,{s0:0,s1:sAe,seg:Math.round(sAe/.12),w:base,off:()=>0,v:s=>s/sAe}),matA));
-  // sangle basse : de la patte basse, par la boucle, puis posée à plat sur la sangle haute (queue arrondie) ; côté intérieur de l'anneau (D = −1), celui que la caméra voit : la boucle, l'ardillon et la sangle percée sont visibles
-  const D=-1;
-  const wB=s=>{const q=s-sTip;return base(s)*(q<.5?Math.sqrt(Math.max(0,1-((.5-q)/.5)**2)):1)},offB=s=>(RING_T+.06)*(1-sm((s-(sb+.65))/.55));   // la sangle percée reste à plat dans la boucle et ne redescend qu'après son cadre
-  ringG.add(new THREE.Mesh(bandGeo(curve,L,{s0:sTip,s1:L,seg:Math.round(lenB/.12),w:wB,off:s=>D*offB(s),v:s=>1-(s-sTip)/lenB}),matB));
+  /* Bracelet à boucle ardillon, comme une vraie montre (vu par la face intérieure de l'anneau, D = −1, celle que voit la caméra ; u = hauteur comptée vers cette face) :
+     - sangle haute (sans trous) : de la patte haute jusqu'à la barre de charnière (sA), dont le tube enveloppe son extrémité ;
+     - cadre rigide et plan, accroché à cette barre, dans le prolongement de la sangle haute ; barre d'extrémité à s1 ;
+     - sangle percée : de la patte basse, elle passe SOUS la barre d'extrémité, traverse le cadre (elle franchit son plan à sx, où se trouve un trou),
+       passe AU-DESSUS de la charnière, puis recouvre la sangle haute jusqu'à sa queue, tenue par les passants ;
+     - ardillon : articulé sur la charnière, droit dans le plan du cadre, il traverse le trou à sx et repose sur la barre d'extrémité. */
+  const D=-1,rt=.065,rBar=RING_T/2+.03,sA=sb-.05,s1=sA+.75,uOver=rBar+RING_GAP+RING_T/2,uUnder=-(rt+RING_GAP+RING_T/2),a1=sA+rBar+.06;
+  ringG.add(new THREE.Mesh(bandGeo(curve,L,{s0:0,s1:sA,seg:Math.round(sA/.12),w:base,off:()=>0,v:s=>s/sA}),matA));
+  const wB=s=>{const q=s-sTip;return base(s)*(q<.5?Math.sqrt(Math.max(0,1-((.5-q)/.5)**2)):1)};
+  const offB=s=>s<=a1?uOver:s<=s1?uOver+(uUnder-uOver)*sm((s-a1)/(s1-a1)):uUnder*(1-sm((s-s1)/.6));   // au-dessus de la sangle haute → traverse le cadre → sous la barre d'extrémité → rejoint le niveau de la sangle
+  let sx=a1;{let lo=a1,hi=s1;for(let it=0;it<40;it++){const m=(lo+hi)/2;if(offB(m)>0)lo=m;else hi=m}sx=(lo+hi)/2}   // point où la sangle percée franchit le plan du cadre : le trou de l'ardillon
+  ringG.add(new THREE.Mesh(bandGeo(curve,L,{s0:sTip,s1:L,seg:Math.round(lenB/.06),w:wB,off:s=>D*offB(s),v:s=>1-(s-sTip)/lenB}),matB));
   const place=(m,s,dz,dh)=>{const f=ringFrame(curve,s,L),Zr=new THREE.Vector3(1,0,0).cross(f.n);m.position.copy(f.p).addScaledVector(f.n,dh).addScaledVector(f.T,dz);m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(1,0,0),f.n,Zr));ringG.add(m);return f};
-  /* boucle et passants : cadres à bords arrondis et biseautés, perpendiculaires à la sangle, qui entourent les épaisseurs présentes à cet endroit
-     avec un jeu de RING_GAP (aucune face ne traverse ni ne touche le maillage des sangles : pas de clipping ni de z-fighting) */
+  /* passants : cadres à bords arrondis et biseautés, perpendiculaires à la sangle, qui entourent les épaisseurs présentes à cet endroit avec un jeu de RING_GAP (pas de clipping ni de z-fighting) */
   const stackAt=s=>{const lo=-RING_T/2,hiA=RING_T/2,hiB=s>=sTip?offB(s)+RING_T/2:-1e9;return [lo,Math.max(hiA,hiB),Math.max(base(s),s>=sTip?wB(s):0)]};
   const frame=(s,wall,depth,r,mat)=>{const [lo,hi,w]=stackAt(s),iw=w+2*RING_GAP,ih=hi-lo+2*RING_GAP,ow=iw+2*wall,oh=ih+2*wall;
     const rr=(p,W,H,R)=>{const x=W/2,y=H/2;R=Math.min(R,x,y);p.moveTo(-x+R,-y);p.lineTo(x-R,-y);p.quadraticCurveTo(x,-y,x,-y+R);p.lineTo(x,y-R);p.quadraticCurveTo(x,y,x-R,y);p.lineTo(-x+R,y);p.quadraticCurveTo(-x,y,-x,y-R);p.lineTo(-x,-y+R);p.quadraticCurveTo(-x,-y,-x+R,-y);return p};
     const sh=rr(new THREE.Shape(),ow,oh,r+wall);sh.holes.push(rr(new THREE.Path(),iw,ih,r));
     const bv=Math.min(wall,depth)*.35,g=new THREE.ExtrudeGeometry(sh,{depth:depth-2*bv,bevelEnabled:true,bevelThickness:bv,bevelSize:bv*.6,bevelSegments:3,curveSegments:8});
-    g.translate(0,0,-(depth-2*bv)/2);   // centré sur la sangle dans le sens de la longueur ; le biseau reste à l'extérieur (bevelSize < jeu + épaisseur)
+    g.translate(0,0,-(depth-2*bv)/2);
     const m=new THREE.Mesh(g,mat);place(m,s,0,D*(lo+hi)/2);return {m,hi}};
-  /* boucle à ardillon (fermoir) : la sangle du haut se termine sur la barre de charnière (sA) ; le cadre part de cette barre et dépasse vers la patte basse,
-     la sangle percée passe dedans et l'ardillon, articulé sur la charnière, plonge dans un trou (makeLoopStrap : trous à sTip + 0,9 … 3,0).
-     Cadre et ardillon suivent la surface de la sangle du dessus (courbure comprise), toujours à RING_GAP au-dessus ou à côté : aucun clipping. */
-  frame(sA-.13,.06,.16,.05,matMetal);   // chape : petit cadre qui tient la boucle au bout de la sangle du haut
-  const topB=s=>Math.max(RING_T/2,offB(s)+RING_T/2),wAt=s=>Math.max(base(s),wB(s)),rt=.065;
-  const at=(x,s,u)=>{const f=ringFrame(curve,s,L),h=D*u;return new THREE.Vector3(x,f.p.y+f.n.y*h,f.p.z+f.n.z*h)};   // u : hauteur comptée du côté de la sangle percée
-  {const s0=sA,s1=sb+.55,hw=Math.max(wAt(s0),wAt(s1))/2,X=hw+RING_GAP+rt,R=.2,u0=topB(s0)+RING_GAP+rt,u1=topB(s1)+RING_GAP+rt;
-    /* boucle rigide : le cadre est PLAN, posé à plat sur la sangle percée (dans le plan de la corde entre la charnière et la barre d'extrémité, à RING_GAP + rayon au-dessus) ;
-       sur la face intérieure de l'anneau, la sangle s'éloigne de cette corde au milieu : le jeu ne fait qu'augmenter, rien ne touche */
-    const p0=at(0,s0,u0),p1=at(0,s1,u1),ex=new THREE.Vector3(1,0,0),ez=p1.clone().sub(p0),len=ez.length();ez.normalize();
-    const f0=ringFrame(curve,s0,L),f1=ringFrame(curve,s1,L),ey=f0.n.clone().add(f1.n).multiplyScalar(D);ey.addScaledVector(ez,-ey.dot(ez)).normalize();
+  const at=(x,s,u)=>{const f=ringFrame(curve,s,L),h=D*u;return new THREE.Vector3(x,f.p.y+f.n.y*h,f.p.z+f.n.z*h)};
+  {const hw=Math.max(base(sA),wB(s1),wB(sx))/2,X=hw+RING_GAP+rt+.02,R=.2;
+    // cadre plan : dans le plan de la corde de la sangle entre la charnière (sA) et la barre d'extrémité (s1), au niveau de la sangle haute (u = 0)
+    const p0=at(0,sA,0),p1=at(0,s1,0),ex=new THREE.Vector3(1,0,0),ez=p1.clone().sub(p0),len=ez.length();ez.normalize();
+    const ey=ringFrame(curve,sA,L).n.clone().add(ringFrame(curve,s1,L).n).multiplyScalar(D);ey.addScaledVector(ez,-ey.dot(ez)).normalize();
     const P=(x,d,du=0)=>p0.clone().addScaledVector(ex,x).addScaledVector(ez,d).addScaledVector(ey,du),pts=[];
-    const C=[[X-R,len-R,0],[-(X-R),len-R,Math.PI/2],[-(X-R),R,Math.PI],[X-R,R,3*Math.PI/2]];   // rectangle arrondi dans le plan du cadre (largeur, longueur)
+    const C=[[X-R,len-R,0],[-(X-R),len-R,Math.PI/2],[-(X-R),R,Math.PI],[X-R,R,3*Math.PI/2]];
     C.forEach(([cx,cd,a0])=>{for(let j=0;j<=6;j++){const a=a0+j/6*Math.PI/2;pts.push(P(cx+R*Math.cos(a),cd+R*Math.sin(a)))}});
     ringG.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,true,'centripetal'),120,rt,12,true),matMetal));
-    // barre de charnière, un peu plus forte, droite, sur le bord du cadre côté sangle haute
-    ringG.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([P(-X,0,rt*.25),P(X,0,rt*.25)]),8,rt*1.25,12,false),matMetal));
-    // ardillon : droit, articulé sur la charnière, couché dans le plan du cadre puis plongeant dans le trou de la sangle percée situé dans le cadre
-    const sh=sTip+3.0-.42,ph=at(0,sh,topB(sh)),dh=ph.clone().sub(p0).dot(ez),tg=[P(0,0,rt*.25),P(0,dh*.55,-rt*.2),P(0,dh-.06,-(rt+RING_GAP)+.02),at(0,sh,topB(sh)-.14)];
-    ringG.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tg),32,.045,10,false),matMetal));
-    const knuckle=new THREE.Mesh(new THREE.SphereGeometry(.08,16,12),matMetal);knuckle.position.copy(tg[0]);ringG.add(knuckle)}
-  // deux passants dans la matière du bracelet, autour des deux épaisseurs
-  [sb-.8,sb-1.4].forEach(s=>frame(s,.07,.28,.06,matRubber));
+    // barre de charnière : tube qui enveloppe l'extrémité de la sangle haute (rayon > demi-épaisseur), un peu plus large que la sangle
+    ringG.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([P(-(base(sA)/2+.06),0),P(base(sA)/2+.06,0)]),8,rBar,20,false),matMetal));
+    [-1,1].forEach(sg=>{const cap=new THREE.Mesh(new THREE.SphereGeometry(rBar,20,12),matMetal);cap.position.copy(P(sg*(base(sA)/2+.06),0));cap.scale.set(.35,1,1);ringG.add(cap)});   // embouts arrondis
+    // ardillon : de la charnière, droit dans le plan du cadre, à travers le trou (sx), jusqu'à reposer sur la barre d'extrémité
+    const dTip=len-.02,tg=new THREE.TubeGeometry(new THREE.CatmullRomCurve3([P(0,0,0),P(0,dTip,rt+.045)]),16,.05,12,false);
+    ringG.add(new THREE.Mesh(tg,matMetal));
+    const tipC=new THREE.Mesh(new THREE.SphereGeometry(.05,12,8),matMetal);tipC.position.copy(P(0,dTip,rt+.045));ringG.add(tipC)}
+  // deux passants dans la matière du bracelet, autour des deux épaisseurs, juste avant la boucle
+  [sA-.75,sA-1.3].forEach(s=>frame(s,.07,.28,.06,matRubber));
   // points bas de l'anneau (repère du boîtier), pour que le sol ne coupe jamais le bracelet quand la montre s'incline
   const low=[];for(let i=0;i<=160;i++){const f=ringFrame(curve,i/160*L,L);[-1,1].forEach(sx=>[-1,1].forEach(sn=>{const q=f.p.clone().addScaledVector(f.n,sn*(RING_T/2+.05));q.x=sx*(RING_W0/2);if(q.y<-1)low.push(q)}))}
-  return {holes:[.9,1.32,1.74,2.16,2.58,3.0].map(q=>q/lenB),lenB,low};
+  const holes=[];for(let k=-6;k<=2;k++){const q=sx-sTip+k*.42;if(q>.7&&q<lenB-.5)holes.push(q/lenB)}   // un trou exactement là où passe l'ardillon (sx), puis tous les 4,2 mm
+  return {holes,lenB,low};
 }
 
 function makeStrapFade(){   // opacité : le bracelet s'efface vers le bout, sur son dernier tiers
