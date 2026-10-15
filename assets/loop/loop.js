@@ -300,6 +300,7 @@ const THREE_OK=!!THREE&&webglOK();
 const cv=$('#compassCanvas');
 let strapLow=null,skyK=-1;
 let renderer,scene3,cam,group,needle,dialTex,dialCanvas,bezelTex,bezelCanvas,vis=10,strapApply=null,readCanvas=null,readTex=null,lastReadDeg=-1,lastReadKey='',aimKey=null,toolAim=-1,dialTool=-1,dialOver=null,pinnedKey=null,hoverKey=null,roMesh=null,topoMesh=null,topoTex=null,lastInto=null;
+const NEEDLE_TIP=.44,DIAL_R=1.98;   // pointe nord de l'aiguille (pivot à .06 + losange de .38) et rayon du cadran, en unités de la montre : la trace des étapes démarre sous cette pointe
 /* ---------- Montre GPS outdoor, inspirée des séries Garmin Fenix et Enduro ---------- */
 const DIAL_NIGHT={bg:'#050607',pat:'rgba(255,255,255,.05)',tickBig:'#E6F4F1',tick:'rgba(200,210,216,.6)',ring:'rgba(255,255,255,.35)',N:'#E26D3B',card:'#E6F4F1',inter:'#9AA4AB',deg:'#B8C0C6',lab:'#AEB8BF',val:'#E6F4F1',qual:'#C9D1D6',rTitle:'#E6F4F1',rDesc:'#B9C2CA'};
 const DIAL_DAY={bg:'#F2EEE6',pat:'rgba(60,40,20,.045)',tickBig:'#1B1712',tick:'rgba(27,23,18,.62)',ring:'rgba(27,23,18,.45)',N:'#A8401B',card:'#1B1712',inter:'#5F584D',deg:'#554E43',lab:'#554E43',val:'#1B1712',qual:'#3F392F',rTitle:'#1B1712',rDesc:'#3F392F'};
@@ -927,7 +928,7 @@ function updateCompass(p,dt){
   // métamorphose : les aiguilles s'effacent, les données du cadran se dilatent en relief topographique
   const nf=p<.5?1-sm(.29,.33,p):sm(.96,1,p),tf=p<.5?sm(.19,.26,p):1-sm(.96,1,p);
   const tw=transW(p),bk=needleBlink(tNow),no=nf*(1-tw*(1-bk));   // pendant la transition, l'aiguille reste visible et clignote : c'est elle qui fait le halo
-  needle.children.forEach(m=>{m.material.opacity=no});needle.visible=no>.01&&!preTraveling();needle.scale.setScalar(1+.4*(1-nf)+tw*.18*bk);
+  needle.children.forEach(m=>{m.material.opacity=no});needle.visible=no>.01&&!preTraveling();{const s=1+.4*(1-nf)+tw*.18*bk;needle.scale.setScalar(s);needle.position.y=NEEDLE_TIP-(NEEDLE_TIP-.06)*s}   // elle grandit vers l'arrière : sa pointe reste sur le départ de la trace
   {const on=tw>.2&&bk>.5;if(on&&!lastBlinkOn&&!paused&&!reduce)tickSoft();lastBlinkOn=on}
   roMesh.material.opacity=p<.5?1-sm(.17,.22,p):sm(.96,1,p);
   topoMesh.material.opacity=tf;topoMesh.visible=tf>.01;
@@ -2754,6 +2755,7 @@ const kmLine=t=>'Km '+fmtN(kmAt(t))+' · D+ '+fmtN(Math.round(gainAtT(t)/10)*10)
 const KAPPA=4,RFIN=44;   // KAPPA : hauteur de la caméra de dessus = KAPPA fois le rayon visible ; le champ de vision s'ajuste pour que le cadran ait la bonne taille
 //   // rayon de sol (en unités) visible au bord du cadran à la fin de la plongée
 const hd=(()=>{let tot=0;for(let i=1;i<P.length;i++)tot+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);let acc=0,q=P[P.length-1];for(let i=1;i<P.length;i++){acc+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);if(acc>=.05*tot){q=P[i];break}}const dx=q.x-P[0].x,dz=q.z-P[0].z,l=Math.hypot(dx,dz)||1;return {x:dx/l,z:dz/l}})();   // direction de la trace sur ses premiers 5 %
+const TIP=RFIN*NEEDLE_TIP/DIAL_R,C0={x:P[0].x-hd.x*TIP,z:P[0].z-hd.z*TIP};   // centre du cadran sur le sol : le départ de la trace est TIP plus loin dans l'axe de la trace, donc sous la pointe de l'aiguille (qui indique le nord pendant la plongée)
 const xs=P.map(p=>p.x),zs=P.map(p=>p.z),pad=170;
 const bx0=Math.min(...xs)-pad,bx1=Math.max(...xs)+pad,bz0=Math.min(...zs)-pad,bz1=Math.max(...zs)+pad;
 const cell0=7,NX0=Math.ceil((bx1-bx0)/cell0),NZ0=Math.ceil((bz1-bz0)/cell0);
@@ -3022,7 +3024,7 @@ function rig(p,dt,snap,intro=0){
     const e=ease(intro),ok=DIAL.r>5,w=cv.clientWidth,h=cv.clientHeight,hT=KAPPA*RFIN,sP=ok?.98*DIAL.r/RFIN:(h/2)/(hT*Math.tan(baseFov()*Math.PI/360));   // 0,98 : écart d'échelle mesuré entre le disque du cadran et ses courbes
     const fovT=2*Math.atan((h/2)/(sP*hT))*180/Math.PI;
     const ox=(ok?DIAL.cx:w/2)-w/2,oy=(ok?DIAL.cy:h/2)-h/2,rx=-hd.z,rz=hd.x;
-    const tx=P[0].x-rx*(ox/sP)+hd.x*(oy/sP),tz=P[0].z-rz*(ox/sP)+hd.z*(oy/sP),gy=terrainAt(P[0].x,P[0].z);
+    const tx=C0.x-rx*(ox/sP)+hd.x*(oy/sP),tz=C0.z-rz*(ox/sP)+hd.z*(oy/sP),gy=terrainAt(C0.x,C0.z);
     camA.position.copy(v1);camA.up.set(0,1,0);camA.lookAt(v2);
     camB.position.set(tx,gy+hT,tz);camB.up.set(hd.x,0,hd.z);camB.lookAt(tx,gy,tz);
     camPos.copy(v1).lerp(camB.position,e);camTgt.copy(v2).lerp(v3.set(tx,gy,tz),e);
@@ -3207,7 +3209,7 @@ function update(l,dt,intro){
 function sizeIt(){if(inited)resize()}
 function setQuality(){if(inited){renderer.setPixelRatio(Math.min(devicePixelRatio,QDPR()));resize()}}
 function stopPs(){return STOPS.map(s=>({p:PC0+PCW*(s.a+s.b)/2,name:s.name}))}
-return {ensure,update,resize:sizeIt,staticView,dynamicView,setQuality,stopPs,topoInfo(){return {heightAt:terrainAt,x0:P[0].x,z0:P[0].z,gy0:terrainAt(P[0].x,P[0].z),hx:hd.x,hz:hd.z,cstep:20*SC*EX,rfin:RFIN,kappa:KAPPA,hmin,hmax}},dispose(){if(inited)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
+return {ensure,update,resize:sizeIt,staticView,dynamicView,setQuality,stopPs,topoInfo(){return {heightAt:terrainAt,x0:C0.x,z0:C0.z,gy0:terrainAt(C0.x,C0.z),hx:hd.x,hz:hd.z,cstep:20*SC*EX,rfin:RFIN,kappa:KAPPA,hmin,hmax}},dispose(){if(inited)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
 
 })();
 
