@@ -871,15 +871,17 @@ html.loop-on .stop-card{position:absolute;z-index:6;right:64px;top:50%;width:min
 html.loop-on .stop-card.on{opacity:1;visibility:visible;transform:translate(0,-50%);transition:opacity .35s ease,transform .45s cubic-bezier(.2,.7,.2,1),visibility 0s}
 html.loop-on .stop-card .sc-e{margin:0 0 6px;font:500 11.5px/1.5 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:#FF8A57}
 html.loop-on .stop-card .sc-e .gps{display:block;color:#C9D4D9;letter-spacing:.04em;text-transform:none}
-html.loop-on .stop-card h3{margin:0 0 10px;font:italic 500 clamp(26px,2.4vw,34px)/1.05 'Cordée Serif','DM Serif Display',Georgia,serif;color:#FFFFFF}
+html.loop-on .stop-card .sc-r{margin:0 0 10px;font:italic 500 clamp(19px,1.7vw,23px)/1.2 'Cordée Serif','DM Serif Display',Georgia,serif;color:#FFFFFF}   /* rôle : le nom du projet est gravé sur la stèle */
+html.loop-on .stop-card [hidden]{display:none!important}
 html.loop-on .sc-stats{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-wrap:wrap;gap:6px 16px}
 html.loop-on .sc-stats[hidden]{display:none}
 html.loop-on .sc-stats li{display:flex;align-items:baseline;gap:6px}
 html.loop-on .sc-stats b{white-space:nowrap;font:600 18px/1.1 'JetBrains Mono',ui-monospace,monospace;color:#F0A27A}
 html.loop-on .sc-stats span{font:500 11px/1.3 'JetBrains Mono',ui-monospace,monospace;color:#C9D4D9}
 html.loop-on .stop-card .sc-l{margin:0 0 12px;font:400 14px/1.5 Inter,system-ui,sans-serif;color:#D5DEE2;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-html.loop-on .sc-tags{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
-html.loop-on .sc-tags li{padding:3px 8px;border:1px solid rgba(226,140,100,.45);border-radius:4px;font:500 10.5px/1.5 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:#DCE4E8}
+html.loop-on .sc-pts{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+html.loop-on .sc-pts li{position:relative;padding-left:14px;font:400 13px/1.45 Inter,system-ui,sans-serif;color:#D5DEE2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}   /* deux lignes par point : la fiche complète garde le texte entier */
+html.loop-on .sc-pts li::before{content:"";position:absolute;left:0;top:.6em;width:5px;height:5px;border-radius:50%;background:var(--acc)}
 html.loop-on .sc-acts{display:flex;align-items:center;gap:8px}
 html.loop-on .sc-more{flex:1;min-height:44px;padding:0 16px;border:0;border-radius:999px;background:#FF8A57;color:#0A0F1A;font:700 13.5px/1.2 'JetBrains Mono',ui-monospace,monospace;cursor:pointer}
 html.loop-on .sc-more:hover,html.loop-on .sc-more:focus-visible{background:#FFFFFF}
@@ -892,11 +894,11 @@ html.loop-on body.static .stop-card{display:none}
 @media (max-width:899px){
   html.loop-on .stop-card{left:12px;right:52px;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);width:auto;padding:14px 16px 12px;transform:translateY(14px)}
   html.loop-on .stop-card.on{transform:none}
-  html.loop-on .stop-card h3{font-size:26px;margin-bottom:6px}
+  html.loop-on .stop-card .sc-r{font-size:19px;margin-bottom:6px}
   html.loop-on .stop-card .sc-l{-webkit-line-clamp:2;font-size:13.5px;margin-bottom:10px}
-  html.loop-on .sc-tags,html.loop-on .sc-stats,html.loop-on .sc-stats[hidden]{display:none}
+  html.loop-on .sc-pts,html.loop-on .sc-stats,html.loop-on .sc-stats[hidden]{display:none}
 }
-@media (max-height:620px) and (min-width:900px){html.loop-on .stop-card .sc-l{-webkit-line-clamp:2}html.loop-on .sc-tags{display:none}}
+@media (max-height:620px) and (min-width:900px){html.loop-on .stop-card .sc-l{-webkit-line-clamp:2}html.loop-on .sc-pts{display:none}}
 @media (prefers-reduced-motion:reduce){html.loop-on .stop-card,html.loop-on .stop-card.on{transition:opacity .2s,visibility 0s}html.loop-on .stop-card{transform:translate(0,-50%)}}
 @media (prefers-reduced-motion:reduce) and (max-width:899px){html.loop-on .stop-card{transform:none}}
 html.loop-on[data-theme="light"] .stop-card{background:rgba(252,247,238,.94);border-color:rgba(178,63,39,.3);box-shadow:0 14px 36px rgba(60,40,20,.18);color:var(--fg)}
@@ -905,7 +907,7 @@ html.loop-on[data-theme="light"] .stop-card .sc-e .gps,html.loop-on[data-theme="
 html.loop-on[data-theme="light"] .stop-card h3{color:#12222B}
 html.loop-on[data-theme="light"] .sc-stats b{color:#8F2F1B}
 html.loop-on[data-theme="light"] .stop-card .sc-l{color:#24343C}
-html.loop-on[data-theme="light"] .sc-tags li{color:#24343C;border-color:rgba(143,47,27,.4)}
+html.loop-on[data-theme="light"] .sc-pts li,html.loop-on[data-theme="light"] .stop-card .sc-r{color:#24343C}
 html.loop-on[data-theme="light"] .sc-more{background:#B23F27;color:#FFFFFF}
 html.loop-on[data-theme="light"] .sc-more:hover,html.loop-on[data-theme="light"] .sc-more:focus-visible{background:#8F2F1B}
 html.loop-on[data-theme="light"] .sc-x{color:#12222B;border-color:rgba(18,34,43,.3)}
@@ -913,7 +915,7 @@ html.loop-on[data-theme="light"] .sc-x:hover,html.loop-on[data-theme="light"] .s
 html.loop-on[data-theme="light"] .sc-more:focus-visible,html.loop-on[data-theme="light"] .sc-x:focus-visible{outline-color:#12222B}
 
 /* ---------- Carte des étapes épurée : une seule source de texte ----------
-   La stèle 3D ne grave plus que le nom du projet ; le panneau d'étape (#stopCard) porte tout le texte.
+   La stèle 3D grave le nom, l'étape, le kilomètre, le dénivelé et les technos ; le panneau d'étape (#stopCard) porte le reste (lieu, période, altitude, rôle, résumé, chiffres, points clés).
    Le titre de section devient un sur-titre discret en haut à gauche : il ne passe plus sur la stèle. */
 html.loop-on #s2 .head{left:64px;top:calc(var(--hh) + 10px);transform:none;width:auto;max-width:min(420px,calc(100% - 128px));text-align:left}
 html.loop-on #s2 .head .eyebrow{margin-bottom:4px;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
@@ -924,7 +926,3 @@ html.loop-on #s2 .head p.tot{margin:2px 0 0;font-size:11.5px;letter-spacing:.1em
 html.loop-on .stop-card{background:rgba(5,8,17,.7);border-color:rgba(226,140,100,.26);-webkit-backdrop-filter:blur(16px) saturate(1.15);backdrop-filter:blur(16px) saturate(1.15)}
 html.loop-on[data-theme="light"] .stop-card{background:rgba(252,247,238,.8)}
 html.loop-on .stop-card .sc-l{-webkit-line-clamp:2}
-/* technos sur une seule ligne, séparées par des puces minimalistes */
-html.loop-on .sc-tags{flex-wrap:nowrap;gap:0;overflow:hidden;white-space:nowrap}
-html.loop-on .sc-tags li,html.loop-on[data-theme="light"] .sc-tags li{display:flex;align-items:center;padding:0;border:0;border-radius:0;letter-spacing:.08em}
-html.loop-on .sc-tags li+li::before{content:"";flex:none;width:3px;height:3px;margin:0 9px;border-radius:50%;background:var(--acc)}

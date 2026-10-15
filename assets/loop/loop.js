@@ -2873,7 +2873,8 @@ function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depth
 const CLEAR=8.6,GAP=.28;   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 function paintBlock(b){
-  const c=b.canvas,x=c.getContext('2d'),W=c.width,Hh=c.height,pr=Object.assign({},b.proj,{mat:'stone'});   // une seule matière : pierre mate
+  const c=b.canvas,x=c.getContext('2d'),W=512,Hh=384,pr=Object.assign({},b.proj,{mat:'stone'});   // une seule matière : pierre mate ; mise en page en 512 × 384, dessinée à l'échelle du canvas
+  x.setTransform(c.width/W,0,0,c.height/Hh,0,0);
   let seed=b.proj.title.length*13+7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
   if(pr.mat==='stone'){
     const g=x.createLinearGradient(0,0,W,Hh);g.addColorStop(0,'#BDB6AA');g.addColorStop(1,'#A29B8F');x.fillStyle=g;x.fillRect(0,0,W,Hh);
@@ -2896,19 +2897,31 @@ function paintBlock(b){
   }
   // typographie lisible, contraste visé AAA : encre pleine selon la matière (noir sur pierre et métal clairs, blanc sur cuir et verre sombre), graisse 600 à 700, tailles agrandies
   const TX={stone:{ink:'#0A0805',hi:'rgba(255,255,255,.35)',fill:'rgba(255,255,255,.30)'},metal:{ink:'#05080A',hi:'rgba(255,255,255,.4)',fill:'rgba(255,255,255,.30)'},leather:{ink:'#140A03',hi:'rgba(255,240,220,.4)',fill:'rgba(255,248,236,.30)'},ghost:{ink:'#FFFFFF',sh:'rgba(0,0,0,.8)',fill:'rgba(0,0,0,.28)',stage:'#FFC4A0'}}[pr.mat];
-  /* gravure épurée : le nom du projet seul, centré, en grand (étape, résumé, chiffres et technos sont dans le panneau d'étape #stopCard : une seule source de texte) */
-  const SERIF='"Cordée Serif", "DM Serif Display", Georgia, serif',F=sz=>'italic 600 '+sz+'px '+SERIF,cx=W/2,cy=Hh/2;
+  /* gravure : étape en haut, nom du projet au centre, kilomètre et dénivelé cumulés, puis les technos. Le reste (lieu, période, rôle, résumé, chiffres, points clés) est dans le panneau d'étape #stopCard.
+     La stèle est décorative (aria-hidden) : le panneau redonne ces mêmes informations aux lecteurs d'écran (#scSr). */
+  const SERIF='"Cordée Serif", "DM Serif Display", Georgia, serif',MONO='"JetBrains Mono", ui-monospace, monospace',F=sz=>'italic 600 '+sz+'px '+SERIF,cx=W/2,MW=W-96;
+  const engrave=(t,y,font)=>{x.font=font;x.fillStyle=TX.hi;x.fillText(t,cx+1.2,y+1.2);x.fillStyle=TX.ink;x.fillText(t,cx,y)};   // gravure : encre pleine et arête claire décalée
+  const track=(t,sp)=>t.toUpperCase().split('').join(String.fromCharCode(8202).repeat(sp));   // capitales espacées (espaces fines) : la mono gravée respire
+  const fitMono=(t,w,max,min)=>{let sz=max;x.font='600 '+sz+'px '+MONO;while(x.measureText(t).width>w&&sz>min){sz-=1;x.font='600 '+sz+'px '+MONO}return sz};
   x.textAlign='center';x.textBaseline='middle';
-  const fit=(t,max)=>{let sz=max;x.font=F(sz);while(x.measureText(t).width>W-84&&sz>30){sz-=2;x.font=F(sz)}return sz};
-  let lines=[pr.title],size=fit(pr.title,96);
-  if(size<64&&pr.title.includes(' ')){   // nom long : deux lignes équilibrées plutôt qu'une gravure trop petite
+  const stage=pr.stage||'',kmT=kmLine(pr.t||0).toUpperCase(),tags=(pr.tags||[]).slice(0,4);
+  // étape
+  {const t=track(stage,1),sz=fitMono(t,MW,24,14);engrave(t,72,'600 '+sz+'px '+MONO);
+   x.strokeStyle=TX.ink;x.globalAlpha=.55;x.lineWidth=2;x.beginPath();x.moveTo(cx-34,96);x.lineTo(cx+34,96);x.stroke();x.globalAlpha=1}
+  // nom du projet
+  const fit=(t,max)=>{let sz=max;x.font=F(sz);while(x.measureText(t).width>MW&&sz>30){sz-=2;x.font=F(sz)}return sz};
+  let lines=[pr.title],size=fit(pr.title,84);
+  if(size<58&&pr.title.includes(' ')){   // nom long : deux lignes équilibrées plutôt qu'une gravure trop petite
     const ws=pr.title.split(' ');let best=null;
     for(let i=1;i<ws.length;i++){const l1=ws.slice(0,i).join(' '),l2=ws.slice(i).join(' '),m=Math.max(l1.length,l2.length);if(!best||m<best.m)best={l1,l2,m}}
-    lines=[best.l1,best.l2];size=Math.min(fit(best.l1,84),fit(best.l2,84));
+    lines=[best.l1,best.l2];size=Math.min(fit(best.l1,64),fit(best.l2,64));
   }
-  x.font=F(size);const lh=size*1.08,y0=cy-(lines.length-1)*lh/2;
-  lines.forEach((l,i)=>{const y=y0+i*lh;
-    if(TX.sh){x.shadowColor=TX.sh;x.shadowBlur=7;x.fillStyle=TX.ink;x.fillText(l,cx,y);x.shadowBlur=0}else{x.fillStyle=TX.hi;x.fillText(l,cx+1.5,y+1.5);x.fillStyle=TX.ink;x.fillText(l,cx,y)}});
+  {const lh=size*1.04,y0=170-(lines.length-1)*lh/2;lines.forEach((l,i)=>engrave(l,y0+i*lh,F(size)))}
+  // kilomètre et dénivelé cumulés
+  {const sz=fitMono(kmT,MW,25,15);engrave(kmT,256,'600 '+sz+'px '+MONO)}
+  // technos : une ligne, séparées par des points ; si elle ne tient pas, la dernière techno part (elle reste dans le texte du panneau pour les lecteurs d'écran)
+  {let ts=tags.slice(),t='',sz=0;for(;;){t=ts.map(v=>v.toUpperCase()).join('  ·  ');sz=fitMono(t,MW,19,14);x.font='600 '+sz+'px '+MONO;if(x.measureText(t).width<=MW||ts.length<=1)break;ts.pop()}
+   if(t)engrave(t,306,'500 '+sz+'px '+MONO)}
   x.textBaseline='alphabetic';
   b.tex.needsUpdate=true;
 }
@@ -2987,7 +3000,7 @@ function buildBlocks(){
     // le Départ a aussi son cairn (étape 00) : mêmes pierres, gravé avec la période et le métier d'avant le code (version courte : la gravure tient sur 2 lignes, le texte complet reste sur la plaque) ; il n'a pas de fiche projet
     const pr=st.proj||(si===0?{id:'depart',t:0,title:st.name,stage:'Étape 00',place:'Grandes Platières',when:st.period,result:'Éducateur, formateur et directeur dans le sport',tags:['Management','Formation','Outdoor']}:null);
     if(!pr)return;
-    const cnv=document.createElement('canvas');cnv.width=512;cnv.height=384;
+    const cnv=document.createElement('canvas');cnv.width=768;cnv.height=576;   // 1,5 × la mise en page (512 × 384) : la gravure fine (km, technos) reste nette
     const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=8;tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
     const geo=new THREE.ExtrudeGeometry(stoneShape(si*1.9),{depth:1.4,bevelEnabled:true,bevelThickness:1.1,bevelSize:1,bevelSegments:4,curveSegments:6});
     const top=new THREE.MeshStandardMaterial({map:tex,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
@@ -3222,16 +3235,19 @@ plMore.addEventListener('click',()=>openStop(plMore.dataset.id,plMore));
 const sCard=$('#stopCard'),sMore=$('#scMore'),s2el=$('#s2');let cardIdx=-1,cardOff=false;try{cardOff=sessionStorage.getItem('asc-card-off')==='1'}catch(e){}
 /* résumé d'étape condensé : une ou deux phrases (≈ 150 signes au plus), la fiche complète garde tout le texte */
 function brief(t,max=150){const ph=String(t||'').trim().split(/(?<=[.!?…])\s+/);let out='';for(const x of ph){if(out&&(out+' '+x).length>max)break;out=out?out+' '+x:x}return out}
-function fillCard(pr){const f=PROJECT_INFO[pr.id];sMore.hidden=!f;
-  if(!f){   // étape 00 (Départ) : même carte que les autres étapes, sans fiche complète
-    const s0=STOPS[0];$('#scE').innerHTML=esc(pr.stage+' · '+pr.place)+'<span class="sr-only"> · </span><span class="gps">'+esc('Km 0 · Altitude '+fmtN(altAt(0))+' m')+'</span>';
-    $('#scT').textContent=s0.name;$('#scL').textContent=s0.period+' · '+s0.role;$('#scStats').hidden=true;
-    $('#scK').innerHTML=(pr.tags||[]).map(x=>`<li>${esc(x)}</li>`).join('');return}
-  $('#scE').innerHTML=esc(pr.stage+' · '+pr.place)+'<span class="sr-only"> · </span><span class="gps">'+esc('Km '+fmtN(kmAt(pr.t))+' · Altitude '+fmtN(altAt(pr.t))+' m')+'</span>';
-  $('#scT').textContent=f.t;$('#scL').textContent=brief(f.l||pr.result);
-  const sl=$('#scStats');sl.innerHTML=(f.stats||[]).slice(0,3).map(x=>`<li><b>${esc(x.value)}</b> <span>${esc(x.label)}</span></li>`).join('');sl.hidden=!sl.children.length;
-  $('#scK').innerHTML=(f.k||pr.tags||[]).slice(0,4).map(x=>`<li>${esc(x)}</li>`).join('');
-  sMore.dataset.id=pr.id;sMore.querySelector('.n').textContent=' : '+f.t}
+/* La stèle gravée porte le nom, l'étape, le kilomètre, le dénivelé et les technos ; la carte donne le reste : lieu et période, altitude, rôle, résumé, chiffres et points clés.
+   La stèle est décorative (aria-hidden) : le titre (h3) et la ligne #scSr redonnent aux lecteurs d'écran ce qui n'est écrit que dans la pierre. */
+function fillCard(pr){const f=PROJECT_INFO[pr.id],t=pr.t||0,s0=STOPS[0];sMore.hidden=!f;
+  const role=f?(String(f.e||'').split(' · ')[2]||''):s0.role,when=f?(f.st||pr.when||''):s0.period;
+  $('#scT').textContent=f?f.t:s0.name;
+  $('#scSr').textContent=[pr.stage,kmSpeech(t),'Technologies : '+(f&&f.k||pr.tags||[]).join(', ')].filter(Boolean).join('. ')+'.';
+  const same=when&&pr.place&&when.toLowerCase().slice(0,6)===String(pr.place).toLowerCase().slice(0,6);   // « Projet perso · Projet personnel » : pas de redite
+  $('#scE').innerHTML=esc([pr.place,same?'':when].filter(Boolean).join(' · '))+'<span class="sr-only"> · </span><span class="gps">'+esc('Altitude '+fmtN(altAt(t))+' m')+'</span>';
+  const r=$('#scR');r.textContent=role;r.hidden=!role;
+  const l=$('#scL'),txt=f?brief(f.l||pr.result):'';l.textContent=txt;l.hidden=!txt;
+  const sl=$('#scStats');sl.innerHTML=(f&&f.stats||[]).slice(0,3).map(x=>`<li><b>${esc(x.value)}</b> <span>${esc(x.label)}</span></li>`).join('');sl.hidden=!sl.children.length;
+  const pl=$('#scP');pl.innerHTML=(f&&f.pts||[]).slice(0,2).map(x=>`<li>${esc(brief(x,110))}</li>`).join('');pl.hidden=!pl.children.length;
+  if(f){sMore.dataset.id=pr.id;sMore.querySelector('.n').textContent=' : '+f.t}}
 function updateCard(){
   const as=STOPS[activeStop],pr=as&&(as.proj||(activeStop===0?(blocks.find(b=>b.stopIdx===0)||{}).proj:null)),ok=!staticMode&&!cardOff&&pr&&pr.id!=='next'&&(pr.id==='depart'||PROJECT_INFO[pr.id]);   // le Départ (étape 00) a sa carte aussi
   const cand=!ok?-1:stopW>.9?activeStop:(stopW>.55&&cardIdx===activeStop?activeStop:-1);   // hystérésis : apparaît caméra posée, reste jusqu'au vrai départ
