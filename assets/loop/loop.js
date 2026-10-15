@@ -2759,6 +2759,10 @@ const kmLine=t=>'Km '+fmtN(kmAt(t))+' · D+ '+fmtN(Math.round(gainAtT(t)/10)*10)
 const KAPPA=4,RFIN=44;   // KAPPA : hauteur de la caméra de dessus = KAPPA fois le rayon visible ; le champ de vision s'ajuste pour que le cadran ait la bonne taille
 //   // rayon de sol (en unités) visible au bord du cadran à la fin de la plongée
 const hd=(()=>{let tot=0;for(let i=1;i<P.length;i++)tot+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);let acc=0,q=P[P.length-1];for(let i=1;i<P.length;i++){acc+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);if(acc>=.05*tot){q=P[i];break}}const dx=q.x-P[0].x,dz=q.z-P[0].z,l=Math.hypot(dx,dz)||1;return {x:dx/l,z:dz/l}})();   // direction de la trace sur ses premiers 5 %
+/* La trace part droit dans l'axe de l'aiguille (hd, qui indique le nord pendant la plongée) : sur ses START_STRAIGHT premières unités elle suit exactement cet axe (l'aiguille la recouvre sans qu'elle sorte par un flanc), puis elle rejoint en douceur le tracé réel jusqu'à START_BLEND */
+const START_STRAIGHT=18,START_BLEND=50;
+{let acc=0;const x0=P[0].x,z0=P[0].z;for(let i=1;i<P.length;i++){acc+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);if(acc>=START_BLEND)break;
+  const k=1-sm(START_STRAIGHT,START_BLEND,acc);P[i].x=lerp(P[i].x,x0+hd.x*acc,k);P[i].z=lerp(P[i].z,z0+hd.z*acc,k)}}
 const PIV=RFIN*NEEDLE_PIV/DIAL_R,C0={x:P[0].x-hd.x*PIV,z:P[0].z-hd.z*PIV};   // centre du cadran sur le sol : le départ de la trace est sous le pivot de l'aiguille, qui indique le nord pendant la plongée : son triangle nord recouvre le début de la trace
 const xs=P.map(p=>p.x),zs=P.map(p=>p.z),pad=170;
 const bx0=Math.min(...xs)-pad,bx1=Math.max(...xs)+pad,bz0=Math.min(...zs)-pad,bz1=Math.max(...zs)+pad;
@@ -2957,7 +2961,7 @@ function buildBlocks(){
   const shTex=new THREE.CanvasTexture(sc);
   STOPS.forEach((st,si)=>{
     // le Départ a aussi son cairn (étape 00) : mêmes pierres, gravé avec la période et le métier d'avant le code (version courte : la gravure tient sur 2 lignes, le texte complet reste sur la plaque) ; il n'a pas de fiche projet
-    const pr=st.proj||(si===0?{id:'depart',title:st.name,stage:'Étape 00',place:'Grandes Platières',when:st.period,result:'Éducateur, formateur et directeur dans le sport',tags:['Management','Formation','Outdoor']}:null);
+    const pr=st.proj||(si===0?{id:'depart',t:0,title:st.name,stage:'Étape 00',place:'Grandes Platières',when:st.period,result:'Éducateur, formateur et directeur dans le sport',tags:['Management','Formation','Outdoor']}:null);
     if(!pr)return;
     const cnv=document.createElement('canvas');cnv.width=512;cnv.height=384;
     const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=8;tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
@@ -3143,20 +3147,24 @@ plMore.addEventListener('click',()=>openStop(plMore.dataset.id,plMore));
 const sCard=$('#stopCard'),sMore=$('#scMore'),s2el=$('#s2');let cardIdx=-1,cardOff=false;try{cardOff=sessionStorage.getItem('asc-card-off')==='1'}catch(e){}
 /* résumé d'étape condensé : une ou deux phrases (≈ 150 signes au plus), la fiche complète garde tout le texte */
 function brief(t,max=150){const ph=String(t||'').trim().split(/(?<=[.!?…])\s+/);let out='';for(const x of ph){if(out&&(out+' '+x).length>max)break;out=out?out+' '+x:x}return out}
-function fillCard(pr){const f=PROJECT_INFO[pr.id];
+function fillCard(pr){const f=PROJECT_INFO[pr.id];sMore.hidden=!f;
+  if(!f){   // étape 00 (Départ) : même carte que les autres étapes, sans fiche complète
+    const s0=STOPS[0];$('#scE').innerHTML=esc(pr.stage+' · '+pr.place)+'<span class="sr-only"> · </span><span class="gps">'+esc('Km 0 · Altitude '+fmtN(altAt(0))+' m')+'</span>';
+    $('#scT').textContent=s0.name;$('#scL').textContent=s0.period+' · '+s0.role;$('#scStats').hidden=true;
+    $('#scK').innerHTML=(pr.tags||[]).map(x=>`<li>${esc(x)}</li>`).join('');return}
   $('#scE').innerHTML=esc(pr.stage+' · '+pr.place)+'<span class="sr-only"> · </span><span class="gps">'+esc('Km '+fmtN(kmAt(pr.t))+' · Altitude '+fmtN(altAt(pr.t))+' m')+'</span>';
   $('#scT').textContent=f.t;$('#scL').textContent=brief(f.l||pr.result);
   const sl=$('#scStats');sl.innerHTML=(f.stats||[]).slice(0,3).map(x=>`<li><b>${esc(x.value)}</b> <span>${esc(x.label)}</span></li>`).join('');sl.hidden=!sl.children.length;
   $('#scK').innerHTML=(f.k||pr.tags||[]).slice(0,4).map(x=>`<li>${esc(x)}</li>`).join('');
   sMore.dataset.id=pr.id;sMore.querySelector('.n').textContent=' : '+f.t}
 function updateCard(){
-  const as=STOPS[activeStop],ok=!staticMode&&!cardOff&&as&&as.proj&&as.proj.id!=='next'&&PROJECT_INFO[as.proj.id];
+  const as=STOPS[activeStop],pr=as&&(as.proj||(activeStop===0?(blocks.find(b=>b.stopIdx===0)||{}).proj:null)),ok=!staticMode&&!cardOff&&pr&&pr.id!=='next'&&(pr.id==='depart'||PROJECT_INFO[pr.id]);   // le Départ (étape 00) a sa carte aussi
   const cand=!ok?-1:stopW>.9?activeStop:(stopW>.55&&cardIdx===activeStop?activeStop:-1);   // hystérésis : apparaît caméra posée, reste jusqu'au vrai départ
   const now=performance.now();if(cand!==updateCard.c){updateCard.c=cand;updateCard.t=now}
   const want=cand>=0&&now-updateCard.t<500?cardIdx:cand;   // arrêt d'au moins 0,5 s : rien ne clignote aux étapes survolées pendant un saut
   if(want===cardIdx)return;
   if(cardIdx>=0&&want<0&&sCard.contains(document.activeElement))plMore.focus({preventScroll:true});   // le focus ne se perd pas dans une carte qui disparaît
-  cardIdx=want;if(want>=0)fillCard(as.proj);sCard.classList.toggle('on',want>=0);s2el.classList.toggle('card-on',want>=0)}
+  cardIdx=want;if(want>=0)fillCard(pr);sCard.classList.toggle('on',want>=0);s2el.classList.toggle('card-on',want>=0)}
 sMore.addEventListener('click',()=>openStop(sMore.dataset.id,sMore));
 $('#scX').addEventListener('click',()=>{cardOff=true;try{sessionStorage.setItem('asc-card-off','1')}catch(e){}updateCard();plMore.focus({preventScroll:true});live.textContent='Résumés d\'étape masqués. Le bouton Voir la fiche reste disponible.'});
 let lastShown=-2;
