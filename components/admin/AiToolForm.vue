@@ -14,7 +14,7 @@ interface AiToolPayload {
   link: string;
 }
 
-const props = defineProps<{ initial?: Partial<AiToolPayload>; loading?: boolean }>();
+const props = defineProps<{ initial?: Partial<AiToolPayload>; loading?: boolean; readonly?: boolean }>();
 const emit  = defineEmits<{ submit: [payload: AiToolPayload] }>();
 
 const form = ref<AiToolPayload>({
@@ -38,6 +38,7 @@ watch(() => form.value.name, (val) => {
 });
 
 function onSubmit() {
+  if (props.readonly) return;
   form.value.useCases = useCasesInput.value
     .split("\n")
     .map((u) => u.trim())
@@ -47,73 +48,76 @@ function onSubmit() {
 </script>
 
 <template>
-  <form class="space-y-6" @submit.prevent="onSubmit">
+  <form @submit.prevent="onSubmit">
+    <!-- Lecture seule (visiteur) : fieldset désactivé = aucun champ ni bouton actionnable, valeurs lisibles -->
+    <fieldset :disabled="readonly" class="admin-form-body space-y-6">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="admin-label">Nom *</label>
-        <input v-model="form.name" required class="admin-input" placeholder="Claude" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="admin-label">Nom *</label>
+          <input v-model="form.name" required class="admin-input" placeholder="Claude" />
+        </div>
+        <div>
+          <label class="admin-label">Slug *</label>
+          <input v-model="form.slug" required class="admin-input font-mono text-sm" placeholder="claude-anthropic" />
+        </div>
       </div>
-      <div>
-        <label class="admin-label">Slug *</label>
-        <input v-model="form.slug" required class="admin-input font-mono text-sm" placeholder="claude-anthropic" />
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="admin-label">Fournisseur</label>
+          <input v-model="form.provider" class="admin-input" placeholder="Anthropic" />
+        </div>
+        <div>
+          <label class="admin-label">Catégorie *</label>
+          <select v-model="form.category" required class="admin-input">
+            <option>Productivité</option>
+            <option>Création</option>
+            <option>Analyse</option>
+            <option>Automatisation</option>
+          </select>
+        </div>
+        <div>
+          <label class="admin-label">Icône (emoji)</label>
+          <input v-model="form.icon" class="admin-input" placeholder="🤖" />
+        </div>
       </div>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <label class="admin-label">Fournisseur</label>
-        <input v-model="form.provider" class="admin-input" placeholder="Anthropic" />
+        <label class="admin-label">Tagline</label>
+        <input v-model="form.tagline" class="admin-input" placeholder="L'assistant IA pour rédiger, analyser…" />
       </div>
+
       <div>
-        <label class="admin-label">Catégorie *</label>
-        <select v-model="form.category" required class="admin-input">
-          <option>Productivité</option>
-          <option>Création</option>
-          <option>Analyse</option>
-          <option>Automatisation</option>
-        </select>
+        <label class="admin-label">Description</label>
+        <textarea v-model="form.description" rows="3" class="admin-input resize-none" />
       </div>
+
       <div>
-        <label class="admin-label">Icône (emoji)</label>
-        <input v-model="form.icon" class="admin-input" placeholder="🤖" />
+        <label class="admin-label">Cas d'usage <span class="text-xs text-(--color-muted)">(un par ligne)</span></label>
+        <textarea v-model="useCasesInput" rows="4" class="admin-input resize-none" />
       </div>
-    </div>
 
-    <div>
-      <label class="admin-label">Tagline</label>
-      <input v-model="form.tagline" class="admin-input" placeholder="L'assistant IA pour rédiger, analyser…" />
-    </div>
+      <div>
+        <label class="admin-label">Valeur business</label>
+        <textarea v-model="form.businessValue" rows="2" class="admin-input resize-none" />
+      </div>
 
-    <div>
-      <label class="admin-label">Description</label>
-      <textarea v-model="form.description" rows="3" class="admin-input resize-none" />
-    </div>
+      <div>
+        <label class="admin-label">Lien (optionnel)</label>
+        <input v-model="form.link" type="url" class="admin-input" placeholder="https://…" />
+      </div>
 
-    <div>
-      <label class="admin-label">Cas d'usage <span class="text-xs text-(--color-muted)">(un par ligne)</span></label>
-      <textarea v-model="useCasesInput" rows="4" class="admin-input resize-none" />
-    </div>
-
-    <div>
-      <label class="admin-label">Valeur business</label>
-      <textarea v-model="form.businessValue" rows="2" class="admin-input resize-none" />
-    </div>
-
-    <div>
-      <label class="admin-label">Lien (optionnel)</label>
-      <input v-model="form.link" type="url" class="admin-input" placeholder="https://…" />
-    </div>
-
-    <div class="flex justify-end pt-2">
-      <button
-        type="submit"
-        :disabled="loading"
-        class="px-6 py-2.5 rounded-lg bg-(--color-accent) text-white font-medium transition hover:opacity-90 disabled:opacity-50"
-      >
-        {{ loading ? "Enregistrement…" : "Enregistrer l'outil" }}
-      </button>
-    </div>
+      <div v-if="!readonly" class="flex justify-end pt-2">
+        <button
+          type="submit"
+          :disabled="loading"
+          class="px-6 py-2.5 rounded-lg bg-(--color-accent) text-white font-medium transition hover:opacity-90 disabled:opacity-50"
+        >
+          {{ loading ? "Enregistrement…" : "Enregistrer l'outil" }}
+        </button>
+      </div>
+    </fieldset>
   </form>
 </template>
 

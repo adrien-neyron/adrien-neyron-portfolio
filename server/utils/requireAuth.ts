@@ -34,12 +34,32 @@ export async function requireAuth(event: H3Event): Promise<JWTPayload> {
   }
 }
 
+/** Seul ADMIN_EMAIL (comparaison exacte) est administrateur ; vide = personne. */
+function isAdminEmail(email: unknown): boolean {
+  const adminEmail = useRuntimeConfig().adminEmail;
+  return Boolean(adminEmail) && email === adminEmail;
+}
+
+/**
+ * Rôle du visiteur pour l'interface /admin (lecture seule ou édition).
+ * Ne lève jamais : pas de jeton ou jeton invalide = simple visiteur.
+ * Purement indicatif côté interface — l'écriture reste gardée par requireAdminWrite.
+ */
+export async function isAdminRequest(event: H3Event): Promise<boolean> {
+  if (!getHeader(event, "authorization")?.startsWith("Bearer ")) return false;
+  try {
+    const payload = await requireAuth(event);
+    return isAdminEmail(payload.email);
+  } catch {
+    return false;
+  }
+}
+
 export async function requireAdminWrite(event: H3Event): Promise<void> {
   const payload = await requireAuth(event);
-  const config  = useRuntimeConfig();
-  const adminEmail = config.adminEmail;
+  const adminEmail = useRuntimeConfig().adminEmail;
 
-  if (!adminEmail || payload.email !== adminEmail) {
+  if (!isAdminEmail(payload.email)) {
     // Diagnostic : ne révèle rien au client (toujours 403 générique), mais
     // trace côté serveur (Vercel → Runtime Logs) l'email reçu du token vs
     // celui attendu, pour distinguer "ADMIN_EMAIL absent en prod" d'un

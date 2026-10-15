@@ -299,3 +299,34 @@ p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
     scroll-behavior: auto !important;
   }
 }
+
+/* /admin en lecture seule (visiteur) : les formulaires sont enveloppés dans
+   <fieldset class="admin-form-body" disabled>. On garde les valeurs au contraste
+   normal du texte (le gris « désactivé » du navigateur passerait sous 4,5:1) et on
+   neutralise le min-width: min-content du fieldset qui casse la mise en page mobile. */
+.admin-form-body {
+  min-width: 0;
+}
+.admin-form-body:disabled :is(input, textarea, select) {
+  color: var(--color-text);
+  -webkit-text-fill-color: var(--color-text);
+  opacity: 1;
+  cursor: default;
+}
+.admin-form-body:disabled :is(button, input[type="file"]) {
+  cursor: not-allowed;
+}
+
+/* /admin, listes : lien « Consulter » d'une ligne pour un visiteur (cible 44 px). */
+.admin-row-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 0.5rem;
+  color: var(--color-accent);
+}
+.admin-row-action:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}

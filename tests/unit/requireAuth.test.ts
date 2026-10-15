@@ -4,7 +4,7 @@ import { makeEvent, runtimeConfig } from './setup'
 const jwtVerify = vi.fn()
 vi.mock('jose', () => ({ createRemoteJWKSet: vi.fn(() => 'jwks'), jwtVerify: (...a: unknown[]) => jwtVerify(...a) }))
 
-import { requireAuth, requireAdminWrite } from '~/server/utils/requireAuth'
+import { requireAuth, requireAdminWrite, isAdminRequest } from '~/server/utils/requireAuth'
 
 const bearer = (t = 'tok') => makeEvent({ Authorization: `Bearer ${t}` }) as any
 
@@ -52,5 +52,29 @@ describe('requireAdminWrite', () => {
   it('la comparaison est exacte (casse comprise)', async () => {
     jwtVerify.mockResolvedValue({ payload: { email: 'Admin@example.com' } })
     await expect(requireAdminWrite(bearer())).rejects.toMatchObject({ statusCode: 403 })
+  })
+})
+
+describe('isAdminRequest (rôle affiché dans /admin)', () => {
+  it('visiteur sans jeton : false, sans vérifier de JWT', async () => {
+    await expect(isAdminRequest(makeEvent() as any)).resolves.toBe(false)
+    expect(jwtVerify).not.toHaveBeenCalled()
+  })
+  it('jeton invalide : false (ne lève jamais)', async () => {
+    jwtVerify.mockRejectedValue(new Error('bad'))
+    await expect(isAdminRequest(bearer())).resolves.toBe(false)
+  })
+  it('autre compte connecté : false', async () => {
+    jwtVerify.mockResolvedValue({ payload: { email: 'intrus@example.com' } })
+    await expect(isAdminRequest(bearer())).resolves.toBe(false)
+  })
+  it("e-mail administrateur : true", async () => {
+    jwtVerify.mockResolvedValue({ payload: { email: 'admin@example.com' } })
+    await expect(isAdminRequest(bearer())).resolves.toBe(true)
+  })
+  it('ADMIN_EMAIL vide : false pour tout le monde', async () => {
+    runtimeConfig.adminEmail = ''
+    jwtVerify.mockResolvedValue({ payload: { email: '' } })
+    await expect(isAdminRequest(bearer())).resolves.toBe(false)
   })
 })

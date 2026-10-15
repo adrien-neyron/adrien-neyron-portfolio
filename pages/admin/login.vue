@@ -39,7 +39,7 @@ function login() {
 
       <div class="text-center">
         <h1 class="font-bold text-lg" style="color: var(--color-text);">Espace Admin</h1>
-        <p class="text-sm mt-1" style="color: var(--color-muted);">Connexion requise pour accéder au tableau de bord.</p>
+        <p class="text-sm mt-1" style="color: var(--color-muted);">Connexion réservée à l'administrateur pour modifier le site.</p>
       </div>
 
       <button
@@ -49,6 +49,10 @@ function login() {
       >
         Se connecter avec Auth0
       </button>
+
+      <NuxtLink to="/admin" class="text-sm underline" style="color: var(--color-accent);">
+        Visiter en lecture seule
+      </NuxtLink>
 
       <NuxtLink
         to="/"

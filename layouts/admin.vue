@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import "~/assets/css/main.css";
 import { ref, watch } from "vue";
-import { useAuth0 } from "@auth0/auth0-vue";
-import { LogOut, LayoutDashboard, PlusCircle, Home, UserCircle, Cpu, NotebookPen, Menu, X } from "lucide-vue-next";
+import { LogIn, LogOut, LayoutDashboard, PlusCircle, Home, UserCircle, Cpu, NotebookPen, Menu, X, Eye } from "lucide-vue-next";
 
-const { logout } = useAuth0();
+const { isAdmin, isAuthenticated, login, logout } = useAdminSession();
 const route     = useRoute();
 const menuOpen  = ref(false);
-
-function handleLogout() {
-  logout({ logoutParams: { returnTo: window.location.origin } });
-}
 
 // Referme le menu mobile à chaque navigation — même pattern que
 // components/navigation/TrailNav.vue (menu hamburger du site public).
@@ -60,7 +55,7 @@ watch(() => route.path, () => { menuOpen.value = false; });
           <LayoutDashboard :size="15" aria-hidden="true" />
           Projets
         </NuxtLink>
-        <NuxtLink to="/admin/projects/new" class="admin-nav-link" active-class="admin-nav-link--active">
+        <NuxtLink v-if="isAdmin" to="/admin/projects/new" class="admin-nav-link" active-class="admin-nav-link--active">
           <PlusCircle :size="15" aria-hidden="true" />
           Nouveau projet
         </NuxtLink>
@@ -83,15 +78,27 @@ watch(() => route.path, () => { menuOpen.value = false; });
           <Home :size="15" aria-hidden="true" />
           Voir le site
         </NuxtLink>
-        <button class="admin-nav-link w-full text-left" @click="handleLogout">
+        <button v-if="isAuthenticated" class="admin-nav-link w-full text-left" @click="logout()">
           <LogOut :size="15" aria-hidden="true" />
           Déconnexion
+        </button>
+        <button v-else class="admin-nav-link w-full text-left" @click="login(route.fullPath)">
+          <LogIn :size="15" aria-hidden="true" />
+          Connexion admin
         </button>
       </div>
     </aside>
 
     <!-- Contenu -->
     <main class="flex-1 overflow-auto">
+      <!-- Visiteur : tout se consulte, rien ne se modifie (le serveur refuse de toute façon). -->
+      <p v-if="!isAdmin" class="admin-readonly-note">
+        <Eye :size="16" aria-hidden="true" class="shrink-0" />
+        <span>
+          <strong>Visite en lecture seule.</strong>
+          Tu parcours le camp de base tel que je l'utilise pour faire vivre le site : aucune modification n'est possible.
+        </span>
+      </p>
       <slot />
     </main>
   </div>
@@ -113,6 +120,26 @@ watch(() => route.path, () => { menuOpen.value = false; });
 .admin-nav-link--active {
   background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
   color: var(--color-accent);
+}
+
+.admin-nav-link {
+  min-height: 44px;
+}
+
+.admin-readonly-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 1rem 1rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-accent);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.85rem;
+}
+@media (min-width: 640px) {
+  .admin-readonly-note { margin: 2rem 2rem 0; }
 }
 
 .admin-menu-toggle:hover {

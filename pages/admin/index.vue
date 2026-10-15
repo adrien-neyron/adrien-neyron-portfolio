@@ -1,18 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useAuth0 } from "@auth0/auth0-vue";
-import { Pencil, Trash2, PlusCircle, LogOut, Download } from "lucide-vue-next";
+import { Pencil, Trash2, PlusCircle, Download, Eye } from "lucide-vue-next";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 
-const { idTokenClaims, user, logout } = useAuth0();
-const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
-const isAdmin = computed(() => user.value?.email === "adrien.neyron@gmail.com");
+const { isAdmin, getToken, list } = useAdminSession();
 const { difficultyLabel } = useDifficultyBadge();
-
-function handleLogout() {
-  logout({ logoutParams: { returnTo: window.location.origin } });
-}
 
 const seeding = ref(false);
 async function seedProjects() {
@@ -54,15 +47,7 @@ async function fetchProjects() {
   loading.value = true;
   error.value   = "";
   try {
-    const token = getToken();
-    if (!token) {
-      error.value = "Token introuvable — reconnectez-vous.";
-      loading.value = false;
-      return;
-    }
-    projects.value = await $fetch<Project[]>("/api/admin/projects", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    projects.value = await list<Project>("projects");
   } catch (e: unknown) {
     const fe = e as { statusCode?: number; statusMessage?: string; message?: string };
     error.value = `Erreur ${fe.statusCode ?? "?"} — ${fe.statusMessage ?? fe.message ?? "inconnu"}`;
@@ -114,14 +99,6 @@ onMounted(fetchProjects);
             Nouveau projet
           </NuxtLink>
         </template>
-        <button
-          class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition hover:opacity-80"
-          style="border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); color: var(--color-muted);"
-          @click="handleLogout"
-        >
-          <LogOut :size="16" />
-          Déconnexion
-        </button>
       </div>
     </div>
 
@@ -133,7 +110,7 @@ onMounted(fetchProjects);
 
     <div v-else-if="projects.length === 0" class="text-center py-20" style="color: var(--color-muted);">
       Aucun projet.
-      <NuxtLink to="/admin/projects/new" style="color: var(--color-accent);">Créer le premier →</NuxtLink>
+      <NuxtLink v-if="isAdmin" to="/admin/projects/new" style="color: var(--color-accent);">Créer le premier →</NuxtLink>
     </div>
 
     <div v-else>
@@ -170,6 +147,15 @@ onMounted(fetchProjects);
               <Trash2 :size="15" aria-hidden="true" />
             </button>
           </div>
+          <NuxtLink
+            v-else
+            :to="`/admin/projects/${project.id}/edit`"
+            class="mt-3 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:opacity-80"
+            style="border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent); color: var(--color-accent);"
+          >
+            <Eye :size="15" aria-hidden="true" />
+            Consulter
+          </NuxtLink>
         </li>
       </ul>
 
@@ -182,7 +168,7 @@ onMounted(fetchProjects);
               <th class="text-left px-4 py-3 font-semibold" style="color: var(--color-muted);">Catégorie</th>
               <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell" style="color: var(--color-muted);">Difficulté</th>
               <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell" style="color: var(--color-muted);">Durée</th>
-              <th v-if="isAdmin" class="px-4 py-3" />
+              <th class="px-4 py-3"><span class="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody>
@@ -219,7 +205,15 @@ onMounted(fetchProjects);
                   </button>
                 </div>
               </td>
-              <td v-else class="px-4 py-3" />
+              <td v-else class="px-4 py-3 text-right">
+                <NuxtLink
+                  :to="`/admin/projects/${project.id}/edit`"
+                  class="admin-row-action"
+                  :aria-label="`Consulter ${project.title}`"
+                >
+                  <Eye :size="15" aria-hidden="true" />
+                </NuxtLink>
+              </td>
             </tr>
           </tbody>
         </table>

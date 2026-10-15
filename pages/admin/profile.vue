@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useAuth0 } from "@auth0/auth0-vue";
 import { staticProfileFallback, useProfileStore, type Profile } from "~/stores/profile";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
 
-const { idTokenClaims } = useAuth0();
-const getToken = () => (idTokenClaims.value as { __raw?: string })?.__raw ?? "";
+const { isAdmin, getToken } = useAdminSession();
 const profileStore = useProfileStore();
 
 const profile = ref<Profile | null>(null);
@@ -78,7 +76,7 @@ async function handleSubmit(payload: Profile) {
     <div v-if="loading" class="text-center py-20" style="color: var(--color-muted);">Chargement…</div>
 
     <div v-else-if="profile" class="p-6 rounded-xl border" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent); background-color: var(--color-surface);">
-      <AdminProfileForm :initial="profile" :loading="saving" @submit="handleSubmit" />
+      <AdminProfileForm :initial="profile" :loading="saving" :readonly="!isAdmin" @submit="handleSubmit" />
     </div>
   </div>
 </template>
