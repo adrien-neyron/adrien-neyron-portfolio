@@ -2866,26 +2866,20 @@ function paintBlock(b){
   }
   // typographie lisible, contraste visé AAA : encre pleine selon la matière (noir sur pierre et métal clairs, blanc sur cuir et verre sombre), graisse 600 à 700, tailles agrandies
   const TX={stone:{ink:'#0A0805',hi:'rgba(255,255,255,.35)',fill:'rgba(255,255,255,.30)'},metal:{ink:'#05080A',hi:'rgba(255,255,255,.4)',fill:'rgba(255,255,255,.30)'},leather:{ink:'#140A03',hi:'rgba(255,240,220,.4)',fill:'rgba(255,248,236,.30)'},ghost:{ink:'#FFFFFF',sh:'rgba(0,0,0,.8)',fill:'rgba(0,0,0,.28)',stage:'#FFC4A0'}}[pr.mat];
-  x.textAlign='center';x.textBaseline='alphabetic';
-  const SERIF='"Cordée Serif", "DM Serif Display", Georgia, serif',MONO='"JetBrains Mono", monospace',cx=W/2,ty=Hh/2,oy=(pr.tags&&pr.tags.length)?-30:0;x.save();x.translate(0,oy);
-  let size=58;x.font='italic 600 '+size+'px '+SERIF;while(x.measureText(pr.title).width>W-90&&size>28){size-=3;x.font='italic 600 '+size+'px '+SERIF}
-  if(TX.sh){x.shadowColor=TX.sh;x.shadowBlur=7;x.fillStyle=TX.ink;x.fillText(pr.title,cx,ty);x.shadowBlur=0}else{x.fillStyle=TX.hi;x.fillText(pr.title,cx+1,ty+1);x.fillStyle=TX.ink;x.fillText(pr.title,cx,ty)}
-  x.fillStyle=TX.stage||TX.ink;{const sl=(pr.stage+' · '+pr.place+(pr.when?' · '+pr.when:'')).toUpperCase();let fz=24;x.font='700 '+fz+'px '+MONO;while(x.measureText(sl).width>W-70&&fz>15){fz-=1;x.font='700 '+fz+'px '+MONO}x.fillText(sl,cx,ty-size-8)}
-  x.font='700 25px '+MONO;x.fillStyle=TX.ink;
-  const lines=[''];pr.result.split(' ').forEach(w=>{const t=(lines[lines.length-1]+' '+w).trim();if(x.measureText(t).width>W-80&&lines[lines.length-1])lines.push(w);else lines[lines.length-1]=t});   // résultat sur deux lignes au plus
-  const nl=Math.min(2,lines.length);lines.slice(0,2).forEach((l,i)=>x.fillText(l,cx,ty+50+i*30));
-  x.restore();
-  /* technologies gravées sur le bloc : pastilles contournées sous le résultat, 20 px en graisse 700, sur une ou deux rangées */
-  if(pr.tags&&pr.tags.length){
-    const fs=20,padX=13,gap=10,h=36,maxW=W-100;x.font='700 '+fs+'px '+MONO;x.textAlign='center';x.textBaseline='middle';
-    const wd=pr.tags.map(t=>x.measureText(t).width+padX*2),rows=[[]];let cur=0;
-    pr.tags.forEach((t,i)=>{if(rows[rows.length-1].length&&cur+gap+wd[i]>maxW){rows.push([]);cur=0}rows[rows.length-1].push(i);cur+=(rows[rows.length-1].length>1?gap:0)+wd[i]});
-    const rr=(px,py,pw,ph,r)=>{x.beginPath();x.moveTo(px+r,py);x.arcTo(px+pw,py,px+pw,py+ph,r);x.arcTo(px+pw,py+ph,px,py+ph,r);x.arcTo(px,py+ph,px,py,r);x.arcTo(px,py,px+pw,py,r);x.closePath()};
-    const y0=ty+oy+50+(nl-1)*30+16;
-    rows.forEach((row,ri)=>{const tw=row.reduce((a,i)=>a+wd[i],0)+gap*(row.length-1);let px=(W-tw)/2;const py=y0+ri*(h+8);
-      row.forEach(i=>{rr(px,py,wd[i],h,h/2);x.fillStyle=TX.fill;x.fill();x.lineWidth=2;x.strokeStyle=TX.ink;x.globalAlpha=.8;x.stroke();x.globalAlpha=1;x.fillStyle=TX.ink;x.fillText(pr.tags[i],px+wd[i]/2,py+h/2+1);px+=wd[i]+gap})});
-    x.textBaseline='alphabetic';
+  /* gravure épurée : le nom du projet seul, centré, en grand (étape, résumé, chiffres et technos sont dans le panneau d'étape #stopCard : une seule source de texte) */
+  const SERIF='"Cordée Serif", "DM Serif Display", Georgia, serif',F=sz=>'italic 600 '+sz+'px '+SERIF,cx=W/2,cy=Hh/2;
+  x.textAlign='center';x.textBaseline='middle';
+  const fit=(t,max)=>{let sz=max;x.font=F(sz);while(x.measureText(t).width>W-84&&sz>30){sz-=2;x.font=F(sz)}return sz};
+  let lines=[pr.title],size=fit(pr.title,96);
+  if(size<64&&pr.title.includes(' ')){   // nom long : deux lignes équilibrées plutôt qu'une gravure trop petite
+    const ws=pr.title.split(' ');let best=null;
+    for(let i=1;i<ws.length;i++){const l1=ws.slice(0,i).join(' '),l2=ws.slice(i).join(' '),m=Math.max(l1.length,l2.length);if(!best||m<best.m)best={l1,l2,m}}
+    lines=[best.l1,best.l2];size=Math.min(fit(best.l1,84),fit(best.l2,84));
   }
+  x.font=F(size);const lh=size*1.08,y0=cy-(lines.length-1)*lh/2;
+  lines.forEach((l,i)=>{const y=y0+i*lh;
+    if(TX.sh){x.shadowColor=TX.sh;x.shadowBlur=7;x.fillStyle=TX.ink;x.fillText(l,cx,y);x.shadowBlur=0}else{x.fillStyle=TX.hi;x.fillText(l,cx+1.5,y+1.5);x.fillStyle=TX.ink;x.fillText(l,cx,y)}});
+  x.textBaseline='alphabetic';
   b.tex.needsUpdate=true;
 }
 function makeEnvP(){
@@ -3139,9 +3133,11 @@ plMore.addEventListener('click',()=>openStop(plMore.dataset.id,plMore));
 /* Fiche d'étape : à l'arrêt sur un cairn (caméra posée), un résumé compact apparaît sur le côté (en bas sur téléphone), sans prendre le focus ni bloquer le défilement ;
    « Fiche complète » ouvre la fenêtre détaillée. Elle disparaît en repartant. Le visiteur peut la masquer pour la session (le bouton « Voir la fiche » revient). */
 const sCard=$('#stopCard'),sMore=$('#scMore'),s2el=$('#s2');let cardIdx=-1,cardOff=false;try{cardOff=sessionStorage.getItem('asc-card-off')==='1'}catch(e){}
+/* résumé d'étape condensé : une ou deux phrases (≈ 150 signes au plus), la fiche complète garde tout le texte */
+function brief(t,max=150){const ph=String(t||'').trim().split(/(?<=[.!?…])\s+/);let out='';for(const x of ph){if(out&&(out+' '+x).length>max)break;out=out?out+' '+x:x}return out}
 function fillCard(pr){const f=PROJECT_INFO[pr.id];
   $('#scE').innerHTML=esc(pr.stage+' · '+pr.place)+'<span class="sr-only"> · </span><span class="gps">'+esc('Km '+fmtN(kmAt(pr.t))+' · Altitude '+fmtN(altAt(pr.t))+' m')+'</span>';
-  $('#scT').textContent=f.t;$('#scL').textContent=f.l||pr.result||'';
+  $('#scT').textContent=f.t;$('#scL').textContent=brief(f.l||pr.result);
   const sl=$('#scStats');sl.innerHTML=(f.stats||[]).slice(0,3).map(x=>`<li><b>${esc(x.value)}</b> <span>${esc(x.label)}</span></li>`).join('');sl.hidden=!sl.children.length;
   $('#scK').innerHTML=(f.k||pr.tags||[]).slice(0,4).map(x=>`<li>${esc(x)}</li>`).join('');
   sMore.dataset.id=pr.id;sMore.querySelector('.n').textContent=' : '+f.t}
