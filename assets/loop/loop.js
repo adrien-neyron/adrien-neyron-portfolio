@@ -2943,6 +2943,8 @@ function initScene(){
     scene.add(ball)}
   buildBlocks();
 }
+const DEP_SIDE=17,DEP_BACK=20;   // cairn du Départ, en unités de sol : à gauche de la trace sur écran large (la pierre gravée fait ≈ 12 de demi-largeur), derrière l'aiguille sur écran étroit (sinon il sortirait de l'image)
+function depOff(){return cam.aspect<.9?[-hd.x*DEP_BACK,-hd.z*DEP_BACK]:[hd.z*DEP_SIDE,-hd.x*DEP_SIDE]}
 function buildBlocks(){
   const env=makeEnvP();
   /* Cairn sobre, une seule matière (pierre mate) : 2 pierres sous le wire, un jeu où il passe, 2 pierres au-dessus, puis la pierre gravée (contour irrégulier, bords arrondis) */
@@ -2969,6 +2971,7 @@ function buildBlocks(){
     const t=st.t,pt=curve.getPointAt(t),a=curve.getPointAt(clamp(t-.03)),b=curve.getPointAt(clamp(t+.03));
     let dx=b.x-a.x,dz=b.z-a.z;const dl=Math.hypot(dx,dz)||1;dx/=dl;dz/=dl;
     const nx=-dz,nz=dx,side1=1;   // le cairn est posé sur la trace : le wire le traverse
+    // sauf celui du Départ : la pointe de l'aiguille marque le départ de la trace, son cairn est posé à côté (depOff, appliqué dans placeBlocks), sans rien sous l'aiguille
     const bx=pt.x,bz=pt.z,by=pt.y+CLEAR;
     holder.position.set(bx,by,bz);
     const camAt=t>0?curve.getPointAt(clamp(t-.03)):pt.clone().multiplyScalar(2).sub(curve.getPointAt(.03));   // au Départ, rien avant la trace : on prolonge la trace en arrière
@@ -2990,8 +2993,8 @@ const baseFov=()=>cam.aspect<.9?54:42;
 /* Sur écran étroit : blocs plus près du sentier et champ de vision plus large, pour qu'ils restent dans l'image */
 function placeBlocks(){
   blocks.forEach(bk=>{
-    const bx=bk.pt.x,bz=bk.pt.z,gy=terrainAt(bx,bz);
-    bk.base=bk.ty+CLEAR;bk.faceYaw=Math.atan2(bk.camAt.x-bx,bk.camAt.z-bz);
+    const o=bk.stopIdx===0?depOff():[0,0],bx=bk.pt.x+o[0],bz=bk.pt.z+o[1],gy=terrainAt(bx,bz);
+    bk.base=bk.ty+CLEAR;bk.faceYaw=Math.atan2(bk.camAt.x+o[0]-bx,bk.camAt.z+o[1]-bz);
     bk.holder.position.set(bx,bk.base,bz);bk.pos.set(bx,bk.base,bz);
     bk.shadow.position.set(bx,gy+.4,bz);
     // 2 pierres sous le wire (du sol, un peu enterrées, jusqu'au jeu), 2 au-dessus (du jeu jusque sous la pierre gravée) ; dessus et dessous plats : le jeu est net
