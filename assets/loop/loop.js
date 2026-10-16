@@ -2767,7 +2767,16 @@ const PR=DATA.map(([la,lo,al])=>({x:(lo-lon0)*kx,z:-(la-lat0)*kz,y:al*SC*EX,alt:
 /* Itinéraire fluide : les points GPS bruts (en dents de scie) sont lissés par deux passes d'une fenêtre en cloche, les extrémités restent fixes ; les altitudes brutes (alt) servent toujours aux chiffres */
 const smoothPath=a=>{const W=[1,4,9,16,20,16,9,4,1],n=a.length;return a.map((p,i)=>{let sx=0,sz=0,sy=0,sw=0;for(let k=-4;k<=4;k++){const q=a[i+k];if(!q)continue;const w=W[k+4];sx+=q.x*w;sz+=q.z*w;sy+=q.y*w;sw+=w}
   const e=Math.min(1,Math.min(i,n-1-i)/8),u=e*e*(3-2*e);return {x:p.x+(sx/sw-p.x)*u,z:p.z+(sz/sw-p.z)*u,y:p.y+(sy/sw-p.y)*u,alt:p.alt}})};
-const P=smoothPath(smoothPath(PR));
+/* Trace apaisée : en plus, un lissage gaussien large en plan (σ = TRACE_SIGMA points, ≈ 100 m chacun, soit ≈ 1,5 km ; fenêtre 3σ) efface les lacets du sentier.
+   La hauteur (y) est lissée de la même façon : la trace, plus courte, ne grimpe pas en épingle sur les pics (le relief, reconstruit autour d'elle, la suit). Les chiffres (altitude, D+) gardent les altitudes GPS (alt).
+   Les extrémités restent fixes (fondu sur 4 points) : le Départ reste sous l'aiguille. */
+const TRACE_SIGMA=15;
+const calmPath=(a,sg)=>{const R=Math.ceil(sg*3),n=a.length,W=Array.from({length:2*R+1},(_,k)=>Math.exp(-((k-R)**2)/(2*sg*sg)));
+  return a.map((p,i)=>{let sx=0,sz=0,sy=0,sw=0;for(let k=-R;k<=R;k++){const q=a[Math.min(n-1,Math.max(0,i+k))],w=W[k+R];sx+=q.x*w;sz+=q.z*w;sy+=q.y*w;sw+=w}
+    const e=Math.min(1,Math.min(i,n-1-i)/4),u=e*e*(3-2*e);return {x:p.x+(sx/sw-p.x)*u,z:p.z+(sz/sw-p.z)*u,y:p.y+(sy/sw-p.y)*u,alt:p.alt}})};
+const P=(()=>{const A=smoothPath(smoothPath(PR)),B=calmPath(A,TRACE_SIGMA),len=Q=>{let L=0;for(let i=1;i<Q.length;i++)L+=Math.hypot(Q[i].x-Q[i-1].x,Q[i].z-Q[i-1].z);return L};
+  const k=len(A)/len(B),x0=B[0].x,z0=B[0].z;   // le lissage raccourcit la trace (≈ −23 %) : on lui rend sa longueur en plan, sinon les étapes se rapprochent et la caméra (92 unités derrière l'aiguille) bute sur le cairn précédent
+  return B.map(p=>({x:x0+(p.x-x0)*k,z:z0+(p.z-z0)*k,y:p.y,alt:p.alt}))})();
 /* Une trace continue, qui ne revient pas à son point de départ : le tracé réel est une boucle (arrivée à 40 m du départ). On l'ouvre en décalant ses points vers l'extérieur de la boucle, de plus en plus (nul au départ, 4,2 km à l'arrivée) : le premier kilomètre reste intact et l'arrivée tombe loin du départ. Les altitudes (alt, y) ne changent pas. */
 const DRIFT_KM=4.2;
 (()=>{const n=P.length,L=[0];for(let i=1;i<n;i++)L.push(L[i-1]+Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z));const tot=L[n-1]||1;
@@ -2872,6 +2881,8 @@ function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depth
   m.userData.cw=o.w;m.userData.o=o;FATS.push(m);const mesh=new THREE.Mesh(geo,m);mesh.frustumCulled=false;mesh.renderOrder=o.order||2;scene.add(mesh);return mesh}
 const CLEAR=8.6,GAP=.28;   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
+/* année gravée : période du projet, sinon un statut daté de la fiche (« 2026 – en cours »), sinon rien */
+function yearOf(pr){const f=PROJECT_INFO[pr.id],st=f&&f.st||'';return pr.when||(/\d{4}/.test(st)?st:'')}
 function paintBlock(b){
   const c=b.canvas,x=c.getContext('2d'),W=512,Hh=384,pr=Object.assign({},b.proj,{mat:'stone'});   // une seule matière : pierre mate ; mise en page en 512 × 384, dessinée à l'échelle du canvas
   x.setTransform(c.width/W,0,0,c.height/Hh,0,0);
@@ -2897,31 +2908,33 @@ function paintBlock(b){
   }
   // typographie lisible, contraste visé AAA : encre pleine selon la matière (noir sur pierre et métal clairs, blanc sur cuir et verre sombre), graisse 600 à 700, tailles agrandies
   const TX={stone:{ink:'#0A0805',hi:'rgba(255,255,255,.35)',fill:'rgba(255,255,255,.30)'},metal:{ink:'#05080A',hi:'rgba(255,255,255,.4)',fill:'rgba(255,255,255,.30)'},leather:{ink:'#140A03',hi:'rgba(255,240,220,.4)',fill:'rgba(255,248,236,.30)'},ghost:{ink:'#FFFFFF',sh:'rgba(0,0,0,.8)',fill:'rgba(0,0,0,.28)',stage:'#FFC4A0'}}[pr.mat];
-  /* gravure : étape en haut, nom du projet au centre, kilomètre et dénivelé cumulés, puis les technos. Le reste (lieu, période, rôle, résumé, chiffres, points clés) est dans le panneau d'étape #stopCard.
+  /* gravure : étape, lieu et année en haut, nom du projet au centre, kilomètre et dénivelé cumulés, altitude, puis les technos. Le reste (rôle, résumé, chiffres, points clés) est dans le panneau d'étape #stopCard.
      La stèle est décorative (aria-hidden) : le panneau redonne ces mêmes informations aux lecteurs d'écran (#scSr). */
   const SERIF='"Cordée Serif", "DM Serif Display", Georgia, serif',MONO='"JetBrains Mono", ui-monospace, monospace',F=sz=>'italic 600 '+sz+'px '+SERIF,cx=W/2,MW=W-96;
   const engrave=(t,y,font)=>{x.font=font;x.fillStyle=TX.hi;x.fillText(t,cx+1.2,y+1.2);x.fillStyle=TX.ink;x.fillText(t,cx,y)};   // gravure : encre pleine et arête claire décalée
   const track=(t,sp)=>t.toUpperCase().split('').join(String.fromCharCode(8202).repeat(sp));   // capitales espacées (espaces fines) : la mono gravée respire
   const fitMono=(t,w,max,min)=>{let sz=max;x.font='600 '+sz+'px '+MONO;while(x.measureText(t).width>w&&sz>min){sz-=1;x.font='600 '+sz+'px '+MONO}return sz};
   x.textAlign='center';x.textBaseline='middle';
-  const stage=pr.stage||'',kmT=kmLine(pr.t||0).toUpperCase(),tags=(pr.tags||[]).slice(0,4);
-  // étape
-  {const t=track(stage,1),sz=fitMono(t,MW,24,14);engrave(t,72,'600 '+sz+'px '+MONO);
-   x.strokeStyle=TX.ink;x.globalAlpha=.55;x.lineWidth=2;x.beginPath();x.moveTo(cx-34,96);x.lineTo(cx+34,96);x.stroke();x.globalAlpha=1}
+  const stage=pr.stage||'',kmT=kmLine(pr.t||0).toUpperCase(),tags=(pr.tags||[]).slice(0,4),altT=('Altitude '+fmtN(altAt(pr.t||0))+' m').toUpperCase(),geoT=[pr.place,yearOf(pr)].filter(Boolean).join('  ·  ').toUpperCase();
+  // étape, puis lieu et année
+  {const t=track(stage,1),sz=fitMono(t,MW,23,14);engrave(t,58,'600 '+sz+'px '+MONO)}
+  if(geoT){const sz=fitMono(geoT,MW,16,12);engrave(geoT,86,'500 '+sz+'px '+MONO)}
+  x.strokeStyle=TX.ink;x.globalAlpha=.55;x.lineWidth=2;x.beginPath();x.moveTo(cx-34,106);x.lineTo(cx+34,106);x.stroke();x.globalAlpha=1;
   // nom du projet
   const fit=(t,max)=>{let sz=max;x.font=F(sz);while(x.measureText(t).width>MW&&sz>30){sz-=2;x.font=F(sz)}return sz};
-  let lines=[pr.title],size=fit(pr.title,84);
-  if(size<58&&pr.title.includes(' ')){   // nom long : deux lignes équilibrées plutôt qu'une gravure trop petite
+  let lines=[pr.title],size=fit(pr.title,76);
+  if(size<54&&pr.title.includes(' ')){   // nom long : deux lignes équilibrées plutôt qu'une gravure trop petite
     const ws=pr.title.split(' ');let best=null;
     for(let i=1;i<ws.length;i++){const l1=ws.slice(0,i).join(' '),l2=ws.slice(i).join(' '),m=Math.max(l1.length,l2.length);if(!best||m<best.m)best={l1,l2,m}}
-    lines=[best.l1,best.l2];size=Math.min(fit(best.l1,64),fit(best.l2,64));
+    lines=[best.l1,best.l2];size=Math.min(fit(best.l1,56),fit(best.l2,56));
   }
-  {const lh=size*1.04,y0=170-(lines.length-1)*lh/2;lines.forEach((l,i)=>engrave(l,y0+i*lh,F(size)))}
-  // kilomètre et dénivelé cumulés
-  {const sz=fitMono(kmT,MW,25,15);engrave(kmT,256,'600 '+sz+'px '+MONO)}
+  {const lh=size*1.04,y0=172-(lines.length-1)*lh/2;lines.forEach((l,i)=>engrave(l,y0+i*lh,F(size)))}
+  // kilomètre et dénivelé cumulés, puis altitude
+  {const sz=fitMono(kmT,MW,23,14);engrave(kmT,246,'600 '+sz+'px '+MONO)}
+  {const sz=fitMono(altT,MW,16,12);engrave(altT,276,'500 '+sz+'px '+MONO)}
   // technos : une ligne, séparées par des points ; si elle ne tient pas, la dernière techno part (elle reste dans le texte du panneau pour les lecteurs d'écran)
-  {let ts=tags.slice(),t='',sz=0;for(;;){t=ts.map(v=>v.toUpperCase()).join('  ·  ');sz=fitMono(t,MW,19,14);x.font='600 '+sz+'px '+MONO;if(x.measureText(t).width<=MW||ts.length<=1)break;ts.pop()}
-   if(t)engrave(t,306,'500 '+sz+'px '+MONO)}
+  {let ts=tags.slice(),t='',sz=0;for(;;){t=ts.map(v=>v.toUpperCase()).join('  ·  ');sz=fitMono(t,MW,18,13);x.font='600 '+sz+'px '+MONO;if(x.measureText(t).width<=MW||ts.length<=1)break;ts.pop()}
+   if(t)engrave(t,318,'500 '+sz+'px '+MONO)}
   x.textBaseline='alphabetic';
   b.tex.needsUpdate=true;
 }
@@ -3235,14 +3248,12 @@ plMore.addEventListener('click',()=>openStop(plMore.dataset.id,plMore));
 const sCard=$('#stopCard'),sMore=$('#scMore'),s2el=$('#s2');let cardIdx=-1,cardOff=false;try{cardOff=sessionStorage.getItem('asc-card-off')==='1'}catch(e){}
 /* résumé d'étape condensé : une ou deux phrases (≈ 150 signes au plus), la fiche complète garde tout le texte */
 function brief(t,max=150){const ph=String(t||'').trim().split(/(?<=[.!?…])\s+/);let out='';for(const x of ph){if(out&&(out+' '+x).length>max)break;out=out?out+' '+x:x}return out}
-/* La stèle gravée porte le nom, l'étape, le kilomètre, le dénivelé et les technos ; la carte donne le reste : lieu et période, altitude, rôle, résumé, chiffres et points clés.
+/* La stèle gravée porte l'étape, le lieu, l'année, le nom, le kilomètre, le dénivelé, l'altitude et les technos ; la carte donne le reste : rôle, résumé, chiffres et points clés.
    La stèle est décorative (aria-hidden) : le titre (h3) et la ligne #scSr redonnent aux lecteurs d'écran ce qui n'est écrit que dans la pierre. */
 function fillCard(pr){const f=PROJECT_INFO[pr.id],t=pr.t||0,s0=STOPS[0];sMore.hidden=!f;
-  const role=f?(String(f.e||'').split(' · ')[2]||''):s0.role,when=f?(f.st||pr.when||''):s0.period;
+  const role=f?(String(f.e||'').split(' · ')[2]||''):s0.role,yr=f?yearOf(pr):s0.period;
   $('#scT').textContent=f?f.t:s0.name;
-  $('#scSr').textContent=[pr.stage,kmSpeech(t),'Technologies : '+(f&&f.k||pr.tags||[]).join(', ')].filter(Boolean).join('. ')+'.';
-  const same=when&&pr.place&&when.toLowerCase().slice(0,6)===String(pr.place).toLowerCase().slice(0,6);   // « Projet perso · Projet personnel » : pas de redite
-  $('#scE').innerHTML=esc([pr.place,same?'':when].filter(Boolean).join(' · '))+'<span class="sr-only"> · </span><span class="gps">'+esc('Altitude '+fmtN(altAt(t))+' m')+'</span>';
+  $('#scSr').textContent=[pr.stage,[pr.place,yr].filter(Boolean).join(', '),'Altitude '+fmtN(altAt(t))+' mètres',kmSpeech(t),'Technologies : '+(f&&f.k||pr.tags||[]).join(', ')].filter(Boolean).join('. ')+'.';
   const r=$('#scR');r.textContent=role;r.hidden=!role;
   const l=$('#scL'),txt=f?brief(f.l||pr.result):'';l.textContent=txt;l.hidden=!txt;
   const sl=$('#scStats');sl.innerHTML=(f&&f.stats||[]).slice(0,3).map(x=>`<li><b>${esc(x.value)}</b> <span>${esc(x.label)}</span></li>`).join('');sl.hidden=!sl.children.length;
