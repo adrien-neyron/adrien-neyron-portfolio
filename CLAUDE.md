@@ -169,6 +169,9 @@ After the last stop (« À déterminer »), it rains on the cairn before the pud
 ### Stages map: engraved stele + stop card
 On the stages map the 3D stele (`paintBlock`, canvas 768×576 drawn in 512×384 units) engraves the **stage, place and year (`yearOf`), project name, km and D+ (`kmLine`), altitude (`altAt`) and techs** (one line, up to 4). The glass stop card `#stopCard` (`fillCard`) shows the rest: role, key stats, summary (`brief()`), 2 key points (`pts`). Nothing is shown twice. The stele is `aria-hidden`, so the card repeats the engraved info for screen readers only (`h3#scT.sr-only` = name, `#scSr` = stage, place, year, altitude, km, D+, all techs).
 
+### Project sheet: expedition instrument panel
+The project sheet (`#dlgTool.is-proj`) is a bevelled dark-glass panel (`clip-path` on opposite corners, blur 16px, brushed-brass `::before` frame that follows the bevels). Its body scrolls, not the dialog. Header: one mono line `stage · place · role · km · altitude · period`. Close: round recessed metal button `.sh-xr` (44px, ✕, « Fermer la fiche (touche Échap) », `aria-keyshortcuts`; Escape is native `<dialog>`). Key figures are linked to the photo by `aria-hidden` SVG leads (`drawLeads`, routed through the left gutter so they never cross text). Photo: bevelled altimeter window. Colours only via `--panel-*`, `--brass-*`, `--steel-*` (`docs/charte-graphique.md`). Details: `docs/admin-boucle.md`.
+
 ### Few cairns at once
 On the stages map only the current cairn (100 %) and the next one (`CAIRN_NEXT` = 35 %) are shown; the previous one fades out as you leave it; all others are hidden and not pickable. Don't bring back the full row of cairns: it cluttered the view.
 

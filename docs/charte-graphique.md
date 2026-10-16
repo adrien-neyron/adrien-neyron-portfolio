@@ -40,6 +40,19 @@ Le repli CSS de `:root` reprend désormais les valeurs du jour (l'ancien `--mute
 | `--needle-1…4` | `#F59A5C #D4581F #DDE3E7 #9AA3AA` | `#D2672B #A8401B #4A4F55 #23272B` |
 | `--needle-pivot` | `#0B0D10` | `#1B1712` |
 
+## Jetons du panneau d'instrument (fiche projet)
+
+La fiche projet (`#dlgTool.is-proj`) reste sombre dans les deux thèmes ; ses rôles ont donc la même valeur jour et nuit (`:root`).
+
+| Rôle | Valeur | Usage |
+|---|---|---|
+| `--panel-glass` | `rgba(10,15,26,.8)` | fond en verre sombre (flou 16 px) |
+| `--panel-ink` | `#E6F4F1` | titre et texte (14,6:1 sur le pire fond) |
+| `--panel-muted` | `#B9C6CC` | libellés, légende (9,5:1) |
+| `--brass-hi` / `--brass` / `--brass-lo` / `--copper` | `#F3DDA6` / `#C79A52` / `#7C5526` / `#D9824E` | liseré laiton brossé, cadre de la photo, lignes de fuite ; `--brass-hi` porte aussi la ligne de coordonnées et les chiffres clés (12,4:1) |
+| `--steel-hi` / `--steel` / `--steel-lo` | `#F2F5F7` / `#AEB7BE` / `#59636B` | bouton de fermeture en métal (icône 8:1, bord 8:1 sur le panneau) |
+| `--panel-cut` | `28px` | biseau des coins opposés (18 px sur téléphone) |
+
 ## Accessibilité (WCAG 2.1 AA / RGAA)
 Texte ≥ 4,5:1 ; éléments graphiques et focus ≥ 3:1 ; focus visible 3 px sur la marque et la porte, dans les deux thèmes ; la couleur ne porte jamais seule l'information.
 

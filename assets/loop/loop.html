@@ -227,8 +227,9 @@
 </dialog>
 
 <dialog id="dlgTool" class="sheet" aria-labelledby="toolT">
-  <div class="sh-head"><div><p class="eyebrow" id="toolE"></p><h2 id="toolT"></h2><p class="sh-status" id="toolS"></p></div><button type="button" class="sh-x" id="toolX">Fermer</button></div>
+  <div class="sh-head"><div><p class="eyebrow" id="toolE"></p><h2 id="toolT"></h2><p class="sh-status" id="toolS"></p></div><button type="button" class="sh-x sh-xr" id="toolX" aria-keyshortcuts="Escape"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="16" height="16"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span class="sr-only">Fermer la fiche (touche Échap)</span></button></div>
   <div class="sh-body">
+    <svg class="sh-leads" id="toolLeads" aria-hidden="true" focusable="false"></svg>
     <ul class="sh-stats" id="toolStats" aria-label="Chiffres clés" hidden></ul>
     <figure class="sh-media" id="toolM" hidden><div class="sh-glass"><img id="toolImg" alt="" decoding="async"></div><figcaption id="toolMc"></figcaption></figure>
     <p class="lead" id="toolL"></p>

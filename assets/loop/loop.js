@@ -2091,7 +2091,8 @@ $$('.sh-filters button').forEach(b=>b.addEventListener('click',()=>{
 function openProfile(){root.style.overflow='hidden';dlgProfil.showModal()}
 function showSheet(title,f,opener,back,proj){   // fiche descriptive : atelier (outils) et carte (projets) ; proj.gps = « Km … · Altitude … m » de l'étape sur la trace
   const gps=proj&&proj.gps;dlgTool.classList.toggle('is-proj',!!proj);
-  $('#toolE').innerHTML=esc(f.e)+(gps?`<span class="sr-only"> · </span><span class="gps">${esc(gps)}</span>`:'');$('#toolT').textContent=title;$('#toolS').textContent=f.st;$('#toolL').textContent=f.l;
+  // fiche projet : une seule ligne de coordonnées de parcours (étape · lieu · rôle · km · altitude · période) ; atelier : surtitre et statut séparés
+  $('#toolE').innerHTML=proj?esc([f.e,gps,f.st].filter(Boolean).join(' · ')):esc(f.e);$('#toolT').textContent=title;$('#toolS').textContent=proj?'':f.st;$('#toolS').hidden=!!proj;$('#toolL').textContent=f.l;
   $('#toolP').innerHTML=(f.pts||[]).map(x=>`<li>${esc(x)}</li>`).join('');$('#toolK').innerHTML=(f.k||[]).map((x,i)=>`<li style="--d:${i*70}ms">${esc(x)}</li>`).join('');
   // chiffres clés (3 au plus) juste sous le titre, puis la photo d'ambiance sous verre ; absents des données = rien d'affiché
   const sl=$('#toolStats');sl.innerHTML=(f.stats||[]).slice(0,3).map(x=>`<li><b>${esc(x.value)}</b> <span>${esc(x.label)}</span></li>`).join('');sl.hidden=!sl.children.length;
@@ -2103,7 +2104,23 @@ function showSheet(title,f,opener,back,proj){   // fiche descriptive : atelier (
   (f.links||[]).forEach((x,j)=>{if(x.go){const b=document.createElement('button');b.type='button';b.className='dyn '+(j?'sh-alt':'sh-main');b.textContent=x.l;b.addEventListener('click',()=>{dlgTool.close();jumpTo(.845);live.textContent='Contact. Posons le sac.'});acts.insertBefore(b,bk);return}
     const a=document.createElement('a');a.className='dyn '+(j?'sh-alt':'sh-main');a.href=x.u;a.target='_blank';a.rel='noopener';a.innerHTML=esc(x.l)+'<span class="sr-only"> (nouvel onglet)</span>';acts.insertBefore(a,bk)});
   bk.textContent=back;toolOpener=opener||null;root.style.overflow='hidden';dlgTool.showModal();
+  requestAnimationFrame(drawLeads);
 }
+/* Fiche projet : micro-lignes de fuite (filaire SVG, décoratif) qui relient chaque chiffre clé à la fenêtre d'altimètre de la photo.
+   Recalculées à l'ouverture, au chargement de la photo et quand la fiche change de taille ; rien sans chiffres ou sans photo. */
+const leadsSvg=$('#toolLeads');
+function drawLeads(){
+  const body=leadsSvg.parentNode,glass=$('#toolM .sh-glass'),items=[...$$('#toolStats li')];
+  if(!dlgTool.open||!dlgTool.classList.contains('is-proj')||$('#toolM').hidden||$('#toolStats').hidden||!items.length){leadsSvg.innerHTML='';return}
+  const B=body.getBoundingClientRect(),G=glass.getBoundingClientRect(),st=body.scrollTop,W=body.scrollWidth,H=body.scrollHeight;if(!G.width){leadsSvg.innerHTML='';return}   // repère du contenu : le corps de la fiche défile
+  leadsSvg.setAttribute('viewBox',`0 0 ${W} ${H}`);leadsSvg.setAttribute('width',W);leadsSvg.setAttribute('height',H);
+  const gy=G.top-B.top+st,gl=G.left-B.left,gw=G.width,n=items.length;
+  leadsSvg.innerHTML=items.map((li,i)=>{const L=li.getBoundingClientRect(),v=(li.querySelector('b')||li).getBoundingClientRect(),
+      x0=L.left-B.left-12,y0=(v.top+v.bottom)/2-B.top+st,y2=gy-16,x1=gl+gw*(i+1)/(n+1),y1=gy+1;   // nœud dans la marge à gauche du chiffre, descente verticale dans cette marge (jamais à travers un texte), puis fuite vers un point réparti sur le haut de la fenêtre
+    const f=v=>v.toFixed(1);
+    return `<path class="ld" pathLength="1" d="M${f(x0+8)} ${f(y0)} L${f(x0)} ${f(y0)} L${f(x0)} ${f(y2)} L${f(x1)} ${f(y1)}"/><circle class="nd" cx="${f(x0+8)}" cy="${f(y0)}" r="2"/><circle class="nd" cx="${f(x1)}" cy="${f(y1)}" r="2.4"/>`}).join('')}
+if(window.ResizeObserver){const ro=new ResizeObserver(()=>{if(dlgTool.open)drawLeads()});ro.observe(dlgTool);__sig.addEventListener('abort',()=>ro.disconnect())}
+$('#toolImg').addEventListener('load',drawLeads);
 function openTool(i,opener){const t=TOOLS[i],f=TOOL_INFO[i];if(!f)return;showSheet(t.n,f,opener,"Revenir à l'atelier")}
 function openProject(id,opener,gps){const f=PROJECT_INFO[id];if(!f)return;showSheet(f.t,f,opener,'Revenir à la carte',{gps})}
 $('#toolImg').addEventListener('error',()=>{$('#toolM').hidden=true});   // photo introuvable : la fiche reste sans média
