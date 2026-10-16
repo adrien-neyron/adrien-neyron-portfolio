@@ -169,6 +169,9 @@ After the last stop (« À déterminer »), it rains on the cairn before the pud
 ### Stages map: engraved stele + stop card
 On the stages map the 3D stele (`paintBlock`, canvas 768×576 drawn in 512×384 units) engraves the **stage, place and year (`yearOf`), project name, km and D+ (`kmLine`), altitude (`altAt`) and techs** (one line, up to 4). The glass stop card `#stopCard` (`fillCard`) shows the rest: role, key stats, summary (`brief()`), 2 key points (`pts`). Nothing is shown twice. The stele is `aria-hidden`, so the card repeats the engraved info for screen readers only (`h3#scT.sr-only` = name, `#scSr` = stage, place, year, altitude, km, D+, all techs).
 
+### Few cairns at once
+On the stages map only the current cairn (100 %) and the next one (`CAIRN_NEXT` = 35 %) are shown; the previous one fades out as you leave it; all others are hidden and not pickable. Don't bring back the full row of cairns: it cluttered the view.
+
 ### Stop framing
 At each stop `rig` places the map camera facing the stele (along `faceYaw`) at a fixed distance (`STOP_D` 70 wide / 80 narrow, `STOP_H` 26), aiming `STOP_SIDE` × distance to the right on wide screens (stele in the left third, clear of the stop card) and `STOP_LOW` lower on phones (stele above the bottom card). Between stops it eases back to the follow camera behind the needle. Details: `docs/admin-boucle.md`.
 

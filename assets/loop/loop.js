@@ -3105,6 +3105,7 @@ function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return
 
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
 const nT=OK?new THREE.Vector3():null,nP=OK?new THREE.Vector3():null,nQ=OK?new THREE.Quaternion():null,v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
+const CAIRN_NEXT=.35;   // opacité du cairn suivant (et du précédent, le temps de le quitter) ; les autres cairns sont masqués
 const STOP_D=[70,80],STOP_H=26,STOP_SIDE=.35,STOP_LOW=-9;   // cadrage aux arrêts : recul [grand écran, téléphone], hauteur, décalage latéral (part du recul) pour la carte de droite, visée plus basse sur téléphone (carte en bas)
 let stopW=0,curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
 function onPlane(q,o,y){   // point de l'écran (px) -> point du plan horizontal de hauteur y, vu par la caméra de la carte
@@ -3177,13 +3178,15 @@ function rig(p,dt,snap,intro=0){
     bk.shadow.scale.setScalar(1+.25*l);bk.shadow.material.opacity=.6-.3*l;
     bk.holder.rotation.y=bk.faceYaw+clamp((curT-bk.t)*8,-.55,.55)*.5;
     bk.mesh.rotation.x=-Math.PI/2+.42-.12*l;
-    // état : cairn actif à 100 % (l'aiguille arrêtée devant lui le désigne), passés à 80 % avec un point, à venir à 30 %
-    const st=bk.stopIdx===aw?2:bk.stopIdx<aw?1:0,goal=[.3,.8,1][st];
-    bk.vis+=(goal-bk.vis)*(snap?1:1-Math.exp(-dt*6));
+    // état : cairn actif à 100 % (l'aiguille arrêtée devant lui le désigne), le suivant en discret (la destination), le précédent seulement le temps de le quitter ; tous les autres sont masqués : un seul repère à lire à la fois
+    const st=bk.stopIdx===aw?2:bk.stopIdx<aw?1:0,d=bk.stopIdx-aw,goal=d===0?1:d===1?CAIRN_NEXT:d===-1?CAIRN_NEXT*(1-mw):0;
+    bk.vis+=(goal-bk.vis)*(snap?1:1-Math.exp(-dt*6));if(bk.vis<.004)bk.vis=0;
+    {const on=bk.vis>0;bk.holder.visible=bk.cairn.visible=bk.shadow.visible=on}
+    bk.shadow.material.opacity*=Math.min(1,bk.vis/CAIRN_NEXT);
     bk.mats.forEach(m=>{m.opacity=bk.vis;m.depthWrite=bk.vis>.97});
     {const on=st===2;bk.mesh.renderOrder=on?10:0;if(bk.mats[0].depthTest===on){bk.mats[0].depthTest=bk.mats[1].depthTest=!on}}   // la pierre gravée du cairn actif passe devant le wire et les courbes : son texte reste lisible
     const bs=[0,.38,0][st];   // cairn actif : pas de perle, l'aiguille le désigne
-    bk.bead.scale.setScalar(Math.max(.001,bk.bead.scale.x+(bs-bk.bead.scale.x)*(snap?1:1-Math.exp(-dt*6))));bk.bead.visible=bk.bead.scale.x>.02;
+    bk.bead.scale.setScalar(Math.max(.001,bk.bead.scale.x+(bs-bk.bead.scale.x)*(snap?1:1-Math.exp(-dt*6))));bk.bead.visible=bk.bead.scale.x>.02&&bk.vis>0;
   });
 }
 
@@ -3308,7 +3311,7 @@ function pick(){
   const w=cv.clientWidth,h=cv.clientHeight;
   cam.updateMatrixWorld();scene.updateMatrixWorld();
   ray.setFromCamera(new THREE.Vector2(ptr.x/w*2-1,-(ptr.y/h)*2+1),cam);
-  const hit=ray.intersectObjects(blocks.map(b=>b.mesh),false)[0];
+  const hit=ray.intersectObjects(blocks.filter(b=>b.vis>.1).map(b=>b.mesh),false)[0];   // un cairn masqué ne réagit pas au survol
   ptrIdx=hit?blocks.find(b=>b.mesh===hit.object).stopIdx:-1;
   cv.style.cursor=ptrIdx>=0?'pointer':'';
 }
