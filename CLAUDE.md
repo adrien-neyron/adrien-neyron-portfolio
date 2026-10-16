@@ -174,6 +174,7 @@ The project sheet (`#dlgTool.is-proj`) is a bevelled dark-glass panel (`clip-pat
 
 ### Few cairns at once
 On the stages map only the current cairn (100 %) and the next one (`CAIRN_NEXT` = 35 %) are shown; the previous one fades out as you leave it; all others are hidden and not pickable. Don't bring back the full row of cairns: it cluttered the view.
+The trace follows the same rule: only the segment from the current cairn to the next one is drawn (`uV0`..`uV1` window in `FAT_F`, eased via `trWin` in `rig`; at the last stop, previous cairn → end).
 
 ### Stop framing
 At each stop `rig` places the map camera facing the stele (along `faceYaw`) at a fixed distance (`STOP_D` 70 wide / 80 narrow, `STOP_H` 26), aiming `STOP_SIDE` × distance to the right on wide screens (stele in the left third, clear of the stop card) and `STOP_LOW` lower on phones (stele above the bottom card). Between stops it eases back to the follow camera behind the needle. Details: `docs/admin-boucle.md`.

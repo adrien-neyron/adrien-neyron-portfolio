@@ -2880,8 +2880,9 @@ const FAT_V='attribute vec3 aStart,aEnd;attribute float aSel,aSide,aT;uniform ve
   'void main(){vT=aT;vSide=aSide;vS=aT*uLen;mat4 M=projectionMatrix*modelViewMatrix;vec4 a=M*vec4(aStart,1.),b=M*vec4(aEnd,1.);float nr=.1;if(a.w<nr&&b.w<nr){gl_Position=vec4(2.,2.,2.,1.);return;}if(a.w<nr)a=mix(a,b,(nr-a.w)/(b.w-a.w));if(b.w<nr)b=mix(b,a,(nr-b.w)/(a.w-b.w));'+
   'vec2 sa=a.xy/a.w*uRes*.5,sb=b.xy/b.w*uRes*.5,d=sb-sa;float l=length(d);d=l>1e-4?d/l:vec2(1.,0.);bool e=aSel>.5;vec4 c=e?b:a;vec2 sc=e?sb:sa;float W=uW+1.;sc+=d*(e?1.:-1.)*uCap*W*.5;vec2 o=vec2(-d.y,d.x)*aSide*W*.5;gl_Position=vec4((sc+o)/(uRes*.5)*c.w,c.z,c.w);}';
 /* uH0..uH1 : portion de la trace recouverte par l'aiguille (de sa base à sa pointe), jamais dessinée : ni le câble ni la lueur ne dépassent de l'aiguille, même dans un virage ; au départ (uH0 = 0), le bout arrondi du câble avant la trace est masqué aussi */
-const FAT_F='precision highp float;uniform vec3 uColor,uC2;uniform float uAlpha,uT,uMode,uW,uGlow,uTime,uLen,uBoost,uH0,uH1;varying float vT,vSide,vS;'+
-  'void main(){if(uMode>.5&&vT>uT)discard;if(vT<uH1&&(vT>uH0||uH0<=0.))discard;float a=uAlpha;vec3 col=uColor;'+
+/* uV0..uV1 : tronçon visible de la trace, d'un cairn au suivant (fondu de uVF au-delà de chaque bout) ; le reste du tracé n'est pas dessiné */
+const FAT_F='precision highp float;uniform vec3 uColor,uC2;uniform float uAlpha,uT,uMode,uW,uGlow,uTime,uLen,uBoost,uH0,uH1,uV0,uV1,uVF;varying float vT,vSide,vS;'+
+  'void main(){if(uMode>.5&&vT>uT)discard;if(vT<uH1&&(vT>uH0||uH0<=0.))discard;float vis=smoothstep(uV0-uVF,uV0,vT)*(1.-smoothstep(uV1,uV1+uVF,vT));if(vis<=.001)discard;float a=uAlpha*vis;vec3 col=uColor;'+
   'if(uGlow>.5){float d=abs(vSide),dh=max(0.,uT*uLen-vS);float core=exp(-d*d*70.),glow=exp(-d*d*9.)*.5,bloom=exp(-d*d*2.2)*.22;'+
   'float wave=.6+.4*smoothstep(.35,1.,sin(vS*.16-uTime*5.));'+
   'col=mix(uC2,uColor,smoothstep(0.,90.,dh))*uBoost;col=mix(min(col,vec3(1.)),vec3(1.),core*.3);a*=clamp((core+glow+bloom)*(.55*wave+.45),0.,1.);}'+
@@ -2894,7 +2895,7 @@ function fatGeo(pts){const m=pts.length-1,S=new Float32Array(m*12),E=new Float32
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(S,3));g.setAttribute('aStart',new THREE.BufferAttribute(S,3));g.setAttribute('aEnd',new THREE.BufferAttribute(E,3));g.setAttribute('aSel',new THREE.BufferAttribute(sel,1));g.setAttribute('aSide',new THREE.BufferAttribute(sd,1));g.setAttribute('aT',new THREE.BufferAttribute(tt,1));g.setIndex(idx);g.userData.m=m;return g}
 function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:o.add?THREE.AdditiveBlending:THREE.NormalBlending,vertexShader:FAT_V,fragmentShader:FAT_F,
     uniforms:{uRes:{value:new THREE.Vector2(1,1)},uW:{value:o.w},uCap:{value:o.cap==null?1:o.cap},uColor:{value:new THREE.Color(o.c)},uC2:{value:new THREE.Color(o.c2||o.c)},uAlpha:{value:o.a},uT:{value:0},uMode:{value:o.mode},
-      uLen:{value:geo.userData.len},uH0:{value:0},uH1:{value:0},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
+      uLen:{value:geo.userData.len},uH0:{value:0},uH1:{value:0},uV0:{value:0},uV1:{value:1},uVF:{value:.004},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
   m.userData.cw=o.w;m.userData.o=o;FATS.push(m);const mesh=new THREE.Mesh(geo,m);mesh.frustumCulled=false;mesh.renderOrder=o.order||2;scene.add(mesh);return mesh}
 const CLEAR=8.6,GAP=.28;   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
@@ -3122,6 +3123,7 @@ function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return
 
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
 const nT=OK?new THREE.Vector3():null,nP=OK?new THREE.Vector3():null,nQ=OK?new THREE.Quaternion():null,v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
+const trWin=[0,1];   // tronçon de trace affiché [début, fin], en abscisse t
 const CAIRN_NEXT=.35;   // opacité du cairn suivant (et du précédent, le temps de le quitter) ; les autres cairns sont masqués
 const STOP_D=[70,80],STOP_H=26,STOP_SIDE=.35,STOP_LOW=-9;   // cadrage aux arrêts : recul [grand écran, téléphone], hauteur, décalage latéral (part du recul) pour la carte de droite, visée plus basse sur téléphone (carte en bas)
 let stopW=0,curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
@@ -3184,7 +3186,11 @@ function rig(p,dt,snap,intro=0){
      nQ.slerp(ball.quaternion,e);ball.quaternion.copy(nQ);ball.position.copy(v3).lerp(nP,e);ball.scale.setScalar(lerp(s0,so,e))}
    const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
   const tg0=tB;   // la lueur s'arrête à la base du triangle : elle ne dépasse jamais sa pointe
-  FATS.forEach(m=>{m.uniforms.uT.value=tg0;m.uniforms.uH0.value=tB;m.uniforms.uH1.value=tt;m.uniforms.uTime.value=reduce?0:tNow});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
+  // tronçon visible : du cairn où l'on est (ou que l'on vient de quitter) au suivant ; à la dernière étape, de l'avant-dernier cairn au bout. Il glisse en douceur d'un tronçon au suivant
+  {const L=curve.getLength(),eps=12/L;let k=0;for(let i=0;i<NS;i++)if(STOPS[i].t<=tt+eps)k=i;
+   const v0=k>=NS-1?STOPS[NS-2].t:Math.min(STOPS[k].t,tB),v1=k>=NS-1?1:STOPS[k+1].t,kk=snap||reduce?1:1-Math.exp(-dt*3.5);
+   trWin[0]+=(v0-trWin[0])*kk;trWin[1]+=(v1-trWin[1])*kk;}
+  FATS.forEach(m=>{m.uniforms.uT.value=tg0;m.uniforms.uH0.value=tB;m.uniforms.uH1.value=tt;m.uniforms.uTime.value=reduce?0:tNow;m.uniforms.uV0.value=trWin[0];m.uniforms.uV1.value=trWin[1];m.uniforms.uVF.value=6/curve.getLength()});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
   blocks.forEach((bk,i)=>{

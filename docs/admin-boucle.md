@@ -74,6 +74,15 @@ Ce n'est **pas** une fenêtre modale : une modale à chaque arrêt bloquerait le
 
 Le tracé GPS (290 points, ≈ 10 unités chacun) est lissé deux fois : `smoothPath` (fenêtre courte, ≈ 400 m) enlève le bruit du GPS, puis `calmPath` (gaussienne large, σ = `TRACE_SIGMA` = 15 points, ≈ 1,5 km) efface les lacets du sentier, en plan et en hauteur. Les extrémités restent fixes (fondu sur 4 points) : le Départ reste sous l'aiguille. Ce lissage raccourcit la trace d'environ 23 % ; elle est remise à sa longueur d'origine en plan (mise à l'échelle autour du départ), sinon les étapes se rapprochent et la caméra, 92 unités derrière l'aiguille, bute sur le cairn précédent. Le relief est reconstruit autour de la trace et la suit ; les chiffres (altitude, D+) gardent les altitudes GPS (`alt`). Résultat mesuré : −58 % de virages cumulés, mêmes pentes qu'avant (médiane 0,33).
 
+## Un tronçon de trace à la fois
+
+Comme les cairns, la trace ne se montre que **d'un cairn au suivant**. Le shader du câble (`FAT_F`) reçoit la fenêtre `uV0`..`uV1` (abscisse t) et ne dessine rien en dehors, avec un fondu de 6 unités (`uVF`) au-delà de chaque bout. La fenêtre est réglée dans `rig()` :
+- en temps normal, du cairn où l'on est (ou que l'on vient de quitter) jusqu'au suivant ;
+- à l'approche d'un cairn (12 unités), elle passe au tronçon suivant, en gardant le bout sous l'aiguille ;
+- à la dernière étape, de l'avant-dernier cairn jusqu'au bout.
+
+Elle glisse en douceur d'un tronçon à l'autre (`trWin`, lissage 3,5/s ; immédiat en mouvement réduit). Le relief, lui, reste entier.
+
 ## Câble et pulse lumineux (trace des projets, « ISO »)
 
 La trace est un câble technique (`FAT_V` / `FAT_F`, spline lisse issue de la `CatmullRomCurve3`, traits d'épaisseur constante à l'écran), en deux passes :
