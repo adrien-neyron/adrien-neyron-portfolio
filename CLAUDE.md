@@ -169,6 +169,9 @@ After the last stop (« À déterminer »), it rains on the cairn before the pud
 ### Stages map: engraved stele + stop card
 On the stages map the 3D stele (`paintBlock`, canvas 768×576 drawn in 512×384 units) engraves the **stage, place and year (`yearOf`), project name, km and D+ (`kmLine`), altitude (`altAt`) and techs** (one line, up to 4). The glass stop card `#stopCard` (`fillCard`) shows the rest: role, key stats, summary (`brief()`), 2 key points (`pts`). Nothing is shown twice. The stele is `aria-hidden`, so the card repeats the engraved info for screen readers only (`h3#scT.sr-only` = name, `#scSr` = stage, place, year, altitude, km, D+, all techs).
 
+### Stop framing
+At each stop `rig` places the map camera facing the stele (along `faceYaw`) at a fixed distance (`STOP_D` 70 wide / 80 narrow, `STOP_H` 26), aiming `STOP_SIDE` × distance to the right on wide screens (stele in the left third, clear of the stop card) and `STOP_LOW` lower on phones (stele above the bottom card). Between stops it eases back to the follow camera behind the needle. Details: `docs/admin-boucle.md`.
+
 ### Calm trace
 The GPS trace is smoothed twice: `smoothPath` (GPS noise) then `calmPath` (wide gaussian, `TRACE_SIGMA` = 15 points ≈ 1.5 km, x/z and y, ends pinned), so switchbacks don't show. The smoothed trace is rescaled to its original plan length, otherwise stops get closer and the map camera hits the previous cairn. Figures (altitude, D+) still use raw GPS altitudes. Details: `docs/admin-boucle.md`. The section title is a small top-left overline (`#s2 .head`), never over the 3D. Details: `docs/admin-boucle.md`.
 

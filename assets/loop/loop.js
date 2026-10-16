@@ -3105,6 +3105,7 @@ function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return
 
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
 const nT=OK?new THREE.Vector3():null,nP=OK?new THREE.Vector3():null,nQ=OK?new THREE.Quaternion():null,v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
+const STOP_D=[70,80],STOP_H=26,STOP_SIDE=.35,STOP_LOW=-9;   // cadrage aux arrêts : recul [grand écran, téléphone], hauteur, décalage latéral (part du recul) pour la carte de droite, visée plus basse sur téléphone (carte en bas)
 let stopW=0,curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
 function onPlane(q,o,y){   // point de l'écran (px) -> point du plan horizontal de hauteur y, vu par la caméra de la carte
   cam.updateMatrixWorld();o.set(q[0]/cv.clientWidth*2-1,1-q[1]/cv.clientHeight*2,.5).unproject(cam).sub(cam.position);return o.multiplyScalar((y-cam.position.y)/o.y).add(cam.position)}
@@ -3120,7 +3121,12 @@ function rig(p,dt,snap,intro=0){
   const gh=terrainAt(v1.x,v1.z)+22;if(v1.y<gh)v1.y=gh;
   v2.copy(ahead);v2.y+=14;   // regard qui garde les crêtes dans l'image
   const blk=blocks.find(x=>x.stopIdx===aw);
-  if(blk&&mw>0){v2.lerp(blk.pos,mw*(cam.aspect<.9?1:.55))}
+  if(blk&&mw>0){   // cadrage d'arrêt : face à la stèle (dans l'axe où elle regarde), à distance fixe, quel que soit le virage de la trace
+    const nar=cam.aspect<.9,e=ease(mw),fx=Math.sin(blk.faceYaw),fz=Math.cos(blk.faceYaw),D=nar?STOP_D[1]:STOP_D[0];
+    v3.set(blk.pos.x+fx*D,blk.base+STOP_H,blk.pos.z+fz*D);v1.lerp(v3,e);
+    {const g2=terrainAt(v1.x,v1.z)+14;if(v1.y<g2)v1.y=g2}
+    const card=!cardOff&&blk.proj&&blk.proj.id!=='next',side=!nar&&card?D*STOP_SIDE:0;   // grand écran : la carte est à droite, la stèle passe à gauche du centre ; téléphone : la carte est en bas, la stèle remonte
+    v3.set(blk.pos.x+fz*side,blk.base+(nar&&card?STOP_LOW:1.5),blk.pos.z-fx*side);v2.lerp(v3,e)}
   if(rainR>0&&!reduce&&!staticMode){   // pluie sur le dernier cairn : zoom avant sur la stèle mouillée, puis zoom arrière très haut, la flaque apparaît en fondu (draw)
     const end=blocks.find(x=>x.t>=1);
     if(end){const z=clamp((rainR-.2)/.8),zi=ease(sm(0,.45,z)),zo=ease(sm(.5,1,z));
