@@ -127,6 +127,18 @@ Le tracé GPS (290 points, ≈ 10 unités chacun) est lissé deux fois : `smooth
 | Rotation maximale par image | 18° | 8° |
 | À-coups de la visée (99ᵉ centile) | 28 | 1,1 |
 
+## Un cran = un projet
+
+Sur la carte des expériences, chaque geste de défilement emmène au projet suivant ou précédent, avec une transition animée de 1,1 s (`cinematicTo`). On ne s'arrête plus entre deux cairns.
+- **Molette** : un cran (au moins 24 px) suffit.
+- **Pavé tactile** : les petits événements d'un glissé s'additionnent jusqu'à 24 px, puis une seule transition part. Pendant la transition, et tant que la traîne d'inertie continue (un événement moins de 280 ms après le précédent), tout est absorbé : jamais deux projets pour un seul geste.
+- **Doigt** : un glissé d'au moins 40 px fait passer d'un projet à l'autre ; le défilement natif est bloqué sur la carte.
+- **Aux deux bouts** (avant le Départ, après la dernière étape), la page défile normalement, vers la montre ou vers la pluie et la flaque.
+- **Panneau d'étape** : s'il a du contenu à faire défiler, il défile d'abord.
+- **Inchangé** : clavier (flèches, Page suivante), menu « Étapes », visite guidée, fenêtres et menus ouverts, vue statique (donc mouvement réduit). Zoom avec Ctrl + molette laissé au navigateur.
+
+Le filtre des événements de molette est une fonction pure, `utils/wheelStep.ts` (`wheelGate`), testée dans `tests/unit/wheelStep.test.ts` : crans espacés, rafale de pavé tactile de 0,7 s, inertie de 2 s, deux gestes rapprochés, crans pendant une transition, bout de carte. Son écouteur est en phase de capture et arrête la propagation, pour que l'annulation des transitions (`stopCine`) ne coupe pas la sienne.
+
 ## Un tronçon de trace à la fois
 
 Comme les cairns, la trace ne se montre que **d'un cairn au suivant**. Le shader du câble (`FAT_F`) reçoit la fenêtre `uV0`..`uV1` (abscisse t) et ne dessine rien en dehors, avec un fondu de 6 unités (`uVF`) au-delà de chaque bout. La fenêtre est réglée dans `rig()` :

@@ -2,7 +2,8 @@
  * Usage : const loop = initLoop(THREE, { GLTFLoader }); … loop.destroy() au démontage de la page.
  * GLTFLoader (facultatif) : charge le modèle 3D de la chaussure (SHOE_GLB) ; sans lui, la chaussure procédurale reste affichée.
  * Prérequis : le balisage de loop.html est déjà dans le DOM, loop.css est chargée, three@0.128.0. */
-import {projects as SITE_PROJECTS} from '~/data/projects';   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
+import {projects as SITE_PROJECTS} from '~/data/projects';
+import {createWheelGate,wheelGate,STEP_MS} from '~/utils/wheelStep';   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
 export function initLoop(THREE,LOADERS={}){
   const __ac=new AbortController(),__sig=__ac.signal,__ivs=[];let DEAD=false;
   // les écouteurs de la fenêtre sont annulés à la destruction
@@ -2717,6 +2718,28 @@ function cinematicTo(pt,dur0,mode){
 }
 const stopCine=()=>{if(cine){cancelAnimationFrame(cine);cine=null}};
 addEventListener('wheel',stopCine,{passive:true});addEventListener('touchstart',stopCine,{passive:true});
+/* Carte des expériences : un cran de défilement = un projet. Un geste (cran de molette, glissé du pavé tactile ou du doigt) lance une transition
+   vers le cairn suivant ou précédent ; pendant la transition et tant que la traîne d'inertie continue, les événements sont absorbés (jamais deux projets d'un coup).
+   Aux deux bouts (avant le Départ, après la dernière étape), le défilement normal reprend : vers la montre, vers la pluie et la flaque.
+   Clavier (flèches, Page suivante) et menu « Étapes » inchangés ; rien pendant la visite guidée, une fenêtre, un menu ouvert, ni en vue statique. */
+{const gate=createWheelGate();let ty0=null;
+ const stopP=()=>PARC.stopPs().map(s=>s.p),curP=()=>warp(clamp(scrollY/Math.max(1,maxScroll())));
+ const inMap=()=>{const P=stopP(),p=curP();return p>P[0]-.03&&p<P[P.length-1]+.03};
+ const target=dir=>{const P=stopP(),p=curP();if(dir>0)return P.findIndex(x=>x>p+.0015);for(let k=P.length-1;k>=0;k--)if(P[k]<p-.0015)return k;return -1};
+ const go=dir=>{const i=target(dir);if(i<0)return false;gate.busy=performance.now()+(reduce?300:STEP_MS);cinematicTo(stopP()[i],STEP_MS);return true};
+ const blocked=()=>TOUR.on||staticMode||!loaded||!!document.querySelector('dialog[open]')||!!document.querySelector('.burger[aria-expanded="true"]');
+ const scrollsInside=(el,dy)=>{for(let n=el;n&&n!==document.body&&n.nodeType===1;n=n.parentElement){const cs=getComputedStyle(n);if(n.scrollHeight>n.clientHeight+1&&/(auto|scroll)/.test(cs.overflowY))if(dy>0?n.scrollTop+n.clientHeight<n.scrollHeight-1:n.scrollTop>0)return true}return false};   // le panneau d'étape défile d'abord
+ const swallow=e=>{e.preventDefault();e.stopImmediatePropagation()};
+ addEventListener('wheel',e=>{
+   if(e.ctrlKey||blocked()||!inMap()||scrollsInside(e.target,e.deltaY))return;
+   const r=wheelGate(gate,performance.now(),e.deltaMode===1?e.deltaY*16:e.deltaY,d=>target(d)>=0);
+   if(r.type==='pass')return;swallow(e);if(r.type==='step')go(r.dir)},{capture:true,passive:false});
+ addEventListener('touchstart',e=>{ty0=(e.touches.length===1&&!blocked()&&inMap())?e.touches[0].clientY:null},{passive:true});
+ addEventListener('touchmove',e=>{if(ty0==null)return;const dy=ty0-e.touches[0].clientY;if(Math.abs(dy)<6||scrollsInside(e.target,dy))return;
+   if(target(Math.sign(dy))<0&&performance.now()>=gate.busy){ty0=null;return}   // bout de la carte : le doigt fait défiler normalement
+   e.preventDefault()},{passive:false});
+ addEventListener('touchend',e=>{if(ty0==null)return;const t=e.changedTouches[0],dy=t?ty0-t.clientY:0;ty0=null;if(Math.abs(dy)<40||performance.now()<gate.busy)return;go(Math.sign(dy))},{passive:true});
+}
 /* ---------- Parcours guidé : « Commencer l'expédition » déroule toute la boucle, avec un temps de lecture à chaque étape ---------- */
 const tourEl=$('#tour'),tourLbl=$('#tourLbl'),tPause=$('#tPause'),tSkip=$('#tSkip'),tStop=$('#tStop'),tPauseIc=$('#tPauseIc');
 const TOUR={on:false,paused:false,hold:0,i:0,pts:[],phase:'dwell',t:0,dw:0,y0:0,y1:0,dur:1,raf:0,last:0,hide:0};

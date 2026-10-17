@@ -55,3 +55,5 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 ## Limites connues
 - Pas de test avec une vraie base (Mongo/Postgres) : les handlers sont testés avec des modèles simulés.
 - Les e2e ne couvrent pas la connexion Auth0 (service tiers).
+
+- `tests/unit/wheelStep.test.ts` : filtre « un cran = un projet » de la carte des expériences (crans, rafales et inertie de pavé tactile, bouts de carte).
