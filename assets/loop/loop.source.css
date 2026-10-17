@@ -252,10 +252,6 @@ body.static .cta{display:none}
 .pl-stages button[aria-current="true"],.pl-stages button:hover{color:#E6F4F1}
 .pl-stages button[aria-current="true"] i{color:#E26D3B}
 .pl-stages .lb{max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pl-metrics{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 66px);z-index:5;padding:12px 20px;display:grid;grid-template-columns:repeat(3,auto);gap:4px 28px;max-width:calc(100% - 24px)}
-.pl-metrics .ttl{grid-column:1/-1;font:500 13px 'JetBrains Mono',monospace;color:#E26D3B}
-.pl-metrics b{display:block;font:500 clamp(16px,2.6vw,24px)/1.1 'JetBrains Mono',ui-monospace,monospace}
-.pl-metrics span{font:500 11px 'JetBrains Mono',monospace;color:#A8B9C0}
 .holo{position:absolute;z-index:4;left:0;top:0;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:260px;margin-left:-130px;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
 .holo.on{opacity:1;visibility:visible}
 .holo span{font:500 12px 'JetBrains Mono',monospace;color:#FFD9B8;padding:4px 9px;border:1px solid rgba(226,109,59,.75);border-radius:6px;background:repeating-linear-gradient(0deg,rgba(226,109,59,.14) 0 2px,rgba(226,109,59,.05) 2px 4px);text-shadow:0 0 8px rgba(226,109,59,.9);box-shadow:0 0 14px rgba(226,109,59,.35);animation:holo 2.4s ease-in-out infinite}
@@ -266,7 +262,7 @@ body.static .cta{display:none}
 .pl-list h3{font-size:22px;margin-bottom:4px}.pl-list .e{font:500 12px 'JetBrains Mono',monospace;color:#E26D3B}
 .pl-list ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0;padding:0}.pl-list ul li{border:1px solid #3A4654;padding:2px 8px;border-radius:999px;font:500 12px 'JetBrains Mono',monospace}
 body.static .pl-list{display:block;padding:70px 0 40px}
-body.static .pl-stages,body.static .pl-metrics,body.static #pTags{display:none}
+body.static .pl-stages,body.static #pTags{display:none}
 body.static #parcCanvas{height:66svh;height:66vh}
 @media (prefers-reduced-motion:reduce){.holo span{animation:none}}
 @media (max-width:759px){
@@ -274,7 +270,6 @@ body.static #parcCanvas{height:66svh;height:66vh}
   .pl-stages ol{flex-direction:row;overflow-x:auto;scrollbar-width:none;padding:4px 10px}
   .pl-stages .lb{max-width:none}
   .pl-stages button{white-space:nowrap;background:rgba(5,8,17,.8);border-radius:999px}
-  .pl-metrics{grid-template-columns:repeat(3,auto);gap:4px 14px;padding:10px 14px;bottom:calc(env(safe-area-inset-bottom,0px) + 66px)}
 }
 
 /* Scène 3 : flaque, sous-bois humide, choix gauche (profil) ou droite (carnet) */
@@ -391,12 +386,6 @@ html{font-synthesis-weight:none}   /* DM Serif Display n'existe qu'en graisse 40
 /* Inter est plus large que la police d'origine : la navigation du haut doit tenir sur un téléphone */
 
 /* Plaque de métriques : DM Serif Display est plus large ; valeurs sur une ligne, texte du résultat libre de passer à la ligne */
-.pl-metrics b{white-space:nowrap}
-.pl-metrics span{display:block}
-.pl-metrics>div:nth-of-type(3) b{white-space:normal}
-@media (max-width:759px){.pl-metrics{grid-template-columns:auto auto minmax(0,1fr);bottom:calc(env(safe-area-inset-bottom,0px) + 74px)}.pl-metrics b{font-size:clamp(17px,4.8vw,22px)}.pl-metrics span{font-size:10.5px}}
-@media (max-width:759px){.pl-metrics{width:calc(100% - 24px);box-sizing:border-box}.pl-metrics>div:nth-of-type(3) b{font-size:clamp(15px,4.2vw,18px);line-height:1.15}}
-@media (max-width:759px){.pl-metrics{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}}
 @media (max-width:759px){.bivtext{bottom:calc(env(safe-area-inset-bottom,0px) + 98px);max-height:46vh;max-height:46svh}}
 @media (max-width:759px){.bivtext textarea{height:76px;min-height:76px}.bivtext .fld{margin-top:10px}.bivtext h2{font-size:28px}.bivtext{padding:16px 16px 14px}}
 
@@ -436,7 +425,7 @@ header.top{flex-wrap:nowrap}
 #openSet::after{content:"";width:8px;height:8px;margin-right:6px;border-right:1.8px solid #E9A27F;border-top:1.8px solid #E9A27F;transform:rotate(45deg)}
 
 /* Carte : titre, liste d'étapes et plaque de métriques n'apparaissent qu'une fois le verre traversé (pas de titres superposés pendant le fondu) */
-#s2 .head,#s2 .pl-stages,#s2 .pl-metrics{opacity:var(--hd,1)}
+#s2 .head,#s2 .pl-stages{opacity:var(--hd,1)}
 
 /* Flaque : le texte (titre et cartes) passe devant les chaussures, qui sont maintenant claires et brillantes */
 .pwrap{z-index:3}
@@ -510,7 +499,6 @@ body.static .brand .logo{animation:none}
 @media (max-width:640px){.sh-glass img{aspect-ratio:16/9}}
 @media (prefers-reduced-motion:reduce){.sh-glass,.sh-glass::after{transition:none;transform:none}#dlgTool .tool-tags li{animation:none}}
 .pl-dock{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 66px);z-index:5;display:flex;flex-direction:column;align-items:center;gap:10px;width:max-content;max-width:calc(100% - 24px)}
-.pl-dock .pl-metrics{position:static;transform:none;left:auto;bottom:auto}
 .pl-more{min-height:44px;padding:0 18px;border:1px solid rgba(226,109,59,.75);border-radius:999px;background:rgba(5,8,17,.7);color:#E6F4F1;font:600 13px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .pl-more[hidden]{display:none}
 .pl-more:hover,.pl-more:focus-visible{background:#E26D3B;color:#050811}
@@ -555,9 +543,6 @@ header.top>*{pointer-events:auto}
 .pl-stages .stip i{font:500 11px 'JetBrains Mono',monospace;color:#E26D3B;letter-spacing:.1em}
 .pl-stages .stip .lb{max-width:none;font:500 12px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#E6F4F1}
 /* bloc de données du bas : sans libellés ni séparateur */
-.pl-metrics.plate,.pl-dock .pl-metrics{background:rgba(5,8,17,.5);border:0;box-shadow:none;padding:8px 14px;gap:2px 22px;-webkit-backdrop-filter:none;backdrop-filter:none}
-.pl-metrics span,.pl-metrics hr{display:none}
-.pl-metrics .ttl{border:0;opacity:.85;letter-spacing:.06em}
 /* textes : interligne généreux, libellés techniques qui s'effacent */
 .head .sub,.mcard .role,.lead,.pcard p,.sh-body p,.bivtext p,.tool-pts li{line-height:1.78}
 .head .sub{max-width:36em;margin-left:auto;margin-right:auto}
@@ -589,20 +574,14 @@ footer.perma .ico:hover::after,footer.perma .ico:focus-visible::after{opacity:1;
 .altrail .tk{opacity:calc(.6*var(--tk,1))}
 @media (max-width:899px){.pl-stages{right:4px;top:16vh;height:42vh}.pl-stages ol{justify-content:flex-start;padding:0}.pl-stages .stip{left:auto;right:34px;top:50%;transform:translate(6px,-50%)}.pl-stages button:hover .stip,.pl-stages button:focus-visible .stip{transform:translate(0,-50%)}}
 /* plaque : plus de coordonnées (altitude, cap, distance) mais l'étape du parcours : période ou état, puis l'intitulé */
-.pl-metrics{grid-template-columns:repeat(2,auto)}
-.pl-metrics>div:nth-of-type(2){display:none}
-.pl-metrics>div:nth-of-type(3) b{white-space:normal;max-width:min(44ch,60vw);font-size:clamp(16px,2.4vw,22px);line-height:1.25}
 @media (max-width:899px){.pl-stages{left:auto}.pl-stages ol{overflow:visible;flex-direction:column}.pl-stages button{background:none;border-radius:0;white-space:normal}}
 /* plaque d'étape : fond un peu plus dense pour rester lisible sur les panneaux 3D clairs */
-.pl-metrics.plate,.pl-dock .pl-metrics{background:rgba(5,8,17,.72)}
-.pl-metrics b{text-shadow:0 1px 8px rgba(5,8,17,.9)}
 
 /* Barre de progression : la pointe de la flèche indique la position (une flèche qui descend avec le parcours, à la place du point) */
 .altrail .dot{width:20px;height:28px;margin:-26px 0 0 -10px;border-radius:0;background:none;box-shadow:none}
 .altrail .dot svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 5px rgba(226,109,59,.75))}
 
 /* Chiffres du parcours (kilomètre et dénivelé cumulés) : plaque, liste d'étapes, total sous le titre de la carte */
-.pl-metrics .km{grid-column:1/-1;margin:-1px 0 2px;font:500 12px/1.3 'JetBrains Mono',monospace;letter-spacing:.08em;color:#A8B9C0}
 .pl-list .km,#pList .km{margin:2px 0 6px;font:500 12px/1.4 'JetBrains Mono',monospace;letter-spacing:.06em;color:var(--muted)}
 .head p.tot{margin:6px auto 0;max-width:none;font:500 12px/1.5 'JetBrains Mono',monospace;letter-spacing:.1em;font-variant-numeric:tabular-nums;color:#C9D6DA;text-shadow:0 1px 8px rgba(5,8,17,.95),0 0 3px rgba(5,8,17,.9)}
 @media (max-width:899px){.pl-stages button{margin:-20px 0 0 -22px;height:40px;min-height:40px}}
@@ -619,19 +598,13 @@ footer.perma .ico:hover::after,footer.perma .ico:focus-visible::after{opacity:1;
 /* Contrastes visés AAA (7:1) sur les textes secondaires de la carte : blanc pur ou orange vif #FF8A57 (8,2:1 sur le fond nuit), graisse 600 au minimum ; plaque opaque ; appel à l'action de la dernière étape plein */
 .head .eyebrow,.eyebrow{color:#FF8A57;font-weight:600}
 .head p.tot{color:#FFFFFF;font:600 13px/1.5 'JetBrains Mono',monospace;letter-spacing:.06em}
-.pl-metrics{background:rgba(5,8,17,.93);border-radius:14px}
-.pl-metrics .ttl{color:#FF8A57;font-weight:600;opacity:1}
-.pl-metrics .km{color:#FFFFFF;font:600 13px/1.3 'JetBrains Mono',monospace}
-.pl-metrics b{color:#FFFFFF;font-weight:600}
 .pl-stages .stip{color:#FFFFFF;font-weight:600}
 .pl-list .km,#pList .km{color:#E8F1F3;font-weight:600}
 
 /* Un seul bloc d'interaction par étape : le bloc 3D (qu'on touche) et un bouton contextuel sous lui ; plus de plaque qui répète titre, résultat et kilomètres. Seul le Départ, qui n'a pas de bloc, garde sa plaque, rendue opaque */
-.pl-dock.on-proj .pl-metrics{display:none}
 .pl-more{min-height:52px;min-width:min(264px,calc(100vw - 48px));padding:0 28px;border:0;border-radius:999px;background:#FF8A57;color:#0A0F1A;font:700 15px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.01em;box-shadow:0 0 0 1px rgba(255,138,87,.55),0 10px 30px rgba(255,138,87,.3);-webkit-backdrop-filter:none;backdrop-filter:none}
 .pl-more:hover,.pl-more:focus-visible{background:#FFFFFF;color:#0A0F1A}
 .pl-more:focus-visible{outline:3px solid #FFFFFF;outline-offset:3px}
-.pl-dock .pl-metrics.plate{background:#050811;border:1px solid rgba(255,255,255,.2);box-shadow:0 8px 28px rgba(0,0,0,.55)}
 @media (max-width:899px){.pl-dock{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)}}
 
 /* ---------- Mode jour : contrastes (11/10/2026) ----------

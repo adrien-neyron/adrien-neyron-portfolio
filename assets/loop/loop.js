@@ -3348,7 +3348,7 @@ mapRail=p=>{
 };
 function gotoStop(i){const s=STOPS[i];cinematicTo(PC0+PCW*(s.a+s.b)/2)}
 const mapTot=$('#mapTot');let totK=-1,totG=-1;
-const mK=$('#pmKm'),mT=$('#pmTtl'),m1=$('#pm1'),m1l=$('#pm1l'),m2=$('#pm2'),m2l=$('#pm2l'),m3=$('#pm3'),m3l=$('#pm3l'),plMore=$('#plMore');
+const plMore=$('#plMore');   // la plaque de métriques sous la carte (.pl-metrics) a été retirée : stèle, panneau d'étape et annonces portent ces informations
 const plDock=plMore.parentElement;
 function openStop(id,opener){if(id==='next'){jumpTo(.845);live.textContent='Contact. Posons le sac.';return}const pr=PROJECTS.find(p=>p.id===id);openProject(id,opener,pr?'Km '+fmtN(kmAt(pr.t))+' · Altitude '+fmtN(altAt(pr.t))+' m':'')}   // un seul geste par étape : ouvrir la fiche (la dernière étape mène au contact)
 plMore.addEventListener('click',()=>openStop(plMore.dataset.id,plMore));
@@ -3396,11 +3396,7 @@ function updateUi(p){
   stageBtns.forEach((b,i)=>{b.setAttribute('aria-current',String(i===activeStop));b.classList.toggle('past',i<activeStop)});
   const st=STOPS[Math.max(cur,0)],t=st.proj?st.t:(cur===0?0:1);
   const alt=altAt(t),brg=bearingAt(t);
-  mT.textContent=st.ttl+(st.proj?' · '+st.name:'');if(mK)mK.textContent=kmLine(t);
   if(st.proj&&PROJECT_INFO[st.proj.id]){const nx=st.proj.id==='next';plMore.hidden=false;plMore.dataset.id=st.proj.id;plMore.querySelector('.t').textContent=nx?'Définir la prochaine étape':'Voir la fiche';plMore.querySelector('.n').textContent=' : '+st.proj.title;if(nx)plMore.removeAttribute('aria-haspopup');else plMore.setAttribute('aria-haspopup','dialog');plDock.classList.add('on-proj')}else{plMore.hidden=true;plDock.classList.remove('on-proj')}
-  // la plaque donne l'étape du parcours, plus des coordonnées : période ou état, puis intitulé
-  if(st.proj){const inf=PROJECT_INFO[st.proj.id];m1.textContent=inf?inf.st:'';m3.textContent=st.proj.result}else{m1.textContent=st.period;m3.textContent=st.role}
-  m1l.textContent='';m2.textContent='';m2l.textContent='';m3l.textContent='';
   if(cur!==lastShown){lastShown=cur;if(cur>=0)live.textContent='Étape '+cur+' : '+st.name+(st.proj?'':', '+st.period+', '+st.role)+'. '+kmSpeech(t)}
   // étiquettes
   holos.forEach(h=>{const i=+h.dataset.i;const on=(i===sel)||(sel<0&&i===activeStop);h.classList.toggle('on',on)});
