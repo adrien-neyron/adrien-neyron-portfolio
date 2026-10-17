@@ -53,6 +53,20 @@ La fiche projet (`#dlgTool.is-proj`) reste sombre dans les deux thèmes ; ses r�
 | `--steel-hi` / `--steel` / `--steel-lo` | `#F2F5F7` / `#AEB7BE` / `#59636B` | bouton de fermeture en métal (icône 8:1, bord 8:1 sur le panneau) |
 | `--panel-cut` | `28px` | biseau des coins opposés (18 px sur téléphone) |
 
+## Jetons du panneau d'étape (carte des expériences)
+
+Le panneau `#stopCard` est en verre sombre dans les deux thèmes ; ses rôles ont la même valeur jour et nuit (`:root`). Contrastes calculés sur le pire fond, le verre posé sur la page claire (#313949).
+
+| Rôle | Valeur | Usage | Contraste |
+|---|---|---|---|
+| `--exp-glass` | `rgba(15,23,42,.85)` | fond (flou 16 px) | |
+| `--exp-edge` | `rgba(226,109,59,.4)` | bord cuivre | décoratif |
+| `--exp-ink` | `#F8FAFC` | titre, résumé, points, badges | 11,1:1 |
+| `--exp-meta` | `#FDD3B8` | année · catégorie | 8,4:1 |
+| `--exp-muted` | `#CBD5E1` | ✕, « Fiche complète » | 7,8:1 |
+| `--exp-cta` / `--exp-cta-hover` / `--exp-cta-ink` | `#F08A57` / `#F6A77D` / `#0A0F1A` | bouton « Voir le site » | 7,7:1 (9,8:1 au survol) |
+| `--exp-chip` | `rgba(226,109,59,.55)` | bord des badges techno | décoratif |
+
 ## Accessibilité (WCAG 2.1 AA / RGAA)
 Texte ≥ 4,5:1 ; éléments graphiques et focus ≥ 3:1 ; focus visible 3 px sur la marque et la porte, dans les deux thèmes ; la couleur ne porte jamais seule l'information.
 

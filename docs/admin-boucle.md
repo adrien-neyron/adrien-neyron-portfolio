@@ -62,13 +62,28 @@ Chaque projet est un cairn sobre posé **sur** la trace, en une seule matière (
 
 ## Fiche d'étape (résumé automatique)
 
-À l'arrêt sur un cairn (caméra posée depuis 0,5 s, `updateCard()` appelé par `updateUi`), un résumé compact `#stopCard` apparaît à droite (en bas sur téléphone). Il complète la stèle gravée (étape, lieu, année, nom, km, D+, altitude, technos) sans la répéter : rôle (3ᵉ partie de `PROJECT_INFO[id].e`, en serif italique), chiffres clés, accroche condensée (`brief()` : une ou deux phrases, ≈ 150 signes, 2 lignes au plus), 2 points clés (`pts`, 2 lignes chacun), bouton « Fiche complète » (ouvre la fenêtre `#dlgTool`) et bouton « Masquer les résumés d'étape » (mémorisé pour la session, `sessionStorage` `asc-card-off` ; le bouton « Voir la fiche » revient). Il remplace le bouton « Voir la fiche » et les étiquettes flottantes tant qu'il est affiché, et disparaît en repartant.
+À l'arrêt sur un cairn (caméra posée depuis 0,5 s, `updateCard()` appelé par `updateUi`), le **panneau d'étape** `#stopCard` apparaît à droite de la 3D (en bas sur téléphone). C'est un panneau en verre sombre dans les deux thèmes :
+- **Dimensions et style** : 420 px de large au plus, 80 vh de haut au plus, avec défilement interne. Fond `--exp-glass` flouté à 16 px, bord cuivre `--exp-edge`, coins de 16 px, ombre douce.
+- **Accessibilité** : c'est un `<aside aria-label="Détails du projet <nom>">`.
+- **Contenu, de haut en bas** :
+  - méta en monospace, année · catégorie (`yearOf`, catégorie `f.cat` venue de l'admin ou de `data/projects.ts`) ;
+  - titre `h2` en serif ;
+  - résumé (`brief`, 260 signes) ;
+  - jusqu'à 3 points clés en liste `<ul>` ;
+  - toutes les technos en badges.
+- **Actions** :
+  - « Voir le site ↗ » : bouton principal cuivre, premier lien public qui n'est pas un dépôt de code ;
+  - « Code source ↗ » : bouton secondaire transparent, lien GitHub, GitLab ou Bitbucket ;
+  - un lien discret « Fiche complète → » qui ouvre la fiche détaillée ; sans site ni code publics, il devient le bouton principal (classe `solo`).
+- **Texte** : `--exp-ink` #F8FAFC, interligne 1,6, au moins 7:1 (AAA) même quand le verre est posé sur la page claire.
+- **Fermeture** : un ✕ discret en haut à droite (cible de 44 px, `aria-keyshortcuts="Escape"`) ou **Échap** ferme le panneau pour cette étape seulement (`cardShut`). Il revient à l'étape suivante. Si le focus était dans le panneau, il passe sur « Voir la fiche ». Échap ne le ferme pas pendant la visite guidée, ni quand une fenêtre ou un menu est ouvert : son écouteur, en phase de capture, passe avant celui de la visite.
+- **Lecteurs d'écran** : la stèle étant décorative, ce qu'elle seule porte (étape, lieu, altitude, km, D+) est redonné en texte masqué (`#scSr`).
 
 Aspect : verre dépoli léger (fond `rgba(5,8,17,.7)` la nuit / `rgba(252,247,238,.8)` le jour, `backdrop-filter: blur(16px)`) ; le texte garde ≥ 4,5:1 même au-dessus d'un trait de relief cuivre.
 
 **Titre de section** : « Chaque projet, une étape avec sa preuve » n'est plus un grand titre centré qui passait sur la stèle, mais un sur-titre discret en haut à gauche (`#s2 .head` : monospace 12,5 px, capitales espacées), toujours le `h2` de la section.
 
-Ce n'est **pas** une fenêtre modale : une modale à chaque arrêt bloquerait le défilement et volerait le focus (changement de contexte non demandé, RGAA 7.4 / WCAG 3.2.2). C'est un `aside` étiqueté par son titre, sans prise de focus ; l'étape est déjà annoncée par `#live`. Sur téléphone, chiffres clés et points clés sont masqués (2 lignes d'accroche). Hors vue statique uniquement ; mouvement réduit : simple fondu.
+Ce n'est **pas** une fenêtre modale : une modale à chaque arrêt bloquerait le défilement et volerait le focus (changement de contexte non demandé, RGAA 7.4 / WCAG 3.2.2). C'est un `aside` étiqueté par son titre, sans prise de focus ; l'étape est déjà annoncée par `#live`. Sur téléphone, les points clés sont masqués et le panneau ne dépasse pas 46 % de la hauteur (il défile). Hors vue statique uniquement ; mouvement réduit : simple fondu.
 
 ## Trace apaisée (lissage)
 

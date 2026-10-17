@@ -153,6 +153,7 @@ Object.keys(CMS_ALIAS).forEach(id=>{const m=(CMS.projects||[]).find(p=>!CMS_USED
 const sheetExtras=(f,a)=>{
   const st=(a.stats||[]).filter(x=>x&&x.value);if(st.length)f.stats=st.map(x=>({value:String(x.value),label:String(x.label||'')}));
   if(a.cover)Object.assign(f,{cover:a.cover,coverCredit:a.coverCredit||'',coverCreditUrl:a.coverCreditUrl||''});
+  if(a.category)f.cat=String(a.category);   // catégorie (ex. « Application Web ») : métadonnée du panneau d'étape
 };
 Object.keys(CMS_ALIAS).forEach(id=>{const f=PROJECT_INFO[id],sp=SITE_PROJECTS.find(p=>CMS_ALIAS[id].test((p.id+' '+p.title).toLowerCase()));if(f&&sp)sheetExtras(f,sp)});
 const cmsLinks=a=>{const L=[];const u=okUrl(a.link),c=okUrl(a.code);if(u)L.push({l:'Voir le projet',u});if(c)L.push({l:'Code sur GitHub',u:c});return L};
@@ -3145,7 +3146,7 @@ function rig(p,dt,snap,intro=0){
     const nar=cam.aspect<.9,e=ease(mw),fx=Math.sin(blk.faceYaw),fz=Math.cos(blk.faceYaw),D=nar?STOP_D[1]:STOP_D[0];
     v3.set(blk.pos.x+fx*D,blk.base+STOP_H,blk.pos.z+fz*D);v1.lerp(v3,e);
     {const g2=terrainAt(v1.x,v1.z)+14;if(v1.y<g2)v1.y=g2}
-    const card=!cardOff&&blk.proj&&blk.proj.id!=='next',side=!nar&&card?D*STOP_SIDE:0;   // grand écran : la carte est à droite, la stèle passe à gauche du centre ; téléphone : la carte est en bas, la stèle remonte
+    const card=cardShut!==aw&&blk.proj&&blk.proj.id!=='next',side=!nar&&card?D*STOP_SIDE:0;   // grand écran : la carte est à droite, la stèle passe à gauche du centre ; téléphone : la carte est en bas, la stèle remonte
     v3.set(blk.pos.x+fz*side,blk.base+(nar&&card?STOP_LOW:1.5),blk.pos.z-fx*side);v2.lerp(v3,e)}
   if(rainR>0&&!reduce&&!staticMode){   // pluie sur le dernier cairn : zoom avant sur la stèle mouillée, puis zoom arrière très haut, la flaque apparaît en fondu (draw)
     const end=blocks.find(x=>x.t>=1);
@@ -3277,30 +3278,40 @@ function openStop(id,opener){if(id==='next'){jumpTo(.845);live.textContent='Cont
 plMore.addEventListener('click',()=>openStop(plMore.dataset.id,plMore));
 /* Fiche d'étape : à l'arrêt sur un cairn (caméra posée), un résumé compact apparaît sur le côté (en bas sur téléphone), sans prendre le focus ni bloquer le défilement ;
    « Fiche complète » ouvre la fenêtre détaillée. Elle disparaît en repartant. Le visiteur peut la masquer pour la session (le bouton « Voir la fiche » revient). */
-const sCard=$('#stopCard'),sMore=$('#scMore'),s2el=$('#s2');let cardIdx=-1,cardOff=false;try{cardOff=sessionStorage.getItem('asc-card-off')==='1'}catch(e){}
+const sCard=$('#stopCard'),sMore=$('#scMore'),s2el=$('#s2');let cardIdx=-1,cardShut=-1;   // cardShut : étape dont le panneau a été fermé (✕ ou Échap) ; il revient à l'étape suivante
 /* résumé d'étape condensé : une ou deux phrases (≈ 150 signes au plus), la fiche complète garde tout le texte */
 function brief(t,max=150){const ph=String(t||'').trim().split(/(?<=[.!?…])\s+/);let out='';for(const x of ph){if(out&&(out+' '+x).length>max)break;out=out?out+' '+x:x}return out}
 /* La stèle gravée porte l'étape, le lieu, l'année, le nom, le kilomètre, le dénivelé, l'altitude et les technos ; la carte donne le reste : rôle, résumé, chiffres et points clés.
    La stèle est décorative (aria-hidden) : le titre (h3) et la ligne #scSr redonnent aux lecteurs d'écran ce qui n'est écrit que dans la pierre. */
-function fillCard(pr){const f=PROJECT_INFO[pr.id],t=pr.t||0,s0=STOPS[0];sMore.hidden=!f;
-  const role=f?(String(f.e||'').split(' · ')[2]||''):s0.role,yr=f?yearOf(pr):s0.period;
-  $('#scT').textContent=f?f.t:s0.name;
-  $('#scSr').textContent=[pr.stage,[pr.place,yr].filter(Boolean).join(', '),'Altitude '+fmtN(altAt(t))+' mètres',kmSpeech(t),'Technologies : '+(f&&f.k||pr.tags||[]).join(', ')].filter(Boolean).join('. ')+'.';
-  const r=$('#scR');r.textContent=role;r.hidden=!role;
-  const l=$('#scL'),txt=f?brief(f.l||pr.result):'';l.textContent=txt;l.hidden=!txt;
-  const sl=$('#scStats');sl.innerHTML=(f&&f.stats||[]).slice(0,3).map(x=>`<li><b>${esc(x.value)}</b> <span>${esc(x.label)}</span></li>`).join('');sl.hidden=!sl.children.length;
-  const pl=$('#scP');pl.innerHTML=(f&&f.pts||[]).slice(0,2).map(x=>`<li>${esc(brief(x,110))}</li>`).join('');pl.hidden=!pl.children.length;
+/* Panneau d'étape (verre sombre, à droite de la 3D) : année · catégorie, titre, résumé, points clés, technos, « Voir le site ↗ » et « Code source ↗ », lien vers la fiche complète.
+   La stèle gravée garde étape, lieu, km, D+ et altitude : ils sont redonnés aux lecteurs d'écran (#scSr), la stèle étant décorative. */
+const isCode=u=>/github\.com|gitlab\.|bitbucket\.org/i.test(u);
+function fillCard(pr){const f=PROJECT_INFO[pr.id],t=pr.t||0,s0=STOPS[0],name=f?f.t:s0.name;sMore.hidden=!f;
+  sCard.setAttribute('aria-label','Détails du projet '+name);
+  $('#scM').textContent=[f?yearOf(pr):s0.period,f?(f.cat||''):'Avant le code'].filter(Boolean).join(' · ');
+  $('#scT').textContent=name;
+  $('#scSr').textContent=[pr.stage,[pr.place,f?yearOf(pr):''].filter(Boolean).join(', '),'Altitude '+fmtN(altAt(t))+' mètres',kmSpeech(t)].filter(Boolean).join('. ')+'.';
+  const l=$('#scL'),txt=f?brief(f.l||pr.result,260):s0.role;l.textContent=txt;l.hidden=!txt;
+  const pl=$('#scP');pl.innerHTML=(f&&f.pts||[]).slice(0,3).map(x=>`<li>${esc(x)}</li>`).join('');pl.hidden=!pl.children.length;
+  const kl=$('#scK');kl.innerHTML=((f&&f.k)||pr.tags||[]).map(x=>`<li>${esc(x)}</li>`).join('');kl.hidden=!kl.children.length;
+  const L=(f&&f.links||[]).filter(x=>x.u&&okUrl(x.u)),site=L.find(x=>!isCode(x.u)),code=L.find(x=>isCode(x.u)),acts=$('#scActs');
+  acts.innerHTML=(site?`<a class="sc-cta" href="${esc(okUrl(site.u))}" target="_blank" rel="noopener">Voir le site <span aria-hidden="true">↗</span><span class="sr-only"> (nouvel onglet)</span></a>`:'')
+    +(code?`<a class="sc-code" href="${esc(okUrl(code.u))}" target="_blank" rel="noopener">Code source <span aria-hidden="true">↗</span><span class="sr-only"> (nouvel onglet)</span></a>`:'');
+  acts.hidden=!acts.children.length;sMore.classList.toggle('solo',!acts.children.length);   // sans lien public : « Fiche complète » devient le bouton principal
   if(f){sMore.dataset.id=pr.id;sMore.querySelector('.n').textContent=' : '+f.t}}
 function updateCard(){
-  const as=STOPS[activeStop],pr=as&&(as.proj||(activeStop===0?(blocks.find(b=>b.stopIdx===0)||{}).proj:null)),ok=!staticMode&&!cardOff&&pr&&pr.id!=='next'&&(pr.id==='depart'||PROJECT_INFO[pr.id]);   // le Départ (étape 00) a sa carte aussi
+  const as=STOPS[activeStop],pr=as&&(as.proj||(activeStop===0?(blocks.find(b=>b.stopIdx===0)||{}).proj:null)),ok=!staticMode&&cardShut!==activeStop&&pr&&pr.id!=='next'&&(pr.id==='depart'||PROJECT_INFO[pr.id]);   // le Départ (étape 00) a sa carte aussi
   const cand=!ok?-1:stopW>.9?activeStop:(stopW>.55&&cardIdx===activeStop?activeStop:-1);   // hystérésis : apparaît caméra posée, reste jusqu'au vrai départ
+  if(cardShut>=0&&activeStop!==cardShut)cardShut=-1;   // on a quitté l'étape fermée : son panneau reviendra la prochaine fois
   const now=performance.now();if(cand!==updateCard.c){updateCard.c=cand;updateCard.t=now}
   const want=cand>=0&&now-updateCard.t<500?cardIdx:cand;   // arrêt d'au moins 0,5 s : rien ne clignote aux étapes survolées pendant un saut
   if(want===cardIdx)return;
   if(cardIdx>=0&&want<0&&sCard.contains(document.activeElement))plMore.focus({preventScroll:true});   // le focus ne se perd pas dans une carte qui disparaît
   cardIdx=want;if(want>=0)fillCard(pr);sCard.classList.toggle('on',want>=0);s2el.classList.toggle('card-on',want>=0)}
 sMore.addEventListener('click',()=>openStop(sMore.dataset.id,sMore));
-$('#scX').addEventListener('click',()=>{cardOff=true;try{sessionStorage.setItem('asc-card-off','1')}catch(e){}updateCard();plMore.focus({preventScroll:true});live.textContent='Résumés d\'étape masqués. Le bouton Voir la fiche reste disponible.'});
+function shutCard(){if(cardIdx<0)return;cardShut=activeStop;const inside=sCard.contains(document.activeElement);updateCard();if(inside)plMore.focus({preventScroll:true});live.textContent='Panneau fermé. Le bouton Voir la fiche reste disponible.'}
+$('#scX').addEventListener('click',shutCard);
+addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented||TOUR.on||cardIdx<0||document.querySelector('dialog[open]')||document.querySelector('.burger[aria-expanded="true"]'))return;shutCard()},true);   // capture : passe avant l'écouteur de la visite guidée (qui l'arrête). Échap ferme le panneau d'étape (jamais pendant la visite guidée, une fenêtre ou un menu ouvert)
 let lastShown=-2;
 function updateUi(p){
   const sel=pinnedIdx>=0?pinnedIdx:(ptrIdx>=0?ptrIdx:(focusIdx>=0?focusIdx:-1));

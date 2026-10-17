@@ -979,3 +979,41 @@ body.static .stop-card{display:none}
     radial-gradient(circle at var(--gx,25%) var(--gy,0%),rgba(255,255,255,.22),rgba(255,255,255,0) 46%),linear-gradient(115deg,rgba(255,255,255,.1),rgba(255,255,255,0) 36%)}
 #dlgTool.is-proj .sh-media figcaption{color:var(--panel-muted)}
 @media (max-width:640px){#dlgTool.is-proj{--cut:18px}#dlgTool.is-proj .sh-head{padding:20px 16px 4px 22px}#dlgTool.is-proj .sh-body{padding:8px 18px 24px 22px}#dlgTool.is-proj .sh-glass{--w:11px}}
+
+
+/* ===== Panneau d'étape « Option A » (#stopCard) : verre sombre à droite de la 3D, dans les deux thèmes =====
+   420 px au plus, 80 vh au plus (défile), bord cuivre, coins de 16 px. Texte blanc cassé à 1,6 d'interligne (≥ 7:1, AAA, même sur la page claire). */
+:root{--exp-glass:rgba(15,23,42,.85);--exp-edge:rgba(226,109,59,.4);--exp-ink:#F8FAFC;--exp-muted:#CBD5E1;--exp-meta:#FDD3B8;--exp-cta:#F08A57;--exp-cta-hover:#F6A77D;--exp-cta-ink:#0A0F1A;--exp-chip:rgba(226,109,59,.55)}
+#stopCard,:root[data-theme="light"] #stopCard{width:min(420px,36vw);max-height:80vh;max-height:80svh;overflow-y:auto;overscroll-behavior:contain;padding:22px 24px 18px;border:1px solid var(--exp-edge);border-radius:16px;
+  background:var(--exp-glass);color:var(--exp-ink);-webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);box-shadow:0 24px 60px rgba(2,6,23,.28),0 2px 8px rgba(2,6,23,.18)}
+#stopCard .sc-m{margin:0 44px 8px 0;font:500 12px/1.5 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--exp-meta)}
+#stopCard .sc-m:empty{display:none}
+#stopCard .sc-t{margin:0 40px 14px 0;font:italic 500 clamp(28px,2.4vw,36px)/1.08 'Cordée Serif','DM Serif Display',Georgia,serif;color:var(--exp-ink)}
+#stopCard .sc-l,:root[data-theme="light"] #stopCard .sc-l{display:block;-webkit-line-clamp:unset;overflow:visible;margin:0 0 14px;font:400 15px/1.6 Inter,system-ui,sans-serif;color:var(--exp-ink)}
+#stopCard [hidden]{display:none!important}
+#stopCard .sc-pts{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px}
+#stopCard .sc-pts li,:root[data-theme="light"] #stopCard .sc-pts li{display:block;-webkit-line-clamp:unset;overflow:visible;position:relative;padding-left:18px;font:400 14px/1.6 Inter,system-ui,sans-serif;color:var(--exp-ink)}
+#stopCard .sc-pts li::before{content:"";position:absolute;left:2px;top:.62em;width:7px;height:7px;border:1.5px solid var(--exp-cta);border-radius:2px;transform:rotate(45deg);background:none}
+#stopCard .sc-tags{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+#stopCard .sc-tags li{padding:4px 10px;border:1px solid var(--exp-chip);border-radius:999px;font:500 11.5px/1.5 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;color:var(--exp-ink);background:rgba(226,109,59,.08)}
+#stopCard .sc-acts{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 6px}
+#stopCard .sc-cta,#stopCard .sc-code{flex:1 1 150px;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;font:700 13.5px/1.2 'JetBrains Mono',ui-monospace,monospace;text-decoration:none;cursor:pointer}
+#stopCard .sc-cta{background:var(--exp-cta);color:var(--exp-cta-ink);border:1px solid var(--exp-cta)}
+#stopCard .sc-cta:hover,#stopCard .sc-cta:focus-visible{background:var(--exp-cta-hover);border-color:var(--exp-cta-hover)}
+#stopCard .sc-code{background:transparent;color:var(--exp-ink);border:1px solid rgba(248,250,252,.55)}
+#stopCard .sc-code:hover,#stopCard .sc-code:focus-visible{background:rgba(248,250,252,.1)}
+/* lien discret vers la fiche complète ; bouton principal quand le projet n'a ni site ni code publics */
+#stopCard .sc-more,:root[data-theme="light"] #stopCard .sc-more{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 2px;border:0;border-radius:0;background:none;color:var(--exp-muted);font:600 13px/1.2 'JetBrains Mono',ui-monospace,monospace;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+#stopCard .sc-more:hover,#stopCard .sc-more:focus-visible{color:var(--exp-ink);background:none}
+#stopCard .sc-more.solo,:root[data-theme="light"] #stopCard .sc-more.solo{width:100%;justify-content:center;padding:0 16px;border-radius:999px;background:var(--exp-cta);color:var(--exp-cta-ink);text-decoration:none}
+#stopCard .sc-more.solo:hover,#stopCard .sc-more.solo:focus-visible{background:var(--exp-cta-hover)}
+/* fermeture : ✕ discret en haut à droite, cible de 44 px */
+#stopCard .sc-x,:root[data-theme="light"] #stopCard .sc-x{position:absolute;top:10px;right:10px;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--exp-muted);font:inherit;cursor:pointer}
+#stopCard .sc-x:hover,#stopCard .sc-x:focus-visible{color:var(--exp-ink);background:rgba(248,250,252,.1)}
+#stopCard :focus-visible,:root[data-theme="light"] #stopCard :focus-visible{outline:3px solid #FFB48A;outline-offset:3px}
+@media (max-width:899px){
+  #stopCard,:root[data-theme="light"] #stopCard{width:auto;max-height:46svh;padding:16px 18px 12px}
+  #stopCard .sc-t{font-size:26px;margin-bottom:8px}
+  #stopCard .sc-l{font-size:14px}
+  #stopCard .sc-pts{display:none}
+}
