@@ -89,6 +89,44 @@ Ce n'est **pas** une fenêtre modale : une modale à chaque arrêt bloquerait le
 
 Le tracé GPS (290 points, ≈ 10 unités chacun) est lissé deux fois : `smoothPath` (fenêtre courte, ≈ 400 m) enlève le bruit du GPS, puis `calmPath` (gaussienne large, σ = `TRACE_SIGMA` = 15 points, ≈ 1,5 km) efface les lacets du sentier, en plan et en hauteur. Les extrémités restent fixes (fondu sur 4 points) : le Départ reste sous l'aiguille. Ce lissage raccourcit la trace d'environ 23 % ; elle est remise à sa longueur d'origine en plan (mise à l'échelle autour du départ), sinon les étapes se rapprochent et la caméra, 92 unités derrière l'aiguille, bute sur le cairn précédent. Le relief est reconstruit autour de la trace et la suit ; les chiffres (altitude, D+) gardent les altitudes GPS (`alt`). Résultat mesuré : −58 % de virages cumulés, mêmes pentes qu'avant (médiane 0,33).
 
+## Étapes datées, appuyées sur le CV
+
+**Ordre** : les étapes de la carte sont rangées par **date de début**, de la plus ancienne à la plus récente, puis réparties à égale distance sur la trace et renumérotées (« Étape 01 » …). La date vient du champ `startDate` de l'admin (texte libre : « Mai 2026 », « déc. 2023 », « 2023 », « 2023-12 », lu par `dateKey`). Sans date dans l'admin, elle vient de `CV_FACTS` (`assets/loop/loop.js`), tiré du CV en ligne (« CV-AdrienNeyron-DeveloppeurFrontEnd.pdf », profil de l'admin). Un projet sans aucune date se place en fin de trace, avant « À déterminer ».
+
+**Contenu** : `CV_FACTS` donne pour chaque étape la période affichée, le rôle (repris dans le surtitre de la fiche : « Étape NN · lieu · rôle ») et les puces du CV. Ces puces passent en tête des points clés, sans répéter une puce de l'admin qui dit la même chose. La description de l'admin reste le résumé. Les chiffres du CV ne servent que si l'admin n'en a pas. Le Départ reprend la période et les deux puces UCPA / Decathlon du CV.
+
+**Sources des dates** (octobre 2026) :
+
+| Projet | Date | Source |
+|---|---|---|
+| Départ | sept. 2009 – mai 2021 | CV |
+| StockPulse | 2021 – 2023 | carte d'origine (le CV le place dans le freelance, juin 2021 – oct. 2025) |
+| DressMeUp | 2023 | création du dépôt public (juillet 2023) ; absent du CV |
+| HelloStay | déc. 2023 – janv. 2024 | CV 2025 |
+| OCTAVE (DGFiP) | déc. 2023 – oct. 2025 | CV |
+| C+Paie | 2024 | premier commit du dépôt (février 2024) |
+| RunFit Advisor, CoachFlow | oct. 2025 – mai 2026 | CV (« Projets personnels ») |
+| L'ascension | 2026 | création du dépôt (avril 2026) |
+| YepGarage (Tyredating) | mai 2026 – en cours | CV |
+| Job Search Automator | sans date | à saisir dans l'admin (`startDate`) |
+
+**Panneau** : résumé coupé à 260 signes et points à 170 signes, au mot près (`cap`). La fiche complète garde le texte entier.
+
+## Fluidité du défilement entre les étapes
+
+- **Caméra** : entre deux arrêts, elle glisse du cadrage de la stèle A à celui de la stèle B (`frameOf`), en arc léger (`STOP_ARC` = 18), et garde l'aiguille dans le champ à mi-trajet. Elle n'alterne plus entre une vue « derrière l'aiguille » et une vue « face à la stèle », ce qui faisait pivoter l'image jusqu'à 90° sur une courte portion du défilement.
+- **Aiguille** : entre deux cairns, elle accélère puis ralentit (`param`, interpolation adoucie) au lieu de partir et s'arrêter sec.
+- **Poids d'arrêt** : il monte et descend sur `STOP_RAMP`, au plus une moitié de trajet. Deux arrêts voisins ne se chevauchent plus.
+- **Défilement** : il est un peu plus amorti sur la carte (6/s au lieu de 9/s), pour que la molette ne fasse plus de sauts.
+
+**Mesure**, en défilant régulièrement sur toute la carte (navigateur de test, rendu logiciel) :
+
+| Mesure | Avant | Après |
+|---|---|---|
+| Rotation de la caméra par image (99ᵉ centile) | 16° | 6,5° |
+| Rotation maximale par image | 18° | 8° |
+| À-coups de la visée (99ᵉ centile) | 28 | 1,1 |
+
 ## Un tronçon de trace à la fois
 
 Comme les cairns, la trace ne se montre que **d'un cairn au suivant**. Le shader du câble (`FAT_F`) reçoit la fenêtre `uV0`..`uV1` (abscisse t) et ne dessine rien en dehors, avec un fondu de 6 unités (`uVF`) au-delà de chaque bout. La fenêtre est réglée dans `rig()` :

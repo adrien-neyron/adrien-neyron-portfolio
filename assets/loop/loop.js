@@ -131,10 +131,38 @@ const PROJECT_INFO={   // fiches de la carte des projets ; liens repris du site 
   c2s:{t:`Click2SellSite`,e:`Étape 04 · Lyon · Tyredating`,st:`2026 – en cours`,l:`Plateforme de création de sites avec CRM intégré pour garagistes (YepGarage), déployée à l'international pour des filiales de Michelin.`,pts:[`Audit RGAA/WCAG (automatique et manuel) sur 50 pages, score Lighthouse de 90 à 100 %.`,`Anomalies corrigées au niveau des composants transverses réutilisables, propagées sur des centaines de sites clients.`,`Migration de Vue 2 vers Vue 3 et refonte des composants.`,`Convention data-id pour fiabiliser et automatiser les tests QA.`,`Support client et résolution d'incidents sur les CRM métier.`],k:[`Vue.js`,`TypeScript`,`Bootstrap`,`Jenkins`,`MongoDB`,`AWS`,`Java`,`Datadog`],links:[{l:'Voir YepGarage',u:'http://yepgarage.com'}]},
   runfit:TOOL_INFO[1],
   coach:TOOL_INFO[4],
-  jsa:TOOL_INFO[3],
+  jsa:TOOL_INFO[3],   // mêmes fiches que l'atelier jusqu'au contenu de l'admin, puis copiées avant le CV (voir CV_FACTS)
+  cpaie:{t:`C+Paie`,e:`Étape · Haute-Savoie · Développeur web freelance`,st:`2024`,l:`Une application pour une PME locale, de la conception UI/UX sur Figma au développement.`,pts:[],k:[`React`,`Next.js`,`Node.js`,`Express`,`MongoDB`,`Figma`]},
+  dress:{t:`DressMeUp`,e:`Étape · Projet personnel`,st:`2023`,l:`Une application mobile pour composer ses tenues.`,pts:[],k:[`React Native`,`Node.js`,`Express`,`MongoDB`]},
   next:{t:`À déterminer`,e:`Prochaine étape · la suite`,st:`À écrire`,l:`Le tracé s'arrête ici, pour l'instant : la suite du parcours reste à écrire ensemble. Un nouveau projet, une mission, une collaboration.`,pts:[`Un projet à construire avec une équipe qui tient à l'accessibilité et à la qualité.`,`Vue 3 et TypeScript côté interface, des classes Java robustes côté données, le tout administrable en temps réel.`],k:[`Votre projet ?`],links:[{l:'Parlons de la suite',go:'contact'}]},
   asc:{t:`L'ascension`,e:`Sommet · Ce site`,st:`En ligne`,l:`Le site que vous parcourez : une boucle en 3D, de la boussole au bivouac, pensée pour rester lisible et accessible à tous.`,pts:[`Contenu 100 % HTML pour les lecteurs d'écran, la 3D est un habillage.`,`Pause, vue statique, parcours guidé et navigation au clavier.`],k:[`Nuxt`,`Three.js`,`RGAA`],links:PROJECT_LINKS.asc}
 };
+/* ---------- CV (CV-AdrienNeyron-DeveloppeurFrontEnd.pdf, profil de l'admin, octobre 2026) : dates, rôle et faits de chaque étape ----------
+   start (AAAA-MM[-JJ]) ordonne la trace par date ; une date de début saisie dans l'admin (startDate, « Mai 2026 ») l'emporte.
+   Les puces du CV passent en tête des points clés, sans doublon ; la description de l'admin reste le résumé ; les chiffres du CV ne servent que si l'admin n'en a pas.
+   Sans source datée (ni CV, ni dépôt public, ni admin), un projet se place en fin de trace, avant « À déterminer ». */
+const CV_FACTS={
+  depart:{start:'2009-09',when:'Sept. 2009 – Mai 2021',role:'Formateur et manager · UCPA / Decathlon',
+    pts:[`Formateur BPJEPS pendant dix ans (UCPA Formation) : conception de modules, suivi d'apprenants, 500+ personnes formées.`,`Management d'équipes jusqu'à 25 personnes : recrutement, budget, pilotage opérationnel.`]},
+  stock:{start:'2021-06',when:'2021 – 2023',role:'Développeur web freelance',pts:[`Interface responsive et design system (PHP / Twig, Tailwind CSS) pour la gestion du matériel des pompiers.`]},
+  dress:{start:'2023-07',when:'2023',role:'Projet personnel'},   // date : création du dépôt public (juillet 2023) ; absent du CV
+  hello:{start:'2023-12-01',when:'Déc. 2023 – Janv. 2024',role:'Développeur web freelance',
+    pts:[`Outil de gestion locative (Vue.js, Python) : intégration de l'API Igloohome pour automatiser les entrées et les sorties.`]},
+  dgfip:{start:'2023-12-15',when:'Déc. 2023 – Oct. 2025',role:'Développeur Front-End · Mission DGFiP (via BeTeam)',place:'Paris',
+    pts:[`Outil mis en production et rendu obligatoire : temps de traitement des configurations réduit de 50 % pour les architectes.`,`Formulaire multi-étapes à état centralisé (Vuex) : préremplissage, règles métier, dépôt de fichiers, versionnement.`,`Génération automatique des fiches de configuration en YAML pour automatiser le déploiement serveur.`,`Authentification, gestion des utilisateurs et persistance des données ; API s'appuyant sur GitLab pour sécuriser les requêtes.`,`Interface construite avec le Système de design de l'État (DSFR).`,`Tests unitaires (Vitest) et E2E (Selenium), CI/CD GitLab multi-environnements.`,`Analyse des besoins et rédaction des spécifications techniques.`]},
+  cpaie:{start:'2024-02',when:'2024',role:'Développeur web freelance',pts:[`Conception UI/UX sur Figma et développement de l'application (React / Next.js, Node.js / Express, MongoDB).`]},   // février 2024 : premier commit du dépôt
+  runfit:{start:'2025-10-01',when:'Oct. 2025 – Mai 2026',role:'Projet personnel',pts:[`Conception et mise en ligne d'une application de recommandation de chaussures de trail (Nuxt 3, Supabase).`]},
+  coach:{start:'2025-10-15',when:'Oct. 2025 – Mai 2026',role:'Projet personnel',pts:[`Plateforme de formation en ligne, conçue et mise en ligne en parallèle d'un emploi saisonnier aux remontées mécaniques.`]},
+  asc:{start:'2026-04',when:'2026',role:'Projet personnel · ce site'},   // avril 2026 : création du dépôt
+  c2s:{start:'2026-05',when:'Mai 2026 – en cours',role:'Développeur Front-End · Mission Tyredating',place:'Lyon',
+    pts:[`Audit RGAA / WCAG automatisé et manuel sur 50 pages : conformité portée de 30 % à 52 %, de « non conforme » à « partiellement conforme ».`,`Corrections réalisées dans les composants transverses réutilisables, donc propagées sur des centaines de sites clients.`,`Refonte et fiabilisation des composants après la migration vers Vue 3.`,`Convention data-id pour fiabiliser et automatiser les tests QA (Vitest, Playwright, LambdaTest).`,`Résolution d'incidents fonctionnels en production sur les CRM métier.`],
+    stats:[{value:'30 → 52 %',label:'conformité RGAA, 50 pages auditées'},{value:'100+',label:'sites clients corrigés'}]}
+};
+/* date de début lisible → horodatage : « Mai 2026 », « déc. 2023 », « 2023 », « 2023-12 » ; illisible → NaN */
+const FR_M=[/^janv/,/^f[ée]v/,/^mars/,/^avr/,/^mai/,/^juin/,/^juil/,/^ao[uû]/,/^sept/,/^oct/,/^nov/,/^d[ée]c/];
+function dateKey(v){const s=String(v||'').trim().toLowerCase();if(!s)return NaN;
+  let m=s.match(/^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?/);if(m)return Date.UTC(+m[1],+m[2]-1,+(m[3]||1));
+  const y=s.match(/\d{4}/);if(!y)return NaN;const w=s.split(/[\s.]+/).find(x=>FR_M.some(r=>r.test(x)));const mi=w?FR_M.findIndex(r=>r.test(w)):0;return Date.UTC(+y[0],mi,1)}
 const STEP=.026;
 let CS=.07,CST=STEP,CSP=.07,CEND=[.24,.28],CREV=[.19,.22];   // CSP : début des boutons du boîtier (les zones du cadran disparaissent alors) ; CEND : fondu de sortie des cartes ; CREV : apparition de toutes les cartes à la souris   // début et pas du déploiement des cartes d'outils (décalés sur grand écran : elles n'apparaissent qu'avec « S'équiper »)
 /* ---------- Contenu de l'admin (/api/loop-content, voir docs/admin-boucle.md) ----------
@@ -145,7 +173,7 @@ const DIAL_T=Object.assign({name:'ADRIEN NEYRON',role:'DÉVELOPPEUR × TRAILEUR 
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const okUrl=u=>{if(!u)return '';try{const x=new URL(u,location.href);return /^(https?:|mailto:)$/.test(x.protocol)?x.href:''}catch(e){return ''}};
 const shortT=t=>String(t).split(/\s[—–-]\s/)[0];   // titre court pour les blocs 3D : « Click2SellSite — Sprint… » → « Click2SellSite »
-const CMS_ALIAS={dgfip:/dgfip/,c2s:/click2sell|c2s|yepgarage/,hello:/hello\s?stay/,stock:/stockpulse/,runfit:/runfit/,coach:/coachflow/,jsa:/job-?\s?search|automator/,asc:/ascension|portfolio/};   // id de la boucle → mots du slug ou du titre en base
+const CMS_ALIAS={dgfip:/dgfip/,c2s:/click2sell|c2s|yepgarage/,hello:/hello\s?stay/,stock:/stockpulse/,runfit:/runfit/,coach:/coachflow/,jsa:/job-?\s?search|automator/,cpaie:/c\s?\+\s?paie|cpaie/,dress:/dress\s?me\s?up/,asc:/ascension|portfolio/};   // id de la boucle → mots du slug ou du titre en base
 const CMS_MAP={},CMS_USED=new Set();
 Object.keys(CMS_ALIAS).forEach(id=>{const m=(CMS.projects||[]).find(p=>!CMS_USED.has(p)&&CMS_ALIAS[id].test((p.slug+' '+p.title).toLowerCase()));if(m){CMS_USED.add(m);CMS_MAP[id]=m}});
 /* Fiches projets : chiffres clés (stats) et photo d'ambiance (cover). Repli = données du site (data/projects.ts), remplacées par
@@ -174,6 +202,12 @@ if(CMS.aiTools&&CMS.aiTools.length){
   if(ai.length){TOOLS[2].d=ai.length+' outil'+(ai.length>1?'s':'')+' IA que j\'intègre';
     TOOL_INFO[2].pts=ai.slice(0,6).map(t=>t.name+(t.tagline?' : '+t.tagline:''));TOOL_INFO[2].k=ai.slice(0,8).map(t=>t.name)}
 }
+['runfit','coach','jsa'].forEach(id=>{PROJECT_INFO[id]={...PROJECT_INFO[id]}});   // la carte modifie période et points : copies, les fiches de l'atelier gardent les leurs
+Object.keys(CV_FACTS).forEach(id=>{const c=CV_FACTS[id],f=PROJECT_INFO[id];if(!f)return;
+  if(c.when)f.st=c.when;if(c.role)f.role=c.role;
+  if(c.pts){const nz=x=>String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim(),cv=c.pts.map(nz);   // une puce de l'admin déjà dite par le CV (même début, ou contenue dans une puce du CV) n'est pas répétée
+    f.pts=[...c.pts,...(f.pts||[]).filter(x=>{const k=nz(x).slice(0,40);return k&&!cv.some(v=>v.includes(k)||v.slice(0,40)===k)})]}
+  if(c.stats&&!(f.stats&&f.stats.length))f.stats=c.stats});
 const PUSH=[60,90,120,240,270,300],PUSH_R=2.6;   // boutons du boîtier (degrés depuis midi, sens horaire) ; PUSH[i] affiche TOOLS[i] : 2 h, 3 h, 4 h à droite, 8 h, 9 h, 10 h à gauche
 const toolsUl=$('#tools'), lines=$('#toolLines');
 const chips=TOOLS.map((t,i)=>{
@@ -2756,6 +2790,8 @@ const PROJECTS=[   // ordre du CV d'Adri, lu du plus ancien au plus récent le l
   {id:'runfit',title:'RunFit Advisor',place:'Projet perso',stage:'Sentier',tags:['Supabase','Recommandation'],result:'Chaussures de trail',mat:'leather',t:.52},
   {id:'coach',title:'CoachFlow',place:'Projet perso',stage:'Sentier',tags:['LMS','Formation'],result:'Coaching et formation',mat:'stone',t:.64},
   {id:'jsa',title:'Job Search Automator',place:'Projet perso',stage:'Sentier',tags:['Make.com','Claude API','Airtable','Playwright'],result:'Pipeline de candidature',mat:'metal',t:.76},
+  {id:'cpaie',title:'C+Paie',place:'Haute-Savoie',stage:'Étape',tags:['React','Next.js','MongoDB'],result:'Application pour une PME locale',mat:'stone',t:.9},
+  {id:'dress',title:'DressMeUp',place:'Projet perso',stage:'Étape',tags:['React Native','Express','MongoDB'],result:'Composer ses tenues',mat:'stone',t:.9},
   {id:'asc',title:'L\'ascension',place:'Ce site',stage:'Sommet',tags:['Nuxt','Three.js','RGAA'],result:'Le site que vous parcourez',mat:'leather',t:.88},
   {id:'next',title:'À déterminer',place:'La suite',stage:'Prochaine étape',tags:['Votre projet ?'],result:'À écrire ensemble',mat:'ghost',t:1}
 ];
@@ -2771,10 +2807,18 @@ PROJECTS.forEach(p=>{const a=CMS_MAP[p.id];if(!a)return;
     const mats=['stone','leather','metal'];
     const add=extra.map((a,i)=>{const id='x'+i;
       PROJECT_INFO[id]={t:a.title,e:'Sentier · '+(a.place||'Projet'),st:a.status||'Projet',l:a.description||a.tagline||'',pts:cmsPts(a),k:a.technologies||[],links:cmsLinks(a)};sheetExtras(PROJECT_INFO[id],a);
-      return {id,title:shortT(a.title),place:a.place||'Projet',stage:'Sentier',tags:(a.technologies||[]).slice(0,4),result:a.tagline||a.category||'',mat:mats[i%3],t:0}});
+      return {id,title:shortT(a.title),place:a.place||'Projet',stage:'Sentier',tags:(a.technologies||[]).slice(0,4),result:a.tagline||a.category||'',mat:mats[i%3],t:0,cms:a}});
     const at=PROJECTS.findIndex(p=>p.id==='asc');PROJECTS.splice(at<0?PROJECTS.length-1:at,0,...add);
     const line=PROJECTS.filter(p=>p.id!=='next');line.forEach((p,i)=>{p.t=+(.08+i*(.8/Math.max(1,line.length-1))).toFixed(4)});
   }}
+/* Trace ordonnée par date de début (admin startDate, sinon CV_FACTS.start ; sans date : en fin de trace, avant « À déterminer »), arrêts à égale distance,
+   étapes renumérotées dans cet ordre ; le surtitre des fiches suit : « Étape NN · lieu · rôle » */
+{const key=p=>{const a=CMS_MAP[p.id]||p.cms,d=dateKey(a&&a.startDate);if(!isNaN(d))return d;const c=CV_FACTS[p.id];return c?dateKey(c.start):Infinity},
+   line=PROJECTS.filter(p=>p.id!=='next').map((p,i)=>({p,i,k:key(p)})).sort((x,y)=>(x.k-y.k)||(x.i-y.i)).map(x=>x.p),nx=PROJECTS.filter(p=>p.id==='next');
+ line.forEach((p,i)=>{p.t=+(.08+i*(.84/Math.max(1,line.length-1))).toFixed(4);p.stage='Étape '+String(i+1).padStart(2,'0');
+   const c=CV_FACTS[p.id],f=PROJECT_INFO[p.id];if(c&&c.when)p.when=c.when;if(c&&c.place&&!(CMS_MAP[p.id]&&CMS_MAP[p.id].place))p.place=c.place;
+   if(f)f.e=[p.stage,p.place,f.role||String(f.e||'').split(' · ')[2]||''].filter(Boolean).join(' · ')});
+ PROJECTS.splice(0,PROJECTS.length,...line,...nx)}
 const OFFICIAL={km:180,gain:10200};   // chiffres de la Diagonale des Fous 2026 (environ 180 km et 10 200 m de D+) : le tracé en est une simulation
 
 /* ---------- Trace et relief : position locale (1 unité = 10 m), altitudes exagérées de 50 % ---------- */
@@ -2856,18 +2900,19 @@ function terrainAt(x,z){
 let hmin=1e9,hmax=-1e9;for(const h of H){if(h<hmin)hmin=h;if(h>hmax)hmax=h}
 
 /* ---------- Arrêts : départ, un par projet, bivouac ---------- */
-const STOPS=[{t:0,name:'Départ',ttl:'Départ',period:'2009–2021',role:'Éducateur, Formateur, Directeur dans le secteur sportif'}].concat(PROJECTS.slice().sort((a,b)=>a.t-b.t).map((p,i)=>({t:p.t,proj:p,name:p.title,ttl:p.stage+' · '+p.place})));
+const STOPS=[{t:0,name:'Départ',ttl:'Départ',period:CV_FACTS.depart.when,role:CV_FACTS.depart.role,pts:CV_FACTS.depart.pts}].concat(PROJECTS.slice().sort((a,b)=>a.t-b.t).map((p,i)=>({t:p.t,proj:p,name:p.title,ttl:p.stage+' · '+p.place})));
 const PC0=.30,PCW=.19;   // la carte se termine à 49 % ; de 48 à 54 % il pleut sur le dernier cairn (zoom avant, zoom arrière), la flaque apparaît à 53 %
 const NS=STOPS.length,DW=.042,TRAV=(1-NS*DW)/(NS-1);
 STOPS.forEach((s,i)=>{s.a=i*(DW+TRAV);s.b=s.a+DW});
 function param(p){
   for(let i=0;i<NS;i++){
     const s=STOPS[i];
-    if(p<=s.b)return p>=s.a?s.t:(i===0?0:lerp(STOPS[i-1].t,s.t,(p-STOPS[i-1].b)/(s.a-STOPS[i-1].b)));
+    if(p<=s.b)return p>=s.a?s.t:(i===0?0:lerp(STOPS[i-1].t,s.t,ease((p-STOPS[i-1].b)/(s.a-STOPS[i-1].b))));   // entre deux cairns, l'aiguille accélère puis ralentit (plus de départ ni d'arrêt secs)
   }
   return 1;
 }
-function stopWeight(i,p){const s=STOPS[i];return Math.min(sm(s.a-.05,s.a,p),1-sm(s.b,s.b+.05,p))}
+const STOP_RAMP=Math.min(.05,TRAV*.48);   // montée et descente du poids d'arrêt : jamais plus d'une moitié de trajet, sinon deux arrêts voisins se chevauchent et la caméra bascule d'un cairn à l'autre à mi-chemin
+function stopWeight(i,p){const s=STOPS[i];return Math.min(sm(s.a-STOP_RAMP,s.a,p),1-sm(s.b,s.b+STOP_RAMP,p))}
 
 /* ---------- Scène ---------- */
 const OK=THREE_OK;
@@ -3130,24 +3175,32 @@ const STOP_D=[70,80],STOP_H=26,STOP_SIDE=.35,STOP_LOW=-9;   // cadrage aux arrê
 let stopW=0,curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
 function onPlane(q,o,y){   // point de l'écran (px) -> point du plan horizontal de hauteur y, vu par la caméra de la carte
   cam.updateMatrixWorld();o.set(q[0]/cv.clientWidth*2-1,1-q[1]/cv.clientHeight*2,.5).unproject(cam).sub(cam.position);return o.multiplyScalar((y-cam.position.y)/o.y).add(cam.position)}
+const fA=OK?{p:new THREE.Vector3(),t:new THREE.Vector3()}:null,fB=OK?{p:new THREE.Vector3(),t:new THREE.Vector3()}:null,STOP_ARC=18;   // STOP_ARC : hauteur de l'arc entre deux arrêts
+function frameOf(i,o){   // cadrage d'arrêt de l'étape i (position, visée) ; false si l'étape n'a pas de cairn
+  const blk=blocks.find(x=>x.stopIdx===i);if(!blk)return false;
+  const nar=cam.aspect<.9,fx=Math.sin(blk.faceYaw),fz=Math.cos(blk.faceYaw),D=nar?STOP_D[1]:STOP_D[0];
+  o.p.set(blk.pos.x+fx*D,blk.base+STOP_H,blk.pos.z+fz*D);
+  const card=cardShut!==i&&blk.proj&&blk.proj.id!=='next',side=!nar&&card?D*STOP_SIDE:0;   // grand écran : la carte est à droite, la stèle passe à gauche du centre ; téléphone : la carte est en bas, la stèle remonte
+  o.t.set(blk.pos.x+fz*side,blk.base+(nar&&card?STOP_LOW:1.5),blk.pos.z-fx*side);return true}
+function frameFollow(pt,dx,dz,o){o.p.set(pt.x-dx*80,pt.y+40,pt.z-dz*80);o.t.set(pt.x,pt.y+10,pt.z)}   // repli sans cairn : derrière l'aiguille
 function rig(p,dt,snap,intro=0){
   const t=param(p);
   let aw=0,bd=9;for(let i=0;i<NS;i++){const d=Math.abs(p-(STOPS[i].a+STOPS[i].b)/2);if(d<bd){bd=d;aw=i}}
   const mw=stopWeight(aw,p);activeStop=aw;stopW=mw;
   const pt=curve.getPointAt(clamp(t)),a=curve.getPointAt(clamp(t-.05)),b=curve.getPointAt(clamp(t+.05));
   let dx=b.x-a.x,dz=b.z-a.z;const dl=Math.hypot(dx,dz)||1;dx/=dl;dz/=dl;
-  const ahead=curve.getPointAt(clamp(t+.035));
-  const dist=lerp(92,62,mw);   // recul : la caméra voit le sentier de plus loin
-  v1.set(pt.x-dx*dist,pt.y+lerp(46,34,mw),pt.z-dz*dist);
-  const gh=terrainAt(v1.x,v1.z)+22;if(v1.y<gh)v1.y=gh;
-  v2.copy(ahead);v2.y+=14;   // regard qui garde les crêtes dans l'image
   const blk=blocks.find(x=>x.stopIdx===aw);
-  if(blk&&mw>0){   // cadrage d'arrêt : face à la stèle (dans l'axe où elle regarde), à distance fixe, quel que soit le virage de la trace
-    const nar=cam.aspect<.9,e=ease(mw),fx=Math.sin(blk.faceYaw),fz=Math.cos(blk.faceYaw),D=nar?STOP_D[1]:STOP_D[0];
-    v3.set(blk.pos.x+fx*D,blk.base+STOP_H,blk.pos.z+fz*D);v1.lerp(v3,e);
-    {const g2=terrainAt(v1.x,v1.z)+14;if(v1.y<g2)v1.y=g2}
-    const card=cardShut!==aw&&blk.proj&&blk.proj.id!=='next',side=!nar&&card?D*STOP_SIDE:0;   // grand écran : la carte est à droite, la stèle passe à gauche du centre ; téléphone : la carte est en bas, la stèle remonte
-    v3.set(blk.pos.x+fz*side,blk.base+(nar&&card?STOP_LOW:1.5),blk.pos.z-fx*side);v2.lerp(v3,e)}
+  /* cadrage continu : à l'arrêt, face à la stèle (dans l'axe où elle regarde), à distance fixe ; entre deux arrêts, la caméra glisse du cadrage
+     de l'un à celui du suivant, en arc léger, en gardant l'aiguille dans le champ. Pas de vue de poursuite intermédiaire : plus de bascule de 90° d'un coup. */
+  {let i1=NS-1;for(let i=0;i<NS;i++)if(p<=STOPS[i].b){i1=i;break}
+   const s1=STOPS[i1];
+   if(!frameOf(i1,fB))frameFollow(pt,dx,dz,fB);
+   if(p>=s1.a||i1===0){v1.copy(fB.p);v2.copy(fB.t)}
+   else{const s0=STOPS[i1-1],u=ease(clamp((p-s0.b)/(s1.a-s0.b))),arc=Math.sin(Math.PI*u);
+     if(!frameOf(i1-1,fA))frameFollow(pt,dx,dz,fA);
+     v1.copy(fA.p).lerp(fB.p,u);v1.y+=arc*STOP_ARC;
+     v2.copy(fA.t).lerp(fB.t,u);v3.copy(pt);v3.y+=4;v2.lerp(v3,arc*.4)}   // à mi-trajet, le regard se porte un peu sur l'aiguille
+   const gh=terrainAt(v1.x,v1.z)+14;if(v1.y<gh)v1.y=gh}
   if(rainR>0&&!reduce&&!staticMode){   // pluie sur le dernier cairn : zoom avant sur la stèle mouillée, puis zoom arrière très haut, la flaque apparaît en fondu (draw)
     const end=blocks.find(x=>x.t>=1);
     if(end){const z=clamp((rainR-.2)/.8),zi=ease(sm(0,.45,z)),zo=ease(sm(.5,1,z));
@@ -3285,14 +3338,15 @@ function brief(t,max=150){const ph=String(t||'').trim().split(/(?<=[.!?…])\s+/
    La stèle est décorative (aria-hidden) : le titre (h3) et la ligne #scSr redonnent aux lecteurs d'écran ce qui n'est écrit que dans la pierre. */
 /* Panneau d'étape (verre sombre, à droite de la 3D) : année · catégorie, titre, résumé, points clés, technos, « Voir le site ↗ » et « Code source ↗ », lien vers la fiche complète.
    La stèle gravée garde étape, lieu, km, D+ et altitude : ils sont redonnés aux lecteurs d'écran (#scSr), la stèle étant décorative. */
+const cap=(t,max)=>{t=String(t||'').trim();if(t.length<=max)return t;const c=t.slice(0,max);return c.slice(0,Math.max(c.lastIndexOf(' '),max*.7)).replace(/[\s.,;:–-]+$/,'')+'…'};   // coupe au mot : la fiche complète garde le texte entier
 const isCode=u=>/github\.com|gitlab\.|bitbucket\.org/i.test(u);
 function fillCard(pr){const f=PROJECT_INFO[pr.id],t=pr.t||0,s0=STOPS[0],name=f?f.t:s0.name;sMore.hidden=!f;
   sCard.setAttribute('aria-label','Détails du projet '+name);
   $('#scM').textContent=[f?yearOf(pr):s0.period,f?(f.cat||''):'Avant le code'].filter(Boolean).join(' · ');
   $('#scT').textContent=name;
   $('#scSr').textContent=[pr.stage,[pr.place,f?yearOf(pr):''].filter(Boolean).join(', '),'Altitude '+fmtN(altAt(t))+' mètres',kmSpeech(t)].filter(Boolean).join('. ')+'.';
-  const l=$('#scL'),txt=f?brief(f.l||pr.result,260):s0.role;l.textContent=txt;l.hidden=!txt;
-  const pl=$('#scP');pl.innerHTML=(f&&f.pts||[]).slice(0,3).map(x=>`<li>${esc(x)}</li>`).join('');pl.hidden=!pl.children.length;
+  const l=$('#scL'),txt=f?cap(brief(f.l||pr.result,260),260):s0.role;l.textContent=txt;l.hidden=!txt;
+  const pl=$('#scP');pl.innerHTML=((f?f.pts:s0.pts)||[]).slice(0,3).map(x=>`<li>${esc(cap(x,170))}</li>`).join('');pl.hidden=!pl.children.length;
   const kl=$('#scK');kl.innerHTML=((f&&f.k)||pr.tags||[]).map(x=>`<li>${esc(x)}</li>`).join('');kl.hidden=!kl.children.length;
   const L=(f&&f.links||[]).filter(x=>x.u&&okUrl(x.u)),site=L.find(x=>!isCode(x.u)),code=L.find(x=>isCode(x.u)),acts=$('#scActs');
   acts.innerHTML=(site?`<a class="sc-cta" href="${esc(okUrl(site.u))}" target="_blank" rel="noopener">Voir le site <span aria-hidden="true">↗</span><span class="sr-only"> (nouvel onglet)</span></a>`:'')
@@ -3425,7 +3479,7 @@ function frame(ts){
   if(!loaded){const lp=clamp((ts-loadT0)/LOAD_MS);pctEl.textContent=Math.round(lp*2480).toLocaleString('fr-FR');loadBar.style.transform=`scaleX(${lp})`;if(lp>=1)finishLoad()}
   if(!staticMode){
     const pr=loaded?warp(clamp(scrollY/Math.max(1,maxScroll()))):0;
-    if(Math.abs(pr-pS)>.5)pS=pr;else pS+=(pr-pS)*(1-Math.exp(-dt*9));
+    if(Math.abs(pr-pS)>.5)pS=pr;else pS+=(pr-pS)*(1-Math.exp(-dt*(pS>.24&&pS<.56?6:9)));   // sur la carte des expériences, défilement un peu plus amorti : la molette ne fait plus de sauts d'un cairn à l'autre
     draw(pS,dt);updateExtras(pS,pr);stepSounds(pS);
     if(soundOn&&windG&&tNow-lastWind>.3){lastWind=tNow;windG.gain.setTargetAtTime(.16*(1-.9*sm(.8,.9,pS)),actx.currentTime,.3)}
   }
