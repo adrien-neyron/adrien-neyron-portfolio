@@ -2713,7 +2713,7 @@ function cinematicTo(pt,dur0,mode){
   if(reduce){scrollTo(0,y1);return}
   if(cine)cancelAnimationFrame(cine);
   const dur=dur0||2800,t0=performance.now();
-  const step=now=>{const k=clamp((now-t0)/dur),e=mode==='in'?k*k*k:(k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2);scrollTo(0,y0+(y1-y0)*e);cine=k<1?requestAnimationFrame(step):null};
+  const step=now=>{const k=clamp((now-t0)/dur),e=mode==='in'?k*k*k:mode==='out'?1-Math.pow(1-k,3):(k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2);scrollTo(0,y0+(y1-y0)*e);cine=k<1?requestAnimationFrame(step):null};
   cine=requestAnimationFrame(step);
 }
 const stopCine=()=>{if(cine){cancelAnimationFrame(cine);cine=null}};
@@ -2726,7 +2726,7 @@ addEventListener('wheel',stopCine,{passive:true});addEventListener('touchstart',
  const stopP=()=>PARC.stopPs().map(s=>s.p),curP=()=>warp(clamp(scrollY/Math.max(1,maxScroll())));
  const inMap=()=>{const P=stopP(),p=curP();return p>P[0]-.03&&p<P[P.length-1]+.03};
  const target=dir=>{const P=stopP(),p=curP();if(dir>0)return P.findIndex(x=>x>p+.0015);for(let k=P.length-1;k>=0;k--)if(P[k]<p-.0015)return k;return -1};
- const go=dir=>{const i=target(dir);if(i<0)return false;gate.busy=performance.now()+(reduce?300:STEP_MS);cinematicTo(stopP()[i],STEP_MS);return true};
+ const go=dir=>{const i=target(dir);if(i<0)return false;gate.busy=performance.now()+(reduce?300:STEP_MS);cinematicTo(stopP()[i],STEP_MS,'out');return true};   // ease-out : la carte bouge dès le cran, puis se pose en douceur
  const blocked=()=>TOUR.on||staticMode||!loaded||!!document.querySelector('dialog[open]')||!!document.querySelector('.burger[aria-expanded="true"]');
  const scrollsInside=(el,dy)=>{for(let n=el;n&&n!==document.body&&n.nodeType===1;n=n.parentElement){const cs=getComputedStyle(n);if(n.scrollHeight>n.clientHeight+1&&/(auto|scroll)/.test(cs.overflowY))if(dy>0?n.scrollTop+n.clientHeight<n.scrollHeight-1:n.scrollTop>0)return true}return false};   // le panneau d'étape défile d'abord
  const swallow=e=>{e.preventDefault();e.stopImmediatePropagation()};
@@ -3231,7 +3231,7 @@ function rig(p,dt,snap,intro=0){
       v3.set(end.pos.x+ex*(cam.aspect<.9?58:34),end.base+10,end.pos.z+ez*(cam.aspect<.9?58:34));v1.lerp(v3,zi);v3.set(end.pos.x+ex*34,end.base+175,end.pos.z+ez*34);v1.lerp(v3,zo);
       v3.set(end.pos.x,end.base+2.5,end.pos.z);v2.lerp(v3,Math.max(zi,zo))}}
   {const u=mat.uniforms,fk=blk&&STOPS[aw].proj?mw:0;if(blk)u.uF.value.set(blk.pos.x,blk.pos.z);u.uFk.value+=(fk-u.uFk.value)*(snap?1:1-Math.exp(-dt*4))}   // relief de l'étape : s'allume à l'arrêt, s'éteint en repartant   // téléphone : à l'arrêt, la caméra vise exactement le bloc (centré, jamais rogné sur le côté)
-  const k=snap?1:1-Math.exp(-dt*5);
+  const k=snap?1:1-Math.exp(-dt*9);   // caméra réactive : elle rejoint le cadrage de l'étape en ≈ 0,1 s
   if(intro>.001){
     // début : vue de dessus à hauteur fixe (KAPPA x rayon), centrée sous le cadran ; le champ de vision est celui qui donne au sol la taille du cadran : les courbes de la carte recouvrent celles du verre
     const e=ease(intro),ok=DIAL.r>5,w=cv.clientWidth,h=cv.clientHeight,hT=KAPPA*RFIN,sP=ok?.98*DIAL.r/RFIN:(h/2)/(hT*Math.tan(baseFov()*Math.PI/360));   // 0,98 : écart d'échelle mesuré entre le disque du cadran et ses courbes
@@ -3381,7 +3381,7 @@ function updateCard(){
   const cand=!ok?-1:stopW>.9?activeStop:(stopW>.55&&cardIdx===activeStop?activeStop:-1);   // hystérésis : apparaît caméra posée, reste jusqu'au vrai départ
   if(cardShut>=0&&activeStop!==cardShut)cardShut=-1;   // on a quitté l'étape fermée : son panneau reviendra la prochaine fois
   const now=performance.now();if(cand!==updateCard.c){updateCard.c=cand;updateCard.t=now}
-  const want=cand>=0&&now-updateCard.t<500?cardIdx:cand;   // arrêt d'au moins 0,5 s : rien ne clignote aux étapes survolées pendant un saut
+  const want=cand>=0&&now-updateCard.t<120?cardIdx:cand;   // arrêt d'au moins 0,12 s : le panneau suit vite, sans clignoter aux étapes survolées pendant un saut
   if(want===cardIdx)return;
   if(cardIdx>=0&&want<0&&sCard.contains(document.activeElement))plMore.focus({preventScroll:true});   // le focus ne se perd pas dans une carte qui disparaît
   cardIdx=want;if(want>=0)fillCard(pr);sCard.classList.toggle('on',want>=0);s2el.classList.toggle('card-on',want>=0)}
@@ -3498,7 +3498,7 @@ function frame(ts){
   if(!loaded){const lp=clamp((ts-loadT0)/LOAD_MS);pctEl.textContent=Math.round(lp*2480).toLocaleString('fr-FR');loadBar.style.transform=`scaleX(${lp})`;if(lp>=1)finishLoad()}
   if(!staticMode){
     const pr=loaded?warp(clamp(scrollY/Math.max(1,maxScroll()))):0;
-    if(Math.abs(pr-pS)>.5)pS=pr;else pS+=(pr-pS)*(1-Math.exp(-dt*(pS>.24&&pS<.56?6:9)));   // sur la carte des expériences, défilement un peu plus amorti : la molette ne fait plus de sauts d'un cairn à l'autre
+    if(Math.abs(pr-pS)>.5)pS=pr;else pS+=(pr-pS)*(1-Math.exp(-dt*(cine?20:9)));   // pendant une transition (déjà lissée), la scène suit le défilement presque sans retard
     draw(pS,dt);updateExtras(pS,pr);stepSounds(pS);
     if(soundOn&&windG&&tNow-lastWind>.3){lastWind=tNow;windG.gain.setTargetAtTime(.16*(1-.9*sm(.8,.9,pS)),actx.currentTime,.3)}
   }

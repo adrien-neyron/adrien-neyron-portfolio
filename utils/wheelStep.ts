@@ -9,7 +9,7 @@
  *   tout est absorbé : jamais deux projets pour un seul geste.
  * - S'il n'y a plus de projet dans ce sens (bout de la carte), la page défile normalement.
  */
-export const STEP_MS = 1100
+export const STEP_MS = 600 // transition « un cran = un projet » : courte, elle démarre tout de suite (ease-out)
 export const QUIET_MS = 280
 export const MIN_DELTA = 24
 const RESET_MS = 250 // au-delà, les petits mouvements accumulés sont oubliés

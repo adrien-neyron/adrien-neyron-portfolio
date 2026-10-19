@@ -133,7 +133,12 @@ La plaque `.pl-metrics` (étape, période, intitulé) qui s'affichait sous la ca
 
 ## Un cran = un projet
 
-Sur la carte des expériences, chaque geste de défilement emmène au projet suivant ou précédent, avec une transition animée de 1,1 s (`cinematicTo`). On ne s'arrête plus entre deux cairns.
+Sur la carte des expériences, chaque geste de défilement emmène au projet suivant ou précédent, avec une transition animée de 0,6 s (`cinematicTo`, mode `out` : la carte bouge dès le cran, puis se pose en douceur). On ne s'arrête plus entre deux cairns. Pour que la réaction soit rapide :
+- pendant la transition, la scène suit le défilement presque sans retard (lissage 20/s au lieu de 9/s) ;
+- la caméra rejoint le cadrage en ≈ 0,1 s (lissage 9/s) ;
+- le panneau d'étape s'affiche 0,12 s après l'arrêt (au lieu de 0,5 s).
+
+Mesure, navigateur de test à 10–15 images/s : mouvement dès la première image après le cran (≈ 80 ms), projet atteint et panneau affiché en 0,73 à 1 s. Avant : transition de 1,1 s qui démarrait lentement, puis 0,5 s d'attente, soit environ 2 s avant le panneau.
 - **Molette** : un cran (au moins 24 px) suffit.
 - **Pavé tactile** : les petits événements d'un glissé s'additionnent jusqu'à 24 px, puis une seule transition part. Pendant la transition, et tant que la traîne d'inertie continue (un événement moins de 280 ms après le précédent), tout est absorbé : jamais deux projets pour un seul geste.
 - **Doigt** : un glissé d'au moins 40 px fait passer d'un projet à l'autre ; le défilement natif est bloqué sur la carte.
