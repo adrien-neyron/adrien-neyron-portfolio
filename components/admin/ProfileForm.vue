@@ -5,7 +5,12 @@ import type { Profile } from "~/stores/profile";
 const props = defineProps<{ initial: Profile; loading?: boolean; readonly?: boolean }>();
 const emit  = defineEmits<{ submit: [payload: Profile] }>();
 
-const form = ref<Profile>({ ...props.initial, location: { ...props.initial.location }, profiles: [...props.initial.profiles] });
+const form = ref<Profile>({
+  ...props.initial,
+  location: { ...props.initial.location },
+  profiles: [...props.initial.profiles],
+  trailStats: (props.initial.trailStats ?? []).map((s) => ({ ...s })),
+});
 
 // Paragraphes "about" et liens sociaux édités comme du texte multi-lignes
 const aboutInput = ref(form.value.about.join("\n\n"));
@@ -17,8 +22,19 @@ function removeSocial(index: number) {
   form.value.profiles.splice(index, 1);
 }
 
+// Bandeau de chiffres de /projects : un chiffre sans valeur n'est pas enregistré (rien d'inventé à l'affichage)
+function addStat() {
+  form.value.trailStats = [...(form.value.trailStats ?? []), { value: "", label: "" }];
+}
+function removeStat(index: number) {
+  form.value.trailStats?.splice(index, 1);
+}
+
 function onSubmit() {
   if (props.readonly) return;
+  form.value.trailStats = (form.value.trailStats ?? [])
+    .map((s) => ({ value: s.value.trim(), label: s.label.trim() }))
+    .filter((s) => s.value);
   form.value.about = aboutInput.value
     .split(/\n\s*\n/)
     .map((p) => p.trim())
@@ -194,6 +210,19 @@ function onSubmit() {
         </div>
       </div>
 
+      <!-- Bandeau de chiffres (/projects) -->
+      <fieldset class="space-y-2 border-t pt-6" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
+        <legend class="admin-label">Bandeau de chiffres <span class="normal-case font-normal">(sous le titre de /projects ; un chiffre vide n'est pas affiché)</span></legend>
+        <div v-for="(stat, i) in form.trailStats" :key="i" class="grid grid-cols-1 md:grid-cols-[10rem_1fr_auto] gap-2 items-center">
+          <label :for="`stat-value-${i}`" class="sr-only">Chiffre {{ i + 1 }}</label>
+          <input :id="`stat-value-${i}`" v-model="stat.value" class="admin-input" placeholder="−50 %" />
+          <label :for="`stat-label-${i}`" class="sr-only">Libellé du chiffre {{ i + 1 }}</label>
+          <input :id="`stat-label-${i}`" v-model="stat.label" class="admin-input" placeholder="de temps de traitement" />
+          <button type="button" class="admin-remove" :aria-label="`Retirer le chiffre ${i + 1}`" @click="removeStat(i)">✕</button>
+        </div>
+        <button type="button" class="admin-add" @click="addStat">+ Ajouter un chiffre</button>
+      </fieldset>
+
       <!-- Réseaux sociaux -->
       <div>
         <div class="flex items-center justify-between mb-2">
@@ -245,5 +274,15 @@ function onSubmit() {
 }
 .admin-input:focus {
   border-color: var(--color-accent);
+}
+.admin-add,
+.admin-remove {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-accent);
 }
 </style>

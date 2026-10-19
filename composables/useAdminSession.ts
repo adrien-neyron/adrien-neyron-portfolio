@@ -6,11 +6,11 @@ import { useAuth0 } from "@auth0/auth0-vue";
  * `isAdmin` ne pilote que l'interface : chaque écriture reste refusée côté
  * serveur par requireAdminWrite, quoi qu'affiche le navigateur.
  */
-type Entity = "projects" | "carnet" | "ai-tools";
+type Entity = "projects" | "carnet" | "ai-tools" | "stages";
 type Role = "admin" | "lecteur";
 
 // Même ordre que les routes /api/admin/* (plus récent d'abord).
-const SORT_KEY: Record<Entity, string> = { projects: "created_at", carnet: "date", "ai-tools": "created_at" };
+const SORT_KEY: Record<Entity, string> = { projects: "created_at", carnet: "date", "ai-tools": "created_at", stages: "order" };
 
 export function useAdminSession() {
   const auth0 = useAuth0();
@@ -43,9 +43,10 @@ export function useAdminSession() {
     if (isAdmin.value) return $fetch<T[]>(`/api/admin/${entity}`, { headers: authHeaders() });
     const rows = await $fetch<Record<string, unknown>[]>(`/api/${entity}`);
     const key = SORT_KEY[entity];
-    return rows
-      .map((r) => ({ ...r, id: String(r._id) }))
-      .sort((a, b) => String(b[key] ?? "").localeCompare(String(a[key] ?? ""))) as T[];
+    const mapped: Record<string, unknown>[] = rows.map((r) => ({ ...r, id: String(r._id) }));
+    // étapes : ordre de la trace (croissant, numérique), comme la route admin
+    if (entity === "stages") return mapped.sort((a, b) => Number(a.order ?? 0) - Number(b.order ?? 0)) as T[];
+    return mapped.sort((a, b) => String(b[key] ?? "").localeCompare(String(a[key] ?? ""))) as T[];
   }
 
   function login(target = "/admin") {

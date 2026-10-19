@@ -1,6 +1,6 @@
 # Admin → accueil « L'ascension »
 
-L'accueil (boucle 3D, `components/loop/LoopHome.vue` + `assets/loop/loop.js`) lit désormais le contenu saisi dans `/admin`. Mis à jour le 11/10/2026.
+L'accueil (boucle 3D, `components/loop/LoopHome.vue` + `assets/loop/loop.js`) lit désormais le contenu saisi dans `/admin`. Mis à jour le 19/10/2026 (trace en étapes, voir « Étapes de la trace »).
 
 ## Principe
 
@@ -25,13 +25,39 @@ L'accueil (boucle 3D, `components/loop/LoopHome.vue` + `assets/loop/loop.js`) li
 | Profil | `email` | bouton e-mail et formulaire de contact du bivouac |
 | Profil | réseaux (LinkedIn, GitHub) | boutons LinkedIn et GitHub du bivouac |
 | Profil | `bookingUrl` | bouton « Prendre rendez-vous » (masqué tant qu'il est vide) |
-| Projets | `title`, `tagline`, `technologies`, `place` | bloc 3D du projet, liste d'étapes, carte de l'atelier |
+| **Étapes** | `kind`, `order`, `period`, `title`, `place`, `summary`, `figure`, `figureLabel`, `projects` | **la trace de la carte** : cairns, stèles, panneau d'étape, liste statique `#pList`, annonces `#live` (voir « Étapes de la trace ») |
+| Profil | `trailStats` | bandeau de chiffres sous le titre de `/projects` (un chiffre vide n'est pas affiché) |
+| Projets | `type` (`mission` / `perso`) | filtre « Missions / Projets perso » de `/projects` ; vide → repli par slug (`DEFAULT_PROJECT_TYPES`) |
+| Projets | `title`, `tagline`, `technologies`, `place` | carte de l'atelier, titre des liens « Fiche … » des étapes |
 | Projets | `description`, `challenge`, `solution`, `result`, `impact`, `technologies`, `link`, `code` | fiche détaillée (Défi / Solution / Résultat / Impact, liens) |
 | Projets | `stats` (fiche topo → chiffres clés) | fiche détaillée : chiffres clés sous le titre (3 au plus). Vide → ceux de `data/projects.ts` s'il y en a, sinon aucun bloc (rien d'inventé) |
 | Projets | `cover`, `coverCredit`, `coverCreditUrl` (photo d'ambiance) | fiche détaillée : photo sous verre (inclinaison 3D au survol de la souris, coupée en mouvement réduit) et crédit. Vide → photo de `data/projects.ts` s'il y en a, sinon pas de photo |
-| Projets | `order` | ordre de lecture des projets ajoutés en plus |
+| Projets | `order` | ordre des fiches renvoyées par `/api/loop-content` (n'agit plus sur la trace) |
 | Outils IA | nom, accroche | carte « Équipement IA » (nombre d'outils, liste, étiquettes) |
 | Carnet | titre, extrait, catégorie, date | liste du carnet (du plus récent au plus ancien), filtres |
+
+## Étapes de la trace (source unique, octobre 2026)
+
+La trace n'a plus un cairn par projet : elle suit des **étapes** éditables dans `/admin/stages` (collection Mongo `Stage`, repli `data/stages.ts`). Ordre chronologique, tracé continu (pas une boucle) :
+
+| Rang | Type | Période | Titre | Chiffre | Fiches liées |
+|---|---|---|---|---|---|
+| 0 | Départ | sept. 2010 – oct. 2021 | UCPA / Decathlon | 500+ personnes formées | — |
+| 1 | Étape 01 | oct. 2021 – déc. 2023 | Développeur web freelance (Haute-Savoie) | 3 missions pour des PME locales | StockPulse, C+Paie, HelloStay (lien dès que la fiche existe) |
+| 2 | Étape 02 | déc. 2023 – oct. 2025 | DGFiP, mission via BeTeam (Paris) | −50 % de temps de traitement | OCTAVE |
+| 3 | Bivouac | oct. 2025 – mai 2026 | Projets personnels | — | RunFit Advisor, CoachFlow |
+| 4 | Étape 03 | mai – oct. 2026 | Mission Tyredating / YepGarage (Lyon) | 30 → 52 % de conformité RGAA · 100+ sites corrigés | YepGarage |
+| 5 | Cairn final | — | Étape à écrire ensemble | — | lien vers `/contact` |
+
+- **Un seul calcul** : `utils/stages.ts` → `buildStageView(stages, projets)` donne le libellé (« Départ », « Étape 01 », « Bivouac », « Cairn final »), le numéro, l'abscisse `t`, les km et le D+, le résultat clé (`figure` + `figureLabel`, vide sans chiffre : **rien n'est inventé**) et les liens (seulement vers les fiches qui existent : pas de lien mort). Il sert à `/api/loop-content` (`stages`), à la liste serveur de l'accueil, à `loop.js`, à `/projects`, à la fiche et à la liste admin.
+- **Jalons** : Départ, étapes et cairn final se partagent la trace à intervalles égaux (`TRAIL_TOTAL` ≈ 180 km et 10 200 m D+ → 0, 45, 90, 135, 180 km ; 2 550 m de D+ par étape). Le bivouac se pose entre ses deux voisins (km 113), sans numéro, en **petit marqueur** (stèle et cairn à `SMALL_K` = 0,62, point réduit sur le rail). Le D+ est maintenant linéaire (`gainAtT`), comme les km : la liste serveur et la stèle affichent les mêmes chiffres.
+- **Liens sans 3D** : `utils/loopMarkup.ts` (`renderStageList`) écrit côté serveur toutes les étapes dans `#pList` : étiquette et période, titre, lieu, résumé, chiffre, km / D+ et **vrais `<a href>`** vers `/projects/<slug>` (`/contact` pour le cairn final). La liste est affichée en vue statique et donc en `prefers-reduced-motion` (qui démarre en vue statique). `loop.js` ne la reconstruit plus.
+- **Carte 3D** : le panneau `#stopCard` affiche étiquette · période, titre, résumé, le chiffre (s'il existe) et un lien par fiche liée (`.sc-cta` puis `.sc-code`) ; « Fiche complète » est masqué. Le bouton du bas, `#plMore`, est devenu un **lien** vers la première fiche (« Écrire la suite : Contact » au cairn final). Un clic sur la stèle de l'étape affichée suit le même lien.
+- **Annonces** : chaque changement d'étape est annoncé dans `#live` (« Étape 02 : DGFiP, mission via BeTeam, Déc. 2023 – Oct. 2025, −50 % de temps de traitement. Kilomètre 90, … »). En entrant sur la carte, l'annonce de scène et celle de l'étape sont jointes (`sceneSay`) au lieu de s'écraser.
+- **Trace qui se dessine** : plus de point ni de triangle qui parcourt la trace. Le triangle de l'aiguille n'existe qu'au Départ (relais de l'aiguille du cadran pendant la plongée) et s'efface entre `NEEDLE_OUT` = 0,004 et 0,03 ; la lueur part du départ (`uV0` = 0 pour le passage lumineux) et s'arrête à l'abscisse atteinte. Le câble mat garde le tronçon jusqu'au prochain cairn.
+- **En-tête** : lien « Projets » (`.top-link`, `/projects`) entre les deux menus, seul élément de l'en-tête visible avant le démarrage de la 3D (`html:not(.loop-live)`), cible 44 px.
+- **Admin** : `/admin/stages` (liste dans l'ordre de la trace avec libellé, km et résultat clé calculés), « Importer les étapes par défaut » (insertion seulement, par `key`), `components/admin/StageForm.vue` (prop `readonly` comme les autres formulaires). Fiches liées : cases à cocher parmi les projets publics, plus « Autres slugs » pour une fiche pas encore créée (HelloStay). API : `GET /api/stages`, `GET/POST /api/admin/stages`, `PUT/DELETE /api/admin/stages/[id]`, `POST /api/admin/stages/seed` (toutes derrière `requireAdminWrite`, champs filtrés par `normalizeStage`).
+- **Mise en ligne** : tant que la collection est vide, les étapes de `data/stages.ts` s'affichent. Pour les éditer, cliquer une fois « Importer les étapes par défaut » dans `/admin/stages`.
 
 ## Fiche projet (carte des projets)
 
@@ -89,7 +115,10 @@ Ce n'est **pas** une fenêtre modale : une modale à chaque arrêt bloquerait le
 
 Le tracé GPS (290 points, ≈ 10 unités chacun) est lissé deux fois : `smoothPath` (fenêtre courte, ≈ 400 m) enlève le bruit du GPS, puis `calmPath` (gaussienne large, σ = `TRACE_SIGMA` = 15 points, ≈ 1,5 km) efface les lacets du sentier, en plan et en hauteur. Les extrémités restent fixes (fondu sur 4 points) : le Départ reste sous l'aiguille. Ce lissage raccourcit la trace d'environ 23 % ; elle est remise à sa longueur d'origine en plan (mise à l'échelle autour du départ), sinon les étapes se rapprochent et la caméra, 92 unités derrière l'aiguille, bute sur le cairn précédent. Le relief est reconstruit autour de la trace et la suit ; les chiffres (altitude, D+) gardent les altitudes GPS (`alt`). Résultat mesuré : −58 % de virages cumulés, mêmes pentes qu'avant (médiane 0,33).
 
-## Étapes datées, appuyées sur le CV
+## Étapes datées, appuyées sur le CV (historique, remplacé)
+
+> Jusqu'au 19/10/2026, la trace avait un cairn par projet, rangé par date. Elle suit maintenant les étapes de l'admin (voir « Étapes de la trace ») ; `CV_FACTS` ne nourrit plus que les fiches de l'atelier. Section gardée pour l'historique des sources de dates.
+
 
 **Ordre** : les étapes de la carte sont rangées par **date de début**, de la plus ancienne à la plus récente, puis réparties à égale distance sur la trace et renumérotées (« Étape 01 » …). La date vient du champ `startDate` de l'admin (texte libre : « Mai 2026 », « déc. 2023 », « 2023 », « 2023-12 », lu par `dateKey`). Sans date dans l'admin, elle vient de `CV_FACTS` (`assets/loop/loop.js`), tiré du CV en ligne (« CV-AdrienNeyron-DeveloppeurFrontEnd.pdf », profil de l'admin). Un projet sans aucune date se place en fin de trace, avant « À déterminer ».
 
@@ -187,6 +216,8 @@ Après la dernière étape (« À déterminer »), la carte ne s'éteint plus d'
 Surtitre, titre et sous-texte ne passent pas par `loop.js` : `LoopHome.vue` appelle `/api/loop-content` côté serveur (`useFetch`, 2 s maximum) et remplace ces textes dans le HTML de `loop.html` avant l'envoi. Résultat : pas de clignotement entre le texte par défaut et le texte admin, et le texte reste lisible sans JavaScript (SEO, lecteurs d'écran). Champ vide, base indisponible ou délai dépassé : le texte de `loop.html` est conservé. Les valeurs sont échappées avant insertion. Après un enregistrement dans l'admin, compter jusqu'à une minute (cache CDN de l'API). Champs : Admin → Profil → « Accueil « L'ascension » » (limites : 80, 120 et 260 caractères).
 
 ## Rattachement des projets
+
+> Ne concerne plus la trace (voir « Étapes de la trace ») : seulement les fiches de l'atelier (`PROJECT_INFO`).
 
 Un projet admin est rattaché à un arrêt existant par mots du `slug` ou du titre (`CMS_ALIAS` dans `loop.js`) : dgfip, click2sell / c2s, hellostay, stockpulse, runfit, coachflow, job-search / automator, ascension / portfolio. Un projet qui ne correspond à aucun arrêt est **ajouté** au parcours (trois au plus), avant « L'ascension » ; les arrêts sont alors répartis à égale distance le long du tracé.
 

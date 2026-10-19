@@ -51,7 +51,7 @@ html:not(.loop-live) #s1{visibility:visible;opacity:1}
 html:not(.loop-live) .loader{display:none}
 /* Préchargement : AUCUNE inscription, seule l'aiguille est visible. Les textes restent dans le DOM (opacity, pas display/visibility :
    lecteurs d'écran et clavier ne sont pas touchés) et réapparaissent en fondu quand la 3D est là. */
-html:not(.loop-live) header.top,html:not(.loop-live) #head1,html:not(.loop-live) footer.perma,html:not(.loop-live) .altrail,html:not(.loop-live) .hud,html:not(.loop-live) .hint,html:not(.loop-live) .cta{opacity:0!important}
+html:not(.loop-live) header.top>:not(.topnav),html:not(.loop-live) .topnav>:not(.top-link),html:not(.loop-live) #head1,html:not(.loop-live) footer.perma,html:not(.loop-live) .altrail,html:not(.loop-live) .hud,html:not(.loop-live) .hint,html:not(.loop-live) .cta{opacity:0!important}
 html.loop-live header.top,html.loop-live #head1,html.loop-live footer.perma,html.loop-live .altrail,html.loop-live .cta{animation:sceneIn .8s ease-out .25s backwards}
 @media (prefers-reduced-motion:reduce){html.loop-live header.top,html.loop-live #head1,html.loop-live footer.perma,html.loop-live .altrail,html.loop-live .cta{animation:none}}
 html:not(.loop-live) .scene:not(#s1){display:none}   /* scènes suivantes pas encore mises en page : leurs polices ne sont pas téléchargées au premier affichage */
@@ -990,3 +990,25 @@ body.static .stop-card{display:none}
   #stopCard .sc-l{font-size:14px}
   #stopCard .sc-pts{display:none}
 }
+
+/* ===== Trace en 4 étapes (docs/admin-boucle.md, « Étapes ») ===== */
+/* Lien « Projets » de l'en-tête : visible dès le premier écran, avant même le démarrage de la 3D (seul élément de l'en-tête affiché sans html.loop-live) */
+.top-link{position:relative;display:inline-flex;align-items:center;min-height:44px;padding:0 12px;color:var(--fg);text-decoration:none;font:500 11.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 0 12px color-mix(in srgb,var(--bg) 92%,transparent),0 0 3px color-mix(in srgb,var(--bg) 85%,transparent)}
+.top-link::after{content:"";position:absolute;left:12px;right:12px;bottom:8px;height:1px;background:var(--underline);transform:scaleX(0);transition:transform .4s}
+.top-link:hover::after,.top-link:focus-visible::after{transform:scaleX(1)}
+@media (max-width:420px){.top-link{padding:0 8px;letter-spacing:.2em}.topnav .burger{padding:0 10px}}
+@media (prefers-reduced-motion:reduce){.top-link::after{transition:none}}
+/* Liste des étapes (#pList, rendue côté serveur) : vue statique et mouvement réduit ; couleurs par rôles, contrastes ≥ 4,5:1 sur --card */
+.pl-list>li{background:var(--card);border-color:var(--line);color:var(--fg)}
+.pl-list .e{color:var(--acc-text)}
+#pList .pl,#pList .km{font:500 12px 'JetBrains Mono',monospace;color:var(--muted);margin-top:4px}   /* #pList : passe devant l'ancienne règle à couleur fixe (#E8F1F3, illisible sur carte claire) */
+.pl-list .fig{margin-top:8px}.pl-list .fig strong{font:600 18px/1.2 var(--serif);color:var(--fg);margin-right:4px}
+.pl-list .st-bivouac{margin-left:34px;border-style:dashed}
+.pl-list ul.lk{display:block;margin:8px 0 0}.pl-list ul.lk li{border:0;padding:0;border-radius:0;font:inherit}
+.pl-list ul.lk a{display:inline-flex;align-items:center;min-height:44px;color:var(--fg);text-decoration:underline;text-decoration-color:var(--underline);text-underline-offset:3px}
+.pl-list ul.lk a:hover{text-decoration-thickness:2px}
+/* mouvement réduit : loop.js démarre en vue statique (body.static), qui affiche cette liste */
+/* « Voir la fiche » est désormais un lien */
+.pl-more{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+/* rail des étapes : le bivouac, petit marqueur, n'est pas une étape */
+.pl-stages li.biv .dot{transform:scale(.6)}

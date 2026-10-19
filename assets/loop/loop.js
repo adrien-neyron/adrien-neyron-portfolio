@@ -3,7 +3,9 @@
  * GLTFLoader (facultatif) : charge le modèle 3D de la chaussure (SHOE_GLB) ; sans lui, la chaussure procédurale reste affichée.
  * Prérequis : le balisage de loop.html est déjà dans le DOM, loop.css est chargée, three@0.128.0. */
 import {projects as SITE_PROJECTS} from '~/data/projects';
-import {createWheelGate,wheelGate,STEP_MS} from '~/utils/wheelStep';   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
+import {createWheelGate,wheelGate,STEP_MS} from '~/utils/wheelStep';
+import {loopStages} from '~/utils/loopMarkup';
+import {TRAIL_TOTAL} from '~/utils/stages';   // étapes de la trace (admin, sinon data/stages.ts)   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
 export function initLoop(THREE,LOADERS={}){
   const __ac=new AbortController(),__sig=__ac.signal,__ivs=[];let DEAD=false;
   // les écouteurs de la fenêtre sont annulés à la destruction
@@ -138,10 +140,9 @@ const PROJECT_INFO={   // fiches de la carte des projets ; liens repris du site 
   next:{t:`À déterminer`,e:`Prochaine étape · la suite`,st:`À écrire`,l:`Le tracé s'arrête ici, pour l'instant : la suite du parcours reste à écrire ensemble. Un nouveau projet, une mission, une collaboration.`,pts:[`Un projet à construire avec une équipe qui tient à l'accessibilité et à la qualité.`,`Vue 3 et TypeScript côté interface, des classes Java robustes côté données, le tout administrable en temps réel.`],k:[`Votre projet ?`],links:[{l:'Parlons de la suite',go:'contact'}]},
   asc:{t:`L'ascension`,e:`Sommet · Ce site`,st:`En ligne`,l:`Le site que vous parcourez : une boucle en 3D, de la boussole au bivouac, pensée pour rester lisible et accessible à tous.`,pts:[`Contenu 100 % HTML pour les lecteurs d'écran, la 3D est un habillage.`,`Pause, vue statique, parcours guidé et navigation au clavier.`],k:[`Nuxt`,`Three.js`,`RGAA`],links:PROJECT_LINKS.asc}
 };
-/* ---------- CV (CV-AdrienNeyron-DeveloppeurFrontEnd.pdf, profil de l'admin, octobre 2026) : dates, rôle et faits de chaque étape ----------
-   start (AAAA-MM[-JJ]) ordonne la trace par date ; une date de début saisie dans l'admin (startDate, « Mai 2026 ») l'emporte.
+/* ---------- CV (CV-AdrienNeyron-DeveloppeurFrontEnd.pdf, profil de l'admin, octobre 2026) : faits des fiches de l'atelier ----------
    Les puces du CV passent en tête des points clés, sans doublon ; la description de l'admin reste le résumé ; les chiffres du CV ne servent que si l'admin n'en a pas.
-   Sans source datée (ni CV, ni dépôt public, ni admin), un projet se place en fin de trace, avant « À déterminer ». */
+   La trace, elle, ne lit plus ce tableau : elle suit les étapes de l'admin (STAGES, utils/stages.ts). */
 const CV_FACTS={
   depart:{start:'2009-09',when:'Sept. 2009 – Mai 2021',role:'Formateur et manager · UCPA / Decathlon',
     pts:[`Formateur BPJEPS pendant dix ans (UCPA Formation) : conception de modules, suivi d'apprenants, 500+ personnes formées.`,`Management d'équipes jusqu'à 25 personnes : recrutement, budget, pilotage opérationnel.`]},
@@ -159,11 +160,6 @@ const CV_FACTS={
     pts:[`Audit RGAA / WCAG automatisé et manuel sur 50 pages : conformité portée de 30 % à 52 %, de « non conforme » à « partiellement conforme ».`,`Corrections réalisées dans les composants transverses réutilisables, donc propagées sur des centaines de sites clients.`,`Refonte et fiabilisation des composants après la migration vers Vue 3.`,`Convention data-id pour fiabiliser et automatiser les tests QA (Vitest, Playwright, LambdaTest).`,`Résolution d'incidents fonctionnels en production sur les CRM métier.`],
     stats:[{value:'30 → 52 %',label:'conformité RGAA, 50 pages auditées'},{value:'100+',label:'sites clients corrigés'}]}
 };
-/* date de début lisible → horodatage : « Mai 2026 », « déc. 2023 », « 2023 », « 2023-12 » ; illisible → NaN */
-const FR_M=[/^janv/,/^f[ée]v/,/^mars/,/^avr/,/^mai/,/^juin/,/^juil/,/^ao[uû]/,/^sept/,/^oct/,/^nov/,/^d[ée]c/];
-function dateKey(v){const s=String(v||'').trim().toLowerCase();if(!s)return NaN;
-  let m=s.match(/^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?/);if(m)return Date.UTC(+m[1],+m[2]-1,+(m[3]||1));
-  const y=s.match(/\d{4}/);if(!y)return NaN;const w=s.split(/[\s.]+/).find(x=>FR_M.some(r=>r.test(x)));const mi=w?FR_M.findIndex(r=>r.test(w)):0;return Date.UTC(+y[0],mi,1)}
 const STEP=.026;
 let CS=.07,CST=STEP,CSP=.07,CEND=[.24,.28],CREV=[.19,.22];   // CSP : début des boutons du boîtier (les zones du cadran disparaissent alors) ; CEND : fondu de sortie des cartes ; CREV : apparition de toutes les cartes à la souris   // début et pas du déploiement des cartes d'outils (décalés sur grand écran : elles n'apparaissent qu'avec « S'équiper »)
 /* ---------- Contenu de l'admin (/api/loop-content, voir docs/admin-boucle.md) ----------
@@ -2158,7 +2154,6 @@ function drawLeads(){
 if(window.ResizeObserver){const ro=new ResizeObserver(()=>{if(dlgTool.open)drawLeads()});ro.observe(dlgTool);__sig.addEventListener('abort',()=>ro.disconnect())}
 $('#toolImg').addEventListener('load',drawLeads);
 function openTool(i,opener){const t=TOOLS[i],f=TOOL_INFO[i];if(!f)return;showSheet(t.n,f,opener,"Revenir à l'atelier")}
-function openProject(id,opener,gps){const f=PROJECT_INFO[id];if(!f)return;showSheet(f.t,f,opener,'Revenir à la carte',{gps})}
 $('#toolImg').addEventListener('error',()=>{$('#toolM').hidden=true});   // photo introuvable : la fiche reste sans média
 { // photo sous verre : légère inclinaison 3D qui suit la souris, reflet de la vitre sous le pointeur (souris seulement, jamais en mouvement réduit)
   const gl=$('#toolM .sh-glass');
@@ -2265,7 +2260,7 @@ restartBtn.addEventListener('click',restartAdventure);
 
 /* ---------- Boucle : rendu ---------- */
 const NAMES=['Se repérer','S\'équiper','Monter','Persévérer','Se poser'];
-let curName=-1;
+let curName=-1,sceneSay='';   // sceneSay : annonce de scène à joindre à celle de l'étape (en entrant sur la carte, l'une n'écrase pas l'autre)
 function sceneIndex(p){return p<.07?0:p<.27?1:p<.545?2:p<.80?3:p<.95?4:0}
 /* Deux palettes pour la barre de progression : la boucle (cuivre, la teinte de la marque) et la trace de la carte (blanc givre et émeraude, comme la trace) ; elle passe de l'une à l'autre en fondu quand la carte apparaît et disparaît */
 const RT_A={d:[240,162,122],l:[183,154,138],g:[226,109,59],a:[247,176,138],h:[255,226,204]},RT_B={d:[242,251,248],l:[169,189,196],g:[0,245,160],a:[242,251,248],h:[0,245,160]};
@@ -2275,7 +2270,7 @@ function railTone(k){const el=railTone.el||(railTone.el=document.querySelector('
 function setVisible(el,o){el.style.opacity=o;el.style.visibility=o<.01?'hidden':'visible'}
 function announce(i){
   if(i===curName)return;curName=i;
-  live.textContent=`Scène ${i+1} sur 5 : ${NAMES[i]}`;
+  live.textContent=`Scène ${i+1} sur 5 : ${NAMES[i]}`;sceneSay=i===2?live.textContent:'';
   $$('#railNav button').forEach((b,j)=>b.setAttribute('aria-current',j===i?'true':'false'));
   $('#burgerSteps').parentNode.style.setProperty('--i',i);   // le repère de la rose des vents suit l'étape courante
 }
@@ -2804,45 +2799,14 @@ const PARC=(()=>{
 const DATA=[[45.8925,6.8002,1006],[45.8929,6.7995,995],[45.8937,6.7992,987],[45.8941,6.7982,985],[45.8949,6.7986,996],[45.8958,6.7986,1015],[45.8968,6.7989,1038],[45.8972,6.7988,1061],[45.8964,6.7979,1071],[45.8959,6.7968,1089],[45.896,6.7961,1109],[45.8959,6.7949,1122],[45.8965,6.7937,1133],[45.897,6.7925,1142],[45.8975,6.7913,1147],[45.8979,6.7901,1157],[45.8986,6.7891,1167],[45.8997,6.789,1178],[45.9002,6.7901,1190],[45.9004,6.7915,1197],[45.9009,6.7927,1203],[45.9009,6.7927,1216],[45.9009,6.7913,1230],[45.9012,6.7906,1247],[45.9016,6.7893,1267],[45.9021,6.7882,1279],[45.9025,6.7878,1293],[45.9032,6.7868,1310],[45.9041,6.787,1314],[45.9044,6.7883,1315],[45.9047,6.7895,1314],[45.9051,6.7901,1332],[45.9057,6.7911,1347],[45.9065,6.7903,1359],[45.9071,6.79,1377],[45.9079,6.7895,1415],[45.9085,6.7908,1433],[45.9094,6.791,1450],[45.9101,6.79,1467],[45.911,6.7894,1482],[45.912,6.7888,1495],[45.9128,6.7894,1511],[45.9137,6.7892,1535],[45.9147,6.7891,1548],[45.9156,6.7895,1564],[45.9166,6.7894,1573],[45.9177,6.7892,1581],[45.9186,6.7887,1600],[45.9196,6.7883,1617],[45.9206,6.7879,1632],[45.9216,6.7879,1647],[45.9226,6.7876,1666],[45.9236,6.7875,1689],[45.9246,6.7877,1707],[45.924,6.7886,1729],[45.9239,6.7894,1759],[45.9233,6.7905,1783],[45.9232,6.791,1805],[45.9233,6.7916,1830],[45.9234,6.7921,1854],[45.9227,6.7923,1884],[45.9221,6.7933,1907],[45.9225,6.7934,1934],[45.9225,6.7943,1956],[45.9222,6.7955,1975],[45.9219,6.7965,1994],[45.9219,6.7975,2029],[45.9217,6.7985,2060],[45.9213,6.7997,2091],[45.921,6.8007,2129],[45.9206,6.802,2170],[45.9203,6.8029,2211],[45.9201,6.8036,2225],[45.9207,6.8045,2219],[45.9199,6.8045,2179],[45.919,6.8049,2151],[45.9185,6.8061,2128],[45.9178,6.8072,2105],[45.9174,6.8085,2091],[45.9168,6.8097,2076],[45.916,6.8104,2043],[45.9153,6.8114,2015],[45.9148,6.8127,1997],[45.9146,6.814,1978],[45.9141,6.8128,1956],[45.914,6.8113,1938],[45.9137,6.81,1920],[45.9135,6.8086,1915],[45.9133,6.8071,1905],[45.9133,6.8057,1883],[45.9135,6.8042,1866],[45.9136,6.8028,1842],[45.9129,6.8032,1821],[45.9123,6.8043,1800],[45.9118,6.8054,1785],[45.9112,6.8067,1778],[45.9106,6.808,1779],[45.9103,6.8093,1766],[45.9104,6.8107,1742],[45.9101,6.812,1710],[45.9098,6.8134,1671],[45.9095,6.8147,1639],[45.9091,6.8161,1613],[45.9094,6.817,1631],[45.9099,6.8182,1647],[45.9104,6.8193,1652],[45.9109,6.8206,1661],[45.9118,6.8209,1660],[45.9124,6.8211,1681],[45.9124,6.8221,1703],[45.9127,6.8232,1724],[45.9132,6.8245,1742],[45.9141,6.8251,1768],[45.9149,6.8257,1797],[45.9156,6.8266,1825],[45.9162,6.8274,1853],[45.9165,6.8277,1884],[45.9171,6.8274,1915],[45.9179,6.8273,1928],[45.9189,6.8272,1947],[45.9197,6.8273,1965],[45.9201,6.8272,2001],[45.9204,6.8269,2031],[45.9211,6.8273,2056],[45.9216,6.8279,2087],[45.9222,6.8281,2131],[45.9222,6.8291,2160],[45.9226,6.8294,2175],[45.9233,6.8289,2193],[45.9239,6.8284,2210],[45.924,6.8291,2226],[45.9244,6.8292,2243],[45.9252,6.8297,2263],[45.925,6.8295,2256],[45.925,6.8305,2268],[45.9253,6.8317,2273],[45.9258,6.8329,2270],[45.9265,6.8334,2285],[45.9272,6.8334,2285],[45.9282,6.8338,2282],[45.9291,6.8345,2293],[45.9299,6.8344,2317],[45.9306,6.835,2331],[45.9316,6.835,2348],[45.9322,6.8351,2371],[45.9316,6.8361,2388],[45.9318,6.8364,2407],[45.9323,6.8367,2428],[45.933,6.8365,2455],[45.9336,6.8366,2477],[45.9337,6.8372,2499],[45.9338,6.8377,2521],[45.9341,6.8374,2501],[45.9345,6.8371,2480],[45.9354,6.8376,2461],[45.9363,6.8376,2444],[45.9366,6.8384,2427],[45.9355,6.8385,2410],[45.9353,6.8392,2385],[45.9356,6.8401,2358],[45.9349,6.8406,2335],[45.9359,6.841,2314],[45.9369,6.841,2296],[45.9378,6.8416,2277],[45.9371,6.8419,2247],[45.9374,6.8427,2224],[45.9375,6.8432,2205],[45.9375,6.8437,2184],[45.9378,6.8446,2163],[45.9376,6.8457,2144],[45.9373,6.8469,2119],[45.9378,6.8481,2100],[45.9379,6.8493,2071],[45.9375,6.8505,2054],[45.9367,6.851,2036],[45.9366,6.8502,2017],[45.9364,6.8497,1990],[45.9361,6.8495,1962],[45.936,6.8492,1937],[45.9356,6.8488,1908],[45.9353,6.8491,1887],[45.9351,6.849,1864],[45.9345,6.8499,1848],[45.9344,6.8493,1823],[45.934,6.849,1798],[45.9336,6.8489,1777],[45.9329,6.848,1762],[45.9319,6.8478,1741],[45.9326,6.8487,1714],[45.9318,6.8488,1691],[45.9313,6.8489,1668],[45.9315,6.8498,1643],[45.9309,6.8497,1619],[45.9312,6.851,1602],[45.931,6.8524,1590],[45.9306,6.8536,1581],[45.9303,6.8549,1564],[45.93,6.8558,1548],[45.93,6.8572,1526],[45.9295,6.8567,1494],[45.9289,6.8564,1468],[45.9284,6.8559,1444],[45.9287,6.8569,1430],[45.9279,6.8568,1403],[45.9279,6.8575,1378],[45.9274,6.8572,1353],[45.9271,6.8573,1334],[45.9275,6.8585,1316],[45.9269,6.858,1303],[45.9264,6.8579,1287],[45.927,6.859,1272],[45.9264,6.8586,1256],[45.9257,6.8577,1239],[45.9255,6.8587,1221],[45.9255,6.8591,1203],[45.9261,6.8601,1186],[45.9258,6.8605,1166],[45.9254,6.8611,1146],[45.9252,6.8624,1126],[45.9246,6.8633,1107],[45.9239,6.8641,1092],[45.9237,6.8656,1075],[45.9235,6.867,1061],[45.9242,6.8679,1056],[45.924,6.8693,1048],[45.9227,6.8692,1049],[45.922,6.8682,1050],[45.9211,6.8675,1050],[45.9203,6.8667,1050],[45.9195,6.8659,1050],[45.9189,6.8646,1050],[45.9184,6.8633,1050],[45.9181,6.8619,1051],[45.9179,6.8605,1055],[45.9177,6.8591,1055],[45.9174,6.8576,1055],[45.9172,6.8561,1054],[45.917,6.8548,1052],[45.9166,6.8532,1047],[45.9164,6.852,1041],[45.9161,6.8505,1032],[45.9156,6.8493,1028],[45.915,6.8482,1029],[45.9146,6.8469,1028],[45.9136,6.8461,1032],[45.9126,6.8458,1030],[45.9117,6.8453,1029],[45.9109,6.8443,1033],[45.9102,6.8433,1036],[45.9095,6.8423,1032],[45.909,6.841,1033],[45.9087,6.8397,1031],[45.9081,6.8384,1026],[45.9076,6.8372,1017],[45.9074,6.8359,1018],[45.9066,6.8349,1018],[45.9063,6.8336,1029],[45.9055,6.8328,1018],[45.9049,6.8316,1026],[45.9043,6.8305,1018],[45.9034,6.8295,1016],[45.9026,6.8287,1009],[45.9025,6.8273,1007],[45.9016,6.8267,1006],[45.9012,6.8253,1005],[45.9009,6.824,1005],[45.9007,6.8226,1005],[45.9005,6.8212,1004],[45.9007,6.8198,1023],[45.9008,6.8185,1036],[45.9012,6.8171,1038],[45.9016,6.8159,1039],[45.9017,6.8144,1040],[45.9016,6.8129,1043],[45.9015,6.8114,1044],[45.9012,6.81,1034],[45.9009,6.8087,1024],[45.9004,6.8074,1012],[45.8999,6.8061,1006],[45.8993,6.805,1003],[45.8986,6.8039,1005],[45.8979,6.8028,1008],[45.8975,6.8015,1010],[45.8971,6.8004,1008],[45.8962,6.7997,1003],[45.8953,6.7992,997],[45.8943,6.7987,992],[45.8939,6.7986,986],[45.8933,6.7998,995],[45.8926,6.7997,1007]];
 const cv=$('#parcCanvas');
 
-/* ---------- Projets : à remplacer par la liste de /projects (un seul endroit à modifier) ---------- */
-const PROJECTS=[   // ordre du CV d'Adri, lu du plus ancien au plus récent le long de la trace : 2021–2023 (auto-entrepreneur), 2023–2025 (DGFiP), 2026– (Tyredating), puis les projets personnels
-  {id:'stock',when:'2021–2023',title:'Stockpulse',place:'Haute-Savoie',stage:'Étape 01',tags:['PHP','Twig','Tailwind CSS'],result:'Gestion du matériel de secours en caserne',mat:'leather',t:.08},
-  {id:'hello',when:'2021–2023',title:'HelloStay',place:'Haute-Savoie',stage:'Étape 02',tags:['Vue.js','Tailwind CSS','API Igloohome'],result:'CRM de gestion locative',mat:'stone',t:.17},
-  {id:'dgfip',when:'2023–2025',title:'DGFiP',place:'Paris',stage:'Étape 03',tags:['Vue 3','FastAPI','PostgreSQL','GitLab'],result:'−50 % de temps de traitement',mat:'metal',t:.27},
-  {id:'c2s',when:'2026 – en cours',title:'Click2SellSite',place:'Lyon',stage:'Étape 04',tags:['Vue.js','TypeScript','Java','RGAA'],result:'Audit RGAA/WCAG · Lighthouse 90–100 %',mat:'stone',t:.40},
-  {id:'runfit',title:'RunFit Advisor',place:'Projet perso',stage:'Sentier',tags:['Supabase','Recommandation'],result:'Chaussures de trail',mat:'leather',t:.52},
-  {id:'coach',title:'CoachFlow',place:'Projet perso',stage:'Sentier',tags:['LMS','Formation'],result:'Coaching et formation',mat:'stone',t:.64},
-  {id:'jsa',title:'Job Search Automator',place:'Projet perso',stage:'Sentier',tags:['Make.com','Claude API','Airtable','Playwright'],result:'Pipeline de candidature',mat:'metal',t:.76},
-  {id:'cpaie',title:'C+Paie',place:'Haute-Savoie',stage:'Étape',tags:['React','Next.js','MongoDB'],result:'Application pour une PME locale',mat:'stone',t:.9},
-  {id:'dress',title:'DressMeUp',place:'Projet perso',stage:'Étape',tags:['React Native','Express','MongoDB'],result:'Composer ses tenues',mat:'stone',t:.9},
-  {id:'asc',title:'L\'ascension',place:'Ce site',stage:'Sommet',tags:['Nuxt','Three.js','RGAA'],result:'Le site que vous parcourez',mat:'leather',t:.88},
-  {id:'next',title:'À déterminer',place:'La suite',stage:'Prochaine étape',tags:['Votre projet ?'],result:'À écrire ensemble',mat:'ghost',t:1}
-];
-
-/* Contenu de l'admin : textes des blocs 3D (titre court, accroche, technologies) ; les projets saisis en plus sont ajoutés avant « L'ascension » (3 au plus), les arrêts se répartissent alors à égale distance */
-PROJECTS.forEach(p=>{const a=CMS_MAP[p.id];if(!a)return;
-  if(a.title&&p.id!=='asc')p.title=shortT(a.title);
-  if(a.place&&p.id!=='asc')p.place=a.place;
-  if(a.tagline)p.result=a.tagline;
-  if(a.technologies&&a.technologies.length)p.tags=a.technologies.slice(0,4)});
-{const extra=(CMS.projects||[]).filter(a=>!CMS_USED.has(a)&&a.title).slice(0,3);
-  if(extra.length){
-    const mats=['stone','leather','metal'];
-    const add=extra.map((a,i)=>{const id='x'+i;
-      PROJECT_INFO[id]={t:a.title,e:'Sentier · '+(a.place||'Projet'),st:a.status||'Projet',l:a.description||a.tagline||'',pts:cmsPts(a),k:a.technologies||[],links:cmsLinks(a)};sheetExtras(PROJECT_INFO[id],a);
-      return {id,title:shortT(a.title),place:a.place||'Projet',stage:'Sentier',tags:(a.technologies||[]).slice(0,4),result:a.tagline||a.category||'',mat:mats[i%3],t:0,cms:a}});
-    const at=PROJECTS.findIndex(p=>p.id==='asc');PROJECTS.splice(at<0?PROJECTS.length-1:at,0,...add);
-    const line=PROJECTS.filter(p=>p.id!=='next');line.forEach((p,i)=>{p.t=+(.08+i*(.8/Math.max(1,line.length-1))).toFixed(4)});
-  }}
-/* Trace ordonnée par date de début (admin startDate, sinon CV_FACTS.start ; sans date : en fin de trace, avant « À déterminer »), arrêts à égale distance,
-   étapes renumérotées dans cet ordre ; le surtitre des fiches suit : « Étape NN · lieu · rôle » */
-{const key=p=>{const a=CMS_MAP[p.id]||p.cms,d=dateKey(a&&a.startDate);if(!isNaN(d))return d;const c=CV_FACTS[p.id];return c?dateKey(c.start):Infinity},
-   line=PROJECTS.filter(p=>p.id!=='next').map((p,i)=>({p,i,k:key(p)})).sort((x,y)=>(x.k-y.k)||(x.i-y.i)).map(x=>x.p),nx=PROJECTS.filter(p=>p.id==='next');
- line.forEach((p,i)=>{p.t=+(.08+i*(.84/Math.max(1,line.length-1))).toFixed(4);p.stage='Étape '+String(i+1).padStart(2,'0');
-   const c=CV_FACTS[p.id],f=PROJECT_INFO[p.id];if(c&&c.when)p.when=c.when;if(c&&c.place&&!(CMS_MAP[p.id]&&CMS_MAP[p.id].place))p.place=c.place;
-   if(f)f.e=[p.stage,p.place,f.role||String(f.e||'').split(' · ')[2]||''].filter(Boolean).join(' · ')});
- PROJECTS.splice(0,PROJECTS.length,...line,...nx)}
-const OFFICIAL={km:180,gain:10200};   // chiffres de la Diagonale des Fous 2026 (environ 180 km et 10 200 m de D+) : le tracé en est une simulation
+/* ---------- Étapes de la trace : source unique (admin « Étapes », utils/stages.ts, docs/admin-boucle.md) ----------
+   Départ, étapes numérotées, bivouac (petit marqueur sans numéro) et cairn final (« Étape à écrire ensemble », lien vers Contact), dans l'ordre chronologique.
+   Abscisses, km et D+ viennent de buildStageView : étapes à intervalles égaux, bivouac entre ses deux voisins. Les liens mènent aux vraies fiches (/projects/<slug>).
+   Les fiches de l'atelier (PROJECT_INFO, CV_FACTS) ne pilotent plus la trace. */
+const STAGES=loopStages(CMS);
+const PROJECTS=STAGES.map((s,i)=>({id:i===0?'depart':s.kind==='final'?'next':'st-'+(s.key||i),sg:s,kind:s.kind,when:s.period,title:s.title,place:s.place||'',stage:s.label,
+  tags:s.figure?[s.keyResult]:s.links.map(l=>l.title),result:s.keyResult,mat:s.kind==='final'?'ghost':'stone',t:s.t,small:s.kind==='bivouac'}));   // tags : ligne du bas de la stèle (chiffre, sinon fiches liées)
+const OFFICIAL=TRAIL_TOTAL;   // ≈ 180 km et 10 200 m de D+ (simulation inspirée de la Diagonale des Fous), répartis entre les étapes
 
 /* ---------- Trace et relief : position locale (1 unité = 10 m), altitudes exagérées de 50 % ---------- */
 const SC=.1,EX=1.5;
@@ -2868,11 +2832,9 @@ const DRIFT_KM=4.2;
   let cx=0,cz=0;P.forEach(p=>{cx+=p.x;cz+=p.z});cx/=n;cz/=n;
   const dx=P[0].x-cx,dz=P[0].z-cz,dl=Math.hypot(dx,dz)||1,D=DRIFT_KM*100;   // 1 unité = 10 m
   P.forEach((p,i)=>{const s=Math.pow(L[i]/tot,1.7);p.x+=dx/dl*D*s;p.z+=dz/dl*D*s})})();
-let gainTot=0;const gainCum=[0];for(let i=1;i<P.length;i++){gainTot+=Math.max(0,P[i].alt-P[i-1].alt);gainCum.push(gainTot)}
-const gscale=OFFICIAL.gain/gainTot;
 /* Chiffres du parcours : kilomètre et dénivelé positif cumulé à l'abscisse t du tracé, ramenés aux totaux officiels */
 const fmtN=n=>Math.round(n).toLocaleString('fr-FR'),kmAt=t=>OFFICIAL.km*Math.min(1,Math.max(0,t));
-const gainAtT=t=>{const tt=Math.min(1,Math.max(0,t)),f=tt*(P.length-1),i=Math.floor(f),u=f-i,j=Math.min(i+1,P.length-1),real=(gainCum[i]+(gainCum[j]-gainCum[i])*u)/gainTot;return OFFICIAL.gain*(.6*tt+.4*real)};   // le profil du fichier GPS (boucle de 21 km, montée au début) est mélangé à une pente régulière : le dénivelé cumulé grandit tout au long des 180 km, sans plateau
+const gainAtT=t=>OFFICIAL.gain*Math.min(1,Math.max(0,t));   // dénivelé réparti à parts égales le long de la trace (≈ 10 200 m) : chaque étape en porte la même part, comme les km ; même calcul que utils/stages.ts (liste statique)
 const kmLine=t=>'Km '+fmtN(kmAt(t))+' · D+ '+fmtN(Math.round(gainAtT(t)/10)*10)+' m',kmSpeech=t=>'Kilomètre '+fmtN(kmAt(t))+', '+fmtN(Math.round(gainAtT(t)/10)*10)+' mètres de dénivelé positif cumulé';
 const KAPPA=4,RFIN=44;   // KAPPA : hauteur de la caméra de dessus = KAPPA fois le rayon visible ; le champ de vision s'ajuste pour que le cadran ait la bonne taille
 //   // rayon de sol (en unités) visible au bord du cadran à la fin de la plongée
@@ -2923,7 +2885,7 @@ function terrainAt(x,z){
 let hmin=1e9,hmax=-1e9;for(const h of H){if(h<hmin)hmin=h;if(h>hmax)hmax=h}
 
 /* ---------- Arrêts : départ, un par projet, bivouac ---------- */
-const STOPS=[{t:0,name:'Départ',ttl:'Départ',period:CV_FACTS.depart.when,role:CV_FACTS.depart.role,pts:CV_FACTS.depart.pts}].concat(PROJECTS.slice().sort((a,b)=>a.t-b.t).map((p,i)=>({t:p.t,proj:p,name:p.title,ttl:p.stage+' · '+p.place})));
+const STOPS=PROJECTS.map(p=>({t:p.t,proj:p,name:p.title,ttl:p.stage+(p.place?' · '+p.place:''),sg:p.sg}));   // un arrêt par étape (départ et cairn final compris)
 const PC0=.30,PCW=.19;   // la carte se termine à 49 % ; de 48 à 54 % il pleut sur le dernier cairn (zoom avant, zoom arrière), la flaque apparaît à 53 %
 const NS=STOPS.length,DW=.042,TRAV=(1-NS*DW)/(NS-1);
 STOPS.forEach((s,i)=>{s.a=i*(DW+TRAV);s.b=s.a+DW});
@@ -2966,7 +2928,7 @@ function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depth
     uniforms:{uRes:{value:new THREE.Vector2(1,1)},uW:{value:o.w},uCap:{value:o.cap==null?1:o.cap},uColor:{value:new THREE.Color(o.c)},uC2:{value:new THREE.Color(o.c2||o.c)},uAlpha:{value:o.a},uT:{value:0},uMode:{value:o.mode},
       uLen:{value:geo.userData.len},uH0:{value:0},uH1:{value:0},uV0:{value:0},uV1:{value:1},uVF:{value:.004},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
   m.userData.cw=o.w;m.userData.o=o;FATS.push(m);const mesh=new THREE.Mesh(geo,m);mesh.frustumCulled=false;mesh.renderOrder=o.order||2;scene.add(mesh);return mesh}
-const CLEAR=8.6,GAP=.28;   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
+const CLEAR=8.6,GAP=.28,SMALL_K=.62,NEEDLE_OUT=[.004,.03];   // NEEDLE_OUT : le triangle de l'aiguille s'efface entre ces abscisses (il ne parcourt pas la trace)   // SMALL_K : échelle du marqueur de bivouac (pierre gravée et cairn)   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 /* année gravée : période du projet, sinon un statut daté de la fiche (« 2026 – en cours »), sinon rien */
 function yearOf(pr){const f=PROJECT_INFO[pr.id],st=f&&f.st||'';return pr.when||(/\d{4}/.test(st)?st:'')}
@@ -3097,8 +3059,7 @@ function buildBlocks(){
   const sc=document.createElement('canvas');sc.width=sc.height=128;{const x=sc.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(0,0,0,.65)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
   const shTex=new THREE.CanvasTexture(sc);
   STOPS.forEach((st,si)=>{
-    // le Départ a aussi son cairn (étape 00) : mêmes pierres, gravé avec la période et le métier d'avant le code (version courte : la gravure tient sur 2 lignes, le texte complet reste sur la plaque) ; il n'a pas de fiche projet
-    const pr=st.proj||(si===0?{id:'depart',t:0,title:st.name,stage:'Étape 00',place:'Grandes Platières',when:st.period,result:'Éducateur, formateur et directeur dans le sport',tags:['Management','Formation','Outdoor']}:null);
+    const pr=st.proj;   // chaque étape a son cairn (Départ et cairn final compris), gravé avec ses données d'étape
     if(!pr)return;
     const cnv=document.createElement('canvas');cnv.width=768;cnv.height=576;   // 1,5 × la mise en page (512 × 384) : la gravure fine (km, technos) reste nette
     const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=8;tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
@@ -3106,7 +3067,7 @@ function buildBlocks(){
     const top=new THREE.MeshStandardMaterial({map:tex,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
     const side=new THREE.MeshStandardMaterial({color:STONE,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
     const mesh=new THREE.Mesh(geo,[top,side]);mesh.rotation.x=-Math.PI/2+.42;mesh.position.y=0;
-    const holder=new THREE.Group();holder.add(mesh);holder.scale.setScalar(1.3);scene.add(holder);
+    const holder=new THREE.Group();holder.add(mesh);holder.scale.setScalar(1.3*(pr.small?SMALL_K:1));scene.add(holder);   // bivouac : petit marqueur, pas une étape
     const t=st.t,pt=curve.getPointAt(t),a=curve.getPointAt(clamp(t-.03)),b=curve.getPointAt(clamp(t+.03));
     let dx=b.x-a.x,dz=b.z-a.z;const dl=Math.hypot(dx,dz)||1;dx/=dl;dz/=dl;
     const nx=-dz,nz=dx,side1=1;   // le cairn est posé sur la trace : le wire le traverse
@@ -3133,12 +3094,12 @@ const baseFov=()=>cam.aspect<.9?54:42;
 function placeBlocks(){
   blocks.forEach(bk=>{
     const o=(bk.stopIdx===0||bk.t>=1)?depOff(bk):[0,0],bx=bk.pt.x+o[0],bz=bk.pt.z+o[1],gy=terrainAt(bx,bz);
-    bk.base=bk.ty+CLEAR;bk.faceYaw=Math.atan2(bk.camAt.x+o[0]-bx,bk.camAt.z+o[1]-bz);
+    const rk=bk.proj&&bk.proj.small?SMALL_K:1;bk.base=bk.ty+CLEAR*rk;bk.faceYaw=Math.atan2(bk.camAt.x+o[0]-bx,bk.camAt.z+o[1]-bz);
     bk.holder.position.set(bx,bk.base,bz);bk.pos.set(bx,bk.base,bz);
     bk.shadow.position.set(bx,gy+.4,bz);
     // 2 pierres sous le wire (du sol, un peu enterrées, jusqu'au jeu), 2 au-dessus (du jeu jusque sous la pierre gravée) ; dessus et dessous plats : le jeu est net
-    const wy=bk.ty,lo0=Math.min(gy-.5,wy-GAP/2-1.2),lo1=wy-GAP/2,hi0=wy+GAP/2,hi1=Math.max(hi0+1.6,bk.base-3.4);
-    const span=[[lo0,(lo0+lo1)/2,6.4],[(lo0+lo1)/2,lo1,5.6],[hi0,(hi0+hi1)/2,5.2],[(hi0+hi1)/2,hi1,4.4]];
+    const wy=bk.ty,lo0=Math.min(gy-.5,wy-GAP/2-1.2),lo1=wy-GAP/2,hi0=wy+GAP/2,hi1=Math.max(hi0+1.6*rk,bk.base-3.4*rk);
+    const span=[[lo0,(lo0+lo1)/2,6.4*rk],[(lo0+lo1)/2,lo1,5.6*rk],[hi0,(hi0+hi1)/2,5.2*rk],[(hi0+hi1)/2,hi1,4.4*rk]];
     bk.cairn.children.forEach((m,k)=>{const [y0,y1,r]=span[k],th=y1-y0,sy=th/1.32;   // la géométrie va de −0,62 à +0,7 (1,32)
       m.scale.set(r*(1+.08*Math.sin(k*2.3)),sy,r*(.86+.08*Math.cos(k*1.7)));m.position.set(bx+Math.sin(k*2.9)*.35,y0+.62*sy,bz+Math.cos(k*3.3)*.35)});
   });
@@ -3203,7 +3164,7 @@ function frameOf(i,o){   // cadrage d'arrêt de l'étape i (position, visée) ; 
   const blk=blocks.find(x=>x.stopIdx===i);if(!blk)return false;
   const nar=cam.aspect<.9,fx=Math.sin(blk.faceYaw),fz=Math.cos(blk.faceYaw),D=nar?STOP_D[1]:STOP_D[0];
   o.p.set(blk.pos.x+fx*D,blk.base+STOP_H,blk.pos.z+fz*D);
-  const card=cardShut!==i&&blk.proj&&blk.proj.id!=='next',side=!nar&&card?D*STOP_SIDE:0;   // grand écran : la carte est à droite, la stèle passe à gauche du centre ; téléphone : la carte est en bas, la stèle remonte
+  const card=cardShut!==i&&!!blk.proj,side=!nar&&card?D*STOP_SIDE:0;   // grand écran : la carte est à droite, la stèle passe à gauche du centre ; téléphone : la carte est en bas, la stèle remonte
   o.t.set(blk.pos.x+fz*side,blk.base+(nar&&card?STOP_LOW:1.5),blk.pos.z-fx*side);return true}
 function frameFollow(pt,dx,dz,o){o.p.set(pt.x-dx*80,pt.y+40,pt.z-dz*80);o.t.set(pt.x,pt.y+10,pt.z)}   // repli sans cairn : derrière l'aiguille
 function rig(p,dt,snap,intro=0){
@@ -3262,12 +3223,15 @@ function rig(p,dt,snap,intro=0){
      nQ.copy(ball.quaternion);v3.copy(ball.position);ball.position.copy(nP);ball.lookAt(nT);
      nQ.slerp(ball.quaternion,e);ball.quaternion.copy(nQ);ball.position.copy(v3).lerp(nP,e);ball.scale.setScalar(lerp(s0,so,e))}
    const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
-  const tg0=tB;   // la lueur s'arrête à la base du triangle : elle ne dépasse jamais sa pointe
+  /* Le fil se dessine au fil de l'avancée, sans point qui se déplace : le triangle n'existe qu'au Départ (relais de l'aiguille du cadran pendant la plongée),
+     il s'efface dès que la trace avance (NEEDLE_OUT) ; la lueur part alors du départ et s'arrête à l'abscisse atteinte (tt), sans trou sous l'aiguille. */
+  const nv=1-sm(NEEDLE_OUT[0],NEEDLE_OUT[1],t);ball.visible=nv>.01;ball.children.forEach(m=>{m.material.opacity=nv});
+  const tg0=lerp(tt,tB,nv),hB=nv>.01?tB:0,hT=nv>.01?tt:0;   // tant que le triangle est là, la lueur s'arrête à sa base et rien n'est dessiné dessous
   // tronçon visible : du cairn où l'on est (ou que l'on vient de quitter) au suivant ; à la dernière étape, de l'avant-dernier cairn au bout. Il glisse en douceur d'un tronçon au suivant
   {const L=curve.getLength(),eps=12/L;let k=0;for(let i=0;i<NS;i++)if(STOPS[i].t<=tt+eps)k=i;
    const v0=k>=NS-1?STOPS[NS-2].t:Math.min(STOPS[k].t,tB),v1=k>=NS-1?1:STOPS[k+1].t,kk=snap||reduce?1:1-Math.exp(-dt*3.5);
    trWin[0]+=(v0-trWin[0])*kk;trWin[1]+=(v1-trWin[1])*kk;}
-  FATS.forEach(m=>{m.uniforms.uT.value=tg0;m.uniforms.uH0.value=tB;m.uniforms.uH1.value=tt;m.uniforms.uTime.value=reduce?0:tNow;m.uniforms.uV0.value=trWin[0];m.uniforms.uV1.value=trWin[1];m.uniforms.uVF.value=6/curve.getLength()});   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
+  FATS.forEach(m=>{const glow=m.uniforms.uMode.value>.5;m.uniforms.uT.value=tg0;m.uniforms.uH0.value=hB;m.uniforms.uH1.value=hT;m.uniforms.uTime.value=reduce?0:tNow;m.uniforms.uV0.value=glow?0:trWin[0];m.uniforms.uV1.value=trWin[1];m.uniforms.uVF.value=6/curve.getLength()});   // le fil parcouru reste dessiné depuis le départ (uV0 = 0) ; le câble mat ne montre que le tronçon jusqu'au prochain cairn   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
   blocks.forEach((bk,i)=>{
@@ -3322,21 +3286,15 @@ function altAt(t){const f=clamp(t)*(P.length-1),i=Math.floor(f),u=f-i,j=Math.min
 function bearingAt(t){const a=curve.getPointAt(clamp(t-.02)),b=curve.getPointAt(clamp(t+.02));return ((Math.atan2(b.x-a.x,-(b.z-a.z))*180/Math.PI)%360+360)%360}
 const fmt=n=>Math.round(n).toLocaleString('fr-FR');
 STOPS.forEach((st,i)=>{
-  const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.dataset.i=i;
-  b.innerHTML=`<span class="dot" aria-hidden="true"></span><span class="stip"><i>${String(i).padStart(2,'0')}</i><span class="lb">${st.name}</span></span>`;
+  const li=document.createElement('li'),b=document.createElement('button'),sg=st.sg,num=sg.kind==='depart'?'00':sg.num?String(sg.num).padStart(2,'0'):sg.kind==='bivouac'?'BV':'∞';b.type='button';b.dataset.i=i;
+  b.innerHTML=`<span class="dot" aria-hidden="true"></span><span class="stip"><i aria-hidden="true">${num}</i><span class="lb">${esc(sg.label)} · ${esc(sg.title)}</span></span>`;
+  if(sg.kind==='bivouac')li.classList.add('biv');   // bivouac : petit marqueur, pas une étape
   b.addEventListener('click',()=>{pinnedIdx=pinnedIdx===i?-1:i;gotoStop(i)});
   b.addEventListener('pointerenter',()=>{focusIdx=i});b.addEventListener('pointerleave',()=>{focusIdx=-1});
   b.addEventListener('focus',()=>{focusIdx=i});b.addEventListener('blur',()=>{if(focusIdx===i)focusIdx=-1});
   li.style.top=(i/(STOPS.length-1)*100).toFixed(2)+'%';   // les étapes sont réparties sur toute la hauteur de la barre de progression
   li.appendChild(b);stageList.appendChild(li);
-  if(!st.proj){const it0=document.createElement('li');it0.innerHTML=`<p class="e">${st.ttl}</p><p class="km">${kmLine(0)}</p><h3>${st.period}</h3><p>${st.role}</p>`;plist.appendChild(it0)}
-  if(st.proj){
-    const pr=st.proj,it=document.createElement('li');
-    const alt=OK?altAt(st.t):0;
-    it.innerHTML=`<p class="e">${esc(pr.stage)} · ${esc(pr.place)}</p><p class="km">${kmLine(st.t)}</p><h3>${esc(pr.title)}</h3><p>${esc(pr.result)}</p><ul>${pr.tags.map(t=>'<li>'+esc(t)+'</li>').join('')}</ul>`;
-    plist.appendChild(it);
-    /* les technologies sont gravées sur la face du bloc (plus de pastilles flottantes au-dessus) */
-  }
+  // la liste des étapes (#pList : dates, chiffre, liens vers les fiches) est rendue côté serveur (utils/loopMarkup.ts) : rien à construire ici
 });
 const stageBtns=[...stageList.querySelectorAll('button')],holos=[...tagsEl.querySelectorAll('.holo')];
 /* barre de progression : dans la zone de la carte, la pastille parcourt les points d'étapes posés sur la barre */
@@ -3350,8 +3308,7 @@ function gotoStop(i){const s=STOPS[i];cinematicTo(PC0+PCW*(s.a+s.b)/2)}
 const mapTot=$('#mapTot');let totK=-1,totG=-1;
 const plMore=$('#plMore');   // la plaque de métriques sous la carte (.pl-metrics) a été retirée : stèle, panneau d'étape et annonces portent ces informations
 const plDock=plMore.parentElement;
-function openStop(id,opener){if(id==='next'){jumpTo(.845);live.textContent='Contact. Posons le sac.';return}const pr=PROJECTS.find(p=>p.id===id);openProject(id,opener,pr?'Km '+fmtN(kmAt(pr.t))+' · Altitude '+fmtN(altAt(pr.t))+' m':'')}   // un seul geste par étape : ouvrir la fiche (la dernière étape mène au contact)
-plMore.addEventListener('click',()=>openStop(plMore.dataset.id,plMore));
+// « Voir la fiche » (#plMore) est un vrai lien : son href suit l'étape affichée (première fiche liée, /contact au cairn final), voir updateUi
 /* Fiche d'étape : à l'arrêt sur un cairn (caméra posée), un résumé compact apparaît sur le côté (en bas sur téléphone), sans prendre le focus ni bloquer le défilement ;
    « Fiche complète » ouvre la fenêtre détaillée. Elle disparaît en repartant. Le visiteur peut la masquer pour la session (le bouton « Voir la fiche » revient). */
 const sCard=$('#stopCard'),sMore=$('#scMore'),s2el=$('#s2');let cardIdx=-1,cardShut=-1;   // cardShut : étape dont le panneau a été fermé (✕ ou Échap) ; il revient à l'étape suivante
@@ -3363,21 +3320,19 @@ function brief(t,max=150){const ph=String(t||'').trim().split(/(?<=[.!?…])\s+/
    La stèle gravée garde étape, lieu, km, D+ et altitude : ils sont redonnés aux lecteurs d'écran (#scSr), la stèle étant décorative. */
 const cap=(t,max)=>{t=String(t||'').trim();if(t.length<=max)return t;const c=t.slice(0,max);return c.slice(0,Math.max(c.lastIndexOf(' '),max*.7)).replace(/[\s.,;:–-]+$/,'')+'…'};   // coupe au mot : la fiche complète garde le texte entier
 const isCode=u=>/github\.com|gitlab\.|bitbucket\.org/i.test(u);
-function fillCard(pr){const f=PROJECT_INFO[pr.id],t=pr.t||0,s0=STOPS[0],name=f?f.t:s0.name;sMore.hidden=!f;
-  sCard.setAttribute('aria-label','Détails du projet '+name);
-  $('#scM').textContent=[f?yearOf(pr):s0.period,f?(f.cat||''):'Avant le code'].filter(Boolean).join(' · ');
-  $('#scT').textContent=name;
-  $('#scSr').textContent=[pr.stage,[pr.place,f?yearOf(pr):''].filter(Boolean).join(', '),'Altitude '+fmtN(altAt(t))+' mètres',kmSpeech(t)].filter(Boolean).join('. ')+'.';
-  const l=$('#scL'),txt=f?cap(brief(f.l||pr.result,260),260):s0.role;l.textContent=txt;l.hidden=!txt;
-  const pl=$('#scP');pl.innerHTML=((f?f.pts:s0.pts)||[]).slice(0,3).map(x=>`<li>${esc(cap(x,170))}</li>`).join('');pl.hidden=!pl.children.length;
-  const kl=$('#scK');kl.innerHTML=((f&&f.k)||pr.tags||[]).map(x=>`<li>${esc(x)}</li>`).join('');kl.hidden=!kl.children.length;
-  const L=(f&&f.links||[]).filter(x=>x.u&&okUrl(x.u)),site=L.find(x=>!isCode(x.u)),code=L.find(x=>isCode(x.u)),acts=$('#scActs');
-  acts.innerHTML=(site?`<a class="sc-cta" href="${esc(okUrl(site.u))}" target="_blank" rel="noopener">Voir le site <span aria-hidden="true">↗</span><span class="sr-only"> (nouvel onglet)</span></a>`:'')
-    +(code?`<a class="sc-code" href="${esc(okUrl(code.u))}" target="_blank" rel="noopener">Code source <span aria-hidden="true">↗</span><span class="sr-only"> (nouvel onglet)</span></a>`:'');
-  acts.hidden=!acts.children.length;sMore.classList.toggle('solo',!acts.children.length);   // sans lien public : « Fiche complète » devient le bouton principal
-  if(f){sMore.dataset.id=pr.id;sMore.querySelector('.n').textContent=' : '+f.t}}
+function fillCard(pr){const sg=pr.sg,t=pr.t||0;
+  sCard.setAttribute('aria-label',"Détails de l'étape "+sg.title);
+  $('#scM').textContent=[sg.label,sg.period].filter(Boolean).join(' · ');
+  $('#scT').textContent=sg.title;
+  $('#scSr').textContent=[sg.place,'Altitude '+fmtN(altAt(t))+' mètres',kmSpeech(t)].filter(Boolean).join('. ')+'.';   // ce que seule la stèle (décorative) montre
+  const l=$('#scL');l.textContent=sg.summary||'';l.hidden=!sg.summary;
+  const pl=$('#scP');pl.setAttribute('aria-label','Chiffre clé');pl.innerHTML=sg.figure?`<li><strong>${esc(sg.figure)}</strong>${sg.figureLabel?' '+esc(sg.figureLabel):''}</li>`:'';pl.hidden=!pl.children.length;   // sans chiffre : rien (jamais de valeur inventée)
+  const kl=$('#scK');kl.innerHTML='';kl.hidden=true;
+  const L=sg.kind==='final'?[{href:'/contact',title:'Écrire la suite ensemble',txt:'Écrire la suite ensemble'}]:sg.links.map(x=>({href:x.href,title:x.title,txt:'Fiche '+x.title})),acts=$('#scActs');
+  acts.innerHTML=L.map((x,k)=>`<a class="${k?'sc-code':'sc-cta'}" href="${esc(x.href)}">${esc(x.txt)}<span aria-hidden="true"> →</span></a>`).join('');   // vrais liens : ils marchent aussi sans 3D (même liste dans #pList)
+  acts.hidden=!acts.children.length;sMore.hidden=true}
 function updateCard(){
-  const as=STOPS[activeStop],pr=as&&(as.proj||(activeStop===0?(blocks.find(b=>b.stopIdx===0)||{}).proj:null)),ok=!staticMode&&cardShut!==activeStop&&pr&&pr.id!=='next'&&(pr.id==='depart'||PROJECT_INFO[pr.id]);   // le Départ (étape 00) a sa carte aussi
+  const as=STOPS[activeStop],pr=as&&(as.proj||(activeStop===0?(blocks.find(b=>b.stopIdx===0)||{}).proj:null)),ok=!staticMode&&cardShut!==activeStop&&pr&&pr.sg;   // chaque étape a son panneau (Départ, bivouac et cairn final compris)
   const cand=!ok?-1:stopW>.9?activeStop:(stopW>.55&&cardIdx===activeStop?activeStop:-1);   // hystérésis : apparaît caméra posée, reste jusqu'au vrai départ
   if(cardShut>=0&&activeStop!==cardShut)cardShut=-1;   // on a quitté l'étape fermée : son panneau reviendra la prochaine fois
   const now=performance.now();if(cand!==updateCard.c){updateCard.c=cand;updateCard.t=now}
@@ -3385,8 +3340,7 @@ function updateCard(){
   if(want===cardIdx)return;
   if(cardIdx>=0&&want<0&&sCard.contains(document.activeElement))plMore.focus({preventScroll:true});   // le focus ne se perd pas dans une carte qui disparaît
   cardIdx=want;if(want>=0)fillCard(pr);sCard.classList.toggle('on',want>=0);s2el.classList.toggle('card-on',want>=0)}
-sMore.addEventListener('click',()=>openStop(sMore.dataset.id,sMore));
-function shutCard(){if(cardIdx<0)return;cardShut=activeStop;const inside=sCard.contains(document.activeElement);updateCard();if(inside)plMore.focus({preventScroll:true});live.textContent='Panneau fermé. Le bouton Voir la fiche reste disponible.'}
+function shutCard(){if(cardIdx<0)return;cardShut=activeStop;const inside=sCard.contains(document.activeElement);updateCard();if(inside)plMore.focus({preventScroll:true});live.textContent='Panneau fermé. Le lien Voir la fiche reste disponible.'}
 $('#scX').addEventListener('click',shutCard);
 addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented||TOUR.on||cardIdx<0||document.querySelector('dialog[open]')||document.querySelector('.burger[aria-expanded="true"]'))return;shutCard()},true);   // capture : passe avant l'écouteur de la visite guidée (qui l'arrête). Échap ferme le panneau d'étape (jamais pendant la visite guidée, une fenêtre ou un menu ouvert)
 let lastShown=-2;
@@ -3396,8 +3350,9 @@ function updateUi(p){
   stageBtns.forEach((b,i)=>{b.setAttribute('aria-current',String(i===activeStop));b.classList.toggle('past',i<activeStop)});
   const st=STOPS[Math.max(cur,0)],t=st.proj?st.t:(cur===0?0:1);
   const alt=altAt(t),brg=bearingAt(t);
-  if(st.proj&&PROJECT_INFO[st.proj.id]){const nx=st.proj.id==='next';plMore.hidden=false;plMore.dataset.id=st.proj.id;plMore.querySelector('.t').textContent=nx?'Définir la prochaine étape':'Voir la fiche';plMore.querySelector('.n').textContent=' : '+st.proj.title;if(nx)plMore.removeAttribute('aria-haspopup');else plMore.setAttribute('aria-haspopup','dialog');plDock.classList.add('on-proj')}else{plMore.hidden=true;plDock.classList.remove('on-proj')}
-  if(cur!==lastShown){lastShown=cur;if(cur>=0)live.textContent='Étape '+cur+' : '+st.name+(st.proj?'':', '+st.period+', '+st.role)+'. '+kmSpeech(t)}
+  {const sg=st.sg,nx=sg.kind==='final',href=sg.href;   // « Voir la fiche » : lien vers la première fiche liée ; au cairn final, vers Contact
+   if(href){plMore.hidden=false;plMore.href=href;plMore.querySelector('.t').textContent=nx?'Écrire la suite':'Voir la fiche';plMore.querySelector('.n').textContent=' : '+(nx?'Contact':sg.links[0].title);plDock.classList.add('on-proj')}else{plMore.hidden=true;plDock.classList.remove('on-proj')}}
+  if(cur!==lastShown||sceneSay){lastShown=cur;if(cur>=0){const sg=st.sg;live.textContent=(sceneSay?sceneSay+'. ':'')+[sg.label+' : '+sg.title,sg.period,sg.keyResult].filter(Boolean).join(', ')+'. '+kmSpeech(t)+'.'}sceneSay=''}   // chaque changement d'étape est annoncé (#live, aria-live)
   // étiquettes
   holos.forEach(h=>{const i=+h.dataset.i;const on=(i===sel)||(sel<0&&i===activeStop);h.classList.toggle('on',on)});
   updateCard();
@@ -3427,7 +3382,7 @@ cv.addEventListener('pointerleave',()=>{ptr.in=false;ptrIdx=-1});
 cv.addEventListener('click',e=>{   // toucher le bloc 3D : sur l'étape en cours, il ouvre la fiche ; sur un autre bloc, la caméra s'y rend
   const r=cv.getBoundingClientRect();ptr.x=e.clientX-r.left;ptr.y=e.clientY-r.top;ptr.in=true;pick();
   if(ptrIdx<0)return;const st=STOPS[ptrIdx];
-  if(ptrIdx===activeStop&&st&&st.proj&&PROJECT_INFO[st.proj.id]){openStop(st.proj.id,plMore);return}
+  if(ptrIdx===activeStop&&st&&st.sg&&st.sg.href){location.assign(st.sg.href);return}   // clic sur la stèle de l'étape affichée : même destination que « Voir la fiche »
   pinnedIdx=pinnedIdx===ptrIdx?-1:ptrIdx;gotoStop(ptrIdx)});
 addEventListener('keydown',e=>{if(e.key==='Escape')pinnedIdx=-1});
 
@@ -3435,7 +3390,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape')pinnedIdx=-1});
 function staticView(){
   if(!inited)return;resize();updateSky(.3);
   const c=curve.getPointAt(.5),ext=Math.max(bx1-bx0-2*pad,bz1-bz0-2*pad)*1.12,hs=Math.max(900,ext*.5/Math.tan(14*Math.PI/180));camPos.set(c.x,hs,c.z+70);camTgt.set(c.x,0,c.z);cam.position.copy(camPos);cam.lookAt(camTgt);cam.fov=28;cam.updateProjectionMatrix();
-  FATS.forEach(m=>{m.uniforms.uT.value=1;m.uniforms.uTime.value=0});
+  FATS.forEach(m=>{const u=m.uniforms;u.uT.value=1;u.uTime.value=0;u.uV0.value=0;u.uV1.value=1;u.uH0.value=u.uH1.value=0});   // vue statique : toute la trace, sans aiguille
+  if(ball)ball.visible=false;
   blocks.forEach(b=>{b.lift=0;b.holder.position.y=b.base});
   renderer.render(scene,cam);
 }

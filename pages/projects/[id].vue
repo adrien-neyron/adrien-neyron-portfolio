@@ -6,12 +6,15 @@
  */
 import { ExternalLink, Github } from "lucide-vue-next";
 import { useProjectsStore, type Project } from "~/stores/projects";
+import { useStagesStore } from "~/stores/stages";
 import { defaultProfile, formatCoords, toParagraphs } from "~/utils/trail";
+import { buildStageView, isListedProject, stageHeading, stageOfProject } from "~/utils/stages";
 
 const route = useRoute();
 
 const projectsStore = useProjectsStore();
-await projectsStore.fetchProjects();
+const stagesStore = useStagesStore();
+await Promise.all([projectsStore.fetchProjects(), stagesStore.fetchStages()]);
 
 const slugOf = (p: Pick<Project, "slug" | "_id">) => p.slug || p._id;
 const list = computed(() => projectsStore.projects);
@@ -22,11 +25,23 @@ if (!project.value) {
   throw createError({ statusCode: 404, statusMessage: "Sentier introuvable", fatal: true });
 }
 
+// Étape de la trace qui porte ce projet : même numéro, nom et résultat clé que l'accueil et /projects (utils/stages.ts)
+const stage = computed(() =>
+  stageOfProject(
+    project.value && slugOf(project.value),
+    buildStageView(stagesStore.stages, list.value.map((p) => ({ slug: slugOf(p), title: p.title })))
+  )
+);
+
+// Voisins : parmi les fiches publiées sur /projects (une fiche non publiée garde tous les projets comme voisins)
+const listedOnly = (p: Project) => isListedProject({ ...p, slug: slugOf(p) });
+const navList = computed(() => (project.value && listedOnly(project.value) ? list.value.filter(listedOnly) : list.value));
+const navIndex = computed(() => navList.value.findIndex((p) => slugOf(p) === route.params.id));
 const prevProject = computed(() =>
-  list.value.length > 1 ? list.value[(currentIndex.value - 1 + list.value.length) % list.value.length] : undefined
+  navList.value.length > 1 ? navList.value[(navIndex.value - 1 + navList.value.length) % navList.value.length] : undefined
 );
 const nextProject = computed(() =>
-  list.value.length > 1 ? list.value[(currentIndex.value + 1) % list.value.length] : undefined
+  navList.value.length > 1 ? navList.value[(navIndex.value + 1) % navList.value.length] : undefined
 );
 
 useHead({
@@ -82,7 +97,7 @@ const sections = computed(() => [
         </nav>
 
         <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-accent) mb-4 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span>Sentier {{ number }}<template v-if="project.place"> · {{ project.place }}</template></span>
+          <span>{{ stage ? stage.label : `Sentier ${number}` }}<template v-if="project.place"> · {{ project.place }}</template></span>
           <span v-if="coords" class="text-(--color-muted) normal-case tracking-normal">— {{ coords }}</span>
         </p>
 
@@ -91,6 +106,11 @@ const sections = computed(() => [
         </h1>
         <p v-if="project.tagline" class="mt-4 text-xl sm:text-2xl text-(--color-accent) max-w-3xl" style="font-family: var(--font-title); font-style: italic;">
           {{ project.tagline }}
+        </p>
+        <!-- Sur la trace : l'étape et son résultat clé (mêmes données que l'accueil) -->
+        <p v-if="stage" class="mt-6 font-mono text-sm text-(--color-text) flex flex-wrap gap-x-3 gap-y-1">
+          <span>{{ stageHeading(stage) }}<template v-if="stage.period"> · {{ stage.period }}</template></span>
+          <strong v-if="stage.keyResult" class="font-semibold text-(--color-accent)">{{ stage.keyResult }}</strong>
         </p>
       </div>
     </header>

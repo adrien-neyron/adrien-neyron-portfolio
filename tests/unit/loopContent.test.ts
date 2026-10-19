@@ -8,6 +8,7 @@ vi.mock('~/server/models/profile', () => ({ default: { findOne: () => chain(stat
 vi.mock('~/server/models/project', () => ({ default: { find: () => chain(state.projects) } }))
 vi.mock('~/server/models/carnetArticle', () => ({ default: { find: () => chain(state.articles) } }))
 vi.mock('~/server/models/aiTool', () => ({ default: { find: () => chain(state.aiTools) } }))
+vi.mock('~/server/models/stage', () => ({ default: { find: () => chain(state.stages) } }))
 
 import handler from '~/server/api/loop-content.get'
 
@@ -23,6 +24,7 @@ beforeEach(() => {
   state.projects = [{ slug: 'p1', title: 'P1', technologies: ['Vue', ' ', 7], order: 1, stats: [{ value: ' −50 % ', label: 'de temps' }, { value: '', label: 'sans valeur' }], cover: ' /c.webp ' }]
   state.articles = [{ slug: 'a1', title: 'A1', date: '2026-01-01' }]
   state.aiTools = [{ slug: 't1', name: 'Claude', provider: 'Anthropic' }]
+  state.stages = []
 })
 
 describe('GET /api/loop-content', () => {
@@ -56,6 +58,23 @@ describe('GET /api/loop-content', () => {
     const out: any = await (handler as any)(makeEvent())
     expect(out.hero).toBeNull(); expect(out.dial).toBeNull(); expect(out.toolsHead).toBeNull(); expect(out.contact).toBeNull()
     expect(out.projects).toHaveLength(1)
+  })
+
+  it('étapes : base vide → étapes par défaut (data/stages.ts), liens seulement vers les projets présents', async () => {
+    state.projects = [{ slug: 'dgfip-outil-metier', title: 'OCTAVE' }]
+    const out: any = await (handler as any)(makeEvent())
+    expect(out.stages.map((s: any) => s.label)).toEqual(['Départ', 'Étape 01', 'Étape 02', 'Bivouac', 'Étape 03', 'Cairn final'])
+    const e2 = out.stages.find((s: any) => s.label === 'Étape 02')
+    expect(e2.links).toEqual([{ slug: 'dgfip-outil-metier', title: 'OCTAVE', href: '/projects/dgfip-outil-metier' }])
+    expect(e2.keyResult).toBe('−50 % de temps de traitement')
+    expect(out.stages.find((s: any) => s.label === 'Étape 01').links).toEqual([])   // StockPulse absent : pas de lien mort
+  })
+
+  it('étapes : celles de la base remplacent le repli', async () => {
+    state.stages = [{ key: 'a', order: 0, kind: 'depart', title: 'A', projects: [] }, { key: 'z', order: 1, kind: 'final', title: 'Z' }]
+    const out: any = await (handler as any)(makeEvent())
+    expect(out.stages.map((s: any) => s.title)).toEqual(['A', 'Z'])
+    expect(out.stages[1].href).toBe('/contact')
   })
 
   it('base indisponible → {} et no-store (jamais mis en cache), pas de 500', async () => {

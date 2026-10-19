@@ -3,8 +3,12 @@
  * Extrait de LoopHome.vue pour être testé (tests/unit/loopMarkup.test.ts) : le texte du balisage est le
  * repli, un champ vide ou une balise introuvable laisse le HTML d'origine intact.
  */
+import { buildStageView, type StageView } from './stages'
+import { stages as staticStages } from '../data/stages'
+import { projects as staticProjects } from '../data/projects'
+
 export interface LoopTexts { eyebrow?: string; title?: string; lede?: string }
-export interface LoopContentTexts { hero?: LoopTexts | null; toolsHead?: LoopTexts | null }
+export interface LoopContentTexts { hero?: LoopTexts | null; toolsHead?: LoopTexts | null; stages?: StageView[] | null }
 
 export const escHtml = (v: string) =>
   v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -18,10 +22,52 @@ export const swap = (html: string, open: string, close: string, text?: string) =
   return j < 0 ? html : html.slice(0, i + open.length) + escHtml(t) + html.slice(j)
 }
 
+/**
+ * Étapes de la trace : celles de /api/loop-content (base, déjà résolues), sinon le repli data/stages.ts
+ * (liens résolus sur les projets du repli). Même fonction pour le rendu serveur et pour loop.js.
+ */
+export function loopStages(content?: LoopContentTexts | null): StageView[] {
+  const s = content?.stages
+  return Array.isArray(s) && s.length
+    ? s
+    : buildStageView(staticStages, staticProjects.map((p) => ({ slug: p.id, title: p.title })))
+}
+
+const fmtN = (n: number) => Math.round(n).toLocaleString('fr-FR')
+
+/**
+ * Liste des étapes (#pList), rendue côté serveur : vraie liste ordonnée, dates, chiffre et VRAIS liens <a href>
+ * vers les fiches. Lisible sans JavaScript ni 3D ; affichée en vue statique et en mouvement réduit (loop.css).
+ */
+export function renderStageList(view: StageView[]): string {
+  return view
+    .map((v, i) => {
+      const head = [v.label, v.period].filter(Boolean).join(' · ')
+      const fig = v.figure ? `<p class="fig"><strong>${escHtml(v.figure)}</strong>${v.figureLabel ? ' ' + escHtml(v.figureLabel) : ''}</p>` : ''
+      const links = v.kind === 'final'
+        ? [{ href: '/contact', text: 'Écrire la suite ensemble' }]
+        : v.links.map((l) => ({ href: l.href, text: `Fiche ${l.title}` }))
+      const ul = links.length
+        ? `<ul class="lk">${links.map((l) => `<li><a href="${escHtml(l.href)}">${escHtml(l.text)}<span aria-hidden="true"> →</span></a></li>`).join('')}</ul>`
+        : ''
+      return `<li class="st-${v.kind}" data-i="${i}"><p class="e">${escHtml(head)}</p>`
+        + `<h3>${escHtml(v.title)}</h3>`
+        + (v.place ? `<p class="pl">${escHtml(v.place)}</p>` : '')
+        + (v.summary ? `<p>${escHtml(v.summary)}</p>` : '')
+        + fig
+        + `<p class="km">Km ${fmtN(v.km)} · D+ ${fmtN(v.gain)} m</p>`
+        + ul + '</li>'
+    })
+    .join('')
+}
+
+const PLIST_OPEN = '<ol class="pl-list" id="pList" aria-label="Étapes du parcours">'
+
 export function applyLoopContent(markup: string, content?: LoopContentTexts | null): string {
   const h = content?.hero
   const t = content?.toolsHead
-  let html = markup
+  // liste des étapes : HTML déjà échappé par renderStageList (remplacement par fonction : pas d'interprétation de « $ »)
+  let html = markup.replace(PLIST_OPEN + '</ol>', () => PLIST_OPEN + renderStageList(loopStages(content)) + '</ol>')
   if (h) {
     html = swap(html, '<p class="eyebrow who">', '</p>', h.eyebrow)
     html = swap(html, '<h1 id="h1">', '</h1>', h.title)

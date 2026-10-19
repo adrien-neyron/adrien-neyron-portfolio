@@ -28,6 +28,7 @@ export interface IProject extends Document {
   status?: string;
   impact?: string;
   // Refonte « L'ascension » — fiche topo (tous optionnels, rétrocompatibles)
+  type?: "mission" | "perso";                     // filtre « Missions / Projets perso » de /projects ; vide → repli DEFAULT_PROJECT_TYPES (utils/stages.ts)
   order?: number;                                  // rang sur le parcours de l'accueil (0 = premier) ; vide : ordre de création
   place?: string;                                  // « Lyon », « Paris »…
   coords?: { lat?: number; lon?: number };          // coordonnées affichées sur la fiche
@@ -68,6 +69,7 @@ const ProjectSchema = new Schema<IProject>(
     category:   String,
     status:     String,
     impact:     String,
+    type:       { type: String, enum: ["mission", "perso"] },
     order:      Number,
     place:      String,
     coords: {

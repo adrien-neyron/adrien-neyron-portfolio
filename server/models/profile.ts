@@ -43,6 +43,7 @@ export interface IProfile extends Document {
   loopToolsEyebrow?: string; // accueil, étape « S'équiper » : surtitre
   loopToolsTitle?: string;   // accueil, étape « S'équiper » : titre
   loopToolsLede?: string;    // accueil, étape « S'équiper » : paragraphe
+  trailStats?: { value: string; label: string }[]; // bandeau de chiffres sous le titre de /projects
   url?: string;
   keywords?: string;
   location: IProfileLocation;
@@ -79,6 +80,7 @@ const ProfileSchema = new Schema<IProfile>(
     loopToolsEyebrow: String,
     loopToolsTitle: String,
     loopToolsLede:  String,
+    trailStats:     { type: [{ value: String, label: String, _id: false }], default: undefined },
     url:            String,
     keywords:       String,
     location: {

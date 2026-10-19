@@ -21,13 +21,16 @@ import loopCss from '~/assets/loop/loop.css?inline'
 import { applyLoopContent, type LoopContentTexts } from '~/utils/loopMarkup'
 
 /**
- * Textes du premier écran saisis dans /admin (profil : surtitre, titre, sous-texte). Insérés dans le HTML rendu
- * côté serveur : ni clignotement au chargement, ni attente de la 3D, et lisibles sans JavaScript.
+ * Textes du premier écran saisis dans /admin (profil : surtitre, titre, sous-texte) et liste des étapes de la trace
+ * (avec liens vers les fiches). Insérés dans le HTML rendu côté serveur : ni clignotement au chargement, ni attente
+ * de la 3D, et lisibles sans JavaScript.
  * Champ vide, API en panne ou plus de 2 s : le texte de loop.html est conservé.
  */
 const { data: loopContent } = await useFetch<LoopContentTexts>('/api/loop-content', {
   key: 'loop-hero',
   timeout: 2000,
+  // seulement ce que le HTML serveur utilise : le reste (fiches, carnet…) n'alourdit pas la charge utile de la page
+  pick: ['hero', 'toolsHead', 'stages'],
   default: () => null,
 })
 const page = computed(() => applyLoopContent(markup, loopContent.value))

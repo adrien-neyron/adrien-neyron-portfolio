@@ -44,6 +44,7 @@ export interface Profile {
   loopToolsEyebrow?: string;
   loopToolsTitle?: string;
   loopToolsLede?: string;
+  trailStats?: { value: string; label: string }[];   // bandeau de chiffres de /projects
   url?: string;
   keywords?: string;
   location: ProfileLocation;
@@ -70,6 +71,13 @@ export const staticProfileFallback: Profile = {
     "Avec un solide bagage en gestion et un sens aigu de la résolution de problèmes, j'apporte une perspective unique à chaque projet. Je combine un code propre avec une réflexion UX/UI pour créer des applications à la fois fonctionnelles et agréables à utiliser.",
     "Tailwind CSS et Bootstrap sont mes outils de prédilection pour des interfaces responsives. J'explore aussi Three.js, @vueuse/motion et TresJS pour donner vie à mes créations.",
     "Passionné par l'apprentissage et l'innovation, j'aime relever des défis et transformer des idées en expériences numériques fluides et interactives.",
+  ],
+  // Bandeau de chiffres de /projects (repris des étapes : Départ, Étape 02, Étape 03)
+  trailStats: [
+    { value: "30 → 52 %", label: "de conformité RGAA" },
+    { value: "100+", label: "sites clients corrigés" },
+    { value: "−50 %", label: "de temps de traitement" },
+    { value: "500+", label: "personnes formées" },
   ],
   pictureUrl: "/profile.png",
   cvUrl: "/2025_CV_AdrienNEYRON.pdf",
