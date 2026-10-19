@@ -47,7 +47,7 @@ const values = [
   {
     icon: "🗺️",
     title: "La Vision",
-    description: "17 ans d'expérience terrain donnent une perspective business. Je construis des outils utiles, pas juste techniques.",
+    description: "12 ans de formation et de management sur le terrain donnent une perspective business. Je construis des outils utiles, pas juste techniques.",
   },
 ];
 
@@ -108,7 +108,7 @@ const skills = {
               <MapPin :size="14" aria-hidden="true" />
               {{ profileStore.profile.location.city }}, {{ profileStore.profile.location.region }}
               <span class="w-px h-3 bg-[var(--color-muted)]/40 mx-1" />
-              17 ans d'expérience
+              5 ans de développement · 12 ans de formation et de management
             </div>
             <p class="text-sm text-[var(--color-text)]/70 leading-relaxed max-w-lg">
               {{ profileStore.profile.description }}

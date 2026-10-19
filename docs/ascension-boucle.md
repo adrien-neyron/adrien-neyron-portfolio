@@ -1,6 +1,6 @@
 # L'ascension — accueil en boucle infinie
 
-Route : `/` (accueil), ancien accueil conservé sur `/camp-de-base`. Branche : `feat/ascension-boucle`.
+Route : `/` (accueil), ancien accueil `/camp-de-base` redirigé (301) vers `/` depuis le 19/10/2026. Branche : `feat/ascension-boucle`.
 Prototype d'origine et décisions de design : `design_boussole-boucle.md` (hors dépôt, dans le projet Claude « Portfolio »).
 
 ## Ce que c'est

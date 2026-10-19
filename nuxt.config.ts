@@ -39,6 +39,8 @@ export default defineNuxtConfig({
   routeRules: {
     "/admin/**": { ssr: false },
     "/callback":  { ssr: false },
+    // ancien accueil « Camp de Base » : remplacé par la boucle (docs/audit-coherence.md, décision du 19/10/2026)
+    "/camp-de-base": { redirect: { to: "/", statusCode: 301 } },
   },
 
   // main.css (Tailwind + jetons du site) est importé par layouts/default.vue, layouts/admin.vue et

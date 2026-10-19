@@ -166,7 +166,7 @@ let CS=.07,CST=STEP,CSP=.07,CEND=[.24,.28],CREV=[.19,.22];   // CSP : début des
    Le texte écrit dans le balisage et dans les tableaux ci-dessous est le REPLI : un champ vide ou une API
    en échec laisse donc l'accueil exactement comme avant. Les chaînes venues de l'admin passent par esc() avant tout innerHTML. */
 const CMS=(LOADERS&&LOADERS.content)||{};
-const DIAL_T=Object.assign({name:'ADRIEN NEYRON',role:'DÉVELOPPEUR × TRAILEUR × FORMATEUR',xpLabel:'EXPÉRIENCE:',xpValue:'17 ANS'},Object.fromEntries(Object.entries((CMS&&CMS.dial)||{}).filter(([k,v])=>typeof v==='string'&&v.trim()).map(([k,v])=>[k,v.trim()])));   // texte du cadran : admin (Accueil), sinon repli
+const DIAL_T=Object.assign({name:'ADRIEN NEYRON',role:'DÉVELOPPEUR × TRAILEUR × FORMATEUR',xpLabel:'DÉV. 5 ANS',xpValue:'TERRAIN 12 ANS'},Object.fromEntries(Object.entries((CMS&&CMS.dial)||{}).filter(([k,v])=>typeof v==='string'&&v.trim()).map(([k,v])=>[k,v.trim()])));   // texte du cadran : admin (Accueil), sinon repli
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const okUrl=u=>{if(!u)return '';try{const x=new URL(u,location.href);return /^(https?:|mailto:)$/.test(x.protocol)?x.href:''}catch(e){return ''}};
 const shortT=t=>String(t).split(/\s[—–-]\s/)[0];   // titre court pour les blocs 3D : « Click2SellSite — Sprint… » → « Click2SellSite »
@@ -2198,10 +2198,10 @@ const CONTACT={email:'adrien.neyron@gmail.com',linkedin:'https://www.linkedin.co
   if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email||''))CONTACT.email=c.email;
   ['linkedin','github','rdv'].forEach(k=>{const u=okUrl(c[k]);if(u&&/^https?:/.test(u))CONTACT[k]=u})}
 {const p=CMS.profile||{};   // texte de la fiche « Profil » et lien du CV
-  const lead=$('#dlgProfil .lead'),facts=$('#dlgProfil .facts'),cv=$('#dlgProfil a[download]');
+  const lead=$('#dlgProfil .lead'),facts=$('#dlgProfil .facts'),cvs=$$('a[download][data-cv]');   // tous les liens CV (fiche Profil et pied de page)
   if(p.lead&&lead)lead.textContent=p.lead;
   if(p.facts&&facts)facts.textContent=p.facts;
-  const u=okUrl(p.cvUrl);if(u&&cv&&/^https?:|^\//.test(p.cvUrl))cv.href=u}
+  const u=okUrl(p.cvUrl);if(u&&/^https?:|^\//.test(p.cvUrl))cvs.forEach(a=>{a.href=u})}
 const cntStatus=$('#cntStatus');
 {const rb=$('#bivtext .cnt[data-k="rdv"]');if(rb&&!CONTACT.rdv)rb.hidden=true}   // pas de bouton vide tant que le lien de prise de rendez-vous n'est pas renseigné
 $$('#bivtext .cnt').forEach(b=>b.addEventListener('click',()=>{
@@ -2560,7 +2560,7 @@ const HOT={
   s:{t:'Stabilité',d:'Gestion de la pression.',b:180,p:[0,-1.46],r:.40},
   o:{t:'Ouverture d\'esprit',d:'Curiosité technique.',b:270,p:[-1.36,0],r:.42},
   stack:{t:'Adrien Neyron',d:'Développeur, traileur, formateur.',b:0,p:[0,.62],r:.34},
-  exp:{t:'Expérience',d:'17 ans dans le sport, puis le code.',b:180,p:[0,-.95],r:.34}
+  exp:{t:'Expérience',d:'12 ans de formation et de management, puis 5 ans de code.',b:180,p:[0,-.95],r:.34}
 };
 const tip=$('#tip'),tipT=$('#tipT'),tipD=$('#tipD');
 const hotEls=Object.keys(HOT).map(k=>{

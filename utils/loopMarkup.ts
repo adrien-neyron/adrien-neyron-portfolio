@@ -8,7 +8,10 @@ import { stages as staticStages } from '../data/stages'
 import { projects as staticProjects } from '../data/projects'
 
 export interface LoopTexts { eyebrow?: string; title?: string; lede?: string }
-export interface LoopContentTexts { hero?: LoopTexts | null; toolsHead?: LoopTexts | null; stages?: StageView[] | null }
+export interface LoopContentTexts { hero?: LoopTexts | null; toolsHead?: LoopTexts | null; stages?: StageView[] | null; profile?: { cvUrl?: string } | null }
+
+/** Lien CV par défaut de loop.html (fichier présent dans public/) ; remplacé par celui de l'admin s'il est valide. */
+export const DEFAULT_CV = '/2025_CV_AdrienNEYRON.pdf'
 
 export const escHtml = (v: string) =>
   v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -68,6 +71,9 @@ export function applyLoopContent(markup: string, content?: LoopContentTexts | nu
   const t = content?.toolsHead
   // liste des étapes : HTML déjà échappé par renderStageList (remplacement par fonction : pas d'interprétation de « $ »)
   let html = markup.replace(PLIST_OPEN + '</ol>', () => PLIST_OPEN + renderStageList(loopStages(content)) + '</ol>')
+  // lien CV de l'admin (chemin du site ou https) : posé dans le HTML serveur, valable sans JavaScript
+  const cv = (content?.profile?.cvUrl || '').trim()
+  if (cv && cv !== DEFAULT_CV && /^(\/(?!\/)|https:\/\/)/.test(cv)) html = html.split(`href="${DEFAULT_CV}"`).join(`href="${escHtml(cv)}"`)
   if (h) {
     html = swap(html, '<p class="eyebrow who">', '</p>', h.eyebrow)
     html = swap(html, '<h1 id="h1">', '</h1>', h.title)

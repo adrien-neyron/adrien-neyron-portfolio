@@ -88,7 +88,7 @@ const sections = computed(() => [
       <div class="relative max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 py-14 sm:py-20">
         <nav aria-label="Fil d'Ariane" class="font-mono text-xs text-(--color-muted) mb-6">
           <ol class="flex flex-wrap gap-2">
-            <li><NuxtLink to="/" class="hover:underline">Camp de Base</NuxtLink></li>
+            <li><NuxtLink to="/" class="hover:underline">Accueil</NuxtLink></li>
             <li aria-hidden="true">/</li>
             <li><NuxtLink to="/projects" class="hover:underline">Sentiers</NuxtLink></li>
             <li aria-hidden="true">/</li>

@@ -148,7 +148,7 @@ function onSubmit() {
               <input id="pr-dial-xpl" v-model="form.loopDialXpLabel" type="text" maxlength="24" class="admin-input" />
             </div>
             <div>
-              <label for="pr-dial-xpv" class="admin-label">Valeur <span class="normal-case font-normal">— vide : « 17 ans »</span></label>
+              <label for="pr-dial-xpv" class="admin-label">Valeur <span class="normal-case font-normal">— vide : « Terrain 12 ans »</span></label>
               <input id="pr-dial-xpv" v-model="form.loopDialXpValue" type="text" maxlength="16" class="admin-input" />
             </div>
           </div>

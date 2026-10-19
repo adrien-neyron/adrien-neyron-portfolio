@@ -30,7 +30,7 @@ const { data: loopContent } = await useFetch<LoopContentTexts>('/api/loop-conten
   key: 'loop-hero',
   timeout: 2000,
   // seulement ce que le HTML serveur utilise : le reste (fiches, carnet…) n'alourdit pas la charge utile de la page
-  pick: ['hero', 'toolsHead', 'stages'],
+  pick: ['hero', 'toolsHead', 'stages', 'profile'],
   default: () => null,
 })
 const page = computed(() => applyLoopContent(markup, loopContent.value))
@@ -42,7 +42,7 @@ useHead({
     {
       name: 'description',
       content:
-        "Portfolio d'Adri, développeur front-end (Vue 3, TypeScript, accessibilité RGAA/WCAG) : 17 ans de sport avant le code. Une expédition à parcourir : projets, outils, carnet, contact.",
+        "Portfolio d'Adri, développeur front-end (Vue 3, TypeScript, accessibilité RGAA/WCAG) : 12 ans de formation et de management, puis 5 ans de code. Une expédition à parcourir : projets, outils, carnet, contact.",
     },
   ],
   // Écran de la corde déjà vu dans cette session : masqué dès le premier affichage (pas de clignotement avant l'hydratation)

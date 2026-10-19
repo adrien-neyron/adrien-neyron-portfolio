@@ -75,7 +75,13 @@ Chaque étape : tests, axe, contrastes, Lighthouse, mise à jour de ce fichier e
 
 ## Suivi
 
-- [ ] Étape 1 — correctifs immédiats
+- [x] Étape 1 — correctifs immédiats (branche `fix/coherence-etape-1`) :
+  - liens CV de la boucle : fichier existant par défaut (`/2025_CV_AdrienNEYRON.pdf`, attribut `data-cv`), remplacés côté serveur par le CV de l'admin (`applyLoopContent`, `https://` ou chemin du site seulement) et par `loop.js` pour **tous** les liens (le pied de page ne suivait pas l'admin) ;
+  - « 17 ans » remplacé partout par 12 ans de formation et de management + 5 ans de développement (boucle, cadran par défaut, /about, description de l'accueil, aide de l'admin) ; le cadran en ligne affiche déjà les valeurs de l'admin (« EXP-DEV · 5 ANS ») ;
+  - fil d'Ariane des Sentiers : « Accueil » au lieu de « Camp de Base » ;
+  - pied de page des pages : « © année · Front-End Dev × Accessibilité Numérique », comme la boucle ;
+  - `/camp-de-base` : redirection 301 vers `/` (`routeRules`), page mise à la corbeille, tests smoke et axe ajustés.
+  - Reste signalé : l'étape Départ couvre sept. 2010 – oct. 2021 (11 ans), le texte dit 12 ans ; à trancher à l'étape 6 (parcours).
 - [ ] Étape 2 — préférences partagées (thème, son)
 - [ ] Étape 3 — navigation unique
 - [ ] Étape 4 — charte unique

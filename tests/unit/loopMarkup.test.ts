@@ -102,3 +102,18 @@ describe('liste des étapes (#pList, rendue côté serveur)', () => {
     expect(loopStages({ stages: view })).toBe(view)
   })
 })
+
+describe('lien CV (rendu serveur)', () => {
+  it('par défaut : un fichier qui existe dans public/', async () => {
+    const { existsSync } = await import('node:fs')
+    expect(markup).not.toContain('/cv-adrien-neyron.pdf')
+    expect(markup.match(/href="\/2025_CV_AdrienNEYRON\.pdf" data-cv/g)).toHaveLength(2)
+    expect(existsSync(new URL('../../public/2025_CV_AdrienNEYRON.pdf', import.meta.url))).toBe(true)
+  })
+  it('CV de l’admin : remplace tous les liens ; URL douteuse ignorée', () => {
+    const out = applyLoopContent(markup, { profile: { cvUrl: 'https://blob.example/cv.pdf' } })
+    expect(out.match(/href="https:\/\/blob\.example\/cv\.pdf"/g)).toHaveLength(2)
+    expect(applyLoopContent(markup, { profile: { cvUrl: 'javascript:alert(1)' } })).toBe(applyLoopContent(markup, null))
+    expect(applyLoopContent(markup, { profile: { cvUrl: '//evil.example/cv.pdf' } })).toBe(applyLoopContent(markup, null))
+  })
+})

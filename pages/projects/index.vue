@@ -59,7 +59,7 @@ const countLabel = computed(() => {
       <div class="relative max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24">
         <nav aria-label="Fil d'Ariane" class="font-mono text-xs text-(--color-muted) mb-6">
           <ol class="flex gap-2">
-            <li><NuxtLink to="/" class="hover:underline">Camp de Base</NuxtLink></li>
+            <li><NuxtLink to="/" class="hover:underline">Accueil</NuxtLink></li>
             <li aria-hidden="true">/</li>
             <li aria-current="page">Sentiers</li>
           </ol>
