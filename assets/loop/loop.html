@@ -35,14 +35,14 @@
 <div id="live" class="sr-only" aria-live="polite"></div>
 
 <main id="main" tabindex="-1">
-<noscript><p style="padding:100px 20px">Ce prototype demande JavaScript pour l'animation au défilement.</p></noscript>
+<noscript><p style="padding:100px 20px">Le parcours animé demande JavaScript pour s'afficher.</p></noscript>
 <div class="stage" id="stage">
 
   <!-- 1. Boussole + instruments -->
   <section class="scene s1" id="s1" aria-labelledby="h1">
     <canvas id="aurora" aria-hidden="true"></canvas>
     <div class="spot" id="spot" aria-hidden="true"></div>
-    <p class="sr-only">Mes qualités : résilience (cap fixe face aux bugs), écoute active (collaboration d'équipe), stabilité (gestion de la pression), ouverture d'esprit (curiosité technique), endurance, rigueur, pédagogie, persévérance, esprit de cordée. Expérience : 17 ans dans le sport. Compétences : Vue 3, TypeScript, accessibilité RGAA.</p>
+    <p class="sr-only">Mes qualités : résilience (cap fixe face aux bugs), écoute active (collaboration d'équipe), stabilité (gestion de la pression), ouverture d'esprit (curiosité technique), endurance, rigueur, pédagogie, persévérance, esprit de cordée. Expérience : 12 ans de formation et de management. Compétences : Vue 3, TypeScript, accessibilité RGAA.</p>
     <canvas id="compassCanvas" aria-hidden="true"></canvas>
     <svg id="toolLines" aria-hidden="true"></svg>
     <div class="tip" id="tip" role="tooltip" aria-hidden="true"><b id="tipT"></b><span id="tipD"></span></div>
@@ -60,7 +60,7 @@
     <div class="loader" id="loader" role="status">
       <p><span class="sr-only">Chargement en cours. </span><span id="loadLabel">Montée au sommet</span> <span id="pct" aria-hidden="true">0</span><span aria-hidden="true"> m</span></p>
       <div class="bar"><i id="loadBar"></i></div>
-      <button type="button" class="load-skip" id="loadSkip">Passer</button>
+      <button type="button" class="load-skip" id="loadSkip">Passer<span class="sr-only"> le chargement</span></button>
     </div>
   </section>
 
@@ -118,7 +118,7 @@
     <article class="mcard" id="c0">
       <p class="eyebrow">Km 0 · Sommet</p>
       <h3>Grandes Platières</h3>
-      <p class="proof"><b>17 ans</b><span>dans le sport</span></p>
+      <p class="proof"><b>12 ans</b><span>de formation et de management</span></p>
       <p class="role">Management d'équipes et formation en extérieur : j'y ai appris à écouter et à tenir la cordée. Puis le code.</p>
       <ul class="stack" aria-label="Domaines"><li>Management</li><li>Formation</li><li>Outdoor</li></ul>
     </article>
@@ -152,7 +152,7 @@
         <h2 id="h-flaque">Une foulée après l'autre, et le récit de la route</h2>
         <p class="sub">Posez le pied dans l'eau : à gauche, le profil ; à droite, le carnet de trail.</p>
       </div>
-      <article class="pcard about" id="pAbout"><h3>Le Randonneur</h3><p>17 ans de sport, puis le code : ce que la cordée m'a appris du travail en équipe.</p></article>
+      <article class="pcard about" id="pAbout"><h3>Le Randonneur</h3><p>12 ans de formation et de management, puis le code : ce que la cordée m'a appris du travail en équipe.</p></article>
       <article class="pcard blog" id="pBlog"><h3>Le Carnet</h3><p>Notes de terrain : trail, matériel et coulisses de ce site. Un espace à part, hors-piste.</p></article>
     </div>
   </section>
@@ -205,9 +205,9 @@
 </footer>
 
 <dialog id="dlgProfil" class="sheet" aria-labelledby="proT">
-  <div class="sh-head"><div><p class="eyebrow">Persévérer · Profil</p><h2 id="proT">Le Randonneur</h2></div><button type="button" class="sh-x" id="proX">Fermer</button></div>
+  <div class="sh-head"><div><p class="eyebrow">Persévérer · Profil</p><h2 id="proT">Le Randonneur</h2></div><button type="button" class="sh-x" id="proX">Fermer<span class="sr-only"> le profil</span></button></div>
   <div class="sh-body">
-    <p class="lead">17 ans de sport, puis le code. Ce que la cordée m'a appris du travail en équipe, je le retrouve dans chaque projet.</p>
+    <p class="lead">12 ans de formation et de management, puis le code. Ce que la cordée m'a appris du travail en équipe, je le retrouve dans chaque projet.</p>
     <ul class="skills">
       <li><b>Résilience</b><span>Cap fixe face aux bugs.</span></li>
       <li><b>Écoute active</b><span>Collaboration d'équipe.</span></li>
@@ -245,7 +245,7 @@
 </dialog>
 
 <dialog id="setDlg" aria-labelledby="setT">
-  <button type="button" class="x" id="setX">Fermer</button>
+  <button type="button" class="x" id="setX">Fermer<span class="sr-only"> les réglages</span></button>
   <h2 id="setT">Réglages</h2>
   <div class="setrow"><button type="button" class="tg" id="tgStatic" aria-pressed="false">Vue statique</button><p>Toutes les scènes empilées, sans animation. S'active seule si votre appareil demande moins d'animations ou si la connexion est lente ; votre choix est mémorisé.</p></div>
   <div class="setrow"><button type="button" class="tg" id="tgCharte" aria-pressed="true">Style expédition</button><p>Couleurs franches, grain de pellicule et typographie géante. Désactivé : la version papier, plus sobre.</p></div>
@@ -256,7 +256,7 @@
 </dialog>
 
 <dialog id="dlg" aria-labelledby="dlgT">
-  <button type="button" class="x" id="dlgX">Fermer</button>
+  <button type="button" class="x" id="dlgX">Fermer<span class="sr-only"> la fiche</span></button>
   <h2 id="dlgT"></h2>
   <div id="dlgB"></div>
 </dialog>
