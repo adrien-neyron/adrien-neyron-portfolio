@@ -3321,6 +3321,21 @@ function brief(t,max=150){const ph=String(t||'').trim().split(/(?<=[.!?…])\s+/
    La stèle gravée garde étape, lieu, km, D+ et altitude : ils sont redonnés aux lecteurs d'écran (#scSr), la stèle étant décorative. */
 const cap=(t,max)=>{t=String(t||'').trim();if(t.length<=max)return t;const c=t.slice(0,max);return c.slice(0,Math.max(c.lastIndexOf(' '),max*.7)).replace(/[\s.,;:–-]+$/,'')+'…'};   // coupe au mot : la fiche complète garde le texte entier
 const isCode=u=>/github\.com|gitlab\.|bitbucket\.org/i.test(u);
+/* Aperçus du panneau d'étape : une image par projet lié (3 au plus). Capture d'écran saisie dans /admin, sinon celle du repli data/projects.ts, sinon la photo d'ambiance ;
+   jamais l'image « bientôt » (/projectsoon.png) ; en dernier recours, l'image de repli par slug de data/stageImages.ts (projets absents de data/projects.ts). Capture claire ou sombre selon le thème choisi. Rien d'inventé : pas de projet lié ou pas d'image, pas d'aperçu.
+   Décoratives (alt vide) : le titre du projet est écrit sous chaque image et les liens « Fiche … » du panneau portent l'information. */
+const IMG_SEEN=new Set();
+function stageImgs(sg){
+  const light=document.documentElement.getAttribute('data-theme')==='light',out=[],seen=new Set();
+  const shot=o=>{const im=(o&&o.image)||{},x=(light?im.light:im.dark)||im.light||im.dark||'';return /projectsoon/i.test(x)?'':x};
+  (sg.links||[]).forEach(l=>{
+    const a=(CMS.projects||[]).find(p=>p.slug===l.slug),s=SITE_PROJECTS.find(p=>p.id===l.slug);
+    const src=okUrl(shot(a)||shot(s)||(a&&a.cover)||(s&&s.cover)||(IMG_FB[l.slug]&&IMG_FB[l.slug].src)||'');
+    if(src&&!seen.has(src)&&out.length<3){seen.add(src);out.push({src,title:shortT(l.title)})}
+  });
+  return out}
+function preloadStageImgs(from){   // les images des deux étapes suivantes arrivent pendant que la caméra est posée : pas d'image qui apparaît d'un coup
+  idle(()=>[from+1,from+2].forEach(i=>{const s=STOPS[i];if(s)stageImgs(s.sg).forEach(x=>{if(IMG_SEEN.has(x.src))return;IMG_SEEN.add(x.src);const im=new Image();im.decoding='async';im.src=x.src})}))}
 function fillCard(pr){const sg=pr.sg,t=pr.t||0;
   sCard.setAttribute('aria-label',"Détails de l'étape "+sg.title);
   $('#scM').textContent=[sg.label,sg.period].filter(Boolean).join(' · ');
@@ -3331,7 +3346,11 @@ function fillCard(pr){const sg=pr.sg,t=pr.t||0;
   const kl=$('#scK');kl.innerHTML='';kl.hidden=true;
   const L=sg.kind==='final'?[{href:'/contact',title:'Écrire la suite ensemble',txt:'Écrire la suite ensemble'}]:sg.links.map(x=>({href:x.href,title:x.title,txt:'Fiche '+x.title})),acts=$('#scActs');
   acts.innerHTML=L.map((x,k)=>`<a class="${k?'sc-code':'sc-cta'}" href="${esc(x.href)}">${esc(x.txt)}<span aria-hidden="true"> →</span></a>`).join('');   // vrais liens : ils marchent aussi sans 3D (même liste dans #pList)
-  acts.hidden=!acts.children.length;sMore.hidden=true}
+  acts.hidden=!acts.children.length;sMore.hidden=true;
+  const il=$('#scI'),ims=stageImgs(sg);il.className='sc-imgs n'+ims.length;il.hidden=!ims.length;
+  il.innerHTML=ims.map(x=>`<li><figure><img src="${esc(x.src)}" alt="" loading="lazy" decoding="async" width="320" height="200"><figcaption>${esc(x.title)}</figcaption></figure></li>`).join('');
+  il.querySelectorAll('img').forEach(im=>im.addEventListener('error',()=>{const li=im.closest('li');if(li)li.remove();il.hidden=!il.children.length},{once:true}));   // image introuvable : l'aperçu disparaît, le reste du panneau ne bouge pas
+  preloadStageImgs(STOPS.findIndex(x=>x.sg===sg))}
 function updateCard(){
   const as=STOPS[activeStop],pr=as&&(as.proj||(activeStop===0?(blocks.find(b=>b.stopIdx===0)||{}).proj:null)),ok=!staticMode&&cardShut!==activeStop&&pr&&pr.sg;   // chaque étape a son panneau (Départ, bivouac et cairn final compris)
   const cand=!ok?-1:stopW>.9?activeStop:(stopW>.55&&cardIdx===activeStop?activeStop:-1);   // hystérésis : apparaît caméra posée, reste jusqu'au vrai départ

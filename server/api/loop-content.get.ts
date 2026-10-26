@@ -85,6 +85,8 @@ export default defineEventHandler(async (event) => {
           .map((x) => ({ value: str(x?.value), label: str(x?.label) }))
           .filter((x) => x.value),
         cover: str(p.cover),
+        // captures d'écran (clair / sombre) : aperçus du panneau d'étape de l'accueil
+        image: { light: str(p.image?.light), dark: str(p.image?.dark) },
         coverCredit: str(p.coverCredit),
         coverCreditUrl: str(p.coverCreditUrl),
         place: str(p.place),

@@ -21,7 +21,7 @@ beforeEach(() => {
     email: 'a@b.fr', bookingUrl: 'https://rdv.example',
     profiles: [{ network: 'LinkedIn', url: 'https://linkedin.com/in/x' }, { network: 'GitHub', url: 'https://github.com/x' }],
   }
-  state.projects = [{ slug: 'p1', title: 'P1', technologies: ['Vue', ' ', 7], order: 1, stats: [{ value: ' −50 % ', label: 'de temps' }, { value: '', label: 'sans valeur' }], cover: ' /c.webp ' }]
+  state.projects = [{ slug: 'p1', title: 'P1', technologies: ['Vue', ' ', 7], order: 1, stats: [{ value: ' −50 % ', label: 'de temps' }, { value: '', label: 'sans valeur' }], cover: ' /c.webp ', image: { light: ' /l.png ', dark: 7 } }]
   state.articles = [{ slug: 'a1', title: 'A1', date: '2026-01-01' }]
   state.aiTools = [{ slug: 't1', name: 'Claude', provider: 'Anthropic' }]
   state.stages = []
@@ -39,6 +39,7 @@ describe('GET /api/loop-content', () => {
     expect(out.projects[0].technologies).toEqual(['Vue'])                                // valeurs non textuelles / vides écartées
     expect(out.projects[0].stats).toEqual([{ value: '−50 %', label: 'de temps' }])       // chiffre sans valeur écarté, rien d'inventé
     expect(out.projects[0]).toMatchObject({ cover: '/c.webp', coverCredit: '', coverCreditUrl: '' })
+    expect(out.projects[0].image).toEqual({ light: '/l.png', dark: '' })                  // captures : texte rogné, valeur non textuelle écartée
     expect(out.articles).toHaveLength(1)
     expect(out.aiTools[0]).toMatchObject({ name: 'Claude', provider: 'Anthropic' })
     expect(e.responseHeaders['cache-control']).toContain('s-maxage=60')
