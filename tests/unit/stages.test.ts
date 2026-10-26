@@ -61,10 +61,12 @@ describe('fiches publiées sur /projects', () => {
   it('type : saisi dans l’admin, sinon repli par slug', () => {
     expect(projectType({ slug: 'coachflow' })).toBe('perso')
     expect(projectType({ slug: 'coachflow', type: 'mission' })).toBe('mission')
+    expect(projectType({ slug: 'dressmeup' })).toBe('perso')
     expect(projectType({ slug: 'job-search-automator' })).toBeNull()
   })
   it('publiée = un type et défi, solution, résultat tous renseignés', () => {
     expect(isListedProject({ slug: 'dgfip-outil-metier', ...full })).toBe(true)
+    expect(isListedProject({ slug: 'dressmeup', ...full })).toBe(true)
     expect(isListedProject({ slug: 'stockpulse', challenge: 'c' })).toBe(false)
     expect(isListedProject({ slug: 'job-search-automator', ...full })).toBe(false)   // pas de type
     expect(isListedProject({ slug: 'Mode-Dressing' })).toBe(false)

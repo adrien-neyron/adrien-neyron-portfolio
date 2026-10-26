@@ -419,6 +419,7 @@ function onSubmit() {
         <div>
           <label class="admin-label">Catégorie *</label>
           <select v-model="form.category" required class="admin-input">
+            <option>Mobile</option>
             <option>E-commerce</option>
             <option>Outil métier</option>
             <option>LMS</option>
