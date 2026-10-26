@@ -3,7 +3,7 @@
  * GLTFLoader (facultatif) : charge le modèle 3D de la chaussure (SHOE_GLB) ; sans lui, la chaussure procédurale reste affichée.
  * Prérequis : le balisage de loop.html est déjà dans le DOM, loop.css est chargée, three@0.128.0. */
 import {projects as SITE_PROJECTS} from '~/data/projects';
-import {createWheelGate,wheelGate,STEP_MS} from '~/utils/wheelStep';
+import {createWheelGate,wheelGate,STEP_MS,LOCK_MS} from '~/utils/wheelStep';
 import {loopStages} from '~/utils/loopMarkup';
 import {stageImageFallback as IMG_FB} from '~/data/stageImages';
 import {TRAIL_TOTAL} from '~/utils/stages';   // étapes de la trace (admin, sinon data/stages.ts)   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
@@ -137,7 +137,7 @@ const PROJECT_INFO={   // fiches de la carte des projets ; liens repris du site 
   coach:TOOL_INFO[4],
   jsa:TOOL_INFO[3],   // mêmes fiches que l'atelier jusqu'au contenu de l'admin, puis copiées avant le CV (voir CV_FACTS)
   cpaie:{t:`C+Paie`,e:`Étape · Haute-Savoie · Développeur web freelance`,st:`2024`,l:`Une application pour une PME locale, de la conception UI/UX sur Figma au développement.`,pts:[],k:[`React`,`Next.js`,`Node.js`,`Express`,`MongoDB`,`Figma`]},
-  dress:{t:`DressMeUp`,e:`Étape · Projet personnel`,st:`2023`,l:`Une application mobile pour composer ses tenues.`,pts:[],k:[`React Native`,`Node.js`,`Express`,`MongoDB`]},
+  dress:{t:`DressMeUp`,e:`Étape · Projet personnel`,st:`2023`,l:`Une application mobile pour composer ses tenues, aussi en ligne dans le navigateur.`,pts:[],k:[`React Native`,`Expo`,`Node.js`,`Express`,`MongoDB`,`Vercel`]},
   next:{t:`À déterminer`,e:`Prochaine étape · la suite`,st:`À écrire`,l:`Le tracé s'arrête ici, pour l'instant : la suite du parcours reste à écrire ensemble. Un nouveau projet, une mission, une collaboration.`,pts:[`Un projet à construire avec une équipe qui tient à l'accessibilité et à la qualité.`,`Vue 3 et TypeScript côté interface, des classes Java robustes côté données, le tout administrable en temps réel.`],k:[`Votre projet ?`],links:[{l:'Parlons de la suite',go:'contact'}]},
   asc:{t:`L'ascension`,e:`Sommet · Ce site`,st:`En ligne`,l:`Le site que vous parcourez : une boucle en 3D, de la boussole au bivouac, pensée pour rester lisible et accessible à tous.`,pts:[`Contenu 100 % HTML pour les lecteurs d'écran, la 3D est un habillage.`,`Pause, vue statique, parcours guidé et navigation au clavier.`],k:[`Nuxt`,`Three.js`,`RGAA`],links:PROJECT_LINKS.asc}
 };
