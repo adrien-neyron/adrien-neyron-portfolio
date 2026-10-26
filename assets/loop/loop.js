@@ -2722,7 +2722,7 @@ addEventListener('wheel',stopCine,{passive:true});addEventListener('touchstart',
  const stopP=()=>PARC.stopPs().map(s=>s.p),curP=()=>warp(clamp(scrollY/Math.max(1,maxScroll())));
  const inMap=()=>{const P=stopP(),p=curP();return p>P[0]-.03&&p<P[P.length-1]+.03};
  const target=dir=>{const P=stopP(),p=curP();if(dir>0)return P.findIndex(x=>x>p+.0015);for(let k=P.length-1;k>=0;k--)if(P[k]<p-.0015)return k;return -1};
- const go=dir=>{const i=target(dir);if(i<0)return false;gate.busy=performance.now()+(reduce?300:STEP_MS);cinematicTo(stopP()[i],STEP_MS,'out');return true};   // ease-out : la carte bouge dès le cran, puis se pose en douceur
+ const go=dir=>{const i=target(dir);if(i<0)return false;gate.busy=performance.now()+(reduce?300:LOCK_MS);gate.tail=true;cinematicTo(stopP()[i],STEP_MS,'out');return true};   // ease-out : la carte bouge dès le cran, puis se pose en douceur
  const blocked=()=>TOUR.on||staticMode||!loaded||!!document.querySelector('dialog[open]')||!!document.querySelector('.burger[aria-expanded="true"]');
  const scrollsInside=(el,dy)=>{for(let n=el;n&&n!==document.body&&n.nodeType===1;n=n.parentElement){const cs=getComputedStyle(n);if(n.scrollHeight>n.clientHeight+1&&/(auto|scroll)/.test(cs.overflowY))if(dy>0?n.scrollTop+n.clientHeight<n.scrollHeight-1:n.scrollTop>0)return true}return false};   // le panneau d'étape défile d'abord
  const swallow=e=>{e.preventDefault();e.stopImmediatePropagation()};
