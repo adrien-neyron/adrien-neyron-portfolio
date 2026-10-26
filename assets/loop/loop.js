@@ -3427,7 +3427,20 @@ function update(l,dt,intro,rain=0){
   {const tt=param(l),k=Math.round(kmAt(tt)),g=Math.round(gainAtT(tt)/10);if(k!==totK||g!==totG){totK=k;totG=g;mapTot.textContent=kmLine(tt)}}   /* sous le titre : kilomètre et dénivelé cumulés évoluent avec l'avancée sur la trace */
   pick();updateUi(l);
   {const end=blocks.find(x=>x.t>=1);if(end)rainStep(rainR,dt,end);if(rainR<=0)rainHide()}
-  renderer.render(scene,cam);placeHolos();
+  warmAhead();renderer.render(scene,cam);placeHolos();
+}
+/* Préchauffage des cairns à venir. Un cairn (pierre gravée 768×576, galets, ombre, perle) n'est envoyé au GPU et ses shaders compilés qu'au premier rendu où il est visible ET dans le champ de la caméra :
+   sans ça, tout se paie en un saut d'image au moment où le cairn apparaît (sensation de « chargement » en arrivant sur un projet). Ici, à l'arrêt sur l'étape n, on fait dessiner les cairns n+1 et n+2
+   (WARM_AHEAD), un seul par image, dans un coin de 1 px (scissor) que le rendu normal recouvre aussitôt après. Les cairns restent masqués : visibilité et culling sont rétablis juste après. */
+const WARM_AHEAD=2;
+function warmAhead(){
+  if(staticMode||!OK||!inited||stopW<.9)return;   // seulement caméra posée sur une étape, jamais en plein mouvement
+  let bk=null;blocks.forEach(b=>{if(!b.warm&&b.stopIdx>activeStop&&b.stopIdx<=activeStop+WARM_AHEAD&&(!bk||b.stopIdx<bk.stopIdx))bk=b});
+  if(!bk)return;bk.warm=true;
+  const saved=[];[bk.holder,bk.cairn,bk.shadow,bk.bead].forEach(o=>o&&o.traverse(c=>{saved.push([c,c.visible,c.frustumCulled]);c.visible=true;c.frustumCulled=false}));
+  try{renderer.setScissorTest(true);renderer.setScissor(0,0,1,1);renderer.render(scene,cam)}catch(e){}
+  try{renderer.setScissorTest(false)}catch(e){}
+  saved.forEach(([c,v,f])=>{c.visible=v;c.frustumCulled=f});
 }
 function sizeIt(){if(inited)resize()}
 function setQuality(){if(inited){renderer.setPixelRatio(Math.min(devicePixelRatio,QDPR()));resize()}}
