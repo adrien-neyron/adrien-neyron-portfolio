@@ -35,15 +35,28 @@ const { data: loopContent } = await useFetch<LoopContentTexts>('/api/loop-conten
 })
 const page = computed(() => applyLoopContent(markup, loopContent.value))
 
+// URL publique : sert aux balises Open Graph et au lien canonique
+const SITE_URL = 'https://adrien-neyron-portfolio.vercel.app'
+const SITE_TITLE = 'Adrien Neyron — développeur front-end · Vue 3, TypeScript, accessibilité'
+
 useHead({
   htmlAttrs: { class: 'loop-on' },
-  title: 'Adri — développeur front-end · Vue 3, TypeScript, accessibilité',
+  title: SITE_TITLE,
   meta: [
     {
       name: 'description',
       content:
-        "Portfolio d'Adri, développeur front-end (Vue 3, TypeScript, accessibilité RGAA/WCAG) : 12 ans de formation et de management, puis 5 ans de code. Une expédition à parcourir : projets, outils, carnet, contact.",
+        "Portfolio d'Adrien Neyron, développeur front-end (Vue 3, TypeScript, accessibilité RGAA/WCAG) : 12 ans de formation et de management, puis 5 ans de code. Une expédition à parcourir : projets, outils, carnet, contact.",
     },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:locale', content: 'fr_FR' },
+    { property: 'og:site_name', content: 'Adrien Neyron' },
+    { property: 'og:title', content: SITE_TITLE },
+    { property: 'og:description', content: "12 ans de formation et de management, puis 5 ans de code. Une expédition à parcourir : projets, outils, carnet, contact." },
+    { property: 'og:url', content: `${SITE_URL}/` },
+    { property: 'og:image', content: `${SITE_URL}/profile.png` },
+    { property: 'og:image:alt', content: 'Adrien Neyron, développeur front-end' },
+    { name: 'twitter:card', content: 'summary' },
   ],
   // Écran de la corde déjà vu dans cette session : masqué dès le premier affichage (pas de clignotement avant l'hydratation)
   script: [{ key: 'gate-seen', innerHTML: "try{var th=localStorage.getItem('asc-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=th}catch(e){}try{if(sessionStorage.getItem('cordee-gate-vu')==='1')document.documentElement.classList.add('gate-seen')}catch(e){}" }],
@@ -51,6 +64,7 @@ useHead({
   style: [{ key: 'loop-css', textContent: loopCss }],
   // Police des titres (Cormorant Garamond, servie par le site) : préchargée, c'est elle qui dessine le titre du premier écran
   link: [
+    { rel: 'canonical', href: `${SITE_URL}/` },
     { rel: 'preload', href: '/loop/fonts/cormorant-garamond-latin-500-italic.woff2', as: 'font', type: 'font/woff2', crossorigin: '' },
   ],
 })
