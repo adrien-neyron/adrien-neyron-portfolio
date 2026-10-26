@@ -30,6 +30,9 @@ const props = defineProps<{
   coords?: { lat?: number; lon?: number };
   /** photo d'ambiance : affichée avec le traitement « grain skate » (main.css) */
   cover?: string;
+  /** étape de la trace qui porte ce projet (« Étape 02 · DGFiP… ») et son résultat clé — même source que l'accueil (utils/stages.ts) */
+  stage?: string;
+  keyResult?: string;
 }>();
 
 // Photo d'ambiance en priorité, sinon la capture d'écran — toutes passent par le filtre grain.
@@ -98,18 +101,19 @@ const { difficultyLabel, difficultyClass } = useDifficultyBadge();
             {{ status }}
           </span>
         </div>
+        <p v-if="stage" class="font-mono text-[11px] uppercase tracking-[0.08em] text-[var(--color-muted)] mt-1">{{ stage }}</p>
         <p class="text-xs font-medium text-[var(--color-accent)] mt-0.5">{{ role }}</p>
         <p v-if="tagline" class="text-xs text-[var(--color-muted)] italic mt-1">{{ tagline }}</p>
       </div>
 
       <p class="text-sm text-[var(--color-text)]/70 leading-relaxed line-clamp-2">{{ description }}</p>
 
-      <!-- Impact -->
+      <!-- Résultat clé de l'étape (source unique), sinon l'impact saisi sur le projet -->
       <div
-        v-if="impact"
+        v-if="keyResult || impact"
         class="text-xs font-semibold text-[var(--color-accent)] bg-[var(--color-accent)]/8 rounded-lg px-3 py-1.5"
       >
-        {{ impact }}
+        {{ keyResult || impact }}
       </div>
 
       <!-- Duration -->

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import "~/assets/css/main.css";
 import { ref, watch } from "vue";
-import { LogIn, LogOut, LayoutDashboard, PlusCircle, Home, UserCircle, Cpu, NotebookPen, Menu, X, Eye } from "lucide-vue-next";
+import { LogIn, LogOut, LayoutDashboard, PlusCircle, Home, UserCircle, Cpu, NotebookPen, Menu, X, Eye, Flag } from "lucide-vue-next";
 
 const { isAdmin, isAuthenticated, login, logout } = useAdminSession();
 const route     = useRoute();
@@ -58,6 +58,10 @@ watch(() => route.path, () => { menuOpen.value = false; });
         <NuxtLink v-if="isAdmin" to="/admin/projects/new" class="admin-nav-link" active-class="admin-nav-link--active">
           <PlusCircle :size="15" aria-hidden="true" />
           Nouveau projet
+        </NuxtLink>
+        <NuxtLink to="/admin/stages" class="admin-nav-link" active-class="admin-nav-link--active">
+          <Flag :size="15" aria-hidden="true" />
+          Étapes
         </NuxtLink>
         <NuxtLink to="/admin/carnet" class="admin-nav-link" active-class="admin-nav-link--active">
           <NotebookPen :size="15" aria-hidden="true" />

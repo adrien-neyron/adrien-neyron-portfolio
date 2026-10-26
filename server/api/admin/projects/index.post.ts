@@ -43,6 +43,7 @@ export default defineEventHandler(async (event) => {
     status:     body.status,
     impact:     body.impact,
     // fiche topo (refonte « L'ascension »)
+    type:       body.type === "mission" || body.type === "perso" ? body.type : undefined,
     order:      Number.isFinite(body.order) ? body.order : undefined,
     place:      body.place,
     coords:     body.coords,

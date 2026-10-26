@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const year = new Date().getFullYear();
+</script>
+
 <template>
   <footer class="w-full border-t border-[var(--color-accent)]/10 mt-10 py-10 px-6 sm:px-12">
     <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-6 text-sm">
@@ -5,7 +9,7 @@
       <!-- Identité -->
       <div class="text-center sm:text-left">
         <p class="font-semibold text-[var(--color-text)]">Adrien Neyron</p>
-        <p class="text-xs text-[var(--color-muted)] mt-0.5">Camp de Base © 2025</p>
+        <p class="text-xs text-[var(--color-muted)] mt-0.5">© {{ year }} · Front-End Dev × Accessibilité Numérique</p>
       </div>
 
       <!-- Liens rapides -->

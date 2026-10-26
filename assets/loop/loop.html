@@ -18,6 +18,8 @@
       </nav>
     </div>
     <span class="sep" aria-hidden="true"></span>
+    <a class="top-link" href="/projects">Projets</a>
+    <span class="sep" aria-hidden="true"></span>
     <div class="hmenu hm-r">
       <button type="button" class="burger" id="burgerTools" aria-expanded="false" aria-controls="menuTools"><span class="orb"><svg class="cog" aria-hidden="true" focusable="false" viewBox="0 0 48 48"><g class="gr"><path d="M22.27 10.31L22.67 6.65L25.33 6.65L25.73 10.31A13.8 13.8 0 0 1 29.35 11.28L31.52 8.31L33.83 9.64L32.34 13.01A13.8 13.8 0 0 1 34.99 15.66L38.36 14.17L39.69 16.48L36.72 18.65A13.8 13.8 0 0 1 37.69 22.27L41.35 22.67L41.35 25.33L37.69 25.73A13.8 13.8 0 0 1 36.72 29.35L39.69 31.52L38.36 33.83L34.99 32.34A13.8 13.8 0 0 1 32.34 34.99L33.83 38.36L31.52 39.69L29.35 36.72A13.8 13.8 0 0 1 25.73 37.69L25.33 41.35L22.67 41.35L22.27 37.69A13.8 13.8 0 0 1 18.65 36.72L16.48 39.69L14.17 38.36L15.66 34.99A13.8 13.8 0 0 1 13.01 32.34L9.64 33.83L8.31 31.52L11.28 29.35A13.8 13.8 0 0 1 10.31 25.73L6.65 25.33L6.65 22.67L10.31 22.27A13.8 13.8 0 0 1 11.28 18.65L8.31 16.48L9.64 14.17L13.01 15.66A13.8 13.8 0 0 1 15.66 13.01L14.17 9.64L16.48 8.31L18.65 11.28A13.8 13.8 0 0 1 22.27 10.31Z" fill="rgba(226,109,59,.14)" stroke="url(#cg)" stroke-width="1.8" stroke-linejoin="round"/><path d="M22.27 10.31L22.67 6.65L25.33 6.65L25.73 10.31A13.8 13.8 0 0 1 29.35 11.28L31.52 8.31L33.83 9.64L32.34 13.01A13.8 13.8 0 0 1 34.99 15.66L38.36 14.17L39.69 16.48L36.72 18.65A13.8 13.8 0 0 1 37.69 22.27L41.35 22.67L41.35 25.33L37.69 25.73A13.8 13.8 0 0 1 36.72 29.35L39.69 31.52L38.36 33.83L34.99 32.34A13.8 13.8 0 0 1 32.34 34.99L33.83 38.36L31.52 39.69L29.35 36.72A13.8 13.8 0 0 1 25.73 37.69L25.33 41.35L22.67 41.35L22.27 37.69A13.8 13.8 0 0 1 18.65 36.72L16.48 39.69L14.17 38.36L15.66 34.99A13.8 13.8 0 0 1 13.01 32.34L9.64 33.83L8.31 31.52L11.28 29.35A13.8 13.8 0 0 1 10.31 25.73L6.65 25.33L6.65 22.67L10.31 22.27A13.8 13.8 0 0 1 11.28 18.65L8.31 16.48L9.64 14.17L13.01 15.66A13.8 13.8 0 0 1 15.66 13.01L14.17 9.64L16.48 8.31L18.65 11.28A13.8 13.8 0 0 1 22.27 10.31Z" fill="none" stroke="#2A130A" stroke-opacity=".5" stroke-width="1.8" stroke-dasharray="1 2.1" stroke-linejoin="round"/><circle cx="24" cy="24" r="10" fill="none" stroke="url(#cg2)" stroke-opacity=".8" stroke-width=".9"/><circle cx="24" cy="24" r="8.2" fill="none" stroke="url(#cg)" stroke-width="1.6" stroke-dasharray="1 2.1"/><circle cx="24" cy="24" r="3.8" fill="#120B07" stroke="url(#cg)" stroke-width="1.4"/></g></svg></span><span class="lbl">Outils</span></button>
       <div class="menu" id="menuTools" role="group" aria-label="Réglages d'affichage" hidden>
@@ -35,7 +37,7 @@
 <div id="live" class="sr-only" aria-live="polite"></div>
 
 <main id="main" tabindex="-1">
-<noscript><p style="padding:100px 20px">Ce prototype demande JavaScript pour l'animation au défilement.</p></noscript>
+<noscript><p style="padding:100px 20px">Le parcours animé demande JavaScript pour s'afficher.</p></noscript>
 <div class="stage" id="stage">
 
   <!-- 1. Boussole + instruments -->
@@ -60,7 +62,7 @@
     <div class="loader" id="loader" role="status">
       <p><span class="sr-only">Chargement en cours. </span><span id="loadLabel">Montée au sommet</span> <span id="pct" aria-hidden="true">0</span><span aria-hidden="true"> m</span></p>
       <div class="bar"><i id="loadBar"></i></div>
-      <button type="button" class="load-skip" id="loadSkip">Passer</button>
+      <button type="button" class="load-skip" id="loadSkip">Passer<span class="sr-only"> le chargement</span></button>
     </div>
   </section>
 
@@ -71,7 +73,7 @@
     <div id="pTags" aria-hidden="true"></div>
     <nav class="pl-stages plate" aria-label="Étapes du sentier"><ol id="pStageList"></ol></nav>
     <div class="pl-dock">
-      <button type="button" class="pl-more" id="plMore" hidden aria-haspopup="dialog"><span class="t">Voir la fiche</span><span class="sr-only n"></span><span aria-hidden="true"> →</span></button>
+      <a class="pl-more" id="plMore" hidden href="/projects"><span class="t">Voir la fiche</span><span class="sr-only n"></span><span aria-hidden="true"> →</span></a>
     </div>
     <aside class="stop-card" id="stopCard" aria-label="Détails du projet">
       <button type="button" class="sc-x" id="scX" aria-keyshortcuts="Escape"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="sr-only">Fermer le panneau (touche Échap)</span></button>
@@ -79,12 +81,13 @@
       <h2 class="sc-t" id="scT"></h2>
       <p class="sr-only" id="scSr"></p>
       <p class="sc-l" id="scL"></p>
+      <ul class="sc-imgs" id="scI" aria-label="Aperçus des projets" hidden></ul>
       <ul class="sc-pts" id="scP" aria-label="Points clés" hidden></ul>
       <ul class="sc-tags" id="scK" aria-label="Technologies" hidden></ul>
       <div class="sc-acts" id="scActs"></div>
       <button type="button" class="sc-more" id="scMore" aria-haspopup="dialog">Fiche complète<span class="sr-only n"></span><span aria-hidden="true"> →</span></button>
     </aside>
-    <ol class="pl-list" id="pList" aria-label="Projets"></ol>
+    <ol class="pl-list" id="pList" aria-label="Étapes du parcours"></ol>
     <svg id="mapSvg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <g id="world">
       <defs>
@@ -118,7 +121,7 @@
     <article class="mcard" id="c0">
       <p class="eyebrow">Km 0 · Sommet</p>
       <h3>Grandes Platières</h3>
-      <p class="proof"><b>17 ans</b><span>dans le sport</span></p>
+      <p class="proof"><b>12 ans</b><span>formateur et manager</span></p>
       <p class="role">Management d'équipes et formation en extérieur : j'y ai appris à écouter et à tenir la cordée. Puis le code.</p>
       <ul class="stack" aria-label="Domaines"><li>Management</li><li>Formation</li><li>Outdoor</li></ul>
     </article>
@@ -152,7 +155,7 @@
         <h2 id="h-flaque">Une foulée après l'autre, et le récit de la route</h2>
         <p class="sub">Posez le pied dans l'eau : à gauche, le profil ; à droite, le carnet de trail.</p>
       </div>
-      <article class="pcard about" id="pAbout"><h3>Le Randonneur</h3><p>17 ans de sport, puis le code : ce que la cordée m'a appris du travail en équipe.</p></article>
+      <article class="pcard about" id="pAbout"><h3>Le Randonneur</h3><p>12 ans de formation et de management, puis 5 ans de code : ce que la cordée m'a appris du travail en équipe.</p></article>
       <article class="pcard blog" id="pBlog"><h3>Le Carnet</h3><p>Notes de terrain : trail, matériel et coulisses de ce site. Un espace à part, hors-piste.</p></article>
     </div>
   </section>
@@ -196,7 +199,7 @@
 <footer class="perma">
   <p class="copy">© 2026 Adrien Neyron · Front-End Dev × Accessibilité Numérique</p>
   <nav aria-label="Pied de page">
-    <a class="ico lbl" href="/cv-adrien-neyron.pdf" download data-tip="CV (PDF)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11v6m-3-3 3 3 3-3"/></svg><span class="t">CV</span><span class="sr-only"> (PDF, téléchargement)</span></a>
+    <a class="ico lbl" href="/2025_CV_AdrienNEYRON.pdf" data-cv download data-tip="CV (PDF)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11v6m-3-3 3 3 3-3"/></svg><span class="t">CV</span><span class="sr-only"> (PDF, téléchargement)</span></a>
     <button type="button" class="ico lbl" id="ftContact" data-tip="Contact"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><span class="t">Contact</span></button>
     <button type="button" class="ico" data-dlg="legal" data-tip="Mentions légales"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4v16M7 20h10M5 7h14"/><path d="m5 7-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></svg><span class="sr-only">Mentions légales</span></button>
     <button type="button" class="ico" data-dlg="a11y" data-tip="Accessibilité"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="4.5" r="1.5"/><path d="M5 8.5 12 10l7-1.5M12 10v4.5M12 14.5 9 21M12 14.5l3 6.5"/></svg><span class="sr-only">Accessibilité</span></button>
@@ -205,9 +208,9 @@
 </footer>
 
 <dialog id="dlgProfil" class="sheet" aria-labelledby="proT">
-  <div class="sh-head"><div><p class="eyebrow">Persévérer · Profil</p><h2 id="proT">Le Randonneur</h2></div><button type="button" class="sh-x" id="proX">Fermer</button></div>
+  <div class="sh-head"><div><p class="eyebrow">Persévérer · Profil</p><h2 id="proT">Le Randonneur</h2></div><button type="button" class="sh-x" id="proX">Fermer<span class="sr-only"> le profil</span></button></div>
   <div class="sh-body">
-    <p class="lead">17 ans de sport, puis le code. Ce que la cordée m'a appris du travail en équipe, je le retrouve dans chaque projet.</p>
+    <p class="lead">12 ans de formation et de management, puis 5 ans de code. Ce que la cordée m'a appris du travail en équipe, je le retrouve dans chaque projet.</p>
     <ul class="skills">
       <li><b>Résilience</b><span>Cap fixe face aux bugs.</span></li>
       <li><b>Écoute active</b><span>Collaboration d'équipe.</span></li>
@@ -215,7 +218,7 @@
       <li><b>Ouverture d'esprit</b><span>Curiosité technique.</span></li>
     </ul>
     <p class="facts">Développeur front-end : Vue 3, TypeScript, accessibilité RGAA. Missions à la DGFiP (Paris) et sur Click2SellSite (Lyon).</p>
-    <div class="sh-actions"><a class="sh-main" href="/cv-adrien-neyron.pdf" download>Télécharger le CV (PDF)</a><button type="button" class="sh-alt" id="proBack">Revenir au sentier</button></div>
+    <div class="sh-actions"><a class="sh-main" href="/2025_CV_AdrienNEYRON.pdf" data-cv download>Télécharger le CV (PDF)</a><button type="button" class="sh-alt" id="proBack">Revenir au sentier</button></div>
   </div>
 </dialog>
 
@@ -245,7 +248,7 @@
 </dialog>
 
 <dialog id="setDlg" aria-labelledby="setT">
-  <button type="button" class="x" id="setX">Fermer</button>
+  <button type="button" class="x" id="setX">Fermer<span class="sr-only"> les réglages</span></button>
   <h2 id="setT">Réglages</h2>
   <div class="setrow"><button type="button" class="tg" id="tgStatic" aria-pressed="false">Vue statique</button><p>Toutes les scènes empilées, sans animation. S'active seule si votre appareil demande moins d'animations ou si la connexion est lente ; votre choix est mémorisé.</p></div>
   <div class="setrow"><button type="button" class="tg" id="tgCharte" aria-pressed="true">Style expédition</button><p>Couleurs franches, grain de pellicule et typographie géante. Désactivé : la version papier, plus sobre.</p></div>
@@ -256,7 +259,7 @@
 </dialog>
 
 <dialog id="dlg" aria-labelledby="dlgT">
-  <button type="button" class="x" id="dlgX">Fermer</button>
+  <button type="button" class="x" id="dlgX">Fermer<span class="sr-only"> la fiche</span></button>
   <h2 id="dlgT"></h2>
   <div id="dlgB"></div>
 </dialog>

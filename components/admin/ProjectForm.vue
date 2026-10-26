@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useAuth0 } from "@auth0/auth0-vue";
+import { projectType } from "~/utils/stages";
 
 interface ProjectPayload {
   slug: string;
@@ -28,6 +29,7 @@ interface ProjectPayload {
   difficulty: "Apprentissage" | "Side Project" | "Professionnel";
   duration: string;
   category: string;
+  type?: "mission" | "perso" | "";   // filtre de /projects (vide : repli par slug, voir utils/stages.ts)
   // fiche topo (refonte « L'ascension »)
   order?: number;
   place?: string;
@@ -63,6 +65,8 @@ const form = ref<ProjectPayload>({
   link: "", code: "",
   difficulty: "Side Project", duration: "", category: "",
   ...props.initial,
+  // type : valeur en base, sinon le repli par slug (celui qu'applique /projects) pour que le formulaire montre la réalité
+  type: (props.initial ? projectType({ slug: props.initial.slug, type: props.initial.type || undefined }) : null) ?? "",
   image_light: props.initial?.image_light ?? props.initial?.image?.light ?? "",
   image_dark:  props.initial?.image_dark  ?? props.initial?.image?.dark  ?? "",
   ...(props.initial?.difficulty
@@ -398,8 +402,8 @@ function onSubmit() {
         </div>
       </div>
 
-      <!-- Difficulté / Durée / Catégorie -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Difficulté / Durée / Catégorie / Type -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <label class="admin-label">Difficulté *</label>
           <select v-model="form.difficulty" required class="admin-input">
@@ -422,6 +426,14 @@ function onSubmit() {
             <option>Automatisation</option>
             <option>SI</option>
             <option>Autre</option>
+          </select>
+        </div>
+        <div>
+          <label for="pf-type" class="admin-label">Type <span class="normal-case font-normal">(filtre de /projects)</span></label>
+          <select id="pf-type" v-model="form.type" class="admin-input">
+            <option value="">Non classé (masqué de /projects)</option>
+            <option value="mission">Mission</option>
+            <option value="perso">Projet perso</option>
           </select>
         </div>
       </div>
@@ -448,7 +460,7 @@ function onSubmit() {
           </div>
         </div>
         <div>
-          <label for="pf-order" class="admin-label">Rang sur le parcours de l'accueil <span class="normal-case font-normal">(0, 1, 2… ; vide : après les autres, par date de création)</span></label>
+          <label for="pf-order" class="admin-label">Ordre des fiches de l'accueil <span class="normal-case font-normal">(0, 1, 2… ; la trace, elle, suit les Étapes)</span></label>
           <input id="pf-order" v-model.number="form.order" type="number" min="0" step="1" class="admin-input md:w-40" />
         </div>
         <div>

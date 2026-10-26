@@ -3,6 +3,9 @@ import Profile from "~/server/models/profile";
 import Project from "~/server/models/project";
 import CarnetArticle from "~/server/models/carnetArticle";
 import AiTool from "~/server/models/aiTool";
+import Stage from "~/server/models/stage";
+import { stages as staticStages } from "~/data/stages";
+import { buildStageView, type Stage as StageT } from "~/utils/stages";
 
 /**
  * Contenu éditable de l'accueil « L'ascension », agrégé depuis l'admin (/admin).
@@ -22,15 +25,21 @@ const network = (profiles: { network?: string; url?: string }[] | undefined, re:
 export default defineEventHandler(async (event) => {
   try {
     await dbConnect();
-    const [profile, projects, articles, aiTools] = await Promise.all([
+    const [profile, projects, articles, aiTools, stages] = await Promise.all([
       Profile.findOne().lean(),
       Project.find().sort({ order: 1, created_at: 1 }).lean(),
       CarnetArticle.find().sort({ date: -1 }).lean(),
       AiTool.find().lean(),
+      Stage.find().sort({ order: 1 }).lean(),
     ]);
 
     setHeader(event, "Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
     return {
+      // étapes de la trace (source unique, voir utils/stages.ts) : base, sinon data/stages.ts ; liens résolus sur les projets présents
+      stages: buildStageView(
+        (stages.length ? stages : staticStages) as StageT[],
+        projects.map((p) => ({ slug: str(p.slug), title: str(p.title) })),
+      ),
       profile: profile
         ? {
             lead: str(profile.loopLead),
@@ -76,6 +85,8 @@ export default defineEventHandler(async (event) => {
           .map((x) => ({ value: str(x?.value), label: str(x?.label) }))
           .filter((x) => x.value),
         cover: str(p.cover),
+        // captures d'écran (clair / sombre) : aperçus du panneau d'étape de l'accueil
+        image: { light: str(p.image?.light), dark: str(p.image?.dark) },
         coverCredit: str(p.coverCredit),
         coverCreditUrl: str(p.coverCreditUrl),
         place: str(p.place),

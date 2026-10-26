@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createWheelGate, wheelGate, STEP_MS } from '~/utils/wheelStep'
+import { createWheelGate, wheelGate, STEP_MS, LOCK_MS } from '~/utils/wheelStep'
 
 /** Rejoue une suite d'événements [t (ms), deltaY] et compte les passages de projet. */
 function replay(events: [number, number][], hasTarget: (d: 1 | -1) => boolean = () => true) {
@@ -44,10 +44,39 @@ describe('utils/wheelStep : un cran = un projet', () => {
     expect(replay([...first, ...second]).steps).toEqual([1, 1])
   })
 
-  it('les crans donnés pendant une transition sont absorbés', () => {
-    const r = replay([[0, 100], [200, 100], [500, 100]])
+  it('les crans donnés pendant le verrou sont absorbés', () => {
+    const r = replay([[0, 100], [100, 100], [LOCK_MS - 50, 100]])
     expect(r.steps).toEqual([1])
     expect(r.actions).toEqual(['step', 'swallow', 'swallow'])
+  })
+
+  it('un cran toutes les 350 ms : aucun cran perdu après le verrou', () => {
+    // avant : un cran sur deux était avalé (la transition de 600 ms bloquait tout)
+    expect(replay(Array.from({ length: 6 }, (_, i) => [i * (LOCK_MS + 20), 100] as [number, number])).steps).toEqual([1, 1, 1, 1, 1, 1])
+  })
+
+  it('un 2e geste de pavé juste après la queue d’inertie est pris en compte', () => {
+    // avant : il était absorbé tant que les événements restaient à moins de 280 ms les uns des autres
+    const first = trackpad(0, 1000)
+    const end = first[first.length - 1][0]
+    expect(replay([...first, ...trackpad(end + 150, 500)]).steps).toEqual([1, 1])
+  })
+
+  it('un nouveau geste pendant l’inertie du précédent (delta qui remonte) est pris en compte', () => {
+    const first = trackpad(0, 1000)
+    const tailStart = STEP_MS + 100
+    const second: [number, number][] = Array.from({ length: 10 }, (_, k) => [tailStart + k * 16, 30] as [number, number])
+    const merged = [...first.filter(([t]) => t < tailStart), ...second]
+    expect(replay(merged).steps).toEqual([1, 1])
+  })
+
+  it('un demi-tour juste après le verrou repart dans l’autre sens', () => {
+    expect(replay([[0, 100], [LOCK_MS + 50, -100]]).steps).toEqual([1, -1])
+  })
+
+  it('un glissé lent de pavé finit par avancer d’un projet', () => {
+    const slow = Array.from({ length: 30 }, (_, k) => [k * 16, 2] as [number, number])
+    expect(replay(slow).steps).toEqual([1])
   })
 
   it('un petit mouvement isolé n’avance pas, mais n’est pas laissé à la page', () => {

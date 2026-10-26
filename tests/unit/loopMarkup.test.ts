@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { applyLoopContent, swap, escHtml } from '~/utils/loopMarkup'
+import { applyLoopContent, swap, escHtml, renderStageList, loopStages } from '~/utils/loopMarkup'
+import { buildStageView } from '~/utils/stages'
 
 const markup = readFileSync(new URL('../../assets/loop/loop.html', import.meta.url), 'utf8')
 
@@ -21,10 +22,12 @@ describe('loop.html : contrat avec les champs « Accueil » de l’admin', () =>
 })
 
 describe('applyLoopContent', () => {
-  it('sans contenu, le balisage est inchangé', () => {
-    expect(applyLoopContent(markup, null)).toBe(markup)
-    expect(applyLoopContent(markup, {})).toBe(markup)
-    expect(applyLoopContent(markup, { hero: { eyebrow: '  ', title: '', lede: undefined } })).toBe(markup)
+  it('sans contenu, seul la liste des étapes (repli) est ajoutée : le reste du balisage est inchangé', () => {
+    const base = applyLoopContent(markup, null)
+    const strip = (h: string) => h.replace(/(<ol class="pl-list" id="pList"[^>]*>)[\s\S]*?<\/ol>/, '$1</ol>')
+    expect(strip(base)).toBe(markup)
+    expect(applyLoopContent(markup, {})).toBe(base)
+    expect(applyLoopContent(markup, { hero: { eyebrow: '  ', title: '', lede: undefined } })).toBe(base)
   })
 
   it('remplace surtitre, titre (h1 + écran de la corde) et sous-texte', () => {
@@ -66,5 +69,51 @@ describe('swap / escHtml', () => {
   })
   it('escHtml échappe & < > "', () => {
     expect(escHtml(`&<>"`)).toBe('&amp;&lt;&gt;&quot;')
+  })
+})
+
+describe('liste des étapes (#pList, rendue côté serveur)', () => {
+  const view = buildStageView(
+    [
+      { key: 'd', order: 0, kind: 'depart', period: 'Sept. 2010 – Oct. 2021', title: 'UCPA <b>', figure: '500+', figureLabel: 'personnes formées', projects: [] },
+      { key: 'e1', order: 1, kind: 'etape', period: '2021', title: 'Freelance', projects: ['p1', 'absent'] },
+      { key: 'f', order: 2, kind: 'final', period: '', title: 'Étape à écrire ensemble', projects: [] },
+    ],
+    [{ slug: 'p1', title: 'Projet "1"' }],
+  )
+  const html = renderStageList(view)
+
+  it('toutes les étapes, dans l’ordre, avec dates', () => {
+    expect(html.match(/<li class="st-/g)).toHaveLength(3)
+    expect(html.indexOf('Départ · Sept. 2010 – Oct. 2021')).toBeLessThan(html.indexOf('Étape 01 · 2021'))
+  })
+  it('vrais liens <a href> vers les fiches présentes, /contact au cairn final', () => {
+    expect(html).toContain('<a href="/projects/p1">Fiche Projet &quot;1&quot;')
+    expect(html).not.toContain('/projects/absent')
+    expect(html).toContain('<a href="/contact">')
+  })
+  it('chiffre affiché seulement s’il est saisi, texte échappé', () => {
+    expect(html.match(/class="fig"/g)).toHaveLength(1)
+    expect(html).toContain('UCPA &lt;b&gt;')
+  })
+  it('contenu vide ou en panne → étapes par défaut', () => {
+    expect(loopStages(null).length).toBeGreaterThan(3)
+    expect(loopStages({ stages: [] })[0].label).toBe('Départ')
+    expect(loopStages({ stages: view })).toBe(view)
+  })
+})
+
+describe('lien CV (rendu serveur)', () => {
+  it('par défaut : un fichier qui existe dans public/', async () => {
+    const { existsSync } = await import('node:fs')
+    expect(markup).not.toContain('/cv-adrien-neyron.pdf')
+    expect(markup.match(/href="\/2025_CV_AdrienNEYRON\.pdf" data-cv/g)).toHaveLength(2)
+    expect(existsSync(new URL('../../public/2025_CV_AdrienNEYRON.pdf', import.meta.url))).toBe(true)
+  })
+  it('CV de l’admin : remplace tous les liens ; URL douteuse ignorée', () => {
+    const out = applyLoopContent(markup, { profile: { cvUrl: 'https://blob.example/cv.pdf' } })
+    expect(out.match(/href="https:\/\/blob\.example\/cv\.pdf"/g)).toHaveLength(2)
+    expect(applyLoopContent(markup, { profile: { cvUrl: 'javascript:alert(1)' } })).toBe(applyLoopContent(markup, null))
+    expect(applyLoopContent(markup, { profile: { cvUrl: '//evil.example/cv.pdf' } })).toBe(applyLoopContent(markup, null))
   })
 })

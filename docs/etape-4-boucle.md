@@ -49,7 +49,7 @@ Objectif : intégrer l'accueil « boucle infinie » sur la route /boucle, sans m
 
 
 ## Mise à jour 01/10/2026 : polices et accueil
-- La boucle est servie sur `/` ; l'ancien accueil est sur `/camp-de-base`.
+- La boucle est servie sur `/` ; l'ancien accueil `/camp-de-base` redirige (301) vers `/` depuis le 19/10/2026.
 - Polices tranchées : DM Serif Display, Inter, JetBrains Mono (patch `0002-polices-dm-serif-display-inter.patch`, à appliquer après `0001`).
 - Bracelet fermé en anneau complet (patch `0003-bracelet-ferme.patch`, à appliquer après `0002`).
 - Palette « Nuit Polaire & Aurore Boréale » (patch `0004-palette-nuit-polaire.patch`, à appliquer après `0003`).

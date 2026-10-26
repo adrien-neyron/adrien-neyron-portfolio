@@ -51,7 +51,7 @@ html.loop-on:not(.loop-live) #s1{visibility:visible;opacity:1}
 html.loop-on:not(.loop-live) .loader{display:none}
 /* Préchargement : AUCUNE inscription, seule l'aiguille est visible. Les textes restent dans le DOM (opacity, pas display/visibility :
    lecteurs d'écran et clavier ne sont pas touchés) et réapparaissent en fondu quand la 3D est là. */
-html.loop-on:not(.loop-live) header.top,html.loop-on:not(.loop-live) #head1,html.loop-on:not(.loop-live) footer.perma,html.loop-on:not(.loop-live) .altrail,html.loop-on:not(.loop-live) .hud,html.loop-on:not(.loop-live) .hint,html.loop-on:not(.loop-live) .cta{opacity:0!important}
+html.loop-on:not(.loop-live) header.top>:not(.topnav),html.loop-on:not(.loop-live) .topnav>:not(.top-link),html.loop-on:not(.loop-live) #head1,html.loop-on:not(.loop-live) footer.perma,html.loop-on:not(.loop-live) .altrail,html.loop-on:not(.loop-live) .hud,html.loop-on:not(.loop-live) .hint,html.loop-on:not(.loop-live) .cta{opacity:0!important}
 html.loop-on.loop-live header.top,html.loop-on.loop-live #head1,html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:sceneIn .8s ease-out .25s backwards}
 @media (prefers-reduced-motion:reduce){html.loop-on.loop-live header.top,html.loop-on.loop-live #head1,html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:none}}
 html.loop-on:not(.loop-live) .scene:not(#s1){display:none}   /* scènes suivantes pas encore mises en page : leurs polices ne sont pas téléchargées au premier affichage */
@@ -852,6 +852,16 @@ html.loop-on .sc-stats li{display:flex;align-items:baseline;gap:6px}
 html.loop-on .sc-stats b{white-space:nowrap;font:600 18px/1.1 'JetBrains Mono',ui-monospace,monospace;color:#F0A27A}
 html.loop-on .sc-stats span{font:500 11px/1.3 'JetBrains Mono',ui-monospace,monospace;color:#C9D4D9}
 html.loop-on .stop-card .sc-l{margin:0 0 12px;font:400 14px/1.5 Inter,system-ui,sans-serif;color:#D5DEE2;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+html.loop-on .stop-card .sc-imgs{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px;grid-template-columns:1fr}
+html.loop-on .stop-card .sc-imgs.n2{grid-template-columns:1fr 1fr}
+html.loop-on .stop-card .sc-imgs.n3{grid-template-columns:repeat(3,1fr);gap:6px}
+html.loop-on .sc-imgs figure{margin:0;min-width:0}
+html.loop-on .sc-imgs img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:top center;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:#0E1520}
+html.loop-on .sc-imgs figcaption{margin-top:4px;font:500 11px/1.3 'JetBrains Mono',ui-monospace,monospace;color:#C9D4D9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html.loop-on[data-theme="light"] .sc-imgs img{border-color:rgba(18,34,43,.22);background:#E9E2D4}
+html.loop-on[data-theme="light"] .sc-imgs figcaption{color:#435862}
+@media (max-width:899px){html.loop-on .sc-imgs img{aspect-ratio:auto;height:64px}html.loop-on .sc-imgs figcaption{display:none}html.loop-on .stop-card .sc-imgs{margin-bottom:10px}}
+@media (max-height:620px){html.loop-on .stop-card .sc-imgs{display:none}}
 html.loop-on .sc-pts{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
 html.loop-on .sc-pts li{position:relative;padding-left:14px;font:400 13px/1.45 Inter,system-ui,sans-serif;color:#D5DEE2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}   /* deux lignes par point : la fiche complète garde le texte entier */
 html.loop-on .sc-pts li::before{content:"";position:absolute;left:0;top:.6em;width:5px;height:5px;border-radius:50%;background:var(--acc)}
@@ -990,3 +1000,25 @@ html.loop-on #stopCard :focus-visible,html.loop-on[data-theme="light"] #stopCard
   html.loop-on #stopCard .sc-l{font-size:14px}
   html.loop-on #stopCard .sc-pts{display:none}
 }
+
+/* ===== Trace en 4 étapes (docs/admin-boucle.md, « Étapes ») ===== */
+/* Lien « Projets » de l'en-tête : visible dès le premier écran, avant même le démarrage de la 3D (seul élément de l'en-tête affiché sans html.loop-live) */
+html.loop-on .top-link{position:relative;display:inline-flex;align-items:center;min-height:44px;padding:0 12px;color:var(--fg);text-decoration:none;font:500 11.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 0 12px color-mix(in srgb,var(--bg) 92%,transparent),0 0 3px color-mix(in srgb,var(--bg) 85%,transparent)}
+html.loop-on .top-link::after{content:"";position:absolute;left:12px;right:12px;bottom:8px;height:1px;background:var(--underline);transform:scaleX(0);transition:transform .4s}
+html.loop-on .top-link:hover::after,html.loop-on .top-link:focus-visible::after{transform:scaleX(1)}
+@media (max-width:420px){html.loop-on .top-link{padding:0 8px;letter-spacing:.2em}html.loop-on .topnav .burger{padding:0 10px}}
+@media (prefers-reduced-motion:reduce){html.loop-on .top-link::after{transition:none}}
+/* Liste des étapes (#pList, rendue côté serveur) : vue statique et mouvement réduit ; couleurs par rôles, contrastes ≥ 4,5:1 sur --card */
+html.loop-on .pl-list>li{background:var(--card);border-color:var(--line);color:var(--fg)}
+html.loop-on .pl-list .e{color:var(--acc-text)}
+html.loop-on #pList .pl,html.loop-on #pList .km{font:500 12px 'JetBrains Mono',monospace;color:var(--muted);margin-top:4px}   /* #pList : passe devant l'ancienne règle à couleur fixe (#E8F1F3, illisible sur carte claire) */
+html.loop-on .pl-list .fig{margin-top:8px}html.loop-on .pl-list .fig strong{font:600 18px/1.2 var(--serif);color:var(--fg);margin-right:4px}
+html.loop-on .pl-list .st-bivouac{margin-left:34px;border-style:dashed}
+html.loop-on .pl-list ul.lk{display:block;margin:8px 0 0}html.loop-on .pl-list ul.lk li{border:0;padding:0;border-radius:0;font:inherit}
+html.loop-on .pl-list ul.lk a{display:inline-flex;align-items:center;min-height:44px;color:var(--fg);text-decoration:underline;text-decoration-color:var(--underline);text-underline-offset:3px}
+html.loop-on .pl-list ul.lk a:hover{text-decoration-thickness:2px}
+/* mouvement réduit : loop.js démarre en vue statique (body.static), qui affiche cette liste */
+/* « Voir la fiche » est désormais un lien */
+html.loop-on .pl-more{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+/* rail des étapes : le bivouac, petit marqueur, n'est pas une étape */
+html.loop-on .pl-stages li.biv .dot{transform:scale(.6)}

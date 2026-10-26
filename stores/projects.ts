@@ -29,6 +29,7 @@ export interface Project {
   impact?: string;
   category?: string;
   imageUrl?: string; // injecté côté vue selon le thème
+  type?: "mission" | "perso";   // vide : repli par slug (utils/stages.ts, projectType)
   // fiche topo (refonte « L'ascension »)
   order?: number;
   place?: string;

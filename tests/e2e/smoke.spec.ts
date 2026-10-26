@@ -9,7 +9,6 @@ const PAGES: { path: string; title: RegExp }[] = [
   { path: '/carnet', title: /Carnet/i },
   { path: '/ai-tools', title: /Équipement IA/ },
   { path: '/contact', title: /Bivouac/ },
-  { path: '/camp-de-base', title: /Camp de Base/ },
   { path: '/outils/allure-denivele', title: /Calculateur d'allure/ },
 ]
 
@@ -41,4 +40,10 @@ test('le fichier de la 3D et les polices sont servis', async ({ request }) => {
   for (const p of ['/fonts/inter-latin-variable.woff2', '/fonts/jetbrains-mono-latin-variable.woff2', '/models/trail-shoe.glb']) {
     expect((await request.get(p)).status(), p).toBe(200)
   }
+})
+
+test('l’ancien accueil /camp-de-base redirige (301) vers l’accueil', async ({ request }) => {
+  const res = await request.get('/camp-de-base', { maxRedirects: 0 })
+  expect(res.status()).toBe(301)
+  expect(res.headers()['location']).toBe('/')
 })

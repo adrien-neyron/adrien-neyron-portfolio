@@ -23,7 +23,8 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 - `trail`, `badges`, `data` : logique et données statiques (cohérence, champs obligatoires).
 - `allure` : calculateur d'allure (`utils/allure.ts`) — formules, formats, entrées vides/invalides.
 - `loopMarkup` : injection des textes admin dans `loop.html` (contrat avec les balises, échappement HTML / pas d'injection).
-- `loopContent` : API `/api/loop-content` (fusion, repli).
+- `loopContent` : API `/api/loop-content` (fusion, repli, étapes de la base ou par défaut).
+- `stages` : source unique des étapes (`utils/stages.ts`) — ordre, numéros, km / D+ répartis, bivouac, résultat clé jamais inventé, liens seulement vers les fiches présentes, règle de publication sur `/projects` (type + défi, solution, résultat).
 - `requireAuth` + **`apiGuards`** : chaque fichier de `server/api/admin/**` doit appeler `await requireAdminWrite(event)` **avant** tout accès base/corps ; les routes d'écriture hors admin sont dans une liste blanche (seulement `visitors.post.ts`). Une nouvelle route admin non protégée fait échouer le test.
 - `projectCover`, `stores` : stores Pinia (repli sur données statiques en cas d'erreur API) et utilitaires serveur.
 - `introShatter` : maillage de la transition d'intro (couverture exacte de l'écran, convexité, déterminisme, format).
@@ -36,6 +37,7 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 - (`home` couvre aussi la transition en éclats : canvas `.intro-shatter` créé puis retiré, repli sans canvas en `prefers-reduced-motion`.)
 - `calculator` : calculateur d'allure (valeur par défaut, saisie, champ vide sans `NaN`, `aria-pressed` au clavier).
 - `admin` : `/admin*` redirige vers la connexion.
+- `stages` : lien « Projets » de l'en-tête visible avant la 3D ; en mouvement réduit, toutes les étapes dans l'ordre avec dates et liens (aucun lien mort) ; filtre « Missions / Projets perso » et bandeau de chiffres de `/projects`.
 - `a11y` : axe-core (WCAG 2.1 A/AA) sur 8 pages × thème clair/sombre.
 
 ## Accessibilité : politique « cliquet »
