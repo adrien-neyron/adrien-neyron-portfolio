@@ -74,6 +74,7 @@ const RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
  * illisibles, et une photo « d'ambiance » raconte le métier, pas l'interface.
  */
 const CATEGORY_QUERIES: Record<string, string> = {
+  "Mobile":         "clothes hanger wardrobe",
   "E-commerce":     "shop counter storefront",
   "Outil métier":   "office archive paperwork",
   "LMS":            "classroom notebook",
