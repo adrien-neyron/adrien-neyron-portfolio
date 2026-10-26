@@ -18,7 +18,7 @@ export interface ProjectData {
   code?: string;
   difficulty: "Apprentissage" | "Side Project" | "Professionnel";
   duration: string;
-  category: "E-commerce" | "Outil métier" | "LMS" | "IA" | "Automatisation" | "SI";
+  category: "Mobile" | "E-commerce" | "Outil métier" | "LMS" | "IA" | "Automatisation" | "SI";
   status: "En production" | "En cours" | "Case study pro";
   impact?: string;
   // fiche topo (refonte « L'ascension ») — optionnels
@@ -192,5 +192,29 @@ export const projects: ProjectData[] = [
       { value: "−50 %", label: "de temps de traitement sur les processus ciblés" },
       { value: "2 ans", label: "en production dans le SI de la DGFiP" },
     ],
+  },
+  {
+    id: "dressmeup",
+    title: "DressMeUp",
+    tagline: "Application mobile pour composer ses tenues · Expo SDK 57 · version web en ligne",
+    role: "Développeur Full-Stack",
+    description:
+      "Application de garde-robe numérique : on photographie ses vêtements, on les classe (type, couleur, marque, saison, événement) puis on compose et enregistre des tenues, avec des favoris. Front React Native (Expo) disponible dans Expo Go et en version web, API Express et base MongoDB Atlas, images hébergées sur Cloudinary.",
+    challenge:
+      "Rendre une application mobile utilisable par n'importe qui sans installation : migration vers Expo SDK 57 (Expo Go ne prend en charge que la dernière version), adaptation de l'interface à react-native-web, et ouverture de la base de données au déploiement serverless.",
+    solution:
+      "Mise à niveau d'Expo SDK 54 vers 57 (React Native 0.86, React 19) et remplacement d'expo-router, devenu incompatible avec react-navigation. Export web statique déployé sur Vercel, avec un cadre mobile de 430 px de large qui garde la mise en page de l'application sur ordinateur. API Express déployée comme fonction Vercel, connectée à MongoDB Atlas. Déploiement continu : chaque push sur GitHub redéploie le front.",
+    result:
+      "L'application est accessible en ligne depuis un navigateur, sans installation, et sur téléphone via Expo Go. Front et API sont déployés séparément sur Vercel.",
+    technologies: ["React Native", "Expo SDK 57", "Node.js", "Express", "MongoDB Atlas", "Mongoose", "Cloudinary", "Vercel"],
+    image: { light: "/projectsoon.png", dark: "/projectsoon.png" },
+    link: "https://dressmeup-frontend.vercel.app",
+    code: "https://github.com/adrien-neyron/dressMeUp-frontend",
+    difficulty: "Side Project",
+    duration: "Projet de 2023, remis en ligne en octobre 2026",
+    category: "Mobile",
+    status: "En production",
+    impact: "App mobile + web · Expo SDK 57 · API Express · déploiement continu",
+    startDate: "2023",
   },
 ];
