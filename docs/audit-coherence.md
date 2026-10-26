@@ -87,3 +87,40 @@ Chaque étape : tests, axe, contrastes, Lighthouse, mise à jour de ce fichier e
 - [ ] Étape 4 — charte unique
 - [ ] Étape 5 — pied de page commun, mentions légales, accessibilité
 - [ ] Étape 6 — contenus (qualités, parcours, formulaire, chiffres)
+
+## Ménage du 26/10/2026 (branche `chore/menage-composants`)
+
+Inventaire fait par recherche des références dans `components/`, `pages/`, `layouts/`, `composables/`, `stores/`, `utils/`, `assets/loop/`, `tests/`. Non exécuté : build, tests, Lighthouse (voir « Reste à vérifier »).
+
+### Code mort supprimé
+- `components/ui/TextDecrypt.vue` et `composables/useTextDecrypt.ts` : aucune page ne les utilise depuis que l'accueil est la boucle (`pages/index.vue` ne rend que `LoopHome`). Aucun test ne les cite. CLAUDE.md mis à jour (la règle « pas d'`aria-label` sur un `<div>` » est conservée).
+- Les 21 autres composants, les 5 autres composables, les 6 stores et les `utils/` sont tous référencés. `layouts/loop.vue` (accueil) et `pages/callback.vue` (retour Auth0) sont utilisés.
+
+### Signalé, pas supprimé (décision d'Adri)
+| Sujet | Constat | Pourquoi pas supprimé |
+|---|---|---|
+| `heroTitle`, `headerSubtitle` du profil | éditables dans `/admin/profile`, affichés nulle part | champs en base ; supprimer l'input ou les brancher |
+| `public/malt.svg`, `public/an-logo.svg`, `public/NIGHT.mp3` | aucune référence dans le code | une image peut être saisie dans l'admin (Mongo) : vérifier |
+| `public/recentprojects/` : `aspirationSport.png`, `aspirationSport copie.png` (même taille : doublon), `cpaie-*`, `dressmeup*`, `morning`, `portfam`, `portfolio-*`, `Project.png` | non cités dans le code (seuls coachflow, runfit, tyredating, dgfip le sont, via `data/projects.ts`) | chemins possibles dans les projets en base (`image.light` / `image.dark`) |
+| `content/sample_….glb` (10 Mo) | reste de `@nuxt/content`, retiré du projet | à retirer s'il est suivi par git |
+| `Claude outputs/` (patch, bundle git, 3 `.webp` en doublon de `public/recentprojects/`) | fichiers de travail | à sortir du dépôt s'ils sont suivis |
+| `models-src/` | sources (GLB d'origine, polices) | légitime, garder |
+
+Vérifier ce qui est suivi : `git ls-files content "Claude outputs" models-src public | head -50`.
+
+### Couleurs brutes (règle CLAUDE.md « jamais de couleur brute »)
+Hex ou `rgba()` dans le code des pages et composants (hors boucle) : `TrailNav.vue` 24, `SettingsGear.vue` 17, `AppBackground.vue` 6, `ProfileForm.vue` 3, `ContourBackground.vue` 2, `pages/projects/[id].vue` 2, `pages/admin/index.vue` 2, `pages/admin/carnet/index.vue` 2, et 1 dans chacun de `CarnetForm`, `FileUpload`, `pages/admin/ai-tools`, `pages/admin/profile`, `pages/admin/stages` (dont `#e53e3e` pour les erreurs). À traiter avec l'étape 4 (charte unique) : un jeton « erreur » manque dans `main.css`.
+
+### Écran de chargement (« Montée au sommet 0 → 2 480 m »)
+- Rôle : masquer le temps que la scène 3D s'installe et bloquer le défilement (`overflow: hidden`) tant que `loaded` est faux ; à la fin, la boussole se cale sur le nord (`finishLoad`), le lecteur d'écran entend « Boussole calée sur le nord. Faites défiler pour explorer. ».
+- **La barre est fictive** : elle suit le temps (`LOAD_MS`), pas le chargement réel. 2,6 s à la première visite, 0,45 s ensuite (`localStorage asc-seen`), 0,45 s avec `prefers-reduced-motion`. Le chargement réel des scènes est progressif (`prewarm`, `requestIdleCallback`) et ne dépend pas de cette barre.
+- Bouton « Passer le chargement » : présent. Pistes (à décider) : raccourcir à ~1 s ; ou adosser la fin au 1er rendu 3D réel plutôt qu'à un minuteur.
+
+### Défilement entre les projets
+- Cause trouvée par simulation du filtre de molette (`utils/wheelStep.ts`) : après chaque pas, toute la transition (0,6 s) et tous les événements à moins de 280 ms les uns des autres étaient absorbés. Résultat mesuré : 6 crans de molette à 350 ms d'intervalle → 3 projets ; un 2ᵉ geste de pavé juste après la queue d'inertie du 1ᵉʳ → 0 projet.
+- Correctif : verrou court (0,3 s) puis reconnaissance d'un nouveau geste (pause, demi-tour, delta qui remonte, cran de molette). Même résultat chiffré : 6 crans → 6 projets, 2ᵉ geste pris en compte. 13 tests unitaires (dont 6 nouveaux).
+- Autre cause possible, **non modifiée** : le panneau d'étape (`#stopCard`, 80 vh max) défile d'abord s'il déborde et que le curseur est dessus ; il faut alors un cran de plus.
+- Non testé : sur un vrai pavé tactile et une vraie molette (simulation seulement).
+
+### Reste à vérifier
+`npm test`, `npm run build && npm run test:e2e`, Lighthouse mobile (perf ≥ 90, a11y 100), essai à la molette et au pavé sur l'accueil.
