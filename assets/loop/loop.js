@@ -5,6 +5,7 @@
 import {projects as SITE_PROJECTS} from '~/data/projects';
 import {createWheelGate,wheelGate,STEP_MS} from '~/utils/wheelStep';
 import {loopStages} from '~/utils/loopMarkup';
+import {stageImageFallback as IMG_FB} from '~/data/stageImages';
 import {TRAIL_TOTAL} from '~/utils/stages';   // étapes de la trace (admin, sinon data/stages.ts)   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
 export function initLoop(THREE,LOADERS={}){
   const __ac=new AbortController(),__sig=__ac.signal,__ivs=[];let DEAD=false;
