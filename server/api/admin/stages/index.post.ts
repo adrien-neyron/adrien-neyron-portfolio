@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     const doc = await Stage.create(fields);
     return { ...doc.toObject(), id: String(doc._id) };
   } catch (e) {
-    if ((e as { code?: number }).code === 11000) throw createError({ statusCode: 409, statusMessage: `la clé « ${fields.key} » est déjà utilisée` });
+    if ((e as { code?: number }).code === 11000) throw createError({ statusCode: 409, statusMessage: `la clé « ${fields.key} » est déjà utilisée ; choisis-en une autre` });
     throw e;
   }
 });
