@@ -124,6 +124,7 @@ export const DEFAULT_PROJECT_TYPES: Record<string, ProjectType> = {
   stockpulse: "mission",
   coachflow: "perso",
   "runfit-advisor": "perso",
+  dressmeup: "perso",
 };
 
 export function projectType(p: { slug?: string; type?: string }): ProjectType | null {

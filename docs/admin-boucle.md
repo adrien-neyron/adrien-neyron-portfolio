@@ -132,7 +132,7 @@ Le tracé GPS (290 points, ≈ 10 unités chacun) est lissé deux fois : `smooth
 |---|---|---|
 | Départ | sept. 2009 – mai 2021 | CV |
 | StockPulse | 2021 – 2023 | carte d'origine (le CV le place dans le freelance, juin 2021 – oct. 2025) |
-| DressMeUp | 2023 | création du dépôt public (juillet 2023) ; absent du CV |
+| DressMeUp | 2023 | création du dépôt public (juillet 2023) ; absent du CV. Remis en ligne en octobre 2026 (web Vercel + Expo Go SDK 57) ; fiche de repli `dressmeup` dans `data/projects.ts` |
 | HelloStay | déc. 2023 – janv. 2024 | CV 2025 |
 | OCTAVE (DGFiP) | déc. 2023 – oct. 2025 | CV |
 | C+Paie | 2024 | premier commit du dépôt (février 2024) |
