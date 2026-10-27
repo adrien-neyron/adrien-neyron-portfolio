@@ -60,3 +60,5 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 - Les e2e ne couvrent pas la connexion Auth0 (service tiers).
 
 - `tests/unit/wheelStep.test.ts` : filtre « un cran = un projet » de la carte des expériences (crans, rafales et inertie de pavé tactile, bouts de carte).
+
+- `tests/unit/stages.test.ts` : suite « infos d'affichage » (km/D+/altitude, `steleTags`, `images`, `ctaLabel`, `validateStageDisplay`, `withStageDefaults`, `STAGE_DISPLAY_MAP`).

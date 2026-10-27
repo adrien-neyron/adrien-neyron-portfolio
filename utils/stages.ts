@@ -21,17 +21,29 @@ export interface Stage {
   figure?: string;        // chiffre : « −50 % » (vide : pas de chiffre affiché)
   figureLabel?: string;   // libellé du chiffre : « de temps de traitement »
   projects?: string[];    // slugs des fiches liées (/projects/<slug>)
+  // ── Affichage : tout ce que le visiteur voit est saisi ici ou calculé (voir STAGE_DISPLAY_MAP) ──
+  km?: number | null;         // km gravé sur le cairn et affiché dans la liste ; vide : calculé d'après la position sur la trace
+  gain?: number | null;       // D+ (m) : idem
+  altitude?: number | null;   // altitude (m) gravée sur le cairn et lue aux lecteurs d'écran ; vide : relevée sur le tracé GPS
+  steleTags?: string[];       // ligne du bas du cairn (4 au plus) ; vide : le chiffre clé, sinon les fiches liées
+  images?: StageImage[];      // aperçus de la card (3 au plus) ; absent : ceux de data/stages.ts, vide : aucun
+  ctaLabel?: string;          // texte du lien principal de la card ; vide : « Fiche <projet> » (« Écrire la suite ensemble » au cairn final)
 }
+
+export interface StageImage { src: string; title: string }
 
 export interface StageProjectRef { slug?: string; title?: string }
 export interface StageLink { slug: string; title: string; href: string }
 
-export interface StageView extends Stage {
+export interface StageView extends Omit<Stage, "km" | "gain" | "altitude"> {
   label: string;          // « Départ », « Étape 01 », « Bivouac », « Cairn final »
   num: number | null;     // numéro d'étape (null : départ, bivouac, cairn final)
   t: number;              // abscisse sur la trace, 0 → 1
-  km: number;
-  gain: number;           // dénivelé positif cumulé, arrondi à 10 m
+  km: number;             // saisi (override) sinon calculé d'après la position
+  gain: number;           // dénivelé positif cumulé, arrondi à 10 m ; saisi sinon calculé
+  altitude: number | null; // altitude saisie ; null : relevée sur le tracé par la carte
+  steleTags: string[];    // ligne du bas du cairn, 4 au plus (saisie, sinon chiffre clé, sinon fiches liées)
+  cta: string;            // texte du lien principal de la card (saisi, sinon « Fiche … » / « Écrire la suite ensemble »)
   keyResult: string;      // « −50 % de temps de traitement » ; vide sans chiffre
   links: StageLink[];     // fiches liées réellement présentes
   href: string;           // lien principal : première fiche, /contact pour le cairn final, vide sinon
@@ -43,6 +55,20 @@ export const TRAIL_TOTAL = { km: 180, gain: 10200 } as const;
 export const projectHref = (slug: string) => `/projects/${encodeURIComponent(slug)}`;
 
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+
+const numOrNull = (v: unknown): number | null => {
+  if (v === null || v === undefined || (typeof v === "string" && !v.trim())) return null;
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+};
+
+/** Images de la card : un chemin du site ou https, un titre ; 3 au plus, les entrées sans image sont écartées. */
+export function normalizeImages(v: unknown): StageImage[] {
+  return (Array.isArray(v) ? v : [])
+    .map((i) => ({ src: str((i as StageImage)?.src), title: str((i as StageImage)?.title) }))
+    .filter((i) => /^(\/(?!\/)|https:\/\/)/.test(i.src))
+    .slice(0, 3);
+}
 
 /** Nettoie un enregistrement venu de la base ou de l'admin (champs texte rognés, slugs vides écartés). */
 export function normalizeStage(s: Partial<Stage> & Record<string, unknown>): Stage {
@@ -59,6 +85,12 @@ export function normalizeStage(s: Partial<Stage> & Record<string, unknown>): Sta
     figure: str(s.figure),
     figureLabel: str(s.figureLabel),
     projects: (Array.isArray(s.projects) ? s.projects : []).map(str).filter(Boolean),
+    km: numOrNull(s.km),
+    gain: numOrNull(s.gain),
+    altitude: numOrNull(s.altitude),
+    steleTags: (Array.isArray(s.steleTags) ? s.steleTags : []).map(str).filter(Boolean).slice(0, 4),
+    ...(Array.isArray(s.images) ? { images: normalizeImages(s.images) } : {}),   // absent ≠ vide : absent = images par défaut, vide = aucune
+    ctaLabel: str(s.ctaLabel),
   };
 }
 
@@ -94,15 +126,19 @@ export function buildStageView(stages: Stage[], projects: StageProjectRef[] = []
     const label =
       s.kind === "depart" ? "Départ" : s.kind === "bivouac" ? "Bivouac" : s.kind === "final" ? "Cairn final" : `Étape ${String(num).padStart(2, "0")}`;
     const links = (s.projects || []).filter((slug) => titleOf.has(slug)).map((slug) => ({ slug, title: titleOf.get(slug)!, href: projectHref(slug) }));
+    const result = keyResult(s);
     return {
       ...s,
       label,
       num,
       t,
-      km: Math.round(TRAIL_TOTAL.km * t),
-      gain: Math.round((TRAIL_TOTAL.gain * t) / 10) * 10,
-      keyResult: keyResult(s),
+      km: s.km ?? Math.round(TRAIL_TOTAL.km * t),
+      gain: s.gain ?? Math.round((TRAIL_TOTAL.gain * t) / 10) * 10,
+      altitude: s.altitude ?? null,
+      keyResult: result,
+      steleTags: s.steleTags?.length ? s.steleTags : result ? [result] : links.map((l) => l.title),
       links,
+      cta: s.ctaLabel || (s.kind === "final" ? "Écrire la suite ensemble" : links[0] ? `Fiche ${links[0].title}` : ""),
       href: s.kind === "final" ? "/contact" : links[0]?.href ?? "",
     };
   });
@@ -141,7 +177,7 @@ export const isListedProject = (p: { slug?: string; type?: string; challenge?: s
  * Le numéro d'une étape ne se saisit pas : il découle de son emplacement (buildStageView).
  * ---------------------------------------------------------------------------------------------- */
 
-export type StageField = "kind" | "title" | "key" | "placement";
+export type StageField = "kind" | "title" | "key" | "placement" | "km" | "gain" | "altitude" | "steleTags" | "images" | "ctaLabel";
 export interface StageIssue { field: StageField; message: string }
 export interface PlacementOption { value: string; label: string }
 
@@ -249,4 +285,61 @@ export function traceOrderError(list: { kind?: string; title?: string }[]): stri
   const f = list.findIndex((s) => s.kind === "final");
   if (f >= 0 && f !== list.length - 1) return `Le Cairn final (« ${list[f].title || "sans titre"} ») doit rester en dernière position.`;
   return null;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Où s'affiche chaque information d'une étape : source de vérité de la table d'aide de /admin/stages.
+ * « cairn » = stèle gravée dans la 3D (décorative), « card » = panneau d'étape à côté du cairn,
+ * « liste » = liste HTML #pList (sans 3D / mouvement réduit) et lecteurs d'écran.
+ * ---------------------------------------------------------------------------------------------- */
+export interface StageDisplayRow {
+  info: string;
+  field: string;            // champ stocké (Mongo `Stage`), ou « calculé »
+  cairn: boolean;
+  card: boolean;
+  liste: boolean;
+  note?: string;
+}
+
+export const STAGE_DISPLAY_MAP: StageDisplayRow[] = [
+  { info: "Libellé (Départ, Étape 03, Bivouac…)", field: "calculé", cairn: true, card: true, liste: true, note: "Découle de l'emplacement sur la trace ; ne se saisit pas." },
+  { info: "Titre", field: "title", cairn: true, card: true, liste: true },
+  { info: "Lieu", field: "place", cairn: true, card: false, liste: true, note: "Lu aux lecteurs d'écran dans la card." },
+  { info: "Période (et année gravée)", field: "period", cairn: true, card: true, liste: true },
+  { info: "Kilomètre", field: "km", cairn: true, card: false, liste: true, note: "Vide : calculé d'après l'emplacement." },
+  { info: "Dénivelé positif (D+)", field: "gain", cairn: true, card: false, liste: true, note: "Vide : calculé d'après l'emplacement." },
+  { info: "Altitude", field: "altitude", cairn: true, card: false, liste: true, note: "Vide : relevée sur le tracé GPS. Lue aux lecteurs d'écran dans la card." },
+  { info: "Ligne du bas du cairn (4 mots au plus)", field: "steleTags", cairn: true, card: false, liste: false, note: "Vide : le chiffre clé, sinon les fiches liées." },
+  { info: "Résumé", field: "summary", cairn: false, card: true, liste: true },
+  { info: "Chiffre clé et son libellé", field: "figure, figureLabel", cairn: false, card: true, liste: true, note: "Sans chiffre : rien n'est affiché (jamais de valeur inventée)." },
+  { info: "Images d'aperçu (3 au plus)", field: "images", cairn: false, card: true, liste: false, note: "Absentes : celles par défaut ; supprimées toutes : aucune. Décoratives." },
+  { info: "Liens vers les fiches projets", field: "projects", cairn: false, card: true, liste: true, note: "Seulement vers les fiches qui existent." },
+  { info: "Texte du lien principal", field: "ctaLabel", cairn: false, card: true, liste: true, note: "Vide : « Fiche <projet> » ; « Écrire la suite ensemble » au cairn final." },
+];
+
+/** Étape de la base sans champ `images` (jamais saisi) : reprend les images par défaut de data/stages.ts (même clé). */
+export function withStageDefaults<T extends { key?: string; images?: StageImage[] }>(stage: T, defaults: Stage[]): T {
+  if (stage.images !== undefined && stage.images !== null) return stage;
+  const d = defaults.find((x) => x.key === stage.key);
+  return d?.images ? { ...stage, images: d.images } : stage;
+}
+
+/** Contrôle des champs d'affichage tels que saisis (texte brut) : nombres positifs, 4 mots sur le cairn, images valides. */
+export function validateStageDisplay(raw: { km?: string; gain?: string; altitude?: string; steleTags?: string[]; images?: { src?: string; title?: string }[] }): StageIssue[] {
+  const issues: StageIssue[] = [];
+  const num = (field: "km" | "gain" | "altitude", label: string, v?: string) => {
+    const t = str(v);
+    if (t && !(Number.isFinite(Number(t)) && Number(t) >= 0)) issues.push({ field, message: `${label} : saisis un nombre positif (sans unité), ou laisse vide pour le calcul automatique.` });
+  };
+  num("km", "Kilomètre", raw.km);
+  num("gain", "Dénivelé positif", raw.gain);
+  num("altitude", "Altitude", raw.altitude);
+  if ((raw.steleTags || []).filter((t) => str(t)).length > 4) issues.push({ field: "steleTags", message: "La ligne du bas du cairn ne tient que 4 éléments au plus : retire-en pour que tout soit gravé." });
+  (raw.images || []).forEach((im, i) => {
+    const src = str(im.src), title = str(im.title);
+    if (!src && !title) return;
+    if (!src) issues.push({ field: "images", message: `Image ${i + 1} : ajoute une image (envoi ou adresse), ou supprime cette ligne.` });
+    else if (!/^(\/(?!\/)|https:\/\/)/.test(src)) issues.push({ field: "images", message: `Image ${i + 1} : l'adresse doit être un chemin du site (« /recentprojects/… ») ou une adresse https.` });
+  });
+  return issues;
 }

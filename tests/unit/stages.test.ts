@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildStageView, normalizeStage, keyResult, stageOfProject, isListedProject, projectType, projectHref, placementOptions, placementOf, moveWithinTrace, traceOrderError, isPinnedStage, orderForPlacement, validateStage, stageKeyFromTitle, PLACE_START } from '~/utils/stages'
+import { buildStageView, normalizeStage, keyResult, stageOfProject, isListedProject, projectType, projectHref, placementOptions, placementOf, normalizeImages, withStageDefaults, validateStageDisplay, STAGE_DISPLAY_MAP, moveWithinTrace, traceOrderError, isPinnedStage, orderForPlacement, validateStage, stageKeyFromTitle, PLACE_START } from '~/utils/stages'
 import { stages as fallback } from '~/data/stages'
 
 const projects = [
@@ -178,5 +178,56 @@ describe('réorganiser la trace (glisser-déposer)', () => {
     expect(traceOrderError(t)).toBeNull()
     expect(traceOrderError([t[1], t[0], t[4]])).toMatch(/Départ/)
     expect(traceOrderError([t[0], t[4], t[1]])).toMatch(/Cairn final/)
+  })
+})
+
+describe('informations affichées sur le cairn et dans la card', () => {
+  const base = { key: 'k', order: 1, kind: 'etape' as const, title: 'T', period: '2021' }
+
+  it('km, D+ et altitude saisis passent devant le calcul ; vides, ils sont calculés', () => {
+    const v = buildStageView([{ ...base, order: 0, kind: 'depart' }, { ...base, key: 'a', order: 1 }, { ...base, key: 'b', order: 2, km: 77, gain: 4000, altitude: 1850 }, { ...base, key: 'f', order: 3, kind: 'final' }])
+    expect(v[1].km).toBe(60)                       // 180 km × 1/3
+    expect(v[2]).toMatchObject({ km: 77, gain: 4000, altitude: 1850 })
+    expect(v[1].altitude).toBeNull()               // null : relevée sur le tracé GPS par la carte
+  })
+  it('ligne du bas du cairn : saisie, sinon chiffre clé, sinon fiches liées ; 4 au plus', () => {
+    const proj = [{ slug: 'p', title: 'Projet P' }]
+    expect(buildStageView([{ ...base, steleTags: ['A', 'B'], figure: '−50 %' }], proj)[0].steleTags).toEqual(['A', 'B'])
+    expect(buildStageView([{ ...base, figure: '−50 %', figureLabel: 'de temps' }], proj)[0].steleTags).toEqual(['−50 % de temps'])
+    expect(buildStageView([{ ...base, projects: ['p'] }], proj)[0].steleTags).toEqual(['Projet P'])
+    expect(normalizeStage({ ...base, steleTags: ['1', '2', '3', '4', '5'] }).steleTags).toHaveLength(4)
+  })
+  it('texte du lien principal : saisi, sinon « Fiche … », sinon « Écrire la suite ensemble » au cairn final', () => {
+    const proj = [{ slug: 'p', title: 'Projet P' }]
+    expect(buildStageView([{ ...base, projects: ['p'] }], proj)[0].cta).toBe('Fiche Projet P')
+    expect(buildStageView([{ ...base, projects: ['p'], ctaLabel: 'Lire le cas' }], proj)[0].cta).toBe('Lire le cas')
+    expect(buildStageView([{ ...base, kind: 'final' }])[0].cta).toBe('Écrire la suite ensemble')
+    expect(buildStageView([{ ...base }])[0].cta).toBe('')
+  })
+  it('images : 3 au plus, adresses valides seulement ; absent ≠ vide (défaut ou aucune)', () => {
+    expect(normalizeImages([{ src: '/a.webp', title: 'A' }, { src: 'http://x/y.png' }, { src: '//evil/z.png' }, { src: 'https://x/y.png', title: ' B ' }, { src: '/c' }, { src: '/d' }])).toEqual([
+      { src: '/a.webp', title: 'A' }, { src: 'https://x/y.png', title: 'B' }, { src: '/c', title: '' },
+    ])
+    expect('images' in normalizeStage(base)).toBe(false)
+    expect(normalizeStage({ ...base, images: [] }).images).toEqual([])
+  })
+  it('étape de la base sans images : reprend celles de data/stages.ts ; images vides saisies : respectées', () => {
+    const defaults = [{ ...base, images: [{ src: '/d.webp', title: 'D' }] }]
+    expect(withStageDefaults({ key: 'k' }, defaults).images).toEqual([{ src: '/d.webp', title: 'D' }])
+    expect(withStageDefaults({ key: 'k', images: [] }, defaults).images).toEqual([])
+    expect(withStageDefaults({ key: 'autre' }, defaults).images).toBeUndefined()
+  })
+  it('contrôle des champs d\'affichage : nombres, 4 éléments, images', () => {
+    expect(validateStageDisplay({ km: '12', gain: '', altitude: '1 850' }).map((i) => i.field)).toEqual(['altitude'])
+    expect(validateStageDisplay({ km: '-3' })[0].message).toMatch(/nombre positif/)
+    expect(validateStageDisplay({ steleTags: ['a', 'b', 'c', 'd', 'e'] })[0].field).toBe('steleTags')
+    expect(validateStageDisplay({ images: [{ src: '', title: 'X' }] })[0].message).toMatch(/Image 1/)
+    expect(validateStageDisplay({ images: [{ src: 'ftp://x', title: '' }] })[0].message).toMatch(/chemin du site/)
+    expect(validateStageDisplay({ km: '10', images: [{ src: '/a.webp', title: '' }] })).toEqual([])
+  })
+  it('la table d\'aide couvre chaque champ saisissable, avec au moins un endroit d\'affichage', () => {
+    const fields = STAGE_DISPLAY_MAP.flatMap((r) => r.field.split(',').map((f) => f.trim()))
+    for (const f of ['title', 'place', 'period', 'km', 'gain', 'altitude', 'steleTags', 'summary', 'figure', 'figureLabel', 'images', 'projects', 'ctaLabel']) expect(fields).toContain(f)
+    for (const r of STAGE_DISPLAY_MAP) expect(r.cairn || r.card || r.liste, r.info).toBe(true)
   })
 })
