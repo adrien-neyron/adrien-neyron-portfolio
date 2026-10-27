@@ -5,7 +5,7 @@
 import {projects as SITE_PROJECTS} from '~/data/projects';
 import {createWheelGate,wheelGate,STEP_MS,LOCK_MS} from '~/utils/wheelStep';
 import {loopStages} from '~/utils/loopMarkup';
-import {stageImageFallback as IMG_FB} from '~/data/stageImages';
+import {stageImageFallback as IMG_FB,stageImageByStage as IMG_STAGE} from '~/data/stageImages';
 import {TRAIL_TOTAL} from '~/utils/stages';   // étapes de la trace (admin, sinon data/stages.ts)   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
 export function initLoop(THREE,LOADERS={}){
   const __ac=new AbortController(),__sig=__ac.signal,__ivs=[];let DEAD=false;
@@ -3333,6 +3333,7 @@ function stageImgs(sg){
     const src=okUrl(shot(a)||shot(s)||(a&&a.cover)||(s&&s.cover)||(IMG_FB[l.slug]&&IMG_FB[l.slug].src)||'');
     if(src&&!seen.has(src)&&out.length<3){seen.add(src);out.push({src,title:shortT(l.title)})}
   });
+  (IMG_STAGE[sg.key]||[]).forEach(x=>{const src=okUrl(x.src);if(src&&!seen.has(src)&&out.length<3){seen.add(src);out.push({src,title:x.title})}});   // images de l'étape elle-même (Départ : UCPA, Decathlon), après celles des projets liés
   return out}
 function preloadStageImgs(from){   // les images des deux étapes suivantes arrivent pendant que la caméra est posée : pas d'image qui apparaît d'un coup
   idle(()=>[from+1,from+2].forEach(i=>{const s=STOPS[i];if(s)stageImgs(s.sg).forEach(x=>{if(IMG_SEEN.has(x.src))return;IMG_SEEN.add(x.src);const im=new Image();im.decoding='async';im.src=x.src})}))}
