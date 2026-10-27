@@ -134,3 +134,88 @@ export function projectType(p: { slug?: string; type?: string }): ProjectType | 
 /** Visible sur /projects : un type (mission ou perso) et une fiche complète (défi, solution et résultat renseignés). */
 export const isListedProject = (p: { slug?: string; type?: string; challenge?: string; solution?: string; result?: string }) =>
   !!projectType(p) && !!str(p.challenge) && !!str(p.solution) && !!str(p.result);
+
+/* ------------------------------------------------------------------------------------------------
+ * Saisie d'une étape dans /admin : emplacement sur la trace, clé, validation.
+ * Le numéro d'une étape ne se saisit pas : il découle de son emplacement (buildStageView).
+ * ---------------------------------------------------------------------------------------------- */
+
+export type StageField = "kind" | "title" | "key" | "placement";
+export interface StageIssue { field: StageField; message: string }
+export interface PlacementOption { value: string; label: string }
+
+/** Valeur de l'emplacement « tout au début de la trace » (proposé tant qu'il n'y a pas de Départ). */
+export const PLACE_START = "__start";
+
+const byOrder = (a: Stage, b: Stage) => a.order - b.order;
+
+/** Clé technique proposée à partir du type et du titre : `etape-developpeur-web-freelance`, `depart`, `final`. */
+export function stageKeyFromTitle(kind: StageKind, title: string): string {
+  if (kind === "depart" || kind === "final") return kind;
+  const slug = str(title).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40).replace(/-+$/, "");
+  return slug ? `${kind}-${slug}` : kind;
+}
+
+/**
+ * Emplacements proposés pour une étape numérotée ou un bivouac : « Après <étape> », sauf après le cairn final
+ * (la trace s'y arrête). Les autres étapes sont celles déjà enregistrées, sans celle qu'on modifie.
+ */
+export function placementOptions(others: Stage[]): PlacementOption[] {
+  const sorted = others.map((s) => normalizeStage(s as Stage & Record<string, unknown>)).sort(byOrder);
+  const view = buildStageView(sorted);
+  const opts: PlacementOption[] = [];
+  if (!sorted.some((s) => s.kind === "depart")) opts.push({ value: PLACE_START, label: "Au tout début de la trace" });
+  view.forEach((v) => {
+    if (v.kind === "final") return;
+    opts.push({ value: v.key, label: `Après « ${v.label}${v.title ? ` · ${v.title}` : ""} »` });
+  });
+  return opts;
+}
+
+/** Emplacement actuel d'une étape déjà enregistrée : la clé de l'étape qui la précède (ou le début de la trace). */
+export function placementOf(others: Stage[], order: number): string {
+  const before = others.map((s) => normalizeStage(s as Stage & Record<string, unknown>)).filter((s) => s.order < order).sort(byOrder).pop();
+  return before ? before.key : PLACE_START;
+}
+
+/**
+ * Rang (`order`) à enregistrer. Le Départ passe avant tout, le cairn final après tout ; les autres se glissent
+ * entre l'étape choisie et la suivante (milieu des deux rangs : aucune autre étape n'est à renuméroter).
+ * Renvoie null si l'emplacement choisi n'existe pas.
+ */
+export function orderForPlacement(others: Stage[], kind: StageKind, placement: string): number | null {
+  const sorted = others.map((s) => normalizeStage(s as Stage & Record<string, unknown>)).sort(byOrder);
+  if (kind === "depart") return sorted.length ? sorted[0].order - 1 : 0;
+  if (kind === "final") return sorted.length ? sorted[sorted.length - 1].order + 1 : 0;
+  if (!sorted.length) return 0;
+  if (placement === PLACE_START) return sorted[0].order - 1;
+  const i = sorted.findIndex((s) => s.key === placement);
+  if (i < 0 || sorted[i].kind === "final") return null;
+  const next = sorted[i + 1];
+  return next ? (sorted[i].order + next.order) / 2 : sorted[i].order + 1;
+}
+
+/** Contrôles de la saisie, messages explicites : ce qui ne va pas, pourquoi, et quoi faire. Même fonction côté serveur. */
+export function validateStage(form: Partial<Stage>, others: Stage[], placement = ""): StageIssue[] {
+  const issues: StageIssue[] = [];
+  const kind = (["depart", "etape", "bivouac", "final"] as const).find((k) => k === form.kind);
+  const title = str(form.title);
+  const key = str(form.key);
+  const rest = others.map((s) => normalizeStage(s as Stage & Record<string, unknown>));
+  if (!kind) issues.push({ field: "kind", message: "Choisis le type de l'étape : Départ, Étape, Bivouac ou Cairn final." });
+  if (!title) issues.push({ field: "title", message: "Le titre est obligatoire : il est gravé sur la stèle et affiché dans la liste des étapes." });
+  if (!key) issues.push({ field: "key", message: "La clé est obligatoire. C'est l'identifiant technique de l'étape, par exemple « etape-04 »." });
+  else if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(key)) issues.push({ field: "key", message: "La clé ne peut contenir que des minuscules sans accent, des chiffres et des tirets (« etape-04 »)." });
+  else {
+    const same = rest.find((s) => s.key === key);
+    if (same) issues.push({ field: "key", message: `La clé « ${key} » est déjà utilisée par l'étape « ${same.title || same.key} ». Choisis une autre clé.` });
+  }
+  if (kind === "depart" || kind === "final") {
+    const dup = rest.find((s) => s.kind === kind);
+    if (dup) issues.push({ field: "kind", message: `Il existe déjà un ${kind === "depart" ? "Départ" : "Cairn final"} (« ${dup.title || dup.key} »). Une trace n'en a qu'un : modifie-le, ou choisis un autre type.` });
+  } else if (kind && rest.length) {
+    if (!placement) issues.push({ field: "placement", message: "Choisis l'emplacement sur la trace : le numéro de l'étape en découle." });
+    else if (orderForPlacement(rest, kind, placement) === null) issues.push({ field: "placement", message: "Cet emplacement n'existe plus (l'étape a peut-être été supprimée). Choisis-en un autre dans la liste." });
+  }
+  return issues;
+}

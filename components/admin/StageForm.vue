@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import type { Stage, StageKind } from "~/utils/stages";
+import { ref, computed, watch, nextTick, onMounted } from "vue";
+import {
+  buildStageView, orderForPlacement, placementOf, placementOptions, stageKeyFromTitle, validateStage, PLACE_START,
+  type Stage, type StageKind, type StageIssue, type StageField,
+} from "~/utils/stages";
 
 /**
  * Étape de la trace de l'accueil (voir utils/stages.ts). Un chiffre vide = l'étape s'affiche sans chiffre.
+ * Le numéro d'une étape ne se saisit pas : il découle de son EMPLACEMENT sur la trace (liste « Après … »).
+ * Erreurs : récapitulatif en haut (role="alert", liens vers les champs) + message sous chaque champ fautif.
  * Fiches liées : cases à cocher parmi les projets publics ; un slug inconnu (fiche pas encore créée) est gardé
  * dans « Autres slugs » et ne devient un lien qu'une fois le projet créé.
  */
-const props = defineProps<{ initial?: Partial<Stage>; loading?: boolean; readonly?: boolean }>();
+const props = defineProps<{ initial?: Partial<Stage>; loading?: boolean; readonly?: boolean; serverIssues?: StageIssue[] }>();
 const emit  = defineEmits<{ submit: [payload: Stage] }>();
+
+const { list } = useAdminSession();
+const isEdit = !!props.initial?.key;
 
 const form = ref<Stage>({
   key: "", order: 0, kind: "etape", period: "", title: "", place: "", summary: "",
@@ -17,12 +25,38 @@ const form = ref<Stage>({
 });
 
 const KINDS: { value: StageKind; label: string }[] = [
-  { value: "depart",  label: "Départ" },
-  { value: "etape",   label: "Étape (numérotée)" },
+  { value: "depart",  label: "Départ (premier cairn de la trace)" },
+  { value: "etape",   label: "Étape (numérotée selon son emplacement)" },
   { value: "bivouac", label: "Bivouac (petit marqueur, sans numéro)" },
   { value: "final",   label: "Cairn final (lien vers Contact)" },
 ];
 
+// ── Autres étapes de la trace (pour l'emplacement, la clé unique et l'aperçu du numéro) ──────────
+const allStages = ref<Stage[]>([]);
+const stagesState = ref<"loading" | "ok" | "error">("loading");
+const others = computed(() => allStages.value.filter((s) => s.key !== props.initial?.key));
+const placement = ref("");
+const fixedPlace = computed(() => form.value.kind === "depart" || form.value.kind === "final");
+const options = computed(() => placementOptions(others.value));
+
+// Création : la clé suit le type et le titre tant qu'on ne l'a pas modifiée à la main.
+const keyTouched = ref(isEdit);
+watch(() => [form.value.kind, form.value.title], () => {
+  if (!keyTouched.value) form.value.key = form.value.title || form.value.kind !== "etape" ? stageKeyFromTitle(form.value.kind, form.value.title) : "";
+});
+
+// Numéro / km / D+ que l'étape aura à cet emplacement (même calcul que l'accueil).
+const candidateOrder = computed(() => {
+  if (isEdit && !fixedPlace.value && placement.value === placementOf(others.value, props.initial?.order ?? 0)) return props.initial?.order ?? 0;
+  return orderForPlacement(others.value, form.value.kind, placement.value);
+});
+const preview = computed(() => {
+  if (candidateOrder.value === null || !form.value.key) return null;
+  const me = buildStageView([...others.value, { ...form.value, order: candidateOrder.value }]).find((v) => v.key === form.value.key);
+  return me ?? null;
+});
+
+// ── Fiches liées ──────────────────────────────────────────────────────────────────────────────
 const projects = ref<{ slug: string; title: string }[]>([]);
 const loaded = ref(false);
 const checked = ref<string[]>([]);
@@ -47,39 +81,97 @@ onMounted(async () => {
   loaded.value = true;
 });
 
-function onSubmit() {
+onMounted(async () => {
+  try {
+    allStages.value = await list<Stage>("stages");
+    stagesState.value = "ok";
+    placement.value = isEdit ? placementOf(others.value, props.initial?.order ?? 0) : options.value[options.value.length - 1]?.value ?? "";
+  } catch {
+    stagesState.value = "error";
+  }
+});
+
+// ── Erreurs ───────────────────────────────────────────────────────────────────────────────────
+const issues = ref<StageIssue[]>([]);
+const summary = ref<HTMLElement | null>(null);
+watch(() => props.serverIssues, async (v) => {
+  if (!v?.length) return;
+  issues.value = v;
+  await nextTick();
+  summary.value?.focus();
+});
+const FIELD_ID: Record<StageField, string> = { kind: "sf-kind", title: "sf-title", key: "sf-key", placement: "sf-placement" };
+const issueOf = (f: StageField) => issues.value.find((i) => i.field === f)?.message ?? "";
+const describedBy = (f: StageField) => (issueOf(f) ? `sf-err-${f}` : undefined);
+
+async function onSubmit() {
   if (props.readonly) return;
-  const others = othersInput.value.split(",").map((s) => s.trim()).filter(Boolean);
-  emit("submit", { ...form.value, projects: [...new Set([...checked.value, ...others])] });
+  const found = validateStage(form.value, others.value, fixedPlace.value ? "ok" : placement.value);
+  if (stagesState.value === "error" && !fixedPlace.value) {
+    found.push({ field: "placement", message: "La liste des étapes n'a pas pu être chargée, l'emplacement ne peut donc pas être choisi. Recharge la page puis réessaie." });
+  }
+  issues.value = found;
+  if (found.length || candidateOrder.value === null) {
+    await nextTick();
+    summary.value?.focus();
+    return;
+  }
+  const extra = othersInput.value.split(",").map((s) => s.trim()).filter(Boolean);
+  emit("submit", { ...form.value, order: candidateOrder.value, projects: [...new Set([...checked.value, ...extra])] });
 }
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit">
+  <form novalidate @submit.prevent="onSubmit">
     <!-- Lecture seule (visiteur) : fieldset désactivé = aucun champ ni bouton actionnable, valeurs lisibles -->
     <fieldset :disabled="readonly" class="admin-form-body space-y-6">
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Récapitulatif des erreurs : annoncé, focalisé, un lien par champ à corriger -->
+      <div v-if="issues.length" ref="summary" role="alert" tabindex="-1" class="sf-summary">
+        <p class="font-semibold">{{ issues.length > 1 ? `${issues.length} points à corriger avant d'enregistrer :` : "1 point à corriger avant d'enregistrer :" }}</p>
+        <ul>
+          <li v-for="i in issues" :key="i.field + i.message"><a :href="`#${FIELD_ID[i.field]}`">{{ i.message }}</a></li>
+        </ul>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label for="sf-kind" class="admin-label">Type *</label>
-          <select id="sf-kind" v-model="form.kind" required class="admin-input">
+          <select id="sf-kind" v-model="form.kind" required aria-required="true" class="admin-input" :aria-invalid="!!issueOf('kind')" :aria-describedby="describedBy('kind')">
             <option v-for="k in KINDS" :key="k.value" :value="k.value">{{ k.label }}</option>
           </select>
+          <p v-if="issueOf('kind')" id="sf-err-kind" class="sf-err">{{ issueOf("kind") }}</p>
         </div>
         <div>
-          <label for="sf-order" class="admin-label">Rang sur la trace *</label>
-          <input id="sf-order" v-model.number="form.order" type="number" min="0" step="1" required class="admin-input" />
-        </div>
-        <div>
-          <label for="sf-key" class="admin-label">Clé *</label>
-          <input id="sf-key" v-model="form.key" required class="admin-input font-mono text-sm" placeholder="etape-02" />
+          <label for="sf-placement" class="admin-label">Emplacement sur la trace *</label>
+          <select
+            id="sf-placement" v-model="placement" class="admin-input" aria-required="true"
+            :disabled="fixedPlace || stagesState !== 'ok'" :aria-invalid="!!issueOf('placement')"
+            :aria-describedby="['sf-place-help', describedBy('placement')].filter(Boolean).join(' ')"
+          >
+            <option v-if="fixedPlace" value="">{{ form.kind === "depart" ? "Toujours au début de la trace" : "Toujours à la fin de la trace" }}</option>
+            <template v-else>
+              <option value="" disabled>{{ stagesState === "loading" ? "Chargement des étapes…" : "Choisir l'emplacement" }}</option>
+              <option v-for="o in options" :key="o.value" :value="o.value">{{ o.label }}</option>
+            </template>
+          </select>
+          <p id="sf-place-help" class="mt-1 text-xs text-(--color-muted)">
+            <template v-if="stagesState === 'error'">Liste des étapes indisponible (base hors ligne ?).</template>
+            <template v-else-if="preview">
+              Cette étape sera : <strong>{{ preview.label }}</strong> · km {{ preview.km }} · D+ {{ preview.gain }} m.
+              Les étapes suivantes sont renumérotées toutes seules.
+            </template>
+            <template v-else>Le numéro (Étape 01, 02…) se déduit de l'emplacement : il ne se saisit pas.</template>
+          </p>
+          <p v-if="issueOf('placement')" id="sf-err-placement" class="sf-err">{{ issueOf("placement") }}</p>
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="md:col-span-2">
           <label for="sf-title" class="admin-label">Titre *</label>
-          <input id="sf-title" v-model="form.title" required class="admin-input" placeholder="DGFiP, mission via BeTeam" />
+          <input id="sf-title" v-model="form.title" required aria-required="true" class="admin-input" placeholder="DGFiP, mission via BeTeam" :aria-invalid="!!issueOf('title')" :aria-describedby="describedBy('title')" />
+          <p v-if="issueOf('title')" id="sf-err-title" class="sf-err">{{ issueOf("title") }}</p>
         </div>
         <div>
           <label for="sf-place" class="admin-label">Lieu</label>
@@ -87,9 +179,23 @@ function onSubmit() {
         </div>
       </div>
 
-      <div>
-        <label for="sf-period" class="admin-label">Période</label>
-        <input id="sf-period" v-model="form.period" class="admin-input" placeholder="Déc. 2023 – Oct. 2025" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="sf-period" class="admin-label">Période</label>
+          <input id="sf-period" v-model="form.period" class="admin-input" placeholder="Déc. 2023 – Oct. 2025" />
+        </div>
+        <div>
+          <label for="sf-key" class="admin-label">Clé (identifiant technique) *</label>
+          <input
+            id="sf-key" v-model="form.key" required aria-required="true" class="admin-input font-mono text-sm" placeholder="etape-dgfip"
+            :aria-invalid="!!issueOf('key')" :aria-describedby="['sf-key-help', describedBy('key')].filter(Boolean).join(' ')"
+            @input="keyTouched = true"
+          />
+          <p id="sf-key-help" class="mt-1 text-xs text-(--color-muted)">
+            {{ isEdit ? "Changer la clé crée un nouvel identifiant : à éviter sur une étape existante." : "Proposée d'après le type et le titre ; unique, minuscules, chiffres et tirets." }}
+          </p>
+          <p v-if="issueOf('key')" id="sf-err-key" class="sf-err">{{ issueOf("key") }}</p>
+        </div>
       </div>
 
       <div>
@@ -174,4 +280,17 @@ function onSubmit() {
   height: 1.125rem;
   accent-color: var(--color-accent);
 }
+.sf-summary {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface));
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+.sf-summary ul { margin-top: 0.25rem; padding-left: 1.25rem; list-style: disc; }
+.sf-summary a { color: var(--color-text); text-decoration: underline; }
+.sf-summary:focus { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.sf-err { margin-top: 0.25rem; font-size: 0.8125rem; font-weight: 600; color: var(--color-accent); }
+.admin-input[aria-invalid="true"] { border-color: var(--color-accent); border-width: 2px; }
 </style>

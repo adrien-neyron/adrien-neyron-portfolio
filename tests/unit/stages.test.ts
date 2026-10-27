@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildStageView, normalizeStage, keyResult, stageOfProject, isListedProject, projectType, projectHref } from '~/utils/stages'
+import { buildStageView, normalizeStage, keyResult, stageOfProject, isListedProject, projectType, projectHref, placementOptions, placementOf, orderForPlacement, validateStage, stageKeyFromTitle, PLACE_START } from '~/utils/stages'
 import { stages as fallback } from '~/data/stages'
 
 const projects = [
@@ -68,5 +68,76 @@ describe('fiches publiées sur /projects', () => {
     expect(isListedProject({ slug: 'stockpulse', challenge: 'c' })).toBe(false)
     expect(isListedProject({ slug: 'job-search-automator', ...full })).toBe(false)   // pas de type
     expect(isListedProject({ slug: 'Mode-Dressing' })).toBe(false)
+  })
+})
+
+describe('emplacement d\'une étape (saisie admin)', () => {
+  const mk = (key: string, order: number, kind: 'depart' | 'etape' | 'bivouac' | 'final' = 'etape', title = key) =>
+    ({ key, order, kind, title, period: '' })
+  const trace = [mk('depart', 0, 'depart', 'UCPA'), mk('e1', 1), mk('biv', 2, 'bivouac'), mk('e2', 3), mk('final', 4, 'final')]
+
+  it('propose « Après … » pour chaque étape sauf le cairn final, avec le libellé calculé', () => {
+    const o = placementOptions(trace)
+    expect(o.map((x) => x.value)).toEqual(['depart', 'e1', 'biv', 'e2'])
+    expect(o[0].label).toBe('Après « Départ · UCPA »')
+    expect(o[1].label).toBe('Après « Étape 01 · e1 »')
+    expect(o[2].label).toBe('Après « Bivouac · biv »')
+  })
+  it('propose le début de la trace tant qu\'il n\'y a pas de Départ', () => {
+    expect(placementOptions([mk('e1', 1)])[0].value).toBe(PLACE_START)
+  })
+  it('le numéro découle de l\'emplacement : une étape glissée après e1 devient l\'Étape 02 et décale la suivante', () => {
+    const order = orderForPlacement(trace, 'etape', 'e1')!
+    expect(order).toBeGreaterThan(1)
+    expect(order).toBeLessThan(2)
+    const v = buildStageView([...trace, mk('new', order)])
+    expect(v.find((x) => x.key === 'new')!.label).toBe('Étape 02')
+    expect(v.find((x) => x.key === 'e2')!.label).toBe('Étape 03')
+  })
+  it('départ avant tout, cairn final après tout, emplacement inconnu ou après le final refusé', () => {
+    expect(orderForPlacement(trace, 'depart', '')).toBeLessThan(0)
+    expect(orderForPlacement(trace, 'final', '')).toBeGreaterThan(4)
+    expect(orderForPlacement(trace, 'etape', 'inconnu')).toBeNull()
+    expect(orderForPlacement(trace, 'etape', 'final')).toBeNull()
+  })
+  it('retrouve l\'emplacement actuel d\'une étape existante', () => {
+    expect(placementOf(trace.filter((s) => s.key !== 'e2'), 3)).toBe('biv')
+    expect(placementOf(trace, 0)).toBe(PLACE_START)
+  })
+  it('clé proposée : type + titre sans accent ; départ et final fixes', () => {
+    expect(stageKeyFromTitle('etape', 'Développeur web — Haute-Savoie !')).toBe('etape-developpeur-web-haute-savoie')
+    expect(stageKeyFromTitle('depart', 'x')).toBe('depart')
+    expect(stageKeyFromTitle('etape', '')).toBe('etape')
+  })
+})
+
+describe('validation d\'une étape : messages explicites', () => {
+  const mk = (key: string, order: number, kind: 'depart' | 'etape' | 'bivouac' | 'final' = 'etape', title = key) =>
+    ({ key, order, kind, title, period: '' })
+  const trace = [mk('depart', 0, 'depart', 'UCPA'), mk('e1', 1, 'etape', 'Freelance')]
+  const ok = { kind: 'etape' as const, title: 'DGFiP', key: 'etape-dgfip' }
+
+  it('une étape complète passe', () => {
+    expect(validateStage(ok, trace, 'e1')).toEqual([])
+  })
+  it('titre, clé et emplacement manquants : un message par champ, qui dit quoi faire', () => {
+    const r = validateStage({ kind: 'etape', title: '  ', key: '' }, trace, '')
+    expect(r.map((i) => i.field).sort()).toEqual(['key', 'placement', 'title'])
+    expect(r.find((i) => i.field === 'placement')!.message).toMatch(/numéro de l'étape en découle/)
+  })
+  it('clé déjà utilisée : cite l\'étape qui la porte ; format invalide refusé', () => {
+    const dup = validateStage({ ...ok, key: 'e1' }, trace, 'e1')
+    expect(dup[0]).toMatchObject({ field: 'key' })
+    expect(dup[0].message).toContain('Freelance')
+    expect(validateStage({ ...ok, key: 'Étape 4' }, trace, 'e1')[0].message).toMatch(/minuscules sans accent/)
+  })
+  it('un seul Départ et un seul cairn final', () => {
+    const r = validateStage({ kind: 'depart', title: 'Autre', key: 'depart-2' }, trace)
+    expect(r[0]).toMatchObject({ field: 'kind' })
+    expect(r[0].message).toContain('UCPA')
+    expect(validateStage({ kind: 'final', title: 'Fin', key: 'final' }, trace)).toEqual([])
+  })
+  it('emplacement disparu : message dédié', () => {
+    expect(validateStage(ok, trace, 'supprimee')[0].message).toMatch(/n'existe plus/)
   })
 })

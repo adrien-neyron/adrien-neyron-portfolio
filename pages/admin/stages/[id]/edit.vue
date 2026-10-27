@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { Stage } from "~/utils/stages";
+import type { Stage, StageIssue } from "~/utils/stages";
+import { apiErrorMessage } from "~/utils/apiError";
 import { ref, onMounted } from "vue";
 
 definePageMeta({ layout: "admin", middleware: "admin" });
@@ -12,6 +13,7 @@ const id      = route.params.id as string;
 const stage   = ref<Record<string, unknown> | null>(null);
 const loading = ref(false);
 const error   = ref("");
+const issues  = ref<StageIssue[]>([]);
 
 onMounted(async () => {
   try {
@@ -26,6 +28,7 @@ onMounted(async () => {
 async function handleSubmit(payload: Stage) {
   loading.value = true;
   error.value   = "";
+  issues.value  = [];
   try {
     await $fetch(`/api/admin/stages/${id}`, {
       method:  "PUT",
@@ -33,8 +36,10 @@ async function handleSubmit(payload: Stage) {
       body:    payload,
     });
     router.push("/admin/stages");
-  } catch {
-    error.value = "Erreur lors de la mise à jour.";
+  } catch (e) {
+    const r = apiErrorMessage(e, "enregistrer l'étape");
+    error.value   = r.message;
+    issues.value  = r.issues;
     loading.value = false;
   }
 }
@@ -47,14 +52,17 @@ async function handleSubmit(payload: Stage) {
       <h1 class="text-2xl font-bold mt-2" style="font-family: var(--font-title);">{{ isAdmin ? "Modifier" : "Consulter" }} l'étape</h1>
     </div>
 
-    <div v-if="error" role="alert" class="mb-4 p-3 rounded-lg text-sm" style="background: color-mix(in srgb, red 10%, transparent); color: red;">
+    <div
+      v-if="error" :role="issues.length ? undefined : 'alert'" class="mb-4 p-3 rounded-lg text-sm font-medium"
+      style="border: 2px solid var(--color-accent); background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface)); color: var(--color-text);"
+    >
       {{ error }}
     </div>
 
     <div v-if="!stage && !error" class="py-20 text-center" style="color: var(--color-muted);">Chargement…</div>
 
     <div v-else-if="stage" class="p-4 sm:p-6 rounded-xl border" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent); background-color: var(--color-surface);">
-      <AdminStageForm :initial="stage" :loading="loading" :readonly="!isAdmin" @submit="handleSubmit" />
+      <AdminStageForm :initial="stage" :loading="loading" :readonly="!isAdmin" :server-issues="issues" @submit="handleSubmit" />
     </div>
   </div>
 </template>
