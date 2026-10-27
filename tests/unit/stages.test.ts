@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildStageView, normalizeStage, keyResult, stageOfProject, isListedProject, projectType, projectHref, placementOptions, placementOf, orderForPlacement, validateStage, stageKeyFromTitle, PLACE_START } from '~/utils/stages'
+import { buildStageView, normalizeStage, keyResult, stageOfProject, isListedProject, projectType, projectHref, placementOptions, placementOf, moveWithinTrace, traceOrderError, isPinnedStage, orderForPlacement, validateStage, stageKeyFromTitle, PLACE_START } from '~/utils/stages'
 import { stages as fallback } from '~/data/stages'
 
 const projects = [
@@ -141,5 +141,42 @@ describe('validation d\'une étape : messages explicites', () => {
   })
   it('emplacement disparu : message dédié', () => {
     expect(validateStage(ok, trace, 'supprimee')[0].message).toMatch(/n'existe plus/)
+  })
+})
+
+describe('réorganiser la trace (glisser-déposer)', () => {
+  const t = [
+    { id: 'd', kind: 'depart' as const, title: 'UCPA' },
+    { id: 'a', kind: 'etape' as const, title: 'A' },
+    { id: 'b', kind: 'bivouac' as const, title: 'B' },
+    { id: 'c', kind: 'etape' as const, title: 'C' },
+    { id: 'f', kind: 'final' as const, title: 'Fin' },
+  ]
+  const ids = (l: { id: string }[]) => l.map((x) => x.id).join('')
+
+  it('déplace une étape vers le haut ou le bas', () => {
+    expect(ids(moveWithinTrace(t, 3, 1))).toBe('dcabf')
+    expect(ids(moveWithinTrace(t, 1, 3))).toBe('dbcaf')
+  })
+  it('ne passe jamais devant le Départ ni derrière le Cairn final', () => {
+    expect(ids(moveWithinTrace(t, 2, 0))).toBe('dbacf')
+    expect(ids(moveWithinTrace(t, 1, 4))).toBe('dbcaf')
+  })
+  it('le Départ et le Cairn final ne se déplacent pas ; même position = liste inchangée', () => {
+    expect(moveWithinTrace(t, 0, 2)).toBe(t)
+    expect(moveWithinTrace(t, 4, 1)).toBe(t)
+    expect(moveWithinTrace(t, 1, 1)).toBe(t)
+    expect(isPinnedStage(t[0])).toBe(true)
+  })
+  it('le numéro suit la position après déplacement', () => {
+    const moved = moveWithinTrace(t, 3, 1).map((s, i) => ({ key: s.id, order: i, kind: s.kind, title: s.title, period: '' }))
+    const v = buildStageView(moved)
+    expect(v.find((x) => x.key === 'c')!.label).toBe('Étape 01')
+    expect(v.find((x) => x.key === 'a')!.label).toBe('Étape 02')
+  })
+  it('contrôle serveur de l\'ordre : Départ premier, Cairn final dernier', () => {
+    expect(traceOrderError(t)).toBeNull()
+    expect(traceOrderError([t[1], t[0], t[4]])).toMatch(/Départ/)
+    expect(traceOrderError([t[0], t[4], t[1]])).toMatch(/Cairn final/)
   })
 })

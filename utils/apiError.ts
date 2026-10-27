@@ -21,7 +21,7 @@ export function apiErrorMessage(e: unknown, what: string): { message: string; is
   if (code === 401) return { issues, message: `Impossible de ${what} : ta session a expiré. Reconnecte-toi puis réessaie.` };
   if (code === 403) return { issues, message: `Impossible de ${what} : ce compte n'a pas le droit d'écrire (seul l'administrateur le peut).` };
   if (code === 404) return { issues, message: `Impossible de ${what} : l'étape n'existe plus. Retourne à la liste et recharge-la.` };
-  if (code === 409) return { issues, message: `Impossible de ${what} : ${detail || "cette clé est déjà utilisée"}. Change la clé et réessaie.` };
+  if (code === 409) return { issues, message: `Impossible de ${what} : ${detail || "conflit avec une étape existante"}.` };
   if (code === 422 || code === 400) return { issues, message: `Impossible de ${what} : ${issues.length ? "corrige les points ci-dessous." : detail || "des champs sont invalides."}` };
   if (code && code >= 500) return { issues, message: `Impossible de ${what} : le serveur a rencontré une erreur (${code}). La base de données est peut-être en pause ; réessaie dans un instant.` };
   if (!code) return { issues, message: `Impossible de ${what} : le serveur ne répond pas. Vérifie ta connexion puis réessaie.` };

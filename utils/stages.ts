@@ -220,3 +220,33 @@ export function validateStage(form: Partial<Stage>, others: Stage[], placement =
   }
   return issues;
 }
+
+/* ------------------------------------------------------------------------------------------------
+ * Réorganisation de la trace (glisser-déposer et boutons « Monter / Descendre » de /admin/stages).
+ * Le Départ reste en premier et le Cairn final en dernier ; les rangs sont renumérotés 0, 1, 2…
+ * ---------------------------------------------------------------------------------------------- */
+
+/** Une étape « fixe » ne se déplace pas : le Départ et le Cairn final. */
+export const isPinnedStage = (s: { kind?: string }) => s.kind === "depart" || s.kind === "final";
+
+/** Déplace l'élément `from` vers l'index `to` sans jamais passer devant le Départ ni derrière le Cairn final. */
+export function moveWithinTrace<T extends { kind?: string }>(list: T[], from: number, to: number): T[] {
+  if (from < 0 || from >= list.length || isPinnedStage(list[from])) return list;
+  const lo = list[0]?.kind === "depart" ? 1 : 0;
+  const hi = list[list.length - 1]?.kind === "final" ? list.length - 2 : list.length - 1;
+  const target = Math.min(Math.max(to, lo), hi);
+  if (target === from) return list;
+  const next = list.slice();
+  const [item] = next.splice(from, 1);
+  next.splice(target, 0, item);
+  return next;
+}
+
+/** Erreur d'une liste ordonnée, ou null : le Départ doit être premier, le Cairn final dernier. */
+export function traceOrderError(list: { kind?: string; title?: string }[]): string | null {
+  const d = list.findIndex((s) => s.kind === "depart");
+  if (d > 0) return `Le Départ (« ${list[d].title || "sans titre"} ») doit rester en première position.`;
+  const f = list.findIndex((s) => s.kind === "final");
+  if (f >= 0 && f !== list.length - 1) return `Le Cairn final (« ${list[f].title || "sans titre"} ») doit rester en dernière position.`;
+  return null;
+}
