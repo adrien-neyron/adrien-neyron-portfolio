@@ -187,7 +187,7 @@ On the stages map each wheel notch, trackpad swipe or finger swipe moves to the 
 La ligne des technos reste une gravure fixe. Les effets lumineux essayés le 28/10 (guirlande, énergie, lave) ont été retirés ; leçons dans `docs/admin-boucle.md`.
 
 ### Persévérer : ondes d'eau et carte au focus
-Les deux cercles au sol de la flaque invitent par deux ondes d'eau translucides (couleur eau, pas d'orange) sur un voile d'eau ; fixes sous `prefers-reduced-motion`, éteintes pendant une interaction, renforcées au survol / focus. Plus de consigne affichée (conservée en `sr-only`) ; au focus clavier ou au survol, la carte de la zone (`.pcard.lit`) apparaît à sa place comme libellé visible. Détails : `docs/admin-boucle.md`.
+Les deux cercles au sol de la flaque invitent par deux ondes d'eau translucides (couleur eau, pas d'orange) sur un voile d'eau ; fixes sous `prefers-reduced-motion`, éteintes pendant une interaction, renforcées au survol / focus. Plus de consigne affichée (conservée en `sr-only`) ; au focus clavier ou au survol, la carte de la zone (`.pcard.lit`) apparaît à sa place comme libellé visible. Chaque carte porte un vrai bouton d'accès (`.route`, 44 px) et reste affichée tant que la zone ou la carte est survolée / a le focus (`Tab` depuis la zone atterrit sur le bouton). Détails : `docs/admin-boucle.md`.
 
 ### Cohérence étape ↔ projet
 Carte des informations saisies à deux endroits (étape / projet) et règle proposée (le projet est la source, l'étape ne garde que le propre du parcours) : `docs/coherence-informations.md`. Propositions non appliquées.
