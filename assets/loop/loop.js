@@ -1121,7 +1121,7 @@ function updateMap(p,forceD){
 
 /* ---------- Paire de chaussures de trail 3D, eau en 3D, éclaboussures de particules ---------- */
 const SHOE=(()=>{
-  if(!THREE_OK)return {ready:()=>false,ensure(){},update(){},resize(){},impactScreen(){},rippleScreen(){},pointer(){},rainRipple(){},layoutZones(){},setQuality(){},dispose(){}};
+  if(!THREE_OK)return {ready:()=>false,ensure(){},update(){},resize(){},impactScreen(){},rippleScreen(){},pointer(){},cursor(){},rainRipple(){},layoutZones(){},setQuality(){},dispose(){}};
   const cv=$('#shoeCanvas');
   let topoSpr=null,dayK=0,renderer,scene,cam,ray,gmat,pair,shoes=[],mirrors=[],pGeo,pPos,pSize,pAl,pMat,inv=[],hemiL,keyL,rimL,ok=false,failed=false;
   const pl=new THREE.Plane(new THREE.Vector3(0,1,0),0),RIP=[],PARTS=[],NP=320,RX=4.6,RZ=2.6;
@@ -1607,6 +1607,8 @@ const SHOE=(()=>{
   function ripple(x,z,a){RIP.push({x,z,t:0,a});if(RIP.length>24)RIP.shift()}
   function rippleScreen(cx,cy,a){const p=screenToWorld(cx,cy);if(p)ripple(p.x,p.z,a)}
   function pointer(cx,cy,on){if(!ok)return;if(!on){ptrT.z=0;return}const p=screenToWorld(cx,cy);if(!p){ptrT.z=0;return}ptrT.set(p.x,p.z,1)}   // curseur sur la flaque : l'eau se déforme autour
+  const curT=new THREE.Vector3(),curV=new THREE.Vector3();   // curseur libre sur le sol (x, z, force), sans limite à la flaque : pilote le temps des gouttes
+  function cursor(cx,cy,on){if(!ok)return;if(!on){curT.z=0;return}const r=cv.getBoundingClientRect();if(!r.width)return;cam.updateMatrixWorld();ray.setFromCamera(new THREE.Vector2((cx-r.left)/r.width*2-1,-((cy-r.top)/r.height)*2+1),cam);const pt=new THREE.Vector3();if(!ray.ray.intersectPlane(pl,pt)||Math.hypot(pt.x,pt.z)>16){curT.z=0;return}curT.set(pt.x,pt.z,1)}
   function rainRipple(){const a=Math.random()*6.283,r=Math.sqrt(Math.random())*.85;ripple(Math.cos(a)*RX*r,Math.sin(a)*RZ*r,.35)}
   function burst(x,z,amp){
     let n=Math.round(40*Math.min(amp,1.7)*[1,.55,.3][QC.tier]),i=0;
@@ -1640,31 +1642,38 @@ const SHOE=(()=>{
     pair.rotation.x=(reduce?0:my)*.06;
   }
   /* --- gouttelettes en suspension (InstancedMesh) : près du centre d'une zone cible, le temps de la goutte ralentit de façon exponentielle (easeOutExpo sur la distance) ; le curseur proche la soulève très lentement et la fait onduler. Coupé sous prefers-reduced-motion. --- */
-  const ND=[28,20,12][QC.tier]*2,ZR=2.6,dummy=new THREE.Object3D(),DROPS=[];let dropMesh=null;
+  const ND=[28,20,12][QC.tier]*3,ZR=2.6,dummy=new THREE.Object3D(),DROPS=[];let dropMesh=null;
   function dropInit(){
     const m=new THREE.MeshBasicMaterial({color:0x2A6F8C,transparent:true,opacity:.75,depthWrite:false});   // comme la pluie du dernier cairn : fines gouttes étirées, matériau simple
     dropMesh=new THREE.InstancedMesh(new THREE.SphereGeometry(1,6,4),m,ND);dropMesh.frustumCulled=false;dropMesh.renderOrder=3;dropMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);dropMesh.count=0;scene.add(dropMesh);
-    for(let i=0;i<ND;i++)DROPS.push({z:i%2?1:0,x:0,y:0,zz:0,vy:0,r:0,id:Math.random()*50,a:0});
+    for(let i=0;i<ND;i++)DROPS.push({z:i%3===1?1:0,amb:i%3===2,x:0,y:0,zz:0,vy:0,r:0,id:Math.random()*50,a:0});
     DROPS.forEach(d=>dropSpawn(d,true));
   }
-  function dropSpawn(d,seed){const cx=d.z?2.6:-2.6,a=Math.random()*6.283,rho=ZR*(1.05+.5*Math.random());   // anneau autour de la zone : les gouttes glissent vers le centre et s'y figent
-    d.x=cx+Math.cos(a)*rho;d.zz=Math.sin(a)*rho*.7;d.y=seed?.5+Math.random()*1.6:1.2+Math.random()*1.4;d.vy=0;d.r=.011+Math.random()*.011;d.a=0;d.age=0}
-  const easeOutExpo=x=>x>=1?1:1-Math.pow(2,-10*x);
+  function dropSpawn(d,seed){
+    if(d.amb){d.x=(Math.random()*2-1)*RX*.95;d.zz=(Math.random()*2-1)*RZ*.9;d.y=seed?.3+Math.random()*2.6:2.2+Math.random()*.8;d.vy=-1.2;d.r=.011+Math.random()*.011;d.a=0;d.age=0;return}   // pluie ambiante : tombe partout sur la flaque, seul le curseur change son temps
+    const cx=d.z?2.6:-2.6,a=Math.random()*6.283,rho=ZR*(.55+.45*Math.random());   // anneau autour de la zone : les gouttes glissent vers le centre et s'y figent
+    d.x=cx+Math.cos(a)*rho;d.zz=Math.sin(a)*rho*.7;d.y=seed?.8+Math.random()*1.8:1.6+Math.random()*1.2;d.vy=0;d.r=.011+Math.random()*.011;d.a=0;d.age=0}
+  const easeOutExpo=x=>1-Math.exp(-4.5*x*x);   // courbe exponentielle douce : le temps ralentit sur toute la zone (easeOutExpo pur saturait à 1 dès 30 % du rayon, donc invisible)
   function stepDrops(dt){
     if(!dropMesh)return;
     if(reduce){dropMesh.count=0;return}
     dt=Math.min(dt,.05);const k=busy?0:1,night=1-dayK;
     dropMesh.material.color.set(dayK>.5?0x2A6F8C:0xCFEFFF);dropMesh.material.opacity=.6+.2*dayK;
     let n=0;
+    {const kk=Math.min(1,dt*10);curV.x+=(curT.x-curV.x)*kk;curV.y+=(curT.y-curV.y)*kk;curV.z+=(curT.z-curV.z)*Math.min(1,dt*9)}
     for(const d of DROPS){
-      const cx=d.z?2.6:-2.6,dx=d.x-cx,dz=d.zz,dd=Math.hypot(dx,dz,(d.y-.9)*.6);
-      const ts=.04+.96*easeOutExpo(Math.min(1,dd/ZR));   // décélération exponentielle en approchant du centre : 1 = temps normal, .04 = quasi suspendue
-      const px=ptrV.x-d.x,pz=ptrV.y-d.zz,pr=Math.exp(-(px*px+pz*pz)/2.2)*Math.max(0,ptrV.z)*Math.exp(-dd*dd/(ZR*ZR*1.6));   // proximité du curseur, seulement dans la zone
+      const cx=d.z?2.6:-2.6,dx=d.x-cx,dz=d.zz,dd=d.amb?9:Math.hypot(dx,dz,(d.y-.9)*.6);
+      // temps de la goutte : zone cible (ralentit près du centre, d'autant plus que le curseur en est proche) ET bulle autour du curseur (easeOutExpo sur sa distance)
+      const cd=Math.hypot(d.x-curV.x,d.zz-curV.y,(d.y-.8)*.5),cs=Math.max(0,curV.z);
+      const tsC=1-cs*(1-(.03+.97*easeOutExpo(Math.min(1,cd/3.4))));
+      let ts=tsC;
+      if(!d.amb){const near=cs*Math.exp(-((curV.x-cx)*(curV.x-cx)+curV.y*curV.y)/(2*ZR*ZR*2.2)),str=.55+.45*Math.min(1,near*1.6);ts=Math.min(ts,1-str*(1-(.04+.96*easeOutExpo(Math.min(1,dd/ZR)))))}
+      const pr=cs*Math.exp(-cd*cd/3);   // proximité du curseur : élévation et dérive
       const dts=dt*ts;
-      d.vy=Math.max(-3.2,d.vy-3.2*dts);d.age+=dt;
-      const ix=-dx/(dd+.05),iz=-dz/(dd+.05);d.x+=ix*1.9*dts;d.zz+=iz*1.9*dts;   // glisse vers le centre, de plus en plus lentement
-      d.y+=d.vy*dts+.2*pr*dt;   // élévation très lente quand le curseur approche
-      d.x+=Math.sin(tNow*.8+d.id)*.14*pr*dt;d.zz+=Math.cos(tNow*.65+d.id*1.7)*.14*pr*dt;   // distorsion organique
+      d.vy=Math.max(-3.2,d.vy-(d.amb?4:1.8)*dts);d.age+=dt;
+      if(!d.amb){const ix=-dx/(dd+.05),iz=-dz/(dd+.05);d.x+=ix*3*dts;d.zz+=iz*3*dts}   // glisse vers le centre, de plus en plus lentement
+      d.y+=d.vy*dts+.25*pr*dt;
+      d.x+=Math.sin(tNow*.8+d.id)*.16*pr*dt;d.zz+=Math.cos(tNow*.65+d.id*1.7)*.16*pr*dt;   // distorsion organique
       d.a+=((d.y>.02?1:0)-d.a)*Math.min(1,dt*4);
       if(d.y<=0){if(Math.random()<.5)ripple(d.x,d.zz,.16);dropSpawn(d,false);continue}
       if(d.y>3.1||d.age>16){dropSpawn(d,false);continue}
@@ -1714,7 +1723,7 @@ const SHOE=(()=>{
     [pair,...mirrors].forEach(r=>r.traverse(o=>{if(o.userData&&o.userData.bead)o.visible=t===0}));
     resize();
   }
-  return {ready:()=>ok,ensure,update,resize,impactScreen,rippleScreen,pointer,rainRipple,layoutZones,setQuality,dispose(){if(ok)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
+  return {ready:()=>ok,ensure,update,resize,impactScreen,rippleScreen,pointer,cursor,rainRipple,layoutZones,setQuality,dispose(){if(ok)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
 })();
 
 /* ---------- Bivouac 3D : feu de camp, montre GPS, carnet, tasse ---------- */
@@ -2284,6 +2293,9 @@ function openCarnet(){root.style.overflow='hidden';document.body.classList.add('
 $('#toolX').addEventListener('click',()=>dlgTool.close());$('#toolBack').addEventListener('click',()=>dlgTool.close());
 $('#proX').addEventListener('click',()=>dlgProfil.close());$('#proBack').addEventListener('click',()=>dlgProfil.close());
 $('#carBack').addEventListener('click',()=>dlgCarnet.close());$('#carBack2').addEventListener('click',()=>dlgCarnet.close());
+/* curseur libre : la pluie ralentit autour de la souris où qu'elle soit sur la scène (souris seulement, jamais sous prefers-reduced-motion ; au clavier ou au tactile la pluie garde son rythme) */
+addEventListener('pointermove',e=>{if(!reduce&&e.pointerType==='mouse'&&SHOE.ready())SHOE.cursor(e.clientX,e.clientY,true)},{passive:true});
+document.addEventListener('pointerleave',()=>SHOE.cursor(0,0,false));
 function zonePoint(e){const r=pc.getBoundingClientRect();if(SHOE.ready())return [e.clientX-r.left,e.clientY-r.top];return [clamp(e.clientX-r.left,PW/2-prx*.9,PW/2+prx*.9),clamp(e.clientY-r.top,gy-pry*.6,gy+pry*.6)]}
 [['sideL','left','pAbout'],['sideR','right','pBlog']].forEach(([id,side,card])=>{
   const z=$('#'+id),c=$('#'+card);
