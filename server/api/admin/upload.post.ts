@@ -20,7 +20,9 @@ export default defineEventHandler(async (event) => {
   }
 
   // Préfixe pour éviter les collisions de noms, garde l'extension d'origine
-  const safeName = file.filename.replace(/[^a-zA-Z0-9._-]/g, "-");
+  let safeName = file.filename.replace(/[^a-zA-Z0-9._-]/g, "-");
+  // Le navigateur convertit les images en WebP avant l'envoi (utils/imageWebp.ts) : l'extension suit le type reçu.
+  if (file.type === "image/webp" && !/\.webp$/i.test(safeName)) safeName = safeName.replace(/\.[^.]+$/, "") + ".webp";
   const pathname = `${Date.now()}-${safeName}`;
 
   try {
