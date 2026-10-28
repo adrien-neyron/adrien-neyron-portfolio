@@ -994,6 +994,7 @@ html.loop-on #stopCard .sc-more.solo,html.loop-on[data-theme="light"] #stopCard 
 html.loop-on #stopCard .sc-more.solo:hover,html.loop-on #stopCard .sc-more.solo:focus-visible{background:var(--exp-cta-hover)}
 /* fermeture : ✕ discret en haut à droite, cible de 44 px */
 html.loop-on #stopCard .sc-x,html.loop-on[data-theme="light"] #stopCard .sc-x{position:absolute;top:10px;right:10px;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--exp-muted);font:inherit;cursor:pointer}
+html.loop-on #stopCard .sc-x,html.loop-on[data-theme="light"] #stopCard .sc-x{z-index:2;background:var(--exp-glass);border:1px solid var(--exp-edge)}   /* reste lisible quand une image est au-dessus du texte */
 html.loop-on #stopCard .sc-x:hover,html.loop-on #stopCard .sc-x:focus-visible{color:var(--exp-ink);background:rgba(248,250,252,.1)}
 html.loop-on #stopCard :focus-visible,html.loop-on[data-theme="light"] #stopCard :focus-visible{outline:3px solid #FFB48A;outline-offset:3px}
 @media (max-width:899px){
