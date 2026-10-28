@@ -208,11 +208,13 @@ A `LatheGeometry` profile must be listed so its faces point outwards (the watch 
 Opening the rope gate plays a WebGL shatter ("craquelure et chute"): `components/loop/IntroTransition.vue` + `utils/introShatter.ts` (Voronoi shards, all motion in the vertex shader from `uProgress`, GSAP `expo.inOut`) + `utils/introSnapshot.ts` (2D-canvas copy of `#gate`; SVG paint is inlined, defs must keep author attributes, referenced gradients/filters are copied in). Any failure or `prefers-reduced-motion` → `play()` returns `false` and the old CSS fade runs. GSAP lag smoothing is disabled during the transition so slow GPUs never drag it out. Details: `docs/intro-craquelure.md`.
 
 ### Sol et flaque de Persévérer (relief, sable mouillé, anneaux d'eau)
-Sol = plan subdivisé déplacé par une texture de hauteur tuilable (`sandMaps()`), rivage irrégulier, sable mouillé via masque de rugosité (shader sur mesure), ondes d'eau réelles + ondes translucides irrégulières, cercle principal = anneau irrégulier orange de la charte, toujours visible (plus marqué au survol / focus ; `.pside.ring3d`, contour orange DOM conservé sans 3D). Détails et limites : `docs/admin-boucle.md`.
+Sol = plan subdivisé déplacé par une texture de hauteur tuilable (`sandMaps()`), rivage irrégulier, sable mouillé via masque de rugosité (shader sur mesure), ondes d'eau réelles + ondes translucides irrégulières, plus d'ovale autour de la flaque : l'eau est animée par le shader (caustiques, ondes, déformation autour du curseur `uPtr`) et l'orange de la charte ne sert que de micro-indicateurs (petit anneau fixe au focus clavier, onde pulsante au survol ; `.pside.ring3d`, contour orange DOM conservé sans 3D). Détails et limites : `docs/admin-boucle.md`.
 
 ### Pas de texte fantôme entre scènes
 `crisp()` (`assets/loop/loop.js`) raidit les fondus entre scènes et retire une scène sous 5 % d'opacité : plus de filigrane quasi transparent (contraste ≈ 1,1:1) quand le défilement s'arrête dans un fondu. Détails : `docs/admin-boucle.md`.
-Sol = plan subdivisé déplacé par une texture de hauteur tuilable (`sandMaps()`), rivage irrégulier, sable mouillé via masque de rugosité (shader sur mesure), plus de cercle orange : ondes d'eau réelles + ondes translucides irrégulières, focus clavier = anneau d'eau irrégulier à trait net (`.pside.ring3d`, contour orange conservé sans 3D). Détails et limites : `docs/admin-boucle.md`.
 
 ### Lumière de la chaussure (Persévérer)
 Contre-jour doré (`rimL`, haut à droite) + intensités de jour (`dayK`) + matériaux du GLB plus brillants (`fitModel`). Détails : `docs/admin-boucle.md`.
+
+### Flaque : caustiques et déformation au curseur
+Le shader du sol (`GFS`, `assets/loop/loop.js`) ajoute des caustiques (`caust()`) et une onde circulaire qui suit le curseur sur la flaque (`SHOE.pointer` → `uPtr`, souris seulement, coupée sous `prefers-reduced-motion`) ; le halo cuivré en ovale de nuit est retiré. Détails : `docs/admin-boucle.md`.
