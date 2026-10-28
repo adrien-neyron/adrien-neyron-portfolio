@@ -5,7 +5,7 @@ import CarnetArticle from "~/server/models/carnetArticle";
 import AiTool from "~/server/models/aiTool";
 import Stage from "~/server/models/stage";
 import { stages as staticStages } from "~/data/stages";
-import { buildStageView, type Stage as StageT } from "~/utils/stages";
+import { buildStageView, withStageDefaults, type Stage as StageT } from "~/utils/stages";
 
 /**
  * Contenu éditable de l'accueil « L'ascension », agrégé depuis l'admin (/admin).
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     return {
       // étapes de la trace (source unique, voir utils/stages.ts) : base, sinon data/stages.ts ; liens résolus sur les projets présents
       stages: buildStageView(
-        (stages.length ? stages : staticStages) as StageT[],
+        (stages.length ? stages.map((s) => withStageDefaults(s as StageT, staticStages)) : staticStages) as StageT[],
         projects.map((p) => ({ slug: str(p.slug), title: str(p.title) })),
       ),
       profile: profile

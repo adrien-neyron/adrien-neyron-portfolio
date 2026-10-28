@@ -48,8 +48,8 @@ export function renderStageList(view: StageView[]): string {
       const head = [v.label, v.period].filter(Boolean).join(' · ')
       const fig = v.figure ? `<p class="fig"><strong>${escHtml(v.figure)}</strong>${v.figureLabel ? ' ' + escHtml(v.figureLabel) : ''}</p>` : ''
       const links = v.kind === 'final'
-        ? [{ href: '/contact', text: 'Écrire la suite ensemble' }]
-        : v.links.map((l) => ({ href: l.href, text: `Fiche ${l.title}` }))
+        ? [{ href: '/contact', text: v.cta || 'Écrire la suite ensemble' }]
+        : v.links.map((l, k) => ({ href: l.href, text: k === 0 && v.cta ? v.cta : `Fiche ${l.title}` }))
       const ul = links.length
         ? `<ul class="lk">${links.map((l) => `<li><a href="${escHtml(l.href)}">${escHtml(l.text)}<span aria-hidden="true"> →</span></a></li>`).join('')}</ul>`
         : ''
@@ -58,7 +58,7 @@ export function renderStageList(view: StageView[]): string {
         + (v.place ? `<p class="pl">${escHtml(v.place)}</p>` : '')
         + (v.summary ? `<p>${escHtml(v.summary)}</p>` : '')
         + fig
-        + `<p class="km">Km ${fmtN(v.km)} · D+ ${fmtN(v.gain)} m</p>`
+        + `<p class="km">Km ${fmtN(v.km)} · D+ ${fmtN(v.gain)} m${v.altitude != null ? ` · Altitude ${fmtN(v.altitude)} m` : ''}</p>`
         + ul + '</li>'
     })
     .join('')

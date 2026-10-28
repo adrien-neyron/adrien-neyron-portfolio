@@ -10,6 +10,11 @@ export const stages: Stage[] = [
     period: "Sept. 2010 – Oct. 2021", title: "UCPA / Decathlon", place: "",
     summary: "Formateur BPJEPS, management d'équipes jusqu'à 25 personnes.",
     figure: "500+", figureLabel: "personnes formées", projects: [],
+    // captures de pages publiques (27/10/2026), choisies sans visage reconnaissable ; les marques appartiennent à leurs propriétaires
+    images: [
+      { src: "/recentprojects/ucpa-cover.webp", title: "UCPA Formation" },
+      { src: "/recentprojects/decathlon-cover.webp", title: "Decathlon" },
+    ],
   },
   {
     key: "etape-01", order: 1, kind: "etape",

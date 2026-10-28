@@ -5,7 +5,7 @@
 import {projects as SITE_PROJECTS} from '~/data/projects';
 import {createWheelGate,wheelGate,STEP_MS,LOCK_MS} from '~/utils/wheelStep';
 import {loopStages} from '~/utils/loopMarkup';
-import {stageImageFallback as IMG_FB,stageImageByStage as IMG_STAGE} from '~/data/stageImages';
+import {stageImageFallback as IMG_FB} from '~/data/stageImages';
 import {TRAIL_TOTAL} from '~/utils/stages';   // étapes de la trace (admin, sinon data/stages.ts)   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
 export function initLoop(THREE,LOADERS={}){
   const __ac=new AbortController(),__sig=__ac.signal,__ivs=[];let DEAD=false;
@@ -2805,8 +2805,8 @@ const cv=$('#parcCanvas');
    Abscisses, km et D+ viennent de buildStageView : étapes à intervalles égaux, bivouac entre ses deux voisins. Les liens mènent aux vraies fiches (/projects/<slug>).
    Les fiches de l'atelier (PROJECT_INFO, CV_FACTS) ne pilotent plus la trace. */
 const STAGES=loopStages(CMS);
-const PROJECTS=STAGES.map((s,i)=>({id:i===0?'depart':s.kind==='final'?'next':'st-'+(s.key||i),sg:s,kind:s.kind,when:s.period,title:s.title,place:s.place||'',stage:s.label,
-  tags:s.figure?[s.keyResult]:s.links.map(l=>l.title),result:s.keyResult,mat:s.kind==='final'?'ghost':'stone',t:s.t,small:s.kind==='bivouac'}));   // tags : ligne du bas de la stèle (chiffre, sinon fiches liées)
+const PROJECTS=STAGES.map((s,i)=>({id:i===0?'depart':s.kind==='final'?'next':'st-'+(s.key||i),sg:s,kind:s.kind,when:s.stelePeriod||s.period,title:s.title,cairnTitle:s.steleTitle||s.title,place:s.place||'',stage:s.label,
+  tags:s.steleTags||(s.figure?[s.keyResult]:s.links.map(l=>l.title)),result:s.keyResult,mat:s.kind==='final'?'ghost':'stone',t:s.t,small:s.kind==='bivouac'}));   // tags : ligne du bas de la stèle (saisie dans l'admin, sinon chiffre, sinon fiches liées : calculé par buildStageView)
 const OFFICIAL=TRAIL_TOTAL;   // ≈ 180 km et 10 200 m de D+ (simulation inspirée de la Diagonale des Fous), répartis entre les étapes
 
 /* ---------- Trace et relief : position locale (1 unité = 10 m), altitudes exagérées de 50 % ---------- */
@@ -2837,6 +2837,9 @@ const DRIFT_KM=4.2;
 const fmtN=n=>Math.round(n).toLocaleString('fr-FR'),kmAt=t=>OFFICIAL.km*Math.min(1,Math.max(0,t));
 const gainAtT=t=>OFFICIAL.gain*Math.min(1,Math.max(0,t));   // dénivelé réparti à parts égales le long de la trace (≈ 10 200 m) : chaque étape en porte la même part, comme les km ; même calcul que utils/stages.ts (liste statique)
 const kmLine=t=>'Km '+fmtN(kmAt(t))+' · D+ '+fmtN(Math.round(gainAtT(t)/10)*10)+' m',kmSpeech=t=>'Kilomètre '+fmtN(kmAt(t))+', '+fmtN(Math.round(gainAtT(t)/10)*10)+' mètres de dénivelé positif cumulé';
+/* km, D+ et altitude d'une étape : ce qui est saisi dans l'admin (sg.km, sg.gain, sg.altitude), sinon le calcul d'après sa position sur la trace */
+const stageKmLine=sg=>'Km '+fmtN(sg.km)+' · D+ '+fmtN(sg.gain)+' m',stageKmSpeech=sg=>'Kilomètre '+fmtN(sg.km)+', '+fmtN(sg.gain)+' mètres de dénivelé positif cumulé';
+const altOf=(sg,t)=>sg&&Number.isFinite(sg.altitude)&&sg.altitude!==null?sg.altitude:altAt(t);
 const KAPPA=4,RFIN=44;   // KAPPA : hauteur de la caméra de dessus = KAPPA fois le rayon visible ; le champ de vision s'ajuste pour que le cadran ait la bonne taille
 //   // rayon de sol (en unités) visible au bord du cadran à la fin de la plongée
 const hd=(()=>{let tot=0;for(let i=1;i<P.length;i++)tot+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);let acc=0,q=P[P.length-1];for(let i=1;i<P.length;i++){acc+=Math.hypot(P[i].x-P[i-1].x,P[i].z-P[i-1].z);if(acc>=.05*tot){q=P[i];break}}const dx=q.x-P[0].x,dz=q.z-P[0].z,l=Math.hypot(dx,dz)||1;return {x:dx/l,z:dz/l}})();   // direction de la trace sur ses premiers 5 %
@@ -2965,16 +2968,16 @@ function paintBlock(b){
   const track=(t,sp)=>t.toUpperCase().split('').join(String.fromCharCode(8202).repeat(sp));   // capitales espacées (espaces fines) : la mono gravée respire
   const fitMono=(t,w,max,min)=>{let sz=max;x.font='600 '+sz+'px '+MONO;while(x.measureText(t).width>w&&sz>min){sz-=1;x.font='600 '+sz+'px '+MONO}return sz};
   x.textAlign='center';x.textBaseline='middle';
-  const stage=pr.stage||'',kmT=kmLine(pr.t||0).toUpperCase(),tags=(pr.tags||[]).slice(0,4),altT=('Altitude '+fmtN(altAt(pr.t||0))+' m').toUpperCase(),geoT=[pr.place,yearOf(pr)].filter(Boolean).join('  ·  ').toUpperCase();
+  const stage=pr.stage||'',kmT=(pr.sg?stageKmLine(pr.sg):kmLine(pr.t||0)).toUpperCase(),tags=(pr.tags||[]).slice(0,4),altT=('Altitude '+fmtN(altOf(pr.sg,pr.t||0))+' m').toUpperCase(),geoT=[pr.place,yearOf(pr)].filter(Boolean).join('  ·  ').toUpperCase();
   // étape, puis lieu et année
   {const t=track(stage,1),sz=fitMono(t,MW,23,14);engrave(t,58,'600 '+sz+'px '+MONO)}
   if(geoT){const sz=fitMono(geoT,MW,16,12);engrave(geoT,86,'500 '+sz+'px '+MONO)}
   x.strokeStyle=TX.ink;x.globalAlpha=.55;x.lineWidth=2;x.beginPath();x.moveTo(cx-34,106);x.lineTo(cx+34,106);x.stroke();x.globalAlpha=1;
   // nom du projet
   const fit=(t,max)=>{let sz=max;x.font=F(sz);while(x.measureText(t).width>MW&&sz>30){sz-=2;x.font=F(sz)}return sz};
-  let lines=[pr.title],size=fit(pr.title,76);
-  if(size<54&&pr.title.includes(' ')){   // nom long : deux lignes équilibrées plutôt qu'une gravure trop petite
-    const ws=pr.title.split(' ');let best=null;
+  const cTitle=pr.cairnTitle||pr.title;let lines=[cTitle],size=fit(cTitle,76);
+  if(size<54&&cTitle.includes(' ')){   // nom long : deux lignes équilibrées plutôt qu'une gravure trop petite
+    const ws=cTitle.split(' ');let best=null;
     for(let i=1;i<ws.length;i++){const l1=ws.slice(0,i).join(' '),l2=ws.slice(i).join(' '),m=Math.max(l1.length,l2.length);if(!best||m<best.m)best={l1,l2,m}}
     lines=[best.l1,best.l2];size=Math.min(fit(best.l1,56),fit(best.l2,56));
   }
@@ -3327,13 +3330,13 @@ const isCode=u=>/github\.com|gitlab\.|bitbucket\.org/i.test(u);
 const IMG_SEEN=new Set();
 function stageImgs(sg){
   const light=document.documentElement.getAttribute('data-theme')==='light',out=[],seen=new Set();
+  (sg.images||[]).forEach(x=>{const src=okUrl(x.src);if(src&&!seen.has(src)&&out.length<3){seen.add(src);out.push({src,title:x.title||shortT(sg.title)})}});   // images saisies pour l'étape (admin › Étapes) : d'abord ; les projets liés complètent jusqu'à 3
   const shot=o=>{const im=(o&&o.image)||{},x=(light?im.light:im.dark)||im.light||im.dark||'';return /projectsoon/i.test(x)?'':x};
   (sg.links||[]).forEach(l=>{
     const a=(CMS.projects||[]).find(p=>p.slug===l.slug),s=SITE_PROJECTS.find(p=>p.id===l.slug);
     const src=okUrl(shot(a)||shot(s)||(a&&a.cover)||(s&&s.cover)||(IMG_FB[l.slug]&&IMG_FB[l.slug].src)||'');
     if(src&&!seen.has(src)&&out.length<3){seen.add(src);out.push({src,title:shortT(l.title)})}
   });
-  (IMG_STAGE[sg.key]||[]).forEach(x=>{const src=okUrl(x.src);if(src&&!seen.has(src)&&out.length<3){seen.add(src);out.push({src,title:x.title})}});   // images de l'étape elle-même (Départ : UCPA, Decathlon), après celles des projets liés
   return out}
 function preloadStageImgs(from){   // les images des deux étapes suivantes arrivent pendant que la caméra est posée : pas d'image qui apparaît d'un coup
   idle(()=>[from+1,from+2].forEach(i=>{const s=STOPS[i];if(s)stageImgs(s.sg).forEach(x=>{if(IMG_SEEN.has(x.src))return;IMG_SEEN.add(x.src);const im=new Image();im.decoding='async';im.src=x.src})}))}
@@ -3341,11 +3344,11 @@ function fillCard(pr){const sg=pr.sg,t=pr.t||0;
   sCard.setAttribute('aria-label',"Détails de l'étape "+sg.title);
   $('#scM').textContent=[sg.label,sg.period].filter(Boolean).join(' · ');
   $('#scT').textContent=sg.title;
-  $('#scSr').textContent=[sg.place,'Altitude '+fmtN(altAt(t))+' mètres',kmSpeech(t)].filter(Boolean).join('. ')+'.';   // ce que seule la stèle (décorative) montre
+  $('#scSr').textContent=[(sg.steleTitle&&sg.steleTitle!==sg.title?'Gravé sur la stèle : '+sg.steleTitle:''),(sg.stelePeriod&&sg.stelePeriod!==sg.period?'Période gravée : '+sg.stelePeriod:''),sg.place,'Altitude '+fmtN(altOf(sg,t))+' mètres',stageKmSpeech(sg)].filter(Boolean).join('. ')+'.';   // ce que seule la stèle (décorative) montre
   const l=$('#scL');l.textContent=sg.summary||'';l.hidden=!sg.summary;
   const pl=$('#scP');pl.setAttribute('aria-label','Chiffre clé');pl.innerHTML=sg.figure?`<li><strong>${esc(sg.figure)}</strong>${sg.figureLabel?' '+esc(sg.figureLabel):''}</li>`:'';pl.hidden=!pl.children.length;   // sans chiffre : rien (jamais de valeur inventée)
   const kl=$('#scK');kl.innerHTML='';kl.hidden=true;
-  const L=sg.kind==='final'?[{href:'/contact',title:'Écrire la suite ensemble',txt:'Écrire la suite ensemble'}]:sg.links.map(x=>({href:x.href,title:x.title,txt:'Fiche '+x.title})),acts=$('#scActs');
+  const L=sg.kind==='final'?[{href:'/contact',title:sg.cta||'Écrire la suite ensemble',txt:sg.cta||'Écrire la suite ensemble'}]:sg.links.map((x,k)=>({href:x.href,title:x.title,txt:k===0&&sg.cta?sg.cta:'Fiche '+x.title})),acts=$('#scActs');   // texte du lien principal : saisi dans l'admin (sg.cta), sinon « Fiche … »
   acts.innerHTML=L.map((x,k)=>`<a class="${k?'sc-code':'sc-cta'}" href="${esc(x.href)}">${esc(x.txt)}<span aria-hidden="true"> →</span></a>`).join('');   // vrais liens : ils marchent aussi sans 3D (même liste dans #pList)
   acts.hidden=!acts.children.length;sMore.hidden=true;
   const il=$('#scI'),ims=stageImgs(sg);il.className='sc-imgs n'+ims.length;il.hidden=!ims.length;
@@ -3373,7 +3376,7 @@ function updateUi(p){
   const alt=altAt(t),brg=bearingAt(t);
   {const sg=st.sg,nx=sg.kind==='final',href=sg.href;   // « Voir la fiche » : lien vers la première fiche liée ; au cairn final, vers Contact
    if(href){plMore.hidden=false;plMore.href=href;plMore.querySelector('.t').textContent=nx?'Écrire la suite':'Voir la fiche';plMore.querySelector('.n').textContent=' : '+(nx?'Contact':sg.links[0].title);plDock.classList.add('on-proj')}else{plMore.hidden=true;plDock.classList.remove('on-proj')}}
-  if(cur!==lastShown||sceneSay){lastShown=cur;if(cur>=0){const sg=st.sg;live.textContent=(sceneSay?sceneSay+'. ':'')+[sg.label+' : '+sg.title,sg.period,sg.keyResult].filter(Boolean).join(', ')+'. '+kmSpeech(t)+'.'}sceneSay=''}   // chaque changement d'étape est annoncé (#live, aria-live)
+  if(cur!==lastShown||sceneSay){lastShown=cur;if(cur>=0){const sg=st.sg;live.textContent=(sceneSay?sceneSay+'. ':'')+[sg.label+' : '+sg.title,sg.period,sg.keyResult].filter(Boolean).join(', ')+'. '+stageKmSpeech(sg)+'.'}sceneSay=''}   // chaque changement d'étape est annoncé (#live, aria-live)
   // étiquettes
   holos.forEach(h=>{const i=+h.dataset.i;const on=(i===sel)||(sel<0&&i===activeStop);h.classList.toggle('on',on)});
   updateCard();
