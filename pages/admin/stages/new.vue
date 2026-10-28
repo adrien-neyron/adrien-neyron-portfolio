@@ -21,6 +21,7 @@ async function handleSubmit(payload: Stage) {
       headers: { Authorization: `Bearer ${getToken()}` },
       body:    payload,
     });
+    await useBlobTrash().commit(payload, getToken());
     router.push("/admin/stages");
   } catch (e) {
     const r = apiErrorMessage(e, "créer l'étape");

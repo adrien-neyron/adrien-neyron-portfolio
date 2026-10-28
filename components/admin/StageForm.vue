@@ -39,7 +39,8 @@ const imgs = ref<StageImage[]>(
   (withStageDefaults({ key: props.initial?.key, images: props.initial?.images }, staticStages).images ?? []).map((i) => ({ ...i })),
 );
 const addImage = () => { if (imgs.value.length < 3) imgs.value.push({ src: "", title: "" }); };
-const removeImage = (i: number) => { imgs.value.splice(i, 1); };
+const { queue: queueTrash } = useBlobTrash();
+const removeImage = (i: number) => { queueTrash(imgs.value[i]?.src); imgs.value.splice(i, 1); };   // le fichier part du stockage à l'enregistrement
 
 const KINDS: { value: StageKind; label: string }[] = [
   { value: "depart",  label: "Départ (premier cairn de la trace)" },
