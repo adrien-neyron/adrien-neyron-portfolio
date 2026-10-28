@@ -1642,36 +1642,48 @@ const SHOE=(()=>{
     pair.rotation.x=(reduce?0:my)*.06;
   }
   /* --- gouttelettes en suspension (InstancedMesh) : près du centre d'une zone cible, le temps de la goutte ralentit de façon exponentielle (easeOutExpo sur la distance) ; le curseur proche la soulève très lentement et la fait onduler. Coupé sous prefers-reduced-motion. --- */
-  const ND=[130,90,50][QC.tier],ZR=2.6,dummy=new THREE.Object3D(),DROPS=[];let dropMesh=null;
+  const ND=[130,90,50][QC.tier],ZR=2.6,dummy=new THREE.Object3D(),DROPS=[],NSP=[44,32,20][QC.tier],SPL=[];let dropMesh=null,splMesh=null,splMat=null,splI=0;
   function dropInit(){
     const m=new THREE.MeshBasicMaterial({color:0x2A6F8C,transparent:true,opacity:.75,depthWrite:false});   // comme la pluie du dernier cairn : fines gouttes étirées, matériau simple
     dropMesh=new THREE.InstancedMesh(new THREE.SphereGeometry(1,6,4),m,ND);dropMesh.frustumCulled=false;dropMesh.renderOrder=3;dropMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);dropMesh.count=0;scene.add(dropMesh);
     for(let i=0;i<ND;i++)DROPS.push({x:0,y:0,zz:0,v:0,r:0,id:Math.random()*50,age:0});
+    // impacts dans la flaque : anneaux plats qui s'élargissent et s'effacent (un par goutte qui touche l'eau), en plus des ondes du shader d'eau
+    const sg=new THREE.RingGeometry(.62,1,24);sg.rotateX(-Math.PI/2);sg.setAttribute('aLife',new THREE.InstancedBufferAttribute(new Float32Array(NSP),1));
+    splMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,uniforms:{uCol:{value:new THREE.Color(0x2A6F8C)}},
+      vertexShader:'attribute float aLife;varying float vL;void main(){vL=aLife;gl_Position=projectionMatrix*modelViewMatrix*instanceMatrix*vec4(position,1.);}',
+      fragmentShader:'uniform vec3 uCol;varying float vL;void main(){gl_FragColor=vec4(uCol,pow(1.-vL,1.6)*.85);}'});
+    splMesh=new THREE.InstancedMesh(sg,splMat,NSP);splMesh.frustumCulled=false;splMesh.renderOrder=3;splMesh.count=0;splMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(splMesh);
+    for(let i=0;i<NSP;i++)SPL.push({x:0,z:0,t:1});
     DROPS.forEach(d=>dropSpawn(d,true));
   }
   /* pluie : flux rapide et dense sur toute la flaque (vitesse constante comme le dernier cairn, `RAIN`), le curseur en ralentit le temps autour de lui */
   function dropSpawn(d,seed){d.x=(Math.random()*2-1)*(RX+1.6);d.zz=(Math.random()*2-1)*(RZ+1.1);d.y=seed?Math.random()*4.6:3.6+Math.random()*1;d.v=11+Math.random()*3;d.r=.008+Math.random()*.006;d.age=0}
-  const easeOutExpo=x=>1-Math.exp(-4.5*x*x);   // courbe exponentielle douce : le temps ralentit sur tout le rayon (easeOutExpo pur saturait à 1 dès 30 % du rayon)
+  const easeOutExpo=x=>1-Math.exp(-2.2*x*x);   // courbe exponentielle douce : le temps ralentit sur tout le rayon (easeOutExpo pur saturait à 1 dès 30 % du rayon)
   function stepDrops(dt){
     if(!dropMesh)return;
-    if(reduce){dropMesh.count=0;return}
+    if(reduce){dropMesh.count=0;splMesh.count=0;return}
     dt=Math.min(dt,.05);const k=busy?0:1;
     dropMesh.material.color.set(dayK>.5?0x2A6F8C:0xCFEFFF);dropMesh.material.opacity=.6+.2*dayK;
     {const kk=Math.min(1,dt*10);curV.x+=(curT.x-curV.x)*kk;curV.y+=(curT.y-curV.y)*kk;curV.z+=(curT.z-curV.z)*Math.min(1,dt*9)}
     const cs=Math.max(0,curV.z);let n=0;
     // ralentissement GLOBAL : plus le curseur approche d'une zone cible (±2,6), plus toute la pluie ralentit (courbe exponentielle sur la distance au centre de la zone la plus proche)
-    const dz=Math.min(Math.hypot(curV.x-2.6,curV.y),Math.hypot(curV.x+2.6,curV.y)),gz=cs*Math.exp(-dz*dz/(2*4.5*4.5)),G=(1-.8*gz)*(1-.2*cs);   // toutes les gouttes : bulle de 9 u autour du curseur (couvre toute la flaque), ralentissement global de 20 % dès que le curseur est sur la scène, jusqu'à ~16 % du débit sur une zone
+    const dz=Math.min(Math.hypot(curV.x-2.6,curV.y),Math.hypot(curV.x+2.6,curV.y)),gz=cs*Math.exp(-dz*dz/(2*7*7)),G=(1-.8*gz)*(1-.12*cs);   // toutes les gouttes : bulle de 9 u autour du curseur (couvre toute la flaque), ralentissement global de 20 % dès que le curseur est sur la scène, jusqu'à ~16 % du débit sur une zone
     for(const d of DROPS){
       // temps de la goutte : bulle autour du curseur (distance au curseur, courbe exponentielle) ; loin du curseur, plein débit
-      const cd=Math.hypot(d.x-curV.x,d.zz-curV.y,(d.y-.8)*.35),ts=1-cs*(1-(.025+.975*easeOutExpo(Math.min(1,cd/9)))),pr=cs*Math.exp(-cd*cd/2.4);
+      const cd=Math.hypot(d.x-curV.x,d.zz-curV.y,(d.y-.8)*.35),ts=1-cs*(1-(.025+.975*easeOutExpo(Math.min(1,cd/14)))),pr=cs*Math.exp(-cd*cd/2.4);
       const tg=ts*G;d.y-=d.v*tg*dt;d.age+=dt;
       d.y+=.3*pr*dt;d.x+=Math.sin(tNow*.8+d.id)*.18*pr*dt;d.zz+=Math.cos(tNow*.65+d.id*1.7)*.18*pr*dt;   // élévation et dérive organique près du curseur
-      if(d.y<=0){if(Math.hypot(d.x/RX,d.zz/RZ)<.92&&Math.random()<.3)ripple(d.x,d.zz,.16);dropSpawn(d,false);continue}
+      if(d.y<=0){if(Math.hypot(d.x/RX,d.zz/RZ)<.95){const q=SPL[splI++%NSP];q.x=d.x;q.z=d.zz;q.t=0;if(Math.random()<.4)ripple(d.x,d.zz,.2)}dropSpawn(d,false);continue}   // impact : anneau + onde d'eau
+
       if(d.age>20){dropSpawn(d,false);continue}
       const sq=1.5+tg*9,sz=d.r*k;   // trait long en pleine chute, petite goutte quasi ronde quand le temps se fige
       dummy.position.set(d.x,d.y,d.zz);dummy.scale.set(sz,sz*sq,sz);dummy.updateMatrix();dropMesh.setMatrixAt(n++,dummy.matrix);
     }
     dropMesh.count=n;dropMesh.instanceMatrix.needsUpdate=true;
+    {const lf=splMesh.geometry.attributes.aLife;let m=0;splMat.uniforms.uCol.value.set(dayK>.5?0x2A6F8C:0xCFEFFF);
+      for(const q of SPL){if(q.t>=1)continue;q.t+=dt/.65;if(q.t>=1)continue;const e=1-Math.pow(1-q.t,2),sc=(.05+.34*e)*k;
+        dummy.position.set(q.x,.045,q.z);dummy.scale.set(sc,1,sc);dummy.updateMatrix();splMesh.setMatrixAt(m,dummy.matrix);lf.array[m++]=q.t}
+      splMesh.count=m;splMesh.instanceMatrix.needsUpdate=true;lf.needsUpdate=true}
   }
   function stepSim(dt){
     for(let i=RIP.length-1;i>=0;i--){RIP[i].t+=dt;if(RIP[i].t>2.6)RIP.splice(i,1)}
