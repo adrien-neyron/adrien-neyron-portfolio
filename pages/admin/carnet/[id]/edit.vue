@@ -32,6 +32,7 @@ async function handleSubmit(payload: Record<string, unknown>) {
       headers: { Authorization: `Bearer ${token}` },
       body:    payload,
     });
+    await useBlobTrash().commit(payload, getToken());
     router.push("/admin/carnet");
   } catch {
     error.value = "Erreur lors de la mise à jour.";

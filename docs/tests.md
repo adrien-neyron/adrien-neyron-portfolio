@@ -64,3 +64,5 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 - `tests/unit/stages.test.ts` : suite « infos d'affichage » (km/D+/altitude, `steleTags`, `images`, `ctaLabel`, `validateStageDisplay`, `withStageDefaults`, `STAGE_DISPLAY_MAP`).
 
 - `tests/unit/imageWebp.test.ts` : dimensions, nom de fichier et formats de la conversion WebP (la conversion canvas elle-même demande un navigateur : non testée).
+
+- `tests/unit/blobTrash.test.ts` : URLs supprimables (Blob store seulement) et images encore utilisées conservées.

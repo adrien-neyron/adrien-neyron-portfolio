@@ -36,6 +36,7 @@ async function handleSubmit(payload: Profile) {
       headers: { Authorization: `Bearer ${token}` },
       body:    payload,
     });
+    await useBlobTrash().commit(payload, getToken());
     saved.value = true;
     // Force le rechargement du store partagé (utilisé par les pages
     // publiques) : sans ça, la navigation client-side vers "/", "/about",
