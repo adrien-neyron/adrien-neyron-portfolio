@@ -333,3 +333,5 @@ Plus aucun cercle orange sur l'eau : `pul` (onde pulsante) et les ondes `rips` s
 - Temps ralenti par la distance au centre de la zone : `ts = .04 + .96 · easeOutExpo(d / ZR)` (`ZR` = 1,7) → décélération exponentielle, goutte quasi suspendue au centre.
 - Curseur proche (`ptrV`) : élévation très lente (0,2 u/s) et dérive organique en sinus ; sans curseur, les gouttes finissent par tomber et font une onde dans l'eau.
 - `prefers-reduced-motion` : `count = 0`, aucune goutte. Gouttes décoratives (canvas `aria-hidden`).
+
+Correctif (28/10, soir) : le ralentissement ne se voyait pas, car les gouttes tombaient vite sur presque tout leur trajet et ne ralentissaient que dans un rayon de 1,7. Maintenant `ZR` = 2,6, les gouttes naissent sur un anneau autour de la zone, **glissent horizontalement vers le centre** (vitesse × `ts`) et s'y figent ; gravité réduite, gouttes plus grosses (0,04–0,085), durée de vie 16 s.
