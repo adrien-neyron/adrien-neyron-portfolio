@@ -223,3 +223,5 @@ Le shader du sol (`GFS`, `assets/loop/loop.js`) ajoute des caustiques (`caust()`
 Plus de cercle orange sur l'eau : pluie dense et rapide (`InstancedMesh`, 130/90/50 gouttes, vitesse du dernier cairn) dont le temps ralentit exponentiellement autour du curseur (`SHOE.cursor`, `stepDrops`), soulevée lentement près de lui ; coupées sous `prefers-reduced-motion`. Seul reste, au focus clavier, un anneau d'encre (WCAG 2.4.7). Détails : `docs/admin-boucle.md`.
 
 En fin de scène Persévérer (`l > .8`), la pluie est presque figée (`SHOE.calm`) et les cartes Le Randonneur / Le Carnet s'affichent seules (`.pcard.peek`) avant le contact. Détails : `docs/admin-boucle.md`.
+
+Le sol du bivouac (contact, `CAMP`) est le même sable que Persévérer (`sandTex`, teinte `dayC` : boue bleutée de nuit, sable clair de jour). Détails : `docs/admin-boucle.md`.
