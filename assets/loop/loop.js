@@ -1600,10 +1600,11 @@ const SHOE=(()=>{
       if(topoSpr){const m=topoSpr.material,L=dayK>.5;if(m.userData.L!==L){m.userData.L=L;m.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.color.set(L?0x12222B:0xffffff);m.opacity=L?.4:.5;m.needsUpdate=true}}
       inv.forEach(r=>{const L=dayK>.5;if(r.material.userData.L!==L){r.material.userData.L=L;r.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;r.material.color.set(L?0xB23F27:0xE26D3B);r.material.needsUpdate=true;const fx=r.userData.fx;if(fx)[fx.halo,...fx.rips].forEach(m=>{m.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.material.color.set(L?0xB23F27:0xE26D3B);m.material.needsUpdate=true})}})}
     inv.forEach((r,i)=>{const s=1+.12*Math.sin(tNow*2.2+i*3);r.scale.setScalar(s);r.material.opacity=(busy?0:.35)+.25*Math.sin(tNow*2.2+i*3)*(busy?0:1)+.15});
-    inv.forEach((r,i)=>{const fx=r.userData.fx;if(!fx)return;const k=busy?0:1,L=dayK>.5;   // halo qui respire et trois ondes décalées (≈ 3 s) ; mouvement réduit : halo fixe, une onde figée
-      fx.halo.material.opacity=k*((reduce?.2:.16+.08*Math.sin(tNow*1.6+i*2))*(L?1.3:1));
+    inv.forEach((r,i)=>{const fx=r.userData.fx;if(!fx)return;const k=busy?0:1,L=dayK>.5,se=$(i?'#sideR':'#sideL'),hv=se&&se.matches(':hover,:focus-visible')?1:0;   // survol ou focus de la zone : le halo se renforce (retour visuel)
+      fx.hv=(fx.hv||0)+(hv-(fx.hv||0))*Math.min(1,dt*8);   // halo qui respire et trois ondes décalées (≈ 3 s) ; mouvement réduit : halo fixe, une onde figée
+      fx.halo.material.opacity=k*((reduce?.2:.16+.08*Math.sin(tNow*1.6+i*2))*(L?1.3:1)+.2*fx.hv);
       fx.rips.forEach((m,j)=>{if(reduce){m.scale.setScalar(1.8);m.material.opacity=j===0?k*.18:0;return}
-        const ph=(tNow*.33+j/3+i*.5)%1;m.scale.setScalar(1+ph*1.9);m.material.opacity=k*Math.pow(1-ph,1.6)*Math.min(1,ph*8)*(L?.55:.4)})});
+        const ph=(tNow*.33+j/3+i*.5)%1;m.scale.setScalar(1+ph*1.9);m.material.opacity=k*Math.pow(1-ph,1.6)*Math.min(1,ph*8)*(L?.55:.4)*(1+.7*fx.hv)})});
     renderer.render(scene,cam);
   }
   function setQuality(t){
