@@ -1660,10 +1660,10 @@ const SHOE=(()=>{
     {const kk=Math.min(1,dt*10);curV.x+=(curT.x-curV.x)*kk;curV.y+=(curT.y-curV.y)*kk;curV.z+=(curT.z-curV.z)*Math.min(1,dt*9)}
     const cs=Math.max(0,curV.z);let n=0;
     // ralentissement GLOBAL : plus le curseur approche d'une zone cible (±2,6), plus toute la pluie ralentit (courbe exponentielle sur la distance au centre de la zone la plus proche)
-    const dz=Math.min(Math.hypot(curV.x-2.6,curV.y),Math.hypot(curV.x+2.6,curV.y)),gz=cs*Math.exp(-dz*dz/(2*2.4*2.4)),G=1-.78*gz;
+    const dz=Math.min(Math.hypot(curV.x-2.6,curV.y),Math.hypot(curV.x+2.6,curV.y)),gz=cs*Math.exp(-dz*dz/(2*4.5*4.5)),G=(1-.8*gz)*(1-.2*cs);   // toutes les gouttes : bulle de 9 u autour du curseur (couvre toute la flaque), ralentissement global de 20 % dès que le curseur est sur la scène, jusqu'à ~16 % du débit sur une zone
     for(const d of DROPS){
       // temps de la goutte : bulle autour du curseur (distance au curseur, courbe exponentielle) ; loin du curseur, plein débit
-      const cd=Math.hypot(d.x-curV.x,d.zz-curV.y,(d.y-.8)*.35),ts=1-cs*(1-(.025+.975*easeOutExpo(Math.min(1,cd/4.2)))),pr=cs*Math.exp(-cd*cd/2.4);
+      const cd=Math.hypot(d.x-curV.x,d.zz-curV.y,(d.y-.8)*.35),ts=1-cs*(1-(.025+.975*easeOutExpo(Math.min(1,cd/9)))),pr=cs*Math.exp(-cd*cd/2.4);
       const tg=ts*G;d.y-=d.v*tg*dt;d.age+=dt;
       d.y+=.3*pr*dt;d.x+=Math.sin(tNow*.8+d.id)*.18*pr*dt;d.zz+=Math.cos(tNow*.65+d.id*1.7)*.18*pr*dt;   // élévation et dérive organique près du curseur
       if(d.y<=0){if(Math.hypot(d.x/RX,d.zz/RZ)<.92&&Math.random()<.3)ripple(d.x,d.zz,.16);dropSpawn(d,false);continue}
