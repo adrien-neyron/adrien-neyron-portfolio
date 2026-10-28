@@ -309,3 +309,8 @@ Le sol de la scène Persévérer (`GFS` / `GVS` dans `assets/loop/loop.js`) n'es
 - **Focus clavier** : l'ovale orange du bouton (`.pside:focus-visible`) est retiré quand la 3D est prête (classe `ring3d`) ; le focus est un anneau d'eau irrégulier à trait net, encre foncée `#0B3550` de jour, blanc de nuit, dessiné dans la scène (≥ 3:1 sur l'eau). Sans 3D, le contour d'origine reste.
 - Mouvement réduit : plus d'onde ni de respiration, anneau de focus fixe.
 **Vérifié en local** (Chromium, rendu logiciel) : rendu jour et nuit, focus clavier, 209 tests. **Non vérifié** : Lighthouse, contraste mesuré sur pixels réels, perf sur mobile réel (DPR et segments réduits par `QC.tier`), WebGL1 sans texture en vertex (rare).
+
+
+### Chaussure : contre-jour doré et matériaux plus brillants (28/10)
+La chaussure paraissait sombre et plate sur le sable clair. `init()` de la flaque (`assets/loop/loop.js`) ajoute une `DirectionalLight` dorée (`0xFFC27A`, `rimL`) en haut à droite, légèrement derrière, qui dessine un liseré sur l'empeigne, le talon et la semelle ; de jour (`dayK`), l'hémisphère, la clé et le contre-jour montent (+.5 / +.4 / +.8) pour compenser le fond lumineux. `fitModel` : matériaux du modèle GLB un peu plus brillants (rugosité × .85 plafonnée à .78, métal ≥ .1, `envMapIntensity` .9). Seul le modèle GLB est retouché ; la chaussure procédurale de secours profite des lumières seulement.
+**Vérifié en local** (Chromium, rendu logiciel, modèle GLB, jour) : liseré doré et détails de semelle / texture visibles. **Non vérifié** : nuit après réglage, chaussure procédurale de jour (peut paraître claire), Lighthouse, GPU réel.
