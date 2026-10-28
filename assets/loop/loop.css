@@ -279,6 +279,8 @@ html.loop-on #mist{position:absolute;inset:0;z-index:1;pointer-events:none;backg
 @keyframes mist{from{transform:translateX(-3%)}to{transform:translateX(3%)}}
 html.loop-on .pside{position:absolute;z-index:3;background:transparent;border:0;padding:0;cursor:pointer}
 html.loop-on .pside:focus-visible{outline:2px solid var(--acc);outline-offset:-4px;border-radius:50%}
+/* Plus de consigne affichée : le halo et les ondes invitent, tout le côté de la flaque est cliquable. Au clavier, le nom de l'action apparaît (visible) quand la zone a le focus. */
+html.loop-on .pside:focus-visible::after{content:attr(aria-label);position:absolute;left:50%;bottom:14px;transform:translateX(-50%);max-width:90%;padding:10px 14px;border:2px solid var(--acc);border-radius:10px;background:var(--bg);color:var(--fg);font:600 14px/1.3 'JetBrains Mono',monospace;text-align:center;pointer-events:none}
 html.loop-on .pcard.lit{border-color:var(--acc)}   /* « lit » et non « hot » : .hot est déjà la classe des points d'interaction de la boussole */
 /* Avec une souris, chaque carte n'apparaît qu'au survol (ou au focus clavier) de sa moitié de flaque ;
    sur écran tactile (pas de survol), les deux cartes restent visibles pour annoncer le choix */

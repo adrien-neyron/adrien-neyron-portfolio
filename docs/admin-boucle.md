@@ -291,3 +291,9 @@ La ligne des technos (`steleTags`) est gravée comme le reste de la stèle (encr
 
 ### Écran « Persévérer » : cercles d'invitation (halo et ondes d'eau)
 Les deux cercles au sol (`inv` dans `loop.js`, un par chaussure) invitent au clic sans mode d'emploi : un **halo doux** qui respire autour du cercle et **trois ondes d'eau** décalées qui en partent et s'élargissent sur la flaque (≈ 3 s par cycle, fondu en s'éloignant). Mêmes couleurs que les cercles (braise `0xE26D3B` la nuit, `0xB23F27` le jour, mode de fusion additif la nuit / normal le jour) ; tout s'éteint pendant une interaction (`busy`). `prefers-reduced-motion` : halo fixe et une onde figée, aucun mouvement. Décoratif (WebGL `aria-hidden`) : les mêmes actions restent disponibles par les boutons et au clavier.
+
+### Persévérer : plus de consigne affichée
+La phrase « Posez le pied dans l'eau : à gauche, le profil ; à droite, le carnet de trail. » n'est plus visible : ce sont le halo et les ondes autour des deux cercles qui invitent, et toute la moitié gauche / droite de la flaque est cliquable (`#sideL`, `#sideR`), donc on peut cliquer « dans le halo » sans viser.
+- **RGAA / WCAG conservés** : la phrase reste dans le DOM en `sr-only` (avec « utilisez les deux boutons de la flaque, au clavier comme à la souris »). Les deux boutons gardent leur nom accessible (`aria-label`), sont atteignables au clavier, et leur `:focus-visible` affiche en plus un **libellé visible** (contour `--acc`, texte `--fg` sur `--bg`) avec le nom de l'action, pour qu'un utilisateur clavier voyant sache ce que fait la zone. Les cartes « Le Randonneur » / « Le Carnet » restent visibles.
+- **Retour au survol / focus** : le halo du cercle de la zone survolée (ou focalisée) se renforce (`fx.hv`), les ondes aussi.
+- `prefers-reduced-motion` : halo fixe, une onde figée, pas de mouvement (inchangé).
