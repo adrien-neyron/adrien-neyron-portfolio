@@ -186,6 +186,9 @@ On the stages map each wheel notch, trackpad swipe or finger swipe moves to the 
 ### Guirlande des technos (cairn)
 La ligne des technos gravée en bas du cairn s'allume comme une guirlande bleu ciel (bleus du wire `0x38BDF8` / `0x00F2FE`), une ampoule par techno, en vague : `drawTags` redessine seule la bande (`b.strip`) à ≈ 15 i/s sur la stèle de l'étape en cours seulement ; fixe sous `prefers-reduced-motion` et sur les autres cairns. Encre noire conservée (contraste > 7:1). Détails : `docs/admin-boucle.md`.
 
+### Cohérence étape ↔ projet
+Carte des informations saisies à deux endroits (étape / projet) et règle proposée (le projet est la source, l'étape ne garde que le propre du parcours) : `docs/coherence-informations.md`. Propositions non appliquées.
+
 ### Calm trace
 The GPS trace is smoothed twice: `smoothPath` (GPS noise) then `calmPath` (wide gaussian, `TRACE_SIGMA` = 15 points ≈ 1.5 km, x/z and y, ends pinned), so switchbacks don't show. The smoothed trace is rescaled to its original plan length, otherwise stops get closer and the map camera hits the previous cairn. Figures (altitude, D+) still use raw GPS altitudes. Details: `docs/admin-boucle.md`. The section title is a small top-left overline (`#s2 .head`), never over the 3D. Details: `docs/admin-boucle.md`.
 
