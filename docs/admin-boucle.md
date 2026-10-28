@@ -269,3 +269,7 @@ Tout champ « Envoyer une image » (`components/admin/FileUpload.vue`) convertit
 ### Image remplacée = ancienne image supprimée
 
 Quand une image est remplacée par un nouvel envoi (ou retirée d'une étape avec « Supprimer »), l'ancien fichier est supprimé du Blob store **à l'enregistrement du formulaire**, pas avant : si on quitte sans enregistrer, la base pointe toujours vers l'ancienne image et rien n'est effacé (la file d'attente est vidée à chaque changement de page). Le nouvel aperçu s'affiche tout de suite à côté du champ (80 px, « Aperçu indisponible » si le fichier ne charge pas) et un message le rappelle : « L'ancienne image sera supprimée à l'enregistrement. » Seules les URLs `*.public.blob.vercel-storage.com` sont supprimables : les images du dépôt (`/recentprojects/…`) ou d'un autre site ne sont jamais touchées, ni une URL encore présente dans ce qui vient d'être enregistré. Limite connue : une image envoyée puis abandonnée sans enregistrer (formulaire fermé) reste dans le Blob store ; une image supprimée d'un projet ou d'un article entier (bouton « supprimer » des listes) n'est pas encore effacée du stockage.
+
+### Aperçu des images d'étape dans l'admin
+
+Dans le formulaire d'une étape, l'image envoyée apparaît tout de suite à deux endroits : en miniature dans sa ligne (« Image 1 »), et dans l'aperçu « Aperçu du texte de la card » (vignettes 16:10 avec leur titre, comme sous le résumé dans la card). Sans image d'étape, l'aperçu le dit : la card n'affiche alors que les images des projets liés.
