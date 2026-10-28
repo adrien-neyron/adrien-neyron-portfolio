@@ -335,3 +335,5 @@ Plus aucun cercle orange sur l'eau : `pul` (onde pulsante) et les ondes `rips` s
 - `prefers-reduced-motion` : `count = 0`, aucune goutte. Gouttes décoratives (canvas `aria-hidden`).
 
 Correctif (28/10, soir) : le ralentissement ne se voyait pas, car les gouttes tombaient vite sur presque tout leur trajet et ne ralentissaient que dans un rayon de 1,7. Maintenant `ZR` = 2,6, les gouttes naissent sur un anneau autour de la zone, **glissent horizontalement vers le centre** (vitesse × `ts`) et s'y figent ; gravité réduite, gouttes plus grosses (0,04–0,085), durée de vie 16 s.
+
+Gouttes plus fines (28/10) : comme la pluie du dernier cairn, `MeshBasicMaterial` et sphère 6×4 étirée en trait (rayon 0,011–0,022, étirement `1,6 + ts × 5,5` : trait en chute libre, petite goutte quasi ronde quand elle se fige).
