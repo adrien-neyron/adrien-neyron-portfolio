@@ -1121,11 +1121,11 @@ function updateMap(p,forceD){
 
 /* ---------- Paire de chaussures de trail 3D, eau en 3D, éclaboussures de particules ---------- */
 const SHOE=(()=>{
-  if(!THREE_OK)return {ready:()=>false,ensure(){},update(){},resize(){},impactScreen(){},rippleScreen(){},rainRipple(){},layoutZones(){},setQuality(){},dispose(){}};
+  if(!THREE_OK)return {ready:()=>false,ensure(){},update(){},resize(){},impactScreen(){},rippleScreen(){},pointer(){},rainRipple(){},layoutZones(){},setQuality(){},dispose(){}};
   const cv=$('#shoeCanvas');
   let topoSpr=null,dayK=0,renderer,scene,cam,ray,gmat,pair,shoes=[],mirrors=[],pGeo,pPos,pSize,pAl,pMat,inv=[],hemiL,keyL,rimL,ok=false,failed=false;
   const pl=new THREE.Plane(new THREE.Vector3(0,1,0),0),RIP=[],PARTS=[],NP=320,RX=4.6,RZ=2.6;
-  const ripBuf=new Float32Array(32),prevU=[0,0];
+  const ripBuf=new Float32Array(32),prevU=[0,0],ptrV=new THREE.Vector3(0,0,0),ptrT=new THREE.Vector3(0,0,0);   // uPtr : x, z du pointeur sur l'eau et force (0..1)
   const tmpV=new THREE.Vector3(),tmpQ=new THREE.Quaternion(),lampP=[new THREE.Vector3(0,1.2,0),new THREE.Vector3(0,1.2,0)],lampD=[new THREE.Vector3(1,-.3,0),new THREE.Vector3(1,-.3,0)];let lampL=[];
   let sway={x:0,y:0};
   /* --- textures --- */
@@ -1381,9 +1381,13 @@ const SHOE=(()=>{
     w.y+=uAmp*bank*(.42+(ht(p)-.5)*1.25+(texture2D(uH,p*.07).r-.5)*.5);
     vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`;
   const GFS=`precision highp float;
-  uniform float uT,uDay;uniform vec4 uRip[8];uniform vec3 uLP0,uLD0,uLP1,uLD1;varying vec3 vW;`+GCOM+`
+  uniform float uT,uDay;uniform vec3 uPtr;uniform vec4 uRip[8];uniform vec3 uLP0,uLD0,uLP1,uLD1;varying vec3 vW;`+GCOM+`
   float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
   float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+  float caust(vec2 p){   // réseau de caustiques : lignes claires qui ondulent lentement à la surface de l'eau
+    vec2 q=p*1.4;float t=uT*.35,c=0.;
+    for(int i=0;i<3;i++){q+=vec2(sin(q.y*1.7+t+float(i)*1.9),cos(q.x*1.5-t*1.2+float(i)))*.45;c+=pow(.5+.5*sin(q.x*3.+q.y*2.4),6.);}
+    return c/3.;}
   vec3 sky(vec3 r){
     r=normalize(r);float h=clamp(r.y,0.,1.);
     vec3 c=mix(vec3(.46,.27,.30),vec3(.03,.04,.09),pow(h,.45));
@@ -1417,13 +1421,16 @@ const SHOE=(()=>{
       hh+=sin(ph)*env;
       g+=normalize(d+vec2(1e-4))*cos(ph)*env*.55;
     }
+    {vec2 dp=p-uPtr.xy;float dl=length(dp);float ph=dl*13.-uT*5.5;   // le pointeur déforme l'eau : onde circulaire douce autour du curseur, qui s'éteint avec la distance
+      float e=exp(-dl*1.5)*uPtr.z;g+=normalize(dp+vec2(1e-4))*cos(ph)*e*.5;hh+=sin(ph)*e*.5;}
     g+=(vec2(vn(p*3.+uT*.2),vn(p*3.-uT*.17))-.5)*.03;
     vec3 N=normalize(vec3(-g.x,1.,-g.y));
     vec3 R=reflect(-V,N);R.y=abs(R.y);
     float F=.04+.96*pow(1.-max(dot(N,V),0.),5.);
     vec3 waterN=vec3(.015,.025,.035)+sky(R)*(.25+.9*F)+vec3(.7,.85,1.)*pow(max(hh,0.),2.)*.5;
     vec3 waterD=mix(vec3(.50,.62,.69),vec3(.86,.93,.97),F)+vec3(1.,1.,.96)*pow(max(hh,0.),2.)*.55;   // eau de jour : ciel clair reflété
-    vec3 water=mix(waterN,waterD,uDay);
+    float cs=caust(p+g*.6);   // les caustiques suivent les ondes
+    vec3 water=mix(waterN+vec3(.45,.65,.9)*cs*.1,waterD+vec3(1.,1.,.97)*cs*.13,uDay);
     /* sable : normales issues de la texture de hauteur (relief large + grain fin qui s'efface au loin) */
     vec2 uv=p*.022,e=vec2(1./256.,0.);
     vec2 gc=vec2(texture2D(uH,uv+e.xy).r-texture2D(uH,uv-e.xy).r,texture2D(uH,uv+e.yx).r-texture2D(uH,uv-e.yx).r)/(2.*.1775);
@@ -1451,7 +1458,7 @@ const SHOE=(()=>{
     col*=1.-.45*smoothstep(.75,1.,r)*m;
     float qs=length(p/vec2(2.2,1.3));   // socle : centre de l'eau éclairci, halo cuivré diffus qui déborde sur la boue
     col+=vec3(.16,.19,.22)*exp(-qs*qs*2.6)*m*(1.-uDay);
-    col+=vec3(.89,.43,.23)*(.22*exp(-qs*qs*1.1)+.08*exp(-qs*qs*.3))*(1.-.9*uDay);
+    col+=vec3(.5,.6,.72)*.05*exp(-qs*qs*.6)*m*(1.-uDay);   // plus de halo cuivré en ovale autour de la flaque : un simple éclaircissement bleuté au centre de l'eau
     float dfade=1.-smoothstep(18.,44.,dist);
     gl_FragColor=vec4(col,mix(1.,.86,m)*dfade);
   }`;
@@ -1473,7 +1480,7 @@ const SHOE=(()=>{
     const key=new THREE.DirectionalLight(0xFFE6D2,1.1);key.position.set(5,3.5,4);scene.add(key);keyL=key;
     rimL=new THREE.DirectionalLight(0xFFC27A,1.5);rimL.position.set(6,5.5,-2.5);scene.add(rimL);   // contre-jour doré venant du haut à droite : liseré de lumière sur l'empeigne, le talon et la semelle   // clé chaude de droite : la tige brune et la semelle claire prennent un liseré cuivré
     const env=makeEnvS();
-    gmat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uT:{value:0},uDay:{value:0},uH:{value:sandMaps()},uAmp:{value:.26},uRip:{value:ripBuf},uLP0:{value:lampP[0]},uLD0:{value:lampD[0]},uLP1:{value:lampP[1]},uLD1:{value:lampD[1]}},
+    gmat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uT:{value:0},uDay:{value:0},uH:{value:sandMaps()},uAmp:{value:.26},uPtr:{value:ptrV},uRip:{value:ripBuf},uLP0:{value:lampP[0]},uLD0:{value:lampD[0]},uLP1:{value:lampP[1]},uLD1:{value:lampD[1]}},
       vertexShader:GVS,fragmentShader:GFS});
     const SEG=[200,128,64][QC.tier]||128;   // plan subdivisé : le vertex shader le déplace (relief), moins de segments sur les petits appareils
     const gm=new THREE.Mesh(new THREE.PlaneGeometry(90,90,SEG,SEG),gmat);gm.rotation.x=-Math.PI/2;gm.renderOrder=1;scene.add(gm);
@@ -1509,8 +1516,8 @@ const SHOE=(()=>{
       const veilTex=mkTex(x=>{const g=x.createRadialGradient(128,128,0,128,128,128);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(.55,'rgba(255,255,255,.25)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,256,256)});
       const mk=(tex,size)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshBasicMaterial({map:tex,color:0xCFEFFF,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.renderOrder=2;r.add(m);return m};
       const halo=mk(veilTex,2.8);halo.position.z=-.005;
-      const foc=mk(wob(1.7+(sd>0?.9:0),[[12,1,2.5]]),2.4);   // cercle principal : trait net au contour irrégulier, orange de la charte (--acc : #B23F27 de jour, #E26D3B de nuit, ≥ 3:1 sur l'eau et le sable), toujours visible pour montrer la zone à cliquer ; plus marqué au survol / focus
-      r.userData.fx={halo,foc,rips:[0,1].map(j=>mk(wob(.5+j*2.4+(sd>0?1.3:0)),2.4))}});
+      const foc=mk(wob(1.7+(sd>0?.9:0),[[8,1,2]]),2.4),pul=mk(wob(3.1+(sd>0?.7:0),[[6,1,2]]),2.4);   // micro-indicateurs orange (charte, --acc) : `foc` = petit anneau fixe au focus clavier (≥ 3:1) ; `pul` = onde qui pulse au survol de la souris. Jamais d'ovale autour de la flaque.
+      r.userData.fx={halo,foc,pul,rips:[0,1].map(j=>mk(wob(.5+j*2.4+(sd>0?1.3:0)),2.4))}});
     $('#sideL').classList.add('ring3d');$('#sideR').classList.add('ring3d');   // le focus est dessiné dans l'eau : plus d'ovale orange sur le bouton
     ok=true;
   }
@@ -1598,6 +1605,7 @@ const SHOE=(()=>{
   }
   function ripple(x,z,a){RIP.push({x,z,t:0,a});if(RIP.length>24)RIP.shift()}
   function rippleScreen(cx,cy,a){const p=screenToWorld(cx,cy);if(p)ripple(p.x,p.z,a)}
+  function pointer(cx,cy,on){if(!ok)return;if(!on){ptrT.z=0;return}const p=screenToWorld(cx,cy);if(!p){ptrT.z=0;return}ptrT.set(p.x,p.z,1)}   // curseur sur la flaque : l'eau se déforme autour
   function rainRipple(){const a=Math.random()*6.283,r=Math.sqrt(Math.random())*.85;ripple(Math.cos(a)*RX*r,Math.sin(a)*RZ*r,.35)}
   function burst(x,z,amp){
     let n=Math.round(40*Math.min(amp,1.7)*[1,.55,.3][QC.tier]),i=0;
@@ -1649,6 +1657,7 @@ const SHOE=(()=>{
     shoes.forEach((s,i)=>{const L=s.userData.lamp;if(!L)return;tmpV.set(L.p[0],L.p[1],L.p[2]);s.localToWorld(tmpV);lampP[i].copy(tmpV);lampL[i].position.copy(tmpV);s.getWorldQuaternion(tmpQ);lampD[i].set(L.d[0],L.d[1],L.d[2]).applyQuaternion(tmpQ).normalize()});
     ripBuf.fill(0);for(let i=0;i<8;i++)ripBuf[i*4+2]=-1;
     RIP.slice(-8).forEach((r,i)=>{ripBuf[i*4]=r.x;ripBuf[i*4+1]=r.z;ripBuf[i*4+2]=r.t;ripBuf[i*4+3]=r.a});
+    {const kk=Math.min(1,dt*10);ptrV.x+=(ptrT.x-ptrV.x)*kk;ptrV.y+=(ptrT.y-ptrV.y)*kk;ptrV.z+=((reduce?0:ptrT.z)-ptrV.z)*Math.min(1,dt*6)}
     gmat.uniforms.uT.value=tNow;
     {const tg=theme==='light'?1:0;dayK+=(tg-dayK)*Math.min(1,dt*5+(still?1:0));if(Math.abs(tg-dayK)<.005)dayK=tg;gmat.uniforms.uDay.value=dayK;hemiL.intensity=.6+.5*dayK;keyL.intensity=1.1+.4*dayK;rimL.intensity=1.5+.8*dayK;   // de jour le fond sable est très clair : la chaussure reçoit plus de lumière pour ne pas paraître sombre et plate
          // flaque de jour : eau claire, lignes de niveau et anneaux en encre
@@ -1658,9 +1667,11 @@ const SHOE=(()=>{
       fx.hv=(fx.hv||0)+(hv-(fx.hv||0))*Math.min(1,dt*8);
       if(!reduce&&!busy){fx.nr=(fx.nr===undefined?i*1.4:fx.nr)-dt;if(fx.nr<=0){fx.nr=hv?1.1:3.4;ripple(r.position.x+(Math.random()-.5)*.4,(Math.random()-.5)*.4,hv?.42:.2)}}   // vraies ondes dans le shader d'eau (reflets du ciel qui se déforment) : au repos toutes les ~3 s, au survol / focus toutes les ~1 s, plus marquées   // halo qui respire et trois ondes décalées (≈ 3 s) ; mouvement réduit : halo fixe, une onde figée
       fx.halo.material.opacity=k*((reduce?.1:.07+.04*Math.sin(tNow*1.4+i*2))*(L?1.8:1)+.1*fx.hv);   // voile d'eau translucide
-      {const fv=se&&se.matches(':focus-visible')?1:0;fx.fv=(fx.fv||0)+(fv-(fx.fv||0))*Math.min(1,dt*10);const fm=fx.foc.material,Lf=dayK>.5;
-        if(fm.userData.L!==Lf){fm.userData.L=Lf;fm.blending=THREE.NormalBlending;fm.color.set(Lf?0xB23F27:0xE26D3B);fm.needsUpdate=true}
-        fm.opacity=k*(reduce?.9:.78+.22*Math.max(fx.fv,fx.hv));fx.foc.scale.setScalar(1.3*(reduce?1:1+.025*Math.sin(tNow*2.4+i)))}
+      {const fv=se&&se.matches(':focus-visible')?1:0;fx.fv=(fx.fv||0)+(fv-(fx.fv||0))*Math.min(1,dt*10);const Lf=dayK>.5;
+        [fx.foc,fx.pul].forEach(m=>{const mm=m.material;if(mm.userData.L!==Lf){mm.userData.L=Lf;mm.blending=THREE.NormalBlending;mm.color.set(Lf?0xB23F27:0xE26D3B);mm.needsUpdate=true}});
+        fx.foc.material.opacity=k*fx.fv*.95;fx.foc.scale.setScalar(.8);
+        const ph=(tNow*1.5+i*.4)%1;   // onde pulsante : petit anneau qui s'élargit et s'efface, tant que la souris est sur la zone
+        fx.pul.material.opacity=reduce?k*fx.hv*.8:k*fx.hv*Math.pow(1-ph,1.2)*Math.min(1,ph*8)*.95;fx.pul.scale.setScalar(reduce?.8:.4+.75*ph)}
       fx.rips.forEach((m,j)=>{if(reduce){m.scale.setScalar(1.15);m.material.opacity=j===0?k*(L?.4:.3):0;return}   // mouvement réduit : une onde figée
         const ph=(tNow*.3+j/2+i*.5)%1;m.scale.setScalar(.9+ph*1.35);m.material.opacity=k*Math.pow(1-ph,1.4)*Math.min(1,ph*6)*(L?.55:.42)*(1+.6*fx.hv)})});
     renderer.render(scene,cam);
@@ -1671,7 +1682,7 @@ const SHOE=(()=>{
     [pair,...mirrors].forEach(r=>r.traverse(o=>{if(o.userData&&o.userData.bead)o.visible=t===0}));
     resize();
   }
-  return {ready:()=>ok,ensure,update,resize,impactScreen,rippleScreen,rainRipple,layoutZones,setQuality,dispose(){if(ok)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
+  return {ready:()=>ok,ensure,update,resize,impactScreen,rippleScreen,pointer,rainRipple,layoutZones,setQuality,dispose(){if(ok)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
 })();
 
 /* ---------- Bivouac 3D : feu de camp, montre GPS, carnet, tasse ---------- */
@@ -2250,6 +2261,8 @@ function zonePoint(e){const r=pc.getBoundingClientRect();if(SHOE.ready())return 
   /* la carte (avec son bouton d'accès) reste affichée tant que la zone OU la carte est survolée / a le focus : on peut donc passer de la zone au bouton de la carte, à la souris comme au clavier */
   let off=0;const on=()=>{clearTimeout(off);c.classList.add('lit')},out=()=>{clearTimeout(off);off=setTimeout(()=>{if(!z.matches(':hover,:focus')&&!c.matches(':hover,:focus-within'))c.classList.remove('lit')},700)};
   z.addEventListener('pointerenter',e=>{on();if(!paused&&!reduce){const [cx,cy]=zonePoint(e);ripAt(cx,cy,.3)}});
+  z.addEventListener('pointermove',e=>{if(!reduce&&e.pointerType==='mouse'&&SHOE.ready()){const [cx,cy]=zonePoint(e);SHOE.pointer(cx,cy,true)}});   // la flaque se déforme autour du curseur (shader)
+  z.addEventListener('pointerleave',()=>SHOE.pointer(0,0,false));
   z.addEventListener('pointerleave',out);z.addEventListener('focus',on);z.addEventListener('blur',out);
   c.addEventListener('pointerenter',on);c.addEventListener('pointerleave',out);c.addEventListener('focusin',on);c.addEventListener('focusout',out);
   c.querySelector('.route').addEventListener('click',()=>stomp(side,PW/2+(side==='left'?-1:1)*prx*.45,gy));   // même action que la zone

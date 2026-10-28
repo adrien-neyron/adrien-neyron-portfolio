@@ -318,3 +318,11 @@ Quand le défilement s'arrêtait dans un fondu (ex. fin de la carte / début de 
 ### Chaussure : contre-jour doré et matériaux plus brillants (28/10)
 La chaussure paraissait sombre et plate sur le sable clair. `init()` de la flaque (`assets/loop/loop.js`) ajoute une `DirectionalLight` dorée (`0xFFC27A`, `rimL`) en haut à droite, légèrement derrière, qui dessine un liseré sur l'empeigne, le talon et la semelle ; de jour (`dayK`), l'hémisphère, la clé et le contre-jour montent (+.5 / +.4 / +.8) pour compenser le fond lumineux. `fitModel` : matériaux du modèle GLB un peu plus brillants (rugosité × .85 plafonnée à .78, métal ≥ .1, `envMapIntensity` .9). Seul le modèle GLB est retouché ; la chaussure procédurale de secours profite des lumières seulement.
 **Vérifié en local** (Chromium, rendu logiciel, modèle GLB, jour) : liseré doré et détails de semelle / texture visibles. **Non vérifié** : nuit après réglage, chaussure procédurale de jour (peut paraître claire), Lighthouse, GPU réel.
+
+
+### Flaque : caustiques, déformation au curseur, micro-indicateurs orange (28/10)
+Le grand ovale (contour DOM du bouton, puis anneau orange large) donnait l'impression d'un tracé vectoriel posé sur la 3D. Il n'y en a plus :
+- **Shader d'eau** (`GFS`) : caustiques animées (`caust()`, réseau de lignes claires qui suit les ondes) et **déformation au curseur** : `SHOE.pointer(cx, cy, on)` envoie la position du curseur sur le plan d'eau (`uPtr`, lissée), le shader y ajoute une onde circulaire qui s'éteint avec la distance (normales et reflets du ciel déformés). Souris uniquement ; coupée sous `prefers-reduced-motion`.
+- **Orange = micro-indicateurs** (`--acc` : `#B23F27` de jour, `#E26D3B` de nuit) : `foc`, petit anneau irrégulier fixe au focus clavier (indicateur de focus, ≥ 3:1) ; `pul`, petite onde qui s'élargit et s'efface au survol / focus. Rien d'orange au repos ; l'invitation reste celle des ondes d'eau translucides et des caustiques.
+- Le halo cuivré en ovale autour de la flaque (nuit) est remplacé par un léger éclaircissement bleuté au centre de l'eau.
+**Vérifié en local** (Chromium, rendu logiciel) : repos et survol, jour et nuit ; 209 tests. **Non vérifié** : coût GPU des caustiques (3 itérations par pixel d'eau) sur mobile réel, Lighthouse, contraste mesuré sur pixels réels, comportement au toucher (pas de déformation au curseur sans souris).
