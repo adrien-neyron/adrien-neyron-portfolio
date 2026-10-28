@@ -261,3 +261,7 @@ Toute information visible à l'écran est stockée dans la collection `Stage` et
 | Texte du lien principal | `ctaLabel` (vide = « Fiche <projet> » ou « Écrire la suite ensemble ») | non | oui | oui |
 
 Sémantique : `km`/`gain`/`altitude` à `null` = valeur calculée ; `images` absent = valeurs par défaut de `data/stages.ts`, `[]` = aucune image. « Importer les étapes par défaut » ajoute les images par défaut aux étapes existantes qui n'ont pas encore ce champ. Le compteur km/D+ continu de la carte (`#mapTot`) reste calculé. Cache de `/api/loop-content` : 60 s.
+
+## Envoi d'images depuis l'admin (WebP)
+
+Tout champ « Envoyer une image » (`components/admin/FileUpload.vue`) convertit l'image en **WebP** dans le navigateur avant l'envoi (`utils/imageWebp.ts` : grand côté ≤ 1600 px, qualité 0,82, jamais agrandie, nom `photo-ete.webp`). Le fichier est envoyé à `POST /api/admin/upload` (Vercel Blob) ; **l'URL obtenue est enregistrée en base Mongo** dans le champ concerné (image d'étape, capture de projet, couverture du Carnet, photo de profil). La conversion avant l'envoi évite aussi la limite de 4,5 Mo des fonctions Vercel (une photo d'appareil dépassait cette taille et l'envoi échouait). PDF (CV), SVG et GIF animés ne sont pas convertis. Si le navigateur ne sait pas encoder en WebP, l'original est envoyé. Retour visuel : message « Image envoyée en WebP : X → Y » (`role="status"`) ou erreur (`role="alert"`). Non couvert : conversion des images déjà en base (à renvoyer depuis l'admin).
