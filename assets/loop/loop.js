@@ -1516,9 +1516,10 @@ const SHOE=(()=>{
       const veilTex=mkTex(x=>{const g=x.createRadialGradient(128,128,0,128,128,128);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(.55,'rgba(255,255,255,.25)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,256,256)});
       const mk=(tex,size)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshBasicMaterial({map:tex,color:0xCFEFFF,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.renderOrder=2;r.add(m);return m};
       const halo=mk(veilTex,2.8);halo.position.z=-.005;
-      const foc=mk(wob(1.7+(sd>0?.9:0),[[8,1,2]]),2.4),pul=mk(wob(3.1+(sd>0?.7:0),[[6,1,2]]),2.4);   // micro-indicateurs orange (charte, --acc) : `foc` = petit anneau fixe au focus clavier (≥ 3:1) ; `pul` = onde qui pulse au survol de la souris. Jamais d'ovale autour de la flaque.
-      r.userData.fx={halo,foc,pul,rips:[0,1].map(j=>mk(wob(.5+j*2.4+(sd>0?1.3:0)),2.4))}});
+      const foc=mk(wob(1.7+(sd>0?.9:0),[[8,1,2]]),2.4);   // seul tracé conservé : anneau d'encre (pas orange), irrégulier, visible UNIQUEMENT au focus clavier (WCAG 2.4.7, ≥ 3:1). Au survol souris : aucun cercle, ce sont les gouttes en suspension qui marquent la zone.
+      r.userData.fx={halo,foc}});
     $('#sideL').classList.add('ring3d');$('#sideR').classList.add('ring3d');   // le focus est dessiné dans l'eau : plus d'ovale orange sur le bouton
+    dropInit();
     ok=true;
   }
   /* --- modèle 3D importé (glTF/GLB) : remplace la chaussure procédurale dès qu'il est chargé ; fichier absent ou illisible → la procédurale reste ---
@@ -1638,6 +1639,39 @@ const SHOE=(()=>{
     pair.rotation.y+=(((reduce?0:mx)*.35+.12)-pair.rotation.y)*(dt>0?1-Math.exp(-dt*5):1);
     pair.rotation.x=(reduce?0:my)*.06;
   }
+  /* --- gouttelettes en suspension (InstancedMesh) : près du centre d'une zone cible, le temps de la goutte ralentit de façon exponentielle (easeOutExpo sur la distance) ; le curseur proche la soulève très lentement et la fait onduler. Coupé sous prefers-reduced-motion. --- */
+  const ND=[28,20,12][QC.tier]*2,ZR=1.7,dummy=new THREE.Object3D(),DROPS=[];let dropMesh=null;
+  function dropInit(){
+    const m=new THREE.MeshStandardMaterial({color:0x2A6F8C,roughness:.12,metalness:0,transparent:true,opacity:.7,depthWrite:false});
+    dropMesh=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,8),m,ND);dropMesh.frustumCulled=false;dropMesh.renderOrder=3;dropMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);dropMesh.count=0;scene.add(dropMesh);
+    for(let i=0;i<ND;i++)DROPS.push({z:i%2?1:0,x:0,y:0,zz:0,vy:0,r:0,id:Math.random()*50,a:0});
+    DROPS.forEach(d=>dropSpawn(d,true));
+  }
+  function dropSpawn(d,seed){const cx=d.z?2.6:-2.6,a=Math.random()*6.283,rho=ZR*1.5*Math.sqrt(Math.random());
+    d.x=cx+Math.cos(a)*rho;d.zz=Math.sin(a)*rho*.8;d.y=seed?.2+Math.random()*2.4:2.4+Math.random()*.6;d.vy=-(seed?Math.random()*.6:0);d.r=.025+Math.random()*.035;d.a=0}
+  const easeOutExpo=x=>x>=1?1:1-Math.pow(2,-10*x);
+  function stepDrops(dt){
+    if(!dropMesh)return;
+    if(reduce){dropMesh.count=0;return}
+    dt=Math.min(dt,.05);const k=busy?0:1,night=1-dayK;
+    dropMesh.material.color.set(dayK>.5?0x2A6F8C:0xCFEFFF);dropMesh.material.opacity=.55+.2*dayK;dropMesh.material.emissive.set(night>.5?0x3A5568:0x000000);
+    let n=0;
+    for(const d of DROPS){
+      const cx=d.z?2.6:-2.6,dx=d.x-cx,dz=d.zz,dd=Math.hypot(dx,dz,(d.y-.9)*.6);
+      const ts=.04+.96*easeOutExpo(Math.min(1,dd/ZR));   // décélération exponentielle en approchant du centre : 1 = temps normal, .04 = quasi suspendue
+      const px=ptrV.x-d.x,pz=ptrV.y-d.zz,pr=Math.exp(-(px*px+pz*pz)/2.2)*Math.max(0,ptrV.z)*Math.exp(-dd*dd/(ZR*ZR*1.6));   // proximité du curseur, seulement dans la zone
+      const dts=dt*ts;
+      d.vy=Math.max(-3.2,d.vy-6*dts);
+      d.y+=d.vy*dts+.2*pr*dt;   // élévation très lente quand le curseur approche
+      d.x+=Math.sin(tNow*.8+d.id)*.14*pr*dt;d.zz+=Math.cos(tNow*.65+d.id*1.7)*.14*pr*dt;   // distorsion organique
+      d.a+=((d.y>.02?1:0)-d.a)*Math.min(1,dt*4);
+      if(d.y<=0){if(Math.random()<.5)ripple(d.x,d.zz,.16);dropSpawn(d,false);continue}
+      if(d.y>3.1){dropSpawn(d,false);continue}
+      const sq=1+Math.min(.9,Math.abs(d.vy)*ts*.35),sz=d.r*d.a*k*(1+.12*Math.sin(tNow*1.6+d.id));   // goutte légèrement étirée dans sa chute
+      dummy.position.set(d.x,d.y,d.zz);dummy.scale.set(sz,sz*sq,sz);dummy.updateMatrix();dropMesh.setMatrixAt(n++,dummy.matrix);
+    }
+    dropMesh.count=n;dropMesh.instanceMatrix.needsUpdate=true;
+  }
   function stepSim(dt){
     for(let i=RIP.length-1;i>=0;i--){RIP[i].t+=dt;if(RIP[i].t>2.6)RIP.splice(i,1)}
     let k=0;
@@ -1649,6 +1683,7 @@ const SHOE=(()=>{
       pSize[i]=(p.size||0)*(1+.5*Math.sin(tNow*9+(p.id||0)));pAl[i]=a;
     });
     pGeo.attributes.position.needsUpdate=true;pGeo.attributes.size.needsUpdate=true;pGeo.attributes.alpha.needsUpdate=true;
+    stepDrops(dt);
   }
   function update(l,dt,still){
     if(!ok)return;
@@ -1662,18 +1697,14 @@ const SHOE=(()=>{
     {const tg=theme==='light'?1:0;dayK+=(tg-dayK)*Math.min(1,dt*5+(still?1:0));if(Math.abs(tg-dayK)<.005)dayK=tg;gmat.uniforms.uDay.value=dayK;hemiL.intensity=.6+.5*dayK;keyL.intensity=1.1+.4*dayK;rimL.intensity=1.5+.8*dayK;   // de jour le fond sable est très clair : la chaussure reçoit plus de lumière pour ne pas paraître sombre et plate
          // flaque de jour : eau claire, lignes de niveau et anneaux en encre
       if(topoSpr){const m=topoSpr.material,L=dayK>.5;if(m.userData.L!==L){m.userData.L=L;m.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.color.set(L?0x12222B:0xffffff);m.opacity=L?.4:.5;m.needsUpdate=true}}
-      inv.forEach(r=>{const L=dayK>.5;if(r.material.userData.L!==L){r.material.userData.L=L;r.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;r.material.color.set(L?0xB23F27:0xE26D3B);r.material.needsUpdate=true;const fx=r.userData.fx;if(fx)[fx.halo,...fx.rips].forEach(m=>{m.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.material.color.set(L?0x2A6F8C:0xCFEFFF);m.material.needsUpdate=true})}})}
+      inv.forEach(r=>{const L=dayK>.5;if(r.material.userData.L!==L){r.material.userData.L=L;r.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;r.material.color.set(L?0xB23F27:0xE26D3B);r.material.needsUpdate=true;const fx=r.userData.fx;if(fx)[fx.halo].forEach(m=>{m.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.material.color.set(L?0x2A6F8C:0xCFEFFF);m.material.needsUpdate=true})}})}
     inv.forEach((r,i)=>{const fx=r.userData.fx;if(!fx)return;const k=busy?0:1,L=dayK>.5,se=$(i?'#sideR':'#sideL'),hv=se&&se.matches(':hover,:focus-visible')?1:0;   // survol ou focus de la zone : le halo se renforce (retour visuel)
       fx.hv=(fx.hv||0)+(hv-(fx.hv||0))*Math.min(1,dt*8);
       if(!reduce&&!busy){fx.nr=(fx.nr===undefined?i*1.4:fx.nr)-dt;if(fx.nr<=0){fx.nr=hv?1.1:3.4;ripple(r.position.x+(Math.random()-.5)*.4,(Math.random()-.5)*.4,hv?.42:.2)}}   // vraies ondes dans le shader d'eau (reflets du ciel qui se déforment) : au repos toutes les ~3 s, au survol / focus toutes les ~1 s, plus marquées   // halo qui respire et trois ondes décalées (≈ 3 s) ; mouvement réduit : halo fixe, une onde figée
       fx.halo.material.opacity=k*((reduce?.1:.07+.04*Math.sin(tNow*1.4+i*2))*(L?1.8:1)+.1*fx.hv);   // voile d'eau translucide
-      {const fv=se&&se.matches(':focus-visible')?1:0;fx.fv=(fx.fv||0)+(fv-(fx.fv||0))*Math.min(1,dt*10);const Lf=dayK>.5;
-        [fx.foc,fx.pul].forEach(m=>{const mm=m.material;if(mm.userData.L!==Lf){mm.userData.L=Lf;mm.blending=THREE.NormalBlending;mm.color.set(Lf?0xB23F27:0xE26D3B);mm.needsUpdate=true}});
-        fx.foc.material.opacity=k*fx.fv*.95;fx.foc.scale.setScalar(.8);
-        const ph=(tNow*1.5+i*.4)%1;   // onde pulsante : petit anneau qui s'élargit et s'efface, tant que la souris est sur la zone
-        fx.pul.material.opacity=reduce?k*fx.hv*.8:k*fx.hv*Math.pow(1-ph,1.2)*Math.min(1,ph*8)*.95;fx.pul.scale.setScalar(reduce?.8:.4+.75*ph)}
-      fx.rips.forEach((m,j)=>{if(reduce){m.scale.setScalar(1.15);m.material.opacity=j===0?k*(L?.4:.3):0;return}   // mouvement réduit : une onde figée
-        const ph=(tNow*.3+j/2+i*.5)%1;m.scale.setScalar(.9+ph*1.35);m.material.opacity=k*Math.pow(1-ph,1.4)*Math.min(1,ph*6)*(L?.55:.42)*(1+.6*fx.hv)})});
+      {const fv=se&&se.matches(':focus-visible')?1:0;fx.fv=(fx.fv||0)+(fv-(fx.fv||0))*Math.min(1,dt*10);const mm=fx.foc.material;
+        if(mm.userData.L!==L){mm.userData.L=L;mm.blending=THREE.NormalBlending;mm.color.set(L?0x12222B:0xF2EEE6);mm.needsUpdate=true}   // encre de jour, clair de nuit : ≥ 3:1 sur l'eau
+        mm.opacity=k*fx.fv*.95;fx.foc.scale.setScalar(.8)}});
     renderer.render(scene,cam);
   }
   function setQuality(t){

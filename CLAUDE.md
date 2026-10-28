@@ -218,3 +218,6 @@ Contre-jour doré (`rimL`, haut à droite) + intensités de jour (`dayK`) + mat�
 
 ### Flaque : caustiques et déformation au curseur
 Le shader du sol (`GFS`, `assets/loop/loop.js`) ajoute des caustiques (`caust()`) et une onde circulaire qui suit le curseur sur la flaque (`SHOE.pointer` → `uPtr`, souris seulement, coupée sous `prefers-reduced-motion`) ; le halo cuivré en ovale de nuit est retiré. Détails : `docs/admin-boucle.md`.
+
+### Gouttes en suspension (Persévérer)
+Plus de cercle orange sur l'eau : gouttelettes `InstancedMesh` qui ralentissent exponentiellement près du centre des zones (`stepDrops`, `easeOutExpo`), soulevées lentement par le curseur ; coupées sous `prefers-reduced-motion`. Seul reste, au focus clavier, un anneau d'encre (WCAG 2.4.7). Détails : `docs/admin-boucle.md`.
