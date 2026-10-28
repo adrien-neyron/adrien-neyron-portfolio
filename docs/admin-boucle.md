@@ -273,3 +273,7 @@ Quand une image est remplacée par un nouvel envoi (ou retirée d'une étape ave
 ### Aperçu des images d'étape dans l'admin
 
 Dans le formulaire d'une étape, l'image envoyée apparaît tout de suite à deux endroits : en miniature dans sa ligne (« Image 1 »), et dans l'aperçu « Aperçu du texte de la card » (vignettes 16:10 avec leur titre, comme sous le résumé dans la card). Sans image d'étape, l'aperçu le dit : la card n'affiche alors que les images des projets liés.
+
+### Mise en page du résumé (card et liste)
+
+Le résumé d'une étape garde sa mise en page : une **ligne vide** sépare deux paragraphes, un **retour à la ligne** simple devient un saut de ligne (`summaryHtml` dans `utils/stages.ts`, utilisé par la card de `loop.js` et par la liste HTML `#pList`). Le texte reste échappé : aucun HTML saisi dans l'admin n'est interprété. Dans la card, les paragraphes sont séparés de 0,6 em (`.sc-l .par`, `loop.source.css` → `loop.css`). L'aperçu du formulaire respecte les mêmes sauts de ligne. Avant le 28/10/2026, les retours à la ligne étaient écrasés en un seul bloc.

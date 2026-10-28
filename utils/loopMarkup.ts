@@ -3,7 +3,7 @@
  * Extrait de LoopHome.vue pour être testé (tests/unit/loopMarkup.test.ts) : le texte du balisage est le
  * repli, un champ vide ou une balise introuvable laisse le HTML d'origine intact.
  */
-import { buildStageView, type StageView } from './stages'
+import { buildStageView, summaryHtml, type StageView } from './stages'
 import { stages as staticStages } from '../data/stages'
 import { projects as staticProjects } from '../data/projects'
 
@@ -56,7 +56,7 @@ export function renderStageList(view: StageView[]): string {
       return `<li class="st-${v.kind}" data-i="${i}"><p class="e">${escHtml(head)}</p>`
         + `<h3>${escHtml(v.title)}</h3>`
         + (v.place ? `<p class="pl">${escHtml(v.place)}</p>` : '')
-        + (v.summary ? `<p>${escHtml(v.summary)}</p>` : '')
+        + summaryHtml(v.summary, escHtml, 'p')
         + fig
         + `<p class="km">Km ${fmtN(v.km)} · D+ ${fmtN(v.gain)} m${v.altitude != null ? ` · Altitude ${fmtN(v.altitude)} m` : ''}</p>`
         + ul + '</li>'

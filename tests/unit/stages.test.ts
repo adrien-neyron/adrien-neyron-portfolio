@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildStageView, normalizeStage, keyResult, stageOfProject, isListedProject, projectType, projectHref, placementOptions, placementOf, normalizeImages, withStageDefaults, validateStageDisplay, STAGE_DISPLAY_MAP, moveWithinTrace, traceOrderError, isPinnedStage, orderForPlacement, validateStage, stageKeyFromTitle, PLACE_START } from '~/utils/stages'
+import { summaryHtml, summaryParagraphs, buildStageView, normalizeStage, keyResult, stageOfProject, isListedProject, projectType, projectHref, placementOptions, placementOf, normalizeImages, withStageDefaults, validateStageDisplay, STAGE_DISPLAY_MAP, moveWithinTrace, traceOrderError, isPinnedStage, orderForPlacement, validateStage, stageKeyFromTitle, PLACE_START } from '~/utils/stages'
 import { stages as fallback } from '~/data/stages'
 
 const projects = [
@@ -250,5 +250,19 @@ describe('titre et période du cairn distincts de la card', () => {
     const fields = STAGE_DISPLAY_MAP.map((r) => r.field)
     expect(fields).toContain('steleTitle')
     expect(fields).toContain('stelePeriod')
+  })
+})
+
+describe('mise en page du résumé', () => {
+  const esc = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+  it('garde les paragraphes et les retours à la ligne', () => {
+    expect(summaryParagraphs('Un\nDeux\n\nTrois')).toEqual([['Un', 'Deux'], ['Trois']])
+    expect(summaryHtml('Un\nDeux\n\nTrois', esc)).toBe('<span class="par">Un<br>Deux</span><span class="par">Trois</span>')
+    expect(summaryHtml('A\r\n\r\nB', esc, 'p')).toBe('<p>A</p><p>B</p>')
+  })
+  it("échappe le HTML venu de l'admin et ignore le vide", () => {
+    expect(summaryHtml('<b>x</b>', esc)).toBe('<span class="par">&lt;b>x&lt;/b></span>')
+    expect(summaryHtml('  \n\n ', esc)).toBe('')
+    expect(summaryHtml(undefined, esc)).toBe('')
   })
 })

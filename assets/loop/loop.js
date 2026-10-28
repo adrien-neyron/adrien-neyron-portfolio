@@ -6,7 +6,7 @@ import {projects as SITE_PROJECTS} from '~/data/projects';
 import {createWheelGate,wheelGate,STEP_MS,LOCK_MS} from '~/utils/wheelStep';
 import {loopStages} from '~/utils/loopMarkup';
 import {stageImageFallback as IMG_FB} from '~/data/stageImages';
-import {TRAIL_TOTAL} from '~/utils/stages';   // étapes de la trace (admin, sinon data/stages.ts)   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
+import {TRAIL_TOTAL,summaryHtml} from '~/utils/stages';   // étapes de la trace (admin, sinon data/stages.ts)   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
 export function initLoop(THREE,LOADERS={}){
   const __ac=new AbortController(),__sig=__ac.signal,__ivs=[];let DEAD=false;
   // les écouteurs de la fenêtre sont annulés à la destruction
@@ -3345,7 +3345,7 @@ function fillCard(pr){const sg=pr.sg,t=pr.t||0;
   $('#scM').textContent=[sg.label,sg.period].filter(Boolean).join(' · ');
   $('#scT').textContent=sg.title;
   $('#scSr').textContent=[(sg.steleTitle&&sg.steleTitle!==sg.title?'Gravé sur la stèle : '+sg.steleTitle:''),(sg.stelePeriod&&sg.stelePeriod!==sg.period?'Période gravée : '+sg.stelePeriod:''),sg.place,'Altitude '+fmtN(altOf(sg,t))+' mètres',stageKmSpeech(sg)].filter(Boolean).join('. ')+'.';   // ce que seule la stèle (décorative) montre
-  const l=$('#scL');l.textContent=sg.summary||'';l.hidden=!sg.summary;
+  const l=$('#scL');l.innerHTML=summaryHtml(sg.summary,esc);l.hidden=!l.children.length;   // paragraphes et retours à la ligne saisis dans l'admin conservés
   const pl=$('#scP');pl.setAttribute('aria-label','Chiffre clé');pl.innerHTML=sg.figure?`<li><strong>${esc(sg.figure)}</strong>${sg.figureLabel?' '+esc(sg.figureLabel):''}</li>`:'';pl.hidden=!pl.children.length;   // sans chiffre : rien (jamais de valeur inventée)
   const kl=$('#scK');kl.innerHTML='';kl.hidden=true;
   const L=sg.kind==='final'?[{href:'/contact',title:sg.cta||'Écrire la suite ensemble',txt:sg.cta||'Écrire la suite ensemble'}]:sg.links.map((x,k)=>({href:x.href,title:x.title,txt:k===0&&sg.cta?sg.cta:'Fiche '+x.title})),acts=$('#scActs');   // texte du lien principal : saisi dans l'admin (sg.cta), sinon « Fiche … »
