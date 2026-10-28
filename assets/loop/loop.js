@@ -2725,13 +2725,16 @@ addEventListener('wheel',stopCine,{passive:true});addEventListener('touchstart',
  const go=dir=>{const i=target(dir);if(i<0)return false;gate.busy=performance.now()+(reduce?300:LOCK_MS);gate.tail=true;cinematicTo(stopP()[i],STEP_MS,'out');return true};   // ease-out : la carte bouge dès le cran, puis se pose en douceur
  const blocked=()=>TOUR.on||staticMode||!loaded||!!document.querySelector('dialog[open]')||!!document.querySelector('.burger[aria-expanded="true"]');
  const scrollsInside=(el,dy)=>{for(let n=el;n&&n!==document.body&&n.nodeType===1;n=n.parentElement){const cs=getComputedStyle(n);if(n.scrollHeight>n.clientHeight+1&&/(auto|scroll)/.test(cs.overflowY))if(dy>0?n.scrollTop+n.clientHeight<n.scrollHeight-1:n.scrollTop>0)return true}return false};   // le panneau d'étape défile d'abord
+ const inScroller=el=>{for(let n=el;n&&n!==document.body&&n.nodeType===1;n=n.parentElement){if(n.scrollHeight>n.clientHeight+1&&/(auto|scroll)/.test(getComputedStyle(n).overflowY))return true}return false};   // le curseur est sur un panneau qui déborde (la card) : sa molette lui appartient, jamais à la trace
  const swallow=e=>{e.preventDefault();e.stopImmediatePropagation()};
  addEventListener('wheel',e=>{
-   if(e.ctrlKey||blocked()||!inMap()||scrollsInside(e.target,e.deltaY))return;
+   if(e.ctrlKey||blocked()||!inMap())return;
+   if(inScroller(e.target)){if(!scrollsInside(e.target,e.deltaY))swallow(e);return}   // bout du panneau : rien ne remonte à la trace (ni cran, ni défilement de la page)
    const r=wheelGate(gate,performance.now(),e.deltaMode===1?e.deltaY*16:e.deltaY,d=>target(d)>=0);
    if(r.type==='pass')return;swallow(e);if(r.type==='step')go(r.dir)},{capture:true,passive:false});
  addEventListener('touchstart',e=>{ty0=(e.touches.length===1&&!blocked()&&inMap())?e.touches[0].clientY:null},{passive:true});
- addEventListener('touchmove',e=>{if(ty0==null)return;const dy=ty0-e.touches[0].clientY;if(Math.abs(dy)<6||scrollsInside(e.target,dy))return;
+ addEventListener('touchmove',e=>{if(ty0==null)return;const dy=ty0-e.touches[0].clientY;if(Math.abs(dy)<6)return;if(inScroller(e.target)){ty0=null;return}   // le doigt est sur la card qui déborde : elle défile seule (overscroll-behavior: contain), la trace ne bouge pas
+   
    if(target(Math.sign(dy))<0&&performance.now()>=gate.busy){ty0=null;return}   // bout de la carte : le doigt fait défiler normalement
    e.preventDefault()},{passive:false});
  addEventListener('touchend',e=>{if(ty0==null)return;const t=e.changedTouches[0],dy=t?ty0-t.clientY:0;ty0=null;if(Math.abs(dy)<40||performance.now()<gate.busy)return;go(Math.sign(dy))},{passive:true});
