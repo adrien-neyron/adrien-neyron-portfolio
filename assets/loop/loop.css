@@ -119,7 +119,9 @@ html.loop-on .pcard{background:var(--card);border:1px solid var(--line);border-r
 html.loop-on .pcard.on{opacity:1;visibility:visible;transform:none;transition-delay:.85s}
 html.loop-on .pcard h3{font-size:21px;margin-bottom:4px}
 html.loop-on .pcard p{font-size:15px}
-html.loop-on .pcard .route{display:inline-block;margin-top:8px;font:500 13px 'JetBrains Mono',monospace;color:var(--acc-text)}
+html.loop-on .pcard .route{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:8px;padding:0 16px;font:600 13px 'JetBrains Mono',monospace;color:var(--acc-text);background:transparent;border:1.5px solid var(--acc);border-radius:999px;cursor:pointer}
+html.loop-on .pcard .route:hover{background:var(--card)}
+html.loop-on .pcard .route:focus-visible{outline:3px solid var(--focus,var(--acc));outline-offset:2px}
 @media (min-width:900px){
   html.loop-on .pwrap{display:block}
   html.loop-on .pwrap .head{position:absolute;left:50%;top:calc(var(--hh) + 6px);transform:translateX(-50%);width:min(560px,calc(100% - 32px))}
@@ -280,7 +282,7 @@ html.loop-on #mist{position:absolute;inset:0;z-index:1;pointer-events:none;backg
 html.loop-on .pside{position:absolute;z-index:3;background:transparent;border:0;padding:0;cursor:pointer}
 html.loop-on .pside:focus-visible{outline:2px solid var(--acc);outline-offset:-4px;border-radius:50%}
 /* Plus de consigne affichée : les ondes d'eau invitent, tout le côté de la flaque est cliquable. Au focus clavier, la carte de la zone (.pcard.lit) apparaît à sa place : c'est le libellé visible. */
-html.loop-on .pcard.lit{border-color:var(--acc)}   /* « lit » et non « hot » : .hot est déjà la classe des points d'interaction de la boussole */
+html.loop-on .pcard.lit{border-color:var(--acc);pointer-events:auto}   /* .pwrap ne capte rien : la carte affichée (avec son bouton d'accès) redevient cliquable */   /* « lit » et non « hot » : .hot est déjà la classe des points d'interaction de la boussole */
 /* Avec une souris, chaque carte n'apparaît qu'au survol (ou au focus clavier) de sa moitié de flaque ;
    sur écran tactile (pas de survol), les deux cartes restent visibles pour annoncer le choix */
 @media (hover:hover) and (pointer:fine){

@@ -2191,9 +2191,12 @@ function zonePoint(e){const r=pc.getBoundingClientRect();if(SHOE.ready())return 
   z.addEventListener('click',e=>{   // au clavier (Entrée / Espace : e.detail vaut 0), le pas tombe au milieu de la moitié de flaque
     if(!e.detail){stomp(side,PW/2+(side==='left'?-1:1)*prx*.45,gy);return}
     const [cx,cy]=zonePoint(e);stomp(side,cx,cy)});
-  z.addEventListener('pointerenter',e=>{c.classList.add('lit');if(!paused&&!reduce){const [cx,cy]=zonePoint(e);ripAt(cx,cy,.3)}});
-  z.addEventListener('pointerleave',()=>c.classList.remove('lit'));
-  z.addEventListener('focus',()=>c.classList.add('lit'));z.addEventListener('blur',()=>c.classList.remove('lit'));
+  /* la carte (avec son bouton d'accès) reste affichée tant que la zone OU la carte est survolée / a le focus : on peut donc passer de la zone au bouton de la carte, à la souris comme au clavier */
+  let off=0;const on=()=>{clearTimeout(off);c.classList.add('lit')},out=()=>{clearTimeout(off);off=setTimeout(()=>{if(!z.matches(':hover,:focus')&&!c.matches(':hover,:focus-within'))c.classList.remove('lit')},700)};
+  z.addEventListener('pointerenter',e=>{on();if(!paused&&!reduce){const [cx,cy]=zonePoint(e);ripAt(cx,cy,.3)}});
+  z.addEventListener('pointerleave',out);z.addEventListener('focus',on);z.addEventListener('blur',out);
+  c.addEventListener('pointerenter',on);c.addEventListener('pointerleave',out);c.addEventListener('focusin',on);c.addEventListener('focusout',out);
+  c.querySelector('.route').addEventListener('click',()=>stomp(side,PW/2+(side==='left'?-1:1)*prx*.45,gy));   // même action que la zone
 });
 
 /* ---------- Bivouac ---------- */
