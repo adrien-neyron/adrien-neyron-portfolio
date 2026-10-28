@@ -1748,14 +1748,12 @@ const CAMP=(()=>{
     x.strokeStyle='rgba(90,62,34,.45)';x.lineWidth=1;for(let i=0;i<260;i++){const px=r()*w,py=r()*h,a=r()*6.283;x.beginPath();x.moveTo(px,py);x.lineTo(px+Math.cos(a)*10,py+Math.sin(a)*10);x.stroke()}
     for(let i=0;i<40;i++){x.fillStyle='rgba(120,118,108,.55)';x.beginPath();x.ellipse(r()*w,r()*h,3+r()*6,2+r()*4,r()*3,0,6.283);x.fill()}},7);
 
-  const gravelTex=()=>tex(1024,1024,(X)=>{X.scale(2,2);const x=X,w=512,h=512;   // gravier sombre du bivouac : cailloux, éclats clairs, touffes d'herbe sèche
-    x.fillStyle='#231C17';x.fillRect(0,0,w,h);const r=sdRnd(9);
-    for(let i=0;i<46;i++){const px=r()*w,py=r()*h,rr=40+r()*90,c=r()<.5?'rgba(10,8,6,.34)':'rgba(70,56,44,.18)';   // grandes taches : casse la répétition du motif (dessinées aussi de l'autre côté du bord)
+  const sandTex=()=>tex(1024,1024,(X)=>{X.scale(2,2);const x=X,w=512,h=512;   // sable du bivouac : mêmes teintes que le sol de Persévérer (sable clair de jour), dunes douces, grain fin
+    x.fillStyle='#BDB09C';x.fillRect(0,0,w,h);const r=sdRnd(9);
+    for(let i=0;i<70;i++){const px=r()*w,py=r()*h,rr=50+r()*110,c=r()<.5?'rgba(120,104,84,.16)':'rgba(240,228,205,.2)';   // grandes ondulations : casse la répétition (dessinées aussi de l'autre côté du bord)
       [[0,0],[-w,0],[w,0],[0,-h],[0,h]].forEach(([ox,oy])=>{const g=x.createRadialGradient(px+ox,py+oy,0,px+ox,py+oy,rr);g.addColorStop(0,c);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(px+ox-rr,py+oy-rr,rr*2,rr*2)})}
-    for(let i=0;i<1400;i++){const g=26+r()*42|0;x.fillStyle=`rgba(${g+12},${g+5},${g-2},${.45+r()*.5})`;x.beginPath();x.ellipse(r()*w,r()*h,2+r()*8,1.5+r()*5,r()*3,0,6.283);x.fill()}
-    for(let i=0;i<200;i++){const px=r()*w,py=r()*h,rr=2+r()*5;x.fillStyle='rgba(20,14,10,.55)';x.beginPath();x.ellipse(px+1.5,py+2,rr,rr*.7,0,0,6.283);x.fill();x.fillStyle=`rgba(${70+r()*30|0},${60+r()*25|0},${50+r()*20|0},.7)`;x.beginPath();x.ellipse(px,py,rr,rr*.72,r()*3,0,6.283);x.fill()}
-    for(let i=0;i<6000;i++){x.fillStyle=r()<.5?'rgba(160,140,115,.18)':'rgba(8,6,4,.3)';x.fillRect(r()*w,r()*h,1,1+r()*1.5)}
-    x.lineCap='round';for(let i=0;i<150;i++){const px=r()*w,py=r()*h;x.strokeStyle=`rgba(${70+r()*30|0},${78+r()*25|0},${38},.55)`;x.lineWidth=1;for(let b=0;b<4;b++){const a=-1.57+(r()-.5)*1.1,l=5+r()*9;x.beginPath();x.moveTo(px,py);x.lineTo(px+Math.cos(a)*l,py+Math.sin(a)*l);x.stroke()}}
+    for(let i=0;i<9000;i++){x.fillStyle=r()<.5?'rgba(255,246,228,.22)':'rgba(96,80,60,.22)';x.fillRect(r()*w,r()*h,1,1)}   // grain
+    for(let i=0;i<160;i++){const px=r()*w,py=r()*h,rr=1.5+r()*3;x.fillStyle=`rgba(${120+r()*40|0},${106+r()*34|0},${88+r()*30|0},.55)`;x.beginPath();x.ellipse(px,py,rr,rr*.7,r()*3,0,6.283);x.fill()}   // petits cailloux
   },6);
   const fabricTex=(base,rep)=>tex(256,256,(x,w,h)=>{   // toile technique : trame serrée, bruit fin
     x.fillStyle=base;x.fillRect(0,0,w,h);const r=sdRnd(21);
@@ -1982,7 +1980,8 @@ const CAMP=(()=>{
     const moon=new THREE.DirectionalLight(0x7F9CD8,.5);moon.position.set(-3,4,-4);scene.add(moon);moonL=moon;
     sunL=new THREE.DirectionalLight(0xFFF0D6,0);sunL.position.set(-4.5,6.5,3.5);scene.add(sunL);   // soleil du bivouac de jour   // liseré froid sur les pierres et le sac
     const env=(()=>{const mk=(a,b)=>{const c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,32);g.addColorStop(0,a);g.addColorStop(1,b);x.fillStyle=g;x.fillRect(0,0,32,32);return c};const t=new THREE.CubeTexture([mk('#6A3A1A','#0A0F18'),mk('#6A3A1A','#0A0F18'),mk('#2A3A5C','#0A0E18'),mk('#0A0806','#0A0F18'),mk('#8A4A20','#0A0F18'),mk('#1A2438','#0A0E18')]);t.needsUpdate=true;return t})();
-    const gtx=gravelTex(),gmaps=gravelMaps(gtx),ground=new THREE.Mesh(new THREE.CircleGeometry(16,48),new THREE.MeshStandardMaterial({map:gtx,normalMap:gmaps.normal,normalScale:new THREE.Vector2(1.7,1.7),roughnessMap:gmaps.rough,roughness:1,metalness:.05}));ground.rotation.x=-Math.PI/2;scene.add(ground);groundM=ground.material;
+    const gtx=sandTex(),gmaps=gravelMaps(gtx),ground=new THREE.Mesh(new THREE.CircleGeometry(16,48),new THREE.MeshStandardMaterial({map:gtx,normalMap:gmaps.normal,normalScale:new THREE.Vector2(.7,.7),roughness:.92,metalness:0}));   // sable mat comme au pas précédent (relief fin par normal map)
+    ground.rotation.x=-Math.PI/2;scene.add(ground);groundM=ground.material;
     // pierres : granite alpin (grains, fissures, lichen) sur des pierres cassées aux arêtes usées, ombre peinte à la base
     const gt=makeGraniteTex(),rmat=new THREE.MeshStandardMaterial({color:0x948D86,map:gt.map,bumpMap:gt.bump,bumpScale:.25,roughnessMap:gt.rough,roughness:1,metalness:0,vertexColors:true});
     const RG=[11,12,13,14].map(s=>rockGeom(s,48,32));   // 4 formes partagées, version légère (1 600 sommets chacune)
@@ -2038,7 +2037,7 @@ const CAMP=(()=>{
       scene.fog.color.set(0x080C14).lerp(_ca.set(0xCFE1EE),D);scene.fog.density=.05+.014*D;
       if(bloom)bloom.material.opacity*=N;ember.material.opacity*=N;logMat.emissiveIntensity*=N;capM.emissiveIntensity=.35*N;
       logMat.color.set(0x8A7A6E).lerp(_ca.set(0x3A3430),D);   // bois noirci, cendres
-      groundM.color.setScalar(1+.5*D);
+      groundM.color.set(0x4A5466).lerp(_ca.set(0xE8E8E8),D);   // nuit : boue bleutée sombre ; jour : sable clair, comme Persévérer
       flames.forEach(f=>{f.visible=N>.03;f.material.uniforms.uS.value*=N});
     }
     renderer.render(scene,cam);
