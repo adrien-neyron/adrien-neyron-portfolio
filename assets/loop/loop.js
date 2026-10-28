@@ -1454,11 +1454,13 @@ const SHOE=(()=>{
     const pts=new THREE.Points(pGeo,pMat);pts.frustumCulled=false;pts.renderOrder=3;scene.add(pts);
     // invitations : deux anneaux qui pulsent sur l'eau
     [-1,1].forEach(sd=>{const r=new THREE.Mesh(new THREE.RingGeometry(.55,.62,48),new THREE.MeshBasicMaterial({color:0xE26D3B,transparent:true,opacity:.6,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.position.set(sd*2.6,.04,0);r.renderOrder=2;scene.add(r);inv.push(r);
-      /* invitation au clic : halo doux et ondulations d'eau qui partent du cercle et s'élargissent sur la flaque (aucun mode d'emploi à lire) */
-      const hc=document.createElement('canvas');hc.width=hc.height=128;{const hx=hc.getContext('2d'),g=hx.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.5,'rgba(255,255,255,.5)');g.addColorStop(.75,'rgba(255,255,255,.22)');g.addColorStop(1,'rgba(255,255,255,0)');hx.fillStyle=g;hx.fillRect(0,0,128,128)}
-      const mk=(geo,op)=>{const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xE26D3B,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=0;m.renderOrder=2;r.add(m);return m};
-      const halo=mk(new THREE.PlaneGeometry(2.6,2.6),.2);halo.material.map=new THREE.CanvasTexture(hc);halo.material.needsUpdate=true;halo.position.z=-.005;
-      r.userData.fx={halo,rips:[0,1,2].map(()=>mk(new THREE.RingGeometry(.6,.64,64),0))}});
+      /* invitation au clic : deux ondes d'eau translucides (bord doux, sans orange) qui partent du cercle et s'élargissent sur la flaque, et un voile d'eau à peine plus clair en dessous */
+      const mkTex=(draw)=>{const k=document.createElement('canvas');k.width=k.height=256;draw(k.getContext('2d'));return new THREE.CanvasTexture(k)};
+      const ringTex=mkTex(x=>{const g=x.createRadialGradient(128,128,0,128,128,128);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.36,'rgba(255,255,255,0)');g.addColorStop(.46,'rgba(255,255,255,.9)');g.addColorStop(.52,'rgba(255,255,255,.35)');g.addColorStop(.66,'rgba(255,255,255,.08)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,256,256)});
+      const veilTex=mkTex(x=>{const g=x.createRadialGradient(128,128,0,128,128,128);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(.55,'rgba(255,255,255,.25)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,256,256)});
+      const mk=(tex,size)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshBasicMaterial({map:tex,color:0xCFEFFF,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.renderOrder=2;r.add(m);return m};
+      const halo=mk(veilTex,2.8);halo.position.z=-.005;
+      r.userData.fx={halo,rips:[0,1].map(()=>mk(ringTex,2.4))}});
     ok=true;
   }
   /* --- modèle 3D importé (glTF/GLB) : remplace la chaussure procédurale dès qu'il est chargé ; fichier absent ou illisible → la procédurale reste ---
@@ -1598,13 +1600,13 @@ const SHOE=(()=>{
     gmat.uniforms.uT.value=tNow;
     {const tg=theme==='light'?1:0;dayK+=(tg-dayK)*Math.min(1,dt*5+(still?1:0));if(Math.abs(tg-dayK)<.005)dayK=tg;gmat.uniforms.uDay.value=dayK;   // flaque de jour : eau claire, lignes de niveau et anneaux en encre
       if(topoSpr){const m=topoSpr.material,L=dayK>.5;if(m.userData.L!==L){m.userData.L=L;m.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.color.set(L?0x12222B:0xffffff);m.opacity=L?.4:.5;m.needsUpdate=true}}
-      inv.forEach(r=>{const L=dayK>.5;if(r.material.userData.L!==L){r.material.userData.L=L;r.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;r.material.color.set(L?0xB23F27:0xE26D3B);r.material.needsUpdate=true;const fx=r.userData.fx;if(fx)[fx.halo,...fx.rips].forEach(m=>{m.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.material.color.set(L?0xB23F27:0xE26D3B);m.material.needsUpdate=true})}})}
+      inv.forEach(r=>{const L=dayK>.5;if(r.material.userData.L!==L){r.material.userData.L=L;r.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;r.material.color.set(L?0xB23F27:0xE26D3B);r.material.needsUpdate=true;const fx=r.userData.fx;if(fx)[fx.halo,...fx.rips].forEach(m=>{m.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.material.color.set(L?0x2A6F8C:0xCFEFFF);m.material.needsUpdate=true})}})}
     inv.forEach((r,i)=>{const s=1+.12*Math.sin(tNow*2.2+i*3);r.scale.setScalar(s);r.material.opacity=(busy?0:.35)+.25*Math.sin(tNow*2.2+i*3)*(busy?0:1)+.15});
     inv.forEach((r,i)=>{const fx=r.userData.fx;if(!fx)return;const k=busy?0:1,L=dayK>.5,se=$(i?'#sideR':'#sideL'),hv=se&&se.matches(':hover,:focus-visible')?1:0;   // survol ou focus de la zone : le halo se renforce (retour visuel)
       fx.hv=(fx.hv||0)+(hv-(fx.hv||0))*Math.min(1,dt*8);   // halo qui respire et trois ondes décalées (≈ 3 s) ; mouvement réduit : halo fixe, une onde figée
-      fx.halo.material.opacity=k*((reduce?.2:.16+.08*Math.sin(tNow*1.6+i*2))*(L?1.3:1)+.2*fx.hv);
-      fx.rips.forEach((m,j)=>{if(reduce){m.scale.setScalar(1.8);m.material.opacity=j===0?k*.18:0;return}
-        const ph=(tNow*.33+j/3+i*.5)%1;m.scale.setScalar(1+ph*1.9);m.material.opacity=k*Math.pow(1-ph,1.6)*Math.min(1,ph*8)*(L?.55:.4)*(1+.7*fx.hv)})});
+      fx.halo.material.opacity=k*((reduce?.1:.07+.04*Math.sin(tNow*1.4+i*2))*(L?1.8:1)+.1*fx.hv);   // voile d'eau translucide
+      fx.rips.forEach((m,j)=>{if(reduce){m.scale.setScalar(1.15);m.material.opacity=j===0?k*(L?.4:.3):0;return}   // mouvement réduit : une onde figée
+        const ph=(tNow*.3+j/2+i*.5)%1;m.scale.setScalar(.9+ph*1.35);m.material.opacity=k*Math.pow(1-ph,1.4)*Math.min(1,ph*6)*(L?.55:.42)*(1+.6*fx.hv)})});
     renderer.render(scene,cam);
   }
   function setQuality(t){
