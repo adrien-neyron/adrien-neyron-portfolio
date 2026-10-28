@@ -326,3 +326,10 @@ Le grand ovale (contour DOM du bouton, puis anneau orange large) donnait l'impre
 - **Orange = micro-indicateurs** (`--acc` : `#B23F27` de jour, `#E26D3B` de nuit) : `foc`, petit anneau irrégulier fixe au focus clavier (indicateur de focus, ≥ 3:1) ; `pul`, petite onde qui s'élargit et s'efface au survol / focus. Rien d'orange au repos ; l'invitation reste celle des ondes d'eau translucides et des caustiques.
 - Le halo cuivré en ovale autour de la flaque (nuit) est remplacé par un léger éclaircissement bleuté au centre de l'eau.
 **Vérifié en local** (Chromium, rendu logiciel) : repos et survol, jour et nuit ; 209 tests. **Non vérifié** : coût GPU des caustiques (3 itérations par pixel d'eau) sur mobile réel, Lighthouse, contraste mesuré sur pixels réels, comportement au toucher (pas de déformation au curseur sans souris).
+
+## Gouttes en suspension près des zones (Persévérer, 28/10)
+Plus aucun cercle orange sur l'eau : `pul` (onde pulsante) et les ondes `rips` sont supprimés. Seul subsiste, au **focus clavier uniquement**, un petit anneau irrégulier **d'encre** (pas orange : `#12222B` de jour, `#F2EEE6` de nuit) pour WCAG 2.4.7 (≥ 3:1). Au survol souris, ce sont des gouttelettes qui marquent la zone.
+- `InstancedMesh` de sphères (`dropInit` / `stepDrops` dans `SHOE`, `ND` = 56 / 40 / 24 selon `QC.tier`, une matrice par goutte, un seul draw call).
+- Temps ralenti par la distance au centre de la zone : `ts = .04 + .96 · easeOutExpo(d / ZR)` (`ZR` = 1,7) → décélération exponentielle, goutte quasi suspendue au centre.
+- Curseur proche (`ptrV`) : élévation très lente (0,2 u/s) et dérive organique en sinus ; sans curseur, les gouttes finissent par tomber et font une onde dans l'eau.
+- `prefers-reduced-motion` : `count = 0`, aucune goutte. Gouttes décoratives (canvas `aria-hidden`).
