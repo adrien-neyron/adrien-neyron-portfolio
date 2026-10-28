@@ -209,3 +209,6 @@ Opening the rope gate plays a WebGL shatter ("craquelure et chute"): `components
 
 ### Sol et flaque de Persévérer (relief, sable mouillé, anneaux d'eau)
 Sol = plan subdivisé déplacé par une texture de hauteur tuilable (`sandMaps()`), rivage irrégulier, sable mouillé via masque de rugosité (shader sur mesure), plus de cercle orange : ondes d'eau réelles + ondes translucides irrégulières, focus clavier = anneau d'eau irrégulier à trait net (`.pside.ring3d`, contour orange conservé sans 3D). Détails et limites : `docs/admin-boucle.md`.
+
+### Pas de texte fantôme entre scènes
+`crisp()` (`assets/loop/loop.js`) raidit les fondus entre scènes et retire une scène sous 5 % d'opacité : plus de filigrane quasi transparent (contraste ≈ 1,1:1) quand le défilement s'arrête dans un fondu. Détails : `docs/admin-boucle.md`.
