@@ -225,3 +225,5 @@ Plus de cercle orange sur l'eau : pluie dense et rapide (`InstancedMesh`, 130/90
 En fin de scène Persévérer (`l > .8`), la pluie est presque figée (`SHOE.calm`) et les cartes Le Randonneur / Le Carnet s'affichent seules (`.pcard.peek`) avant le contact. Détails : `docs/admin-boucle.md`.
 
 Le sol du bivouac (contact, `CAMP`) est le même sable que Persévérer (`sandTex`, teinte `dayC` : boue bleutée de nuit, sable clair de jour). Détails : `docs/admin-boucle.md`.
+
+Sac de trail du bivouac (`buildPack`) : bâtons en carquois, poche zippée, liserés, gris-bleu clair ; avancé et agrandi pour ne plus être coupé à l'écran. Détails : `docs/admin-boucle.md`.
