@@ -1123,7 +1123,7 @@ function updateMap(p,forceD){
 const SHOE=(()=>{
   if(!THREE_OK)return {ready:()=>false,ensure(){},update(){},resize(){},impactScreen(){},rippleScreen(){},rainRipple(){},layoutZones(){},setQuality(){},dispose(){}};
   const cv=$('#shoeCanvas');
-  let topoSpr=null,dayK=0,renderer,scene,cam,ray,gmat,pair,shoes=[],mirrors=[],pGeo,pPos,pSize,pAl,pMat,inv=[],ok=false,failed=false;
+  let topoSpr=null,dayK=0,renderer,scene,cam,ray,gmat,pair,shoes=[],mirrors=[],pGeo,pPos,pSize,pAl,pMat,inv=[],hemiL,keyL,rimL,ok=false,failed=false;
   const pl=new THREE.Plane(new THREE.Vector3(0,1,0),0),RIP=[],PARTS=[],NP=320,RX=4.6,RZ=2.6;
   const ripBuf=new Float32Array(32),prevU=[0,0];
   const tmpV=new THREE.Vector3(),tmpQ=new THREE.Quaternion(),lampP=[new THREE.Vector3(0,1.2,0),new THREE.Vector3(0,1.2,0)],lampD=[new THREE.Vector3(1,-.3,0),new THREE.Vector3(1,-.3,0)];let lampL=[];
@@ -1467,10 +1467,11 @@ const SHOE=(()=>{
   function init(){
     renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,QDPR()));renderer.setClearColor(0x000000,0);
     scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(36,1,.1,200);ray=new THREE.Raycaster();
-    scene.add(new THREE.HemisphereLight(0x9db4d0,0x2a1a10,.6));
+    hemiL=new THREE.HemisphereLight(0x9db4d0,0x2a1a10,.6);scene.add(hemiL);
     const moon=new THREE.DirectionalLight(0xbcd4ff,1.15);moon.position.set(-4,6,-6);scene.add(moon);
     const em=new THREE.PointLight(0xE26D3B,.3,16);em.position.set(3.5,.8,3.5);scene.add(em);
-    const key=new THREE.DirectionalLight(0xFFE6D2,1.1);key.position.set(5,3.5,4);scene.add(key);   // clé chaude de droite : la tige brune et la semelle claire prennent un liseré cuivré
+    const key=new THREE.DirectionalLight(0xFFE6D2,1.1);key.position.set(5,3.5,4);scene.add(key);keyL=key;
+    rimL=new THREE.DirectionalLight(0xFFC27A,1.5);rimL.position.set(6,5.5,-2.5);scene.add(rimL);   // contre-jour doré venant du haut à droite : liseré de lumière sur l'empeigne, le talon et la semelle   // clé chaude de droite : la tige brune et la semelle claire prennent un liseré cuivré
     const env=makeEnvS();
     gmat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uT:{value:0},uDay:{value:0},uH:{value:sandMaps()},uAmp:{value:.26},uRip:{value:ripBuf},uLP0:{value:lampP[0]},uLD0:{value:lampD[0]},uLP1:{value:lampP[1]},uLD1:{value:lampD[1]}},
       vertexShader:GVS,fragmentShader:GFS});
@@ -1546,7 +1547,8 @@ const SHOE=(()=>{
     wrap.scale.setScalar(k);wrap.position.set(-c.x*k,-box.min.y*k-.06,-c.z*k);
     root.traverse(o=>{if(!o.isMesh)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
       if(m.map)m.map.encoding=THREE.LinearEncoding;if(m.emissiveMap)m.emissiveMap.encoding=THREE.LinearEncoding;   // la scène travaille en linéaire
-      if(m.isMeshStandardMaterial){m.envMap=env;m.envMapIntensity=.6}m.needsUpdate=true})});
+      /* un peu plus de brillance (rugosité réduite, léger métal) : le soleil accroche la semelle, l'empeigne et les lacets */
+      if(m.isMeshStandardMaterial){m.envMap=env;m.envMapIntensity=.9;m.roughness=Math.min(.78,m.roughness*.85);m.metalness=Math.max(m.metalness||0,.1)}m.needsUpdate=true})});
     return wrap;
   }
   function loadModel(env){
@@ -1648,7 +1650,8 @@ const SHOE=(()=>{
     ripBuf.fill(0);for(let i=0;i<8;i++)ripBuf[i*4+2]=-1;
     RIP.slice(-8).forEach((r,i)=>{ripBuf[i*4]=r.x;ripBuf[i*4+1]=r.z;ripBuf[i*4+2]=r.t;ripBuf[i*4+3]=r.a});
     gmat.uniforms.uT.value=tNow;
-    {const tg=theme==='light'?1:0;dayK+=(tg-dayK)*Math.min(1,dt*5+(still?1:0));if(Math.abs(tg-dayK)<.005)dayK=tg;gmat.uniforms.uDay.value=dayK;   // flaque de jour : eau claire, lignes de niveau et anneaux en encre
+    {const tg=theme==='light'?1:0;dayK+=(tg-dayK)*Math.min(1,dt*5+(still?1:0));if(Math.abs(tg-dayK)<.005)dayK=tg;gmat.uniforms.uDay.value=dayK;hemiL.intensity=.6+.5*dayK;keyL.intensity=1.1+.4*dayK;rimL.intensity=1.5+.8*dayK;   // de jour le fond sable est très clair : la chaussure reçoit plus de lumière pour ne pas paraître sombre et plate
+         // flaque de jour : eau claire, lignes de niveau et anneaux en encre
       if(topoSpr){const m=topoSpr.material,L=dayK>.5;if(m.userData.L!==L){m.userData.L=L;m.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.color.set(L?0x12222B:0xffffff);m.opacity=L?.4:.5;m.needsUpdate=true}}
       inv.forEach(r=>{const L=dayK>.5;if(r.material.userData.L!==L){r.material.userData.L=L;r.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;r.material.color.set(L?0xB23F27:0xE26D3B);r.material.needsUpdate=true;const fx=r.userData.fx;if(fx)[fx.halo,...fx.rips].forEach(m=>{m.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.material.color.set(L?0x2A6F8C:0xCFEFFF);m.material.needsUpdate=true})}})}
     inv.forEach((r,i)=>{const fx=r.userData.fx;if(!fx)return;const k=busy?0:1,L=dayK>.5,se=$(i?'#sideR':'#sideL'),hv=se&&se.matches(':hover,:focus-visible')?1:0;   // survol ou focus de la zone : le halo se renforce (retour visuel)
