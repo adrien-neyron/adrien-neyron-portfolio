@@ -1121,7 +1121,7 @@ function updateMap(p,forceD){
 
 /* ---------- Paire de chaussures de trail 3D, eau en 3D, éclaboussures de particules ---------- */
 const SHOE=(()=>{
-  if(!THREE_OK)return {ready:()=>false,ensure(){},update(){},resize(){},impactScreen(){},rippleScreen(){},pointer(){},cursor(){},rainRipple(){},layoutZones(){},setQuality(){},dispose(){}};
+  if(!THREE_OK)return {ready:()=>false,ensure(){},update(){},resize(){},impactScreen(){},rippleScreen(){},pointer(){},cursor(){},calm(){},rainRipple(){},layoutZones(){},setQuality(){},dispose(){}};
   const cv=$('#shoeCanvas');
   let topoSpr=null,dayK=0,renderer,scene,cam,ray,gmat,pair,shoes=[],mirrors=[],pGeo,pPos,pSize,pAl,pMat,inv=[],hemiL,keyL,rimL,ok=false,failed=false;
   const pl=new THREE.Plane(new THREE.Vector3(0,1,0),0),RIP=[],PARTS=[],NP=320,RX=4.6,RZ=2.6;
@@ -1609,6 +1609,7 @@ const SHOE=(()=>{
   function pointer(cx,cy,on){if(!ok)return;if(!on){ptrT.z=0;return}const p=screenToWorld(cx,cy);if(!p){ptrT.z=0;return}ptrT.set(p.x,p.z,1)}   // curseur sur la flaque : l'eau se déforme autour
   const curT=new THREE.Vector3(),curV=new THREE.Vector3();   // curseur libre sur le sol (x, z, force), sans limite à la flaque : pilote le temps des gouttes
   function cursor(cx,cy,on){if(!ok)return;if(!on){curT.z=0;return}const r=cv.getBoundingClientRect();if(!r.width)return;cam.updateMatrixWorld();ray.setFromCamera(new THREE.Vector2((cx-r.left)/r.width*2-1,-((cy-r.top)/r.height)*2+1),cam);const pt=new THREE.Vector3();if(!ray.ray.intersectPlane(pl,pt)||Math.hypot(pt.x,pt.z)>16){curT.z=0;return}curT.set(pt.x,pt.z,1)}
+  let calmK=0;function calm(c){calmK=c}   // défilement dans la scène (0 → 1) : plus on avance vers le contact, plus la pluie ralentit
   function rainRipple(){const a=Math.random()*6.283,r=Math.sqrt(Math.random())*.85;ripple(Math.cos(a)*RX*r,Math.sin(a)*RZ*r,.35)}
   function burst(x,z,amp){
     let n=Math.round(40*Math.min(amp,1.7)*[1,.55,.3][QC.tier]),i=0;
@@ -1667,7 +1668,7 @@ const SHOE=(()=>{
     {const kk=Math.min(1,dt*10);curV.x+=(curT.x-curV.x)*kk;curV.y+=(curT.y-curV.y)*kk;curV.z+=(curT.z-curV.z)*Math.min(1,dt*9)}
     const cs=Math.max(0,curV.z);let n=0;
     // ralentissement GLOBAL : plus le curseur approche d'une zone cible (±2,6), plus toute la pluie ralentit (courbe exponentielle sur la distance au centre de la zone la plus proche)
-    const dz=Math.min(Math.hypot(curV.x-2.6,curV.y),Math.hypot(curV.x+2.6,curV.y)),gz=cs*Math.exp(-dz*dz/(2*7*7)),G=(1-.8*gz)*(1-.12*cs);   // toutes les gouttes : bulle de 9 u autour du curseur (couvre toute la flaque), ralentissement global de 20 % dès que le curseur est sur la scène, jusqu'à ~16 % du débit sur une zone
+    const dz=Math.min(Math.hypot(curV.x-2.6,curV.y),Math.hypot(curV.x+2.6,curV.y)),gz=cs*Math.exp(-dz*dz/(2*7*7)),G=(1-.8*gz)*(1-.12*cs)*(1-.9*calmK);   // toutes les gouttes : bulle de 9 u autour du curseur (couvre toute la flaque), ralentissement global de 20 % dès que le curseur est sur la scène, jusqu'à ~16 % du débit sur une zone
     for(const d of DROPS){
       // temps de la goutte : bulle autour du curseur (distance au curseur, courbe exponentielle) ; loin du curseur, plein débit
       const cd=Math.hypot(d.x-curV.x,d.zz-curV.y,(d.y-.8)*.35),ts=1-cs*(1-(.025+.975*easeOutExpo(Math.min(1,cd/14)))),pr=cs*Math.exp(-cd*cd/2.4);
@@ -1726,7 +1727,7 @@ const SHOE=(()=>{
     [pair,...mirrors].forEach(r=>r.traverse(o=>{if(o.userData&&o.userData.bead)o.visible=t===0}));
     resize();
   }
-  return {ready:()=>ok,ensure,update,resize,impactScreen,rippleScreen,pointer,cursor,rainRipple,layoutZones,setQuality,dispose(){if(ok)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
+  return {ready:()=>ok,ensure,update,resize,impactScreen,rippleScreen,pointer,cursor,calm,rainRipple,layoutZones,setQuality,dispose(){if(ok)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
 })();
 
 /* ---------- Bivouac 3D : feu de camp, montre GPS, carnet, tasse ---------- */
@@ -2200,6 +2201,7 @@ function drawPuddle(l,dt,still){
     for(let i=0;i<[70,36,0][QC.tier];i++){const rx=((i*0.618034)%1)*PW,sp=520+((i*0.271)%1)*360,yy=((((i*0.137)%1)*PH*1.3)+(paused?0:tNow)*sp)%(PH*1.2)-PH*.1;ctx.moveTo(rx,yy);ctx.lineTo(rx-5,yy+20)}
     ctx.stroke();
   }
+  {const cm=sm(.3,.92,l);SHOE.calm(cm);const pk=l>.8;$('#pAbout').classList.toggle('peek',pk);$('#pBlog').classList.toggle('peek',pk)}   // fin de scène : la pluie est presque figée et les deux cartes (Le Randonneur / Le Carnet) s'affichent d'elles-mêmes avant le passage au contact
   if(three){SHOE.update(l,paused?0:dt,still);drawFlights(ctx);return}
   drawWater();
   // repli 2D sans 3D : flaque, reflet de la basket, ondes, empreinte

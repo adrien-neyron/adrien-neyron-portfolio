@@ -289,6 +289,7 @@ body.static #parcCanvas{height:66svh;height:66vh}
 @media (hover:hover) and (pointer:fine){
   .pcard.on:not(.lit){opacity:0;visibility:hidden;transform:translateY(10px);transition-delay:0s}
   .pcard.on.lit{transition-delay:0s}
+  .pcard.on.peek:not(.lit){opacity:1;visibility:visible;transform:none;transition-delay:0s;pointer-events:auto}   /* fin de scène (défilement) : les deux cartes s'affichent sans survol, avant le contact */
 }
 .pwrap .head .sub{margin-top:8px;color:var(--muted);font-size:15px;max-width:44ch;margin-inline:auto}
 dialog.sheet{width:min(900px,calc(100% - 16px));max-height:94vh;max-height:94svh;padding:0;border-radius:18px;overflow:auto}
