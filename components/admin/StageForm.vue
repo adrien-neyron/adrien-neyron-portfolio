@@ -392,7 +392,13 @@ async function onSubmit() {
           <p class="sf-big">{{ shown.title }}</p>
           <p v-if="form.summary">{{ form.summary }}</p>
           <p v-if="shown.keyResult"><strong>{{ shown.keyResult }}</strong></p>
-          <p v-if="imgs.filter((i) => i.src).length" class="sf-mono">{{ imgs.filter((i) => i.src).length }} aperçu(s) d'image : {{ imgs.filter((i) => i.src).map((i) => i.title || "sans titre").join(", ") }}</p>
+          <div v-if="imgs.filter((i) => i.src).length" class="sf-prev-imgs" role="group" aria-label="Aperçus d'image de la card">
+            <figure v-for="(im, i) in imgs.filter((x) => x.src)" :key="im.src + i" class="sf-prev-fig">
+              <img :src="im.src" alt="" loading="lazy" @error="($event.target as HTMLImageElement).style.visibility = 'hidden'" />
+              <figcaption>{{ im.title || "sans titre" }}</figcaption>
+            </figure>
+          </div>
+          <p v-else class="sf-mono">Aucune image d'étape : la card n'affiche que celles des projets liés, s'il y en a.</p>
           <p v-if="shown.cta" class="sf-mono">Lien : {{ shown.cta }} →</p>
         </div>
       </fieldset>
@@ -482,4 +488,8 @@ async function onSubmit() {
 .sf-btn { min-height: 44px; padding: 0 1rem; border-radius: 0.5rem; border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent); color: var(--color-accent); background: transparent; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
 .sf-btn:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
 .sf-btn:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 2px; }
+.sf-prev-imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 0.5rem; }
+.sf-prev-fig { margin: 0; }
+.sf-prev-fig img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 0.375rem; border: 1px solid color-mix(in srgb, var(--color-muted) 30%, transparent); }
+.sf-prev-fig figcaption { margin-top: 0.25rem; font-size: 0.75rem; color: var(--color-muted); }
 </style>
