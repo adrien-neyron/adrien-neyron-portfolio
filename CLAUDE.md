@@ -227,3 +227,5 @@ En fin de scène Persévérer (`l > .8`), la pluie est presque figée (`SHOE.cal
 Le sol du bivouac (contact, `CAMP`) est le même sable que Persévérer (`sandTex`, teinte `dayC` : boue bleutée de nuit, sable clair de jour). Détails : `docs/admin-boucle.md`.
 
 Sac de trail du bivouac (`buildPack`) : bâtons en carquois, poche zippée, liserés, gris-bleu clair ; avancé et agrandi pour ne plus être coupé à l'écran. Détails : `docs/admin-boucle.md`.
+
+Sac de trail du bivouac, version gilet type S/LAB Sense (noir sobre, ailes en filet, cordon élastique dans le dos, élastiques orange sur les flasques) : voir `docs/admin-boucle.md` (28/10/2026).
