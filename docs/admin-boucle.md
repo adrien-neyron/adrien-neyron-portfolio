@@ -286,8 +286,8 @@ Quand la card déborde (résumé long, beaucoup d'images) et que le curseur est 
 
 Dans le panneau d'étape, l'ordre est : meta (libellé · période), titre, **images d'aperçu** (`#scI`), résumé, chiffre clé, technologies, liens. Les images sont donc sous le titre et avant le texte descriptif ; le bouton ✕ (en haut à droite) ne passe plus sur une photo. Aucune image : le résumé suit directement le titre. Images décoratives (`alt=""`) : l'ordre dans le HTML suit l'ordre visuel.
 
-### Inscription des technos : énergie qui sort de la stèle
-Seules les lettres de la ligne des technos (`steleTags`) s'illuminent, sans pastille ni fond, comme une énergie mystique qui sortirait de la pierre (`drawTags` dans `loop.js`). Chaque techno s'allume à tour de rôle, en vague : cœur de lettre de l'encre au bleu très clair, arête gravée sombre (la lisibilité tient sur la pierre claire), halo bleu ciel du wire (`0x38BDF8`) qui déborde, étincelles cyan (`0x00F2FE`) qui montent des lettres, points de séparation qui s'allument aussi.
+### Inscription des technos : seules les lettres s'illuminent
+Seules les lettres de la ligne des technos (`steleTags`) s'illuminent (`drawTags` dans `loop.js`) : aucun trait, aucune pastille, aucune étincelle. Chaque techno s'allume l'une après l'autre, **lentement** (vague d'environ 7 s). La lettre passe de l'encre noire à un bleu nuit profond `#083D63` (≈ 5,5:1 sur la pierre claire, AA) et un halo bleu ciel (`0x38BDF8`, le bleu du wire) l'éclaire : le halo éclaircit le fond, le contraste ne baisse donc jamais. (Une première version, lettres bleu très clair et étincelles, était illisible et trop rapide : retirée.)
 - Seule la bande est redessinée, depuis une copie prise avant la gravure (`b.strip`), à ≈ 15 images/s et **uniquement sur la stèle de l'étape en cours** ; ailleurs, état fixe à demi allumé.
-- `prefers-reduced-motion` ou vue statique : aucun mouvement ni étincelle.
-- Décoratif (`aria-hidden`) : les technos restent dans la card et dans `#scSr`. Aucune couleur nouvelle (bleus du wire).
+- `prefers-reduced-motion` ou vue statique : aucun mouvement.
+- Décoratif (`aria-hidden`) : les technos restent dans la card et dans `#scSr`.
