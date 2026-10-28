@@ -1508,7 +1508,7 @@ const SHOE=(()=>{
       const veilTex=mkTex(x=>{const g=x.createRadialGradient(128,128,0,128,128,128);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(.55,'rgba(255,255,255,.25)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,256,256)});
       const mk=(tex,size)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshBasicMaterial({map:tex,color:0xCFEFFF,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.renderOrder=2;r.add(m);return m};
       const halo=mk(veilTex,2.8);halo.position.z=-.005;
-      const foc=mk(wob(1.7+(sd>0?.9:0),[[5,1,1.5]]),2.4);   // anneau de focus clavier : trait net et irrégulier, encre foncée de jour / clair de nuit (≥ 3:1), remplace l'ovale orange du bouton
+      const foc=mk(wob(1.7+(sd>0?.9:0),[[12,1,2.5]]),2.4);   // cercle principal : trait net au contour irrégulier, orange de la charte (--acc : #B23F27 de jour, #E26D3B de nuit, ≥ 3:1 sur l'eau et le sable), toujours visible pour montrer la zone à cliquer ; plus marqué au survol / focus
       r.userData.fx={halo,foc,rips:[0,1].map(j=>mk(wob(.5+j*2.4+(sd>0?1.3:0)),2.4))}});
     $('#sideL').classList.add('ring3d');$('#sideR').classList.add('ring3d');   // le focus est dessiné dans l'eau : plus d'ovale orange sur le bouton
     ok=true;
@@ -1656,8 +1656,8 @@ const SHOE=(()=>{
       if(!reduce&&!busy){fx.nr=(fx.nr===undefined?i*1.4:fx.nr)-dt;if(fx.nr<=0){fx.nr=hv?1.1:3.4;ripple(r.position.x+(Math.random()-.5)*.4,(Math.random()-.5)*.4,hv?.42:.2)}}   // vraies ondes dans le shader d'eau (reflets du ciel qui se déforment) : au repos toutes les ~3 s, au survol / focus toutes les ~1 s, plus marquées   // halo qui respire et trois ondes décalées (≈ 3 s) ; mouvement réduit : halo fixe, une onde figée
       fx.halo.material.opacity=k*((reduce?.1:.07+.04*Math.sin(tNow*1.4+i*2))*(L?1.8:1)+.1*fx.hv);   // voile d'eau translucide
       {const fv=se&&se.matches(':focus-visible')?1:0;fx.fv=(fx.fv||0)+(fv-(fx.fv||0))*Math.min(1,dt*10);const fm=fx.foc.material,Lf=dayK>.5;
-        if(fm.userData.L!==Lf){fm.userData.L=Lf;fm.blending=Lf?THREE.NormalBlending:THREE.AdditiveBlending;fm.color.set(Lf?0x0B3550:0xFFFFFF);fm.needsUpdate=true}
-        fm.opacity=k*fx.fv*.95;fx.foc.scale.setScalar(reduce?1:1+.025*Math.sin(tNow*2.4+i))}
+        if(fm.userData.L!==Lf){fm.userData.L=Lf;fm.blending=THREE.NormalBlending;fm.color.set(Lf?0xB23F27:0xE26D3B);fm.needsUpdate=true}
+        fm.opacity=k*(reduce?.9:.78+.22*Math.max(fx.fv,fx.hv));fx.foc.scale.setScalar(1.3*(reduce?1:1+.025*Math.sin(tNow*2.4+i)))}
       fx.rips.forEach((m,j)=>{if(reduce){m.scale.setScalar(1.15);m.material.opacity=j===0?k*(L?.4:.3):0;return}   // mouvement réduit : une onde figée
         const ph=(tNow*.3+j/2+i*.5)%1;m.scale.setScalar(.9+ph*1.35);m.material.opacity=k*Math.pow(1-ph,1.4)*Math.min(1,ph*6)*(L?.55:.42)*(1+.6*fx.hv)})});
     renderer.render(scene,cam);
