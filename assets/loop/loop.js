@@ -1642,19 +1642,19 @@ const SHOE=(()=>{
   /* --- gouttelettes en suspension (InstancedMesh) : près du centre d'une zone cible, le temps de la goutte ralentit de façon exponentielle (easeOutExpo sur la distance) ; le curseur proche la soulève très lentement et la fait onduler. Coupé sous prefers-reduced-motion. --- */
   const ND=[28,20,12][QC.tier]*2,ZR=2.6,dummy=new THREE.Object3D(),DROPS=[];let dropMesh=null;
   function dropInit(){
-    const m=new THREE.MeshStandardMaterial({color:0x2A6F8C,roughness:.12,metalness:0,transparent:true,opacity:.7,depthWrite:false});
-    dropMesh=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,8),m,ND);dropMesh.frustumCulled=false;dropMesh.renderOrder=3;dropMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);dropMesh.count=0;scene.add(dropMesh);
+    const m=new THREE.MeshBasicMaterial({color:0x2A6F8C,transparent:true,opacity:.75,depthWrite:false});   // comme la pluie du dernier cairn : fines gouttes étirées, matériau simple
+    dropMesh=new THREE.InstancedMesh(new THREE.SphereGeometry(1,6,4),m,ND);dropMesh.frustumCulled=false;dropMesh.renderOrder=3;dropMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);dropMesh.count=0;scene.add(dropMesh);
     for(let i=0;i<ND;i++)DROPS.push({z:i%2?1:0,x:0,y:0,zz:0,vy:0,r:0,id:Math.random()*50,a:0});
     DROPS.forEach(d=>dropSpawn(d,true));
   }
   function dropSpawn(d,seed){const cx=d.z?2.6:-2.6,a=Math.random()*6.283,rho=ZR*(1.05+.5*Math.random());   // anneau autour de la zone : les gouttes glissent vers le centre et s'y figent
-    d.x=cx+Math.cos(a)*rho;d.zz=Math.sin(a)*rho*.7;d.y=seed?.5+Math.random()*1.6:1.2+Math.random()*1.4;d.vy=0;d.r=.04+Math.random()*.045;d.a=0;d.age=0}
+    d.x=cx+Math.cos(a)*rho;d.zz=Math.sin(a)*rho*.7;d.y=seed?.5+Math.random()*1.6:1.2+Math.random()*1.4;d.vy=0;d.r=.011+Math.random()*.011;d.a=0;d.age=0}
   const easeOutExpo=x=>x>=1?1:1-Math.pow(2,-10*x);
   function stepDrops(dt){
     if(!dropMesh)return;
     if(reduce){dropMesh.count=0;return}
     dt=Math.min(dt,.05);const k=busy?0:1,night=1-dayK;
-    dropMesh.material.color.set(dayK>.5?0x2A6F8C:0xCFEFFF);dropMesh.material.opacity=.55+.2*dayK;dropMesh.material.emissive.set(night>.5?0x3A5568:0x000000);
+    dropMesh.material.color.set(dayK>.5?0x2A6F8C:0xCFEFFF);dropMesh.material.opacity=.6+.2*dayK;
     let n=0;
     for(const d of DROPS){
       const cx=d.z?2.6:-2.6,dx=d.x-cx,dz=d.zz,dd=Math.hypot(dx,dz,(d.y-.9)*.6);
@@ -1668,7 +1668,7 @@ const SHOE=(()=>{
       d.a+=((d.y>.02?1:0)-d.a)*Math.min(1,dt*4);
       if(d.y<=0){if(Math.random()<.5)ripple(d.x,d.zz,.16);dropSpawn(d,false);continue}
       if(d.y>3.1||d.age>16){dropSpawn(d,false);continue}
-      const sq=1+Math.min(.9,Math.abs(d.vy)*ts*.35),sz=d.r*d.a*k*(1+.12*Math.sin(tNow*1.6+d.id));   // goutte légèrement étirée dans sa chute
+      const sq=1.6+ts*5.5,sz=d.r*d.a*k*(1+.12*Math.sin(tNow*1.6+d.id));   // goutte légèrement étirée dans sa chute
       dummy.position.set(d.x,d.y,d.zz);dummy.scale.set(sz,sz*sq,sz);dummy.updateMatrix();dropMesh.setMatrixAt(n++,dummy.matrix);
     }
     dropMesh.count=n;dropMesh.instanceMatrix.needsUpdate=true;
