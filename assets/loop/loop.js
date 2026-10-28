@@ -1659,14 +1659,16 @@ const SHOE=(()=>{
     dropMesh.material.color.set(dayK>.5?0x2A6F8C:0xCFEFFF);dropMesh.material.opacity=.6+.2*dayK;
     {const kk=Math.min(1,dt*10);curV.x+=(curT.x-curV.x)*kk;curV.y+=(curT.y-curV.y)*kk;curV.z+=(curT.z-curV.z)*Math.min(1,dt*9)}
     const cs=Math.max(0,curV.z);let n=0;
+    // ralentissement GLOBAL : plus le curseur approche d'une zone cible (±2,6), plus toute la pluie ralentit (courbe exponentielle sur la distance au centre de la zone la plus proche)
+    const dz=Math.min(Math.hypot(curV.x-2.6,curV.y),Math.hypot(curV.x+2.6,curV.y)),gz=cs*Math.exp(-dz*dz/(2*2.4*2.4)),G=1-.78*gz;
     for(const d of DROPS){
       // temps de la goutte : bulle autour du curseur (distance au curseur, courbe exponentielle) ; loin du curseur, plein débit
       const cd=Math.hypot(d.x-curV.x,d.zz-curV.y,(d.y-.8)*.35),ts=1-cs*(1-(.025+.975*easeOutExpo(Math.min(1,cd/4.2)))),pr=cs*Math.exp(-cd*cd/2.4);
-      d.y-=d.v*ts*dt;d.age+=dt;
+      const tg=ts*G;d.y-=d.v*tg*dt;d.age+=dt;
       d.y+=.3*pr*dt;d.x+=Math.sin(tNow*.8+d.id)*.18*pr*dt;d.zz+=Math.cos(tNow*.65+d.id*1.7)*.18*pr*dt;   // élévation et dérive organique près du curseur
       if(d.y<=0){if(Math.hypot(d.x/RX,d.zz/RZ)<.92&&Math.random()<.3)ripple(d.x,d.zz,.16);dropSpawn(d,false);continue}
       if(d.age>20){dropSpawn(d,false);continue}
-      const sq=1.5+ts*9,sz=d.r*k;   // trait long en pleine chute, petite goutte quasi ronde quand le temps se fige
+      const sq=1.5+tg*9,sz=d.r*k;   // trait long en pleine chute, petite goutte quasi ronde quand le temps se fige
       dummy.position.set(d.x,d.y,d.zz);dummy.scale.set(sz,sz*sq,sz);dummy.updateMatrix();dropMesh.setMatrixAt(n++,dummy.matrix);
     }
     dropMesh.count=n;dropMesh.instanceMatrix.needsUpdate=true;
