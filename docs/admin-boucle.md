@@ -286,8 +286,9 @@ Quand la card déborde (résumé long, beaucoup d'images) et que le curseur est 
 
 Dans le panneau d'étape, l'ordre est : meta (libellé · période), titre, **images d'aperçu** (`#scI`), résumé, chiffre clé, technologies, liens. Les images sont donc sous le titre et avant le texte descriptif ; le bouton ✕ (en haut à droite) ne passe plus sur une photo. Aucune image : le résumé suit directement le titre. Images décoratives (`alt=""`) : l'ordre dans le HTML suit l'ordre visuel.
 
-### Inscription des technos : seules les lettres s'illuminent
-Seules les lettres de la ligne des technos (`steleTags`) s'illuminent (`drawTags` dans `loop.js`) : aucun trait, aucune pastille, aucune étincelle. Chaque techno s'allume l'une après l'autre, **lentement** (vague d'environ 7 s). La lettre passe de l'encre noire à un bleu nuit profond `#083D63` (≈ 5,5:1 sur la pierre claire, AA) et un halo bleu ciel (`0x38BDF8`, le bleu du wire) l'éclaire : le halo éclaircit le fond, le contraste ne baisse donc jamais. (Une première version, lettres bleu très clair et étincelles, était illisible et trop rapide : retirée.)
-- Seule la bande est redessinée, depuis une copie prise avant la gravure (`b.strip`), à ≈ 15 images/s et **uniquement sur la stèle de l'étape en cours** ; ailleurs, état fixe à demi allumé.
-- `prefers-reduced-motion` ou vue statique : aucun mouvement.
-- Décoratif (`aria-hidden`) : les technos restent dans la card et dans `#scSr`.
+### Inscription des technos : lave bleue qui sourd des lettres
+Seules les lettres de la ligne des technos (`steleTags`) s'illuminent (`drawTags` dans `loop.js`), comme de la lave : bleu électrique tirant sur le turquoise (`#00D9FF` → `#14F0F0`, cœur plus clair), halo qui déborde de la pierre, et, très lentement, de petites coulées qui descendent des lettres. Une techno après l'autre, vague d'≈ 7 s.
+- **Lisibilité** : chaque lettre repose dans une rainure gravée sombre (`#021722`, trait de 3 unités autour du glyphe) ; l'éclat clair se détache toujours d'un fond foncé (≥ 10:1 calculé), jamais de la pierre claire. À l'état éteint, la lettre est de cette même teinte sombre.
+- **Bug de la « ligne au-dessus de l'écriture »** : le halo débordait de la bande restaurée (`b.strip`) et s'accumulait au-dessus à chaque image, formant un trait net. La bande couvre maintenant `TAG_Y = 280` → 352 (halo et coulées compris) et la peinture est rognée (`clip`) à cette bande.
+- Seule la bande est redessinée (≈ 15 images/s), **uniquement sur la stèle de l'étape en cours** ; ailleurs état fixe à demi allumé. `prefers-reduced-motion` ou vue statique : aucun mouvement, aucune coulée.
+- Décoratif (`aria-hidden`) : les technos restent dans la card et dans `#scSr`. Couleurs : turquoise/bleu électrique du wire (`0x00F2FE` voisin), pas de nouveau rôle.

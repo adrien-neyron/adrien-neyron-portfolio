@@ -2939,21 +2939,26 @@ const CLEAR=8.6,GAP=.28,SMALL_K=.62,NEEDLE_OUT=[.004,.03];   // NEEDLE_OUT : le 
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 /* année gravée : période du projet, sinon un statut daté de la fiche (« 2026 – en cours »), sinon rien */
 function yearOf(pr){const f=PROJECT_INFO[pr.id],st=f&&f.st||'';return pr.when||(/\d{4}/.test(st)?st:'')}
-/* Inscription des technos (bas du cairn) : seules les lettres s'illuminent, une techno après l'autre, lentement (≈ 7 s la vague). Lettre bleu nuit profond (#083D63, ≈ 5,5:1 sur la pierre claire, AA) avec un halo bleu ciel
-   (0x38BDF8, le bleu du wire) qui l'éclaire de l'intérieur : le halo éclaircit le fond autour de la lettre, le contraste ne baisse jamais. Aucun trait, aucune pastille, aucune étincelle.
-   La bande est redessinée seule depuis sa copie (b.strip). tm = null : état fixe (mouvement réduit, cairns inactifs). */
-const TAG_Y=294,TAG_H=50;
+/* Inscription des technos (bas du cairn) : seules les lettres s'illuminent, comme de la lave bleue qui sourd des inscriptions. Bleu électrique tirant sur le turquoise (#00D9FF → #14F0F0), cœur de lettre plus clair,
+   halo qui déborde de la pierre et, très lentement, des coulées qui descendent des lettres. Chaque lettre repose dans une rainure gravée sombre (#021722) : l'éclat clair se détache toujours d'un fond foncé (≥ 10:1), jamais de la pierre claire.
+   La bande copiée (b.strip) couvre tout le halo et les coulées et la peinture est rognée à cette bande : le halo ne s'accumule jamais au-dessus de l'écriture (c'était la « ligne » visible).
+   Une techno après l'autre, vague d'≈ 7 s. tm = null : état fixe (mouvement réduit, cairns inactifs), sans coulées. */
+const TAG_Y=280,TAG_H=72;
 function drawTags(b,tm){
   const ti=b.tagInfo;if(!ti)return;const c=b.canvas,x=c.getContext('2d'),W=512,Hh=384,sc=c.width/W,cx=W/2,y=318,n=ti.ts.length;
   x.save();x.setTransform(1,0,0,1,0,0);x.drawImage(b.strip,0,TAG_Y*sc);x.setTransform(c.width/W,0,0,c.height/Hh,0,0);
-  x.font=ti.font;x.textAlign='left';x.textBaseline='middle';
+  x.beginPath();x.rect(0,TAG_Y,W,TAG_H);x.clip();   // rien ne déborde de la bande restaurée
+  x.font=ti.font;x.textAlign='left';x.textBaseline='middle';x.lineJoin='round';
   const sep='  ·  ',sw=x.measureText(sep).width,ws=ti.ts.map(v=>x.measureText(v).width),tot=ws.reduce((a,v)=>a+v,0)+sw*(n-1),k=i=>tm==null?.5:.1+.9*Math.pow(.5+.5*Math.sin(tm*.9-i*1.1),1.5);
-  const mix=a=>{const f=(u,v)=>Math.round(u+(v-u)*a);return 'rgb('+f(10,8)+','+f(8,61)+','+f(5,99)+')'};
+  const mix=(a,r)=>{const f=(u,v)=>Math.round(u+(v-u)*a);return 'rgb('+f(2,r[0])+','+f(23,r[1])+','+f(34,r[2])+')'};
   let px=cx-tot/2;
-  ti.ts.forEach((t,i)=>{const w=ws[i],a=k(i);
-    x.save();x.shadowColor='rgba(56,189,248,'+(.25+.7*a)+')';x.shadowBlur=(3+20*a)*sc;x.fillStyle=mix(a);x.fillText(t,px,y);x.fillText(t,px,y);x.restore();   // halo sous la lettre
-    x.fillStyle=ti.hi;x.fillText(t,px+1.2,y+1.2);x.fillStyle=mix(a);x.fillText(t,px,y);
-    if(i<n-1){x.fillStyle=mix(a);x.fillText('·',px+w+sw/2-x.measureText('·').width/2,y)}
+  ti.ts.forEach((t,i)=>{const w=ws[i],a=k(i),g=x.createLinearGradient(0,y-ti.sz*.5,0,y+ti.sz*.5);g.addColorStop(0,mix(a,[170,255,255]));g.addColorStop(.55,mix(a,[20,236,240]));g.addColorStop(1,mix(a,[0,190,255]));
+    x.save();x.shadowColor='rgba(0,217,255,'+(.3+.65*a)+')';x.shadowBlur=(5+22*a)*sc;x.fillStyle='rgba(0,217,255,'+(.35+.5*a)+')';x.fillText(t,px,y);x.restore();   // lueur qui déborde
+    x.save();x.lineWidth=3;x.strokeStyle='rgba(2,23,34,.96)';x.strokeText(t,px,y);x.restore();   // rainure gravée sombre autour de chaque lettre
+    x.fillStyle=g;x.fillText(t,px,y);   // lave dans la rainure
+    if(tm!=null&&a>.25){for(let m=0;m<2;m++){const ph=((tm*.1+i*.29+m*.47)%1),dx=px+w*((m+.3+.4*((i+m)%2))/2.2),dy=y+ti.sz*.45+ph*20,al=a*(1-ph)*(1-ph)*.9,len=3+ph*7;
+      if(al>.03){x.save();const dg=x.createLinearGradient(0,dy-len,0,dy+2);dg.addColorStop(0,'rgba(20,236,240,0)');dg.addColorStop(1,'rgba(120,255,255,'+al+')');x.shadowColor='rgba(0,217,255,'+al+')';x.shadowBlur=5*sc;x.fillStyle=dg;x.fillRect(dx-1,dy-len,2,len);x.beginPath();x.arc(dx,dy+1,1.7*(1-ph*.5),0,6.283);x.fillStyle='rgba(120,255,255,'+al+')';x.fill();x.restore()}}}   // coulées lentes
+    if(i<n-1){const dx=px+w+sw/2;x.fillStyle=g;x.beginPath();x.arc(dx,y,1.9,0,6.283);x.fill()}
     px+=w+sw});
   x.restore();b.tex.needsUpdate=true;
 }
