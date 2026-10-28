@@ -1357,8 +1357,31 @@ const SHOE=(()=>{
     return g;
   }
   /* --- sol : boue et flaque (shader) --- */
+  /* texture de hauteur tuilable 256² générée au chargement (bruit de valeur périodique, 5 octaves ; déterministe, sans Math.random) : R = hauteur, G = copie de R, B = grain fin (bruit blanc adouci), A = 1 */
+  function sandMaps(){
+    const N=256,d=new Uint8Array(N*N*4),sm=t=>t*t*(3-2*t);
+    const lat=k=>{const a=new Float32Array(k*k);let q=1234567+k*977;for(let i=0;i<a.length;i++){q=(q*16807)%2147483647;a[i]=q/2147483647}return a};
+    const O=[4,8,16,32,64].map(k=>({k,a:lat(k)})),W=lat(N);
+    const oct=(o,x,y)=>{const k=o.k;x*=k;y*=k;const ix=Math.floor(x),iy=Math.floor(y),fx=sm(x-ix),fy=sm(y-iy),x0=ix%k,y0=iy%k,x1=(x0+1)%k,y1=(y0+1)%k,A=o.a;
+      return (A[y0*k+x0]*(1-fx)+A[y0*k+x1]*fx)*(1-fy)+(A[y1*k+x0]*(1-fx)+A[y1*k+x1]*fx)*fy};
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      let h=0,am=1,tot=0;for(const o of O){h+=oct(o,x/N,y/N)*am;tot+=am;am*=.55}
+      h=Math.min(1,Math.max(0,(h/tot-.5)*2.1+.5));
+      const n=(W[y*N+x]*2+W[((y+1)%N)*N+x]+W[y*N+(x+1)%N])/4,i=(y*N+x)*4;
+      d[i]=d[i+1]=h*255;d[i+2]=n*255;d[i+3]=255}
+    const t=new THREE.DataTexture(d,N,N,THREE.RGBAFormat);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;t.anisotropy=4;t.needsUpdate=true;return t}
+  /* relief : une texture de hauteur tuilable (canal R = hauteur, B = grain), lue par le vertex shader (déplacement du plan subdivisé) et par le fragment shader (normales, masque de rugosité de la flaque). ht(p) : relief large (tuile de 45 u) ; shoreD(p) : distance elliptique au centre de la flaque, rivage rendu irrégulier par le même relief. */
+  const GCOM=`uniform sampler2D uH;uniform float uAmp;
+  float ht(vec2 p){return texture2D(uH,p*.022).r;}
+  float shoreD(vec2 p){return length(p/vec2(4.6,2.6))+(ht(p*1.9+vec2(3.1,7.7))-.5)*.3;}`;
+  const GVS=`varying vec3 vW;`+GCOM+`
+  void main(){
+    vec4 w=modelMatrix*vec4(position,1.);vec2 p=w.xz;
+    float bank=smoothstep(.92,2.2,shoreD(p));   // 0 dans l'eau (plan à y = 0), le sable monte en berge puis en dunes
+    w.y+=uAmp*bank*(.42+(ht(p)-.5)*1.25+(texture2D(uH,p*.07).r-.5)*.5);
+    vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`;
   const GFS=`precision highp float;
-  uniform float uT,uDay;uniform vec4 uRip[8];uniform vec3 uLP0,uLD0,uLP1,uLD1;varying vec3 vW;
+  uniform float uT,uDay;uniform vec4 uRip[8];uniform vec3 uLP0,uLD0,uLP1,uLD1;varying vec3 vW;`+GCOM+`
   float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
   float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
   vec3 sky(vec3 r){
@@ -1381,16 +1404,16 @@ const SHOE=(()=>{
     return vec3(1.,.76,.45)*(cone*(.1+.36*pch)+pch*.4+spec*1.5*(.35+F));
   }
   void main(){
-    vec2 p=vW.xz;vec2 q=p/vec2(4.6,2.6);float r=length(q);
-    float m=1.-smoothstep(.9,1.,r+(vn(p*1.3)-.5)*.08);
-    vec3 V=normalize(cameraPosition-vW);
+    vec2 p=vW.xz;float r=shoreD(p);
+    float m=1.-smoothstep(.9,1.02,r);   // eau : rivage organique (bruit du relief), plus de contour d'ellipse
+    vec3 V=normalize(cameraPosition-vW);float dist=length(vW-cameraPosition);
     vec2 g=vec2(0.);float hh=0.;
     for(int i=0;i<8;i++){
       vec4 rp=uRip[i];float age=rp.z;
       if(age<0.||age>2.6)continue;
-      vec2 d=p-rp.xy;float dist=length(d);float front=age*1.7;
-      float env=exp(-abs(dist-front)*2.6)*exp(-age*1.2)*rp.w;
-      float ph=(dist-front)*9.;
+      vec2 d=p-rp.xy;float dd=length(d);float front=age*1.7;
+      float env=exp(-abs(dd-front)*2.6)*exp(-age*1.2)*rp.w;
+      float ph=(dd-front)*9.;
       hh+=sin(ph)*env;
       g+=normalize(d+vec2(1e-4))*cos(ph)*env*.55;
     }
@@ -1401,15 +1424,35 @@ const SHOE=(()=>{
     vec3 waterN=vec3(.015,.025,.035)+sky(R)*(.25+.9*F)+vec3(.7,.85,1.)*pow(max(hh,0.),2.)*.5;
     vec3 waterD=mix(vec3(.50,.62,.69),vec3(.86,.93,.97),F)+vec3(1.,1.,.96)*pow(max(hh,0.),2.)*.55;   // eau de jour : ciel clair reflété
     vec3 water=mix(waterN,waterD,uDay);
+    /* sable : normales issues de la texture de hauteur (relief large + grain fin qui s'efface au loin) */
+    vec2 uv=p*.022,e=vec2(1./256.,0.);
+    vec2 gc=vec2(texture2D(uH,uv+e.xy).r-texture2D(uH,uv-e.xy).r,texture2D(uH,uv+e.yx).r-texture2D(uH,uv-e.yx).r)/(2.*.1775);
+    vec2 uf=p*.45;
+    vec2 gf=vec2(texture2D(uH,uf+e.xy).r-texture2D(uH,uf-e.xy).r,texture2D(uH,uf+e.yx).r-texture2D(uH,uf-e.yx).r)/(2.*.00868);
+    float bank=smoothstep(.92,2.2,r),fk=1.-smoothstep(4.,20.,dist);
+    vec2 gs=gc*uAmp*1.6*bank+gf*.1*fk;
+    vec3 Ns=normalize(vec3(-gs.x,1.,-gs.y));
+    float grain=texture2D(uH,p*.9).b;
+    float wet=(1.-m)*(1.-smoothstep(.95,1.75,r+(texture2D(uH,p*.11).r-.5)*.25));   // sable mouillé autour de l'eau
+    float rough=mix(.9,.28+.5*grain,wet);   // masque de rugosité : sec = mat, mouillé = lisse et brillant, grain qui casse le reflet
+    float gl=1.-rough;
+    vec3 Ld=normalize(vec3(.5,.7,.45)),Hh=normalize(Ld+V);
+    float dif=clamp(dot(Ns,Ld),0.,1.);
+    float Fs=.04+.96*pow(1.-max(dot(Ns,V),0.),5.);
+    float spec=pow(max(dot(Ns,Hh),0.),mix(6.,80.,gl))*gl*wet;
+    vec3 sandD=mix(vec3(.74,.69,.61),vec3(.90,.86,.78),smoothstep(.2,.8,ht(p*1.3)))*(.94+.12*grain);
+    sandD*=.7+.42*dif;
+    sandD=mix(sandD,sandD*vec3(.52,.5,.5),wet);   // mouillé : plus sombre
+    sandD+=vec3(.9,.95,1.)*(spec*.55+Fs*gl*wet*.75);
     float mud=vn(p*.9)*.6+vn(p*4.)*.4;
-    vec3 groundN=vec3(.03,.045,.07)*(.6+mud*.8)+sky(reflect(-V,vec3(0.,1.,0.)))*.03;
-    vec3 ground=mix(groundN,vec3(.74,.75,.72)*(.86+mud*.3),uDay);   // sol mouillé de jour : pierre claire
+    vec3 groundN=vec3(.03,.045,.07)*(.6+mud*.8)*(.7+.9*clamp(dot(Ns,normalize(vec3(-.3,.8,-.5))),0.,1.))+sky(reflect(-V,Ns))*(.03+.1*wet*gl);
+    vec3 ground=mix(groundN,sandD,uDay);
     vec3 col=mix(ground,water,m);
     col*=1.-.45*smoothstep(.75,1.,r)*m;
     float qs=length(p/vec2(2.2,1.3));   // socle : centre de l'eau éclairci, halo cuivré diffus qui déborde sur la boue
     col+=vec3(.16,.19,.22)*exp(-qs*qs*2.6)*m*(1.-uDay);
     col+=vec3(.89,.43,.23)*(.22*exp(-qs*qs*1.1)+.08*exp(-qs*qs*.3))*(1.-.9*uDay);
-    float dfade=1.-smoothstep(18.,44.,length(vW-cameraPosition));
+    float dfade=1.-smoothstep(18.,44.,dist);
     gl_FragColor=vec4(col,mix(1.,.86,m)*dfade);
   }`;
   const PVS='attribute float size;attribute float alpha;varying float vA;varying vec3 vWp;uniform float uScale;void main(){vA=alpha;vWp=position;vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=size*uScale/-mv.z;gl_Position=projectionMatrix*mv;}';
@@ -1429,9 +1472,10 @@ const SHOE=(()=>{
     const em=new THREE.PointLight(0xE26D3B,.3,16);em.position.set(3.5,.8,3.5);scene.add(em);
     const key=new THREE.DirectionalLight(0xFFE6D2,1.1);key.position.set(5,3.5,4);scene.add(key);   // clé chaude de droite : la tige brune et la semelle claire prennent un liseré cuivré
     const env=makeEnvS();
-    gmat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uT:{value:0},uDay:{value:0},uRip:{value:ripBuf},uLP0:{value:lampP[0]},uLD0:{value:lampD[0]},uLP1:{value:lampP[1]},uLD1:{value:lampD[1]}},
-      vertexShader:'varying vec3 vW;void main(){vW=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(vW,1.);}',fragmentShader:GFS});
-    const gm=new THREE.Mesh(new THREE.PlaneGeometry(90,90),gmat);gm.rotation.x=-Math.PI/2;gm.renderOrder=1;scene.add(gm);
+    gmat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uT:{value:0},uDay:{value:0},uH:{value:sandMaps()},uAmp:{value:.26},uRip:{value:ripBuf},uLP0:{value:lampP[0]},uLD0:{value:lampD[0]},uLP1:{value:lampP[1]},uLD1:{value:lampD[1]}},
+      vertexShader:GVS,fragmentShader:GFS});
+    const SEG=[200,128,64][QC.tier]||128;   // plan subdivisé : le vertex shader le déplace (relief), moins de segments sur les petits appareils
+    const gm=new THREE.Mesh(new THREE.PlaneGeometry(90,90,SEG,SEG),gmat);gm.rotation.x=-Math.PI/2;gm.renderOrder=1;scene.add(gm);
     pair=new THREE.Group();pair.position.y=.1;scene.add(pair);
     {   // lignes topographiques fines qui flottent derrière et au-dessus de la paire, comme sur la photo : réseau de courbes de niveau qui s'efface vers le bas
       const c=document.createElement('canvas');c.width=640;c.height=360;const x=c.getContext('2d');let sd=11;const rn=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};const ph=[rn()*6,rn()*6,rn()*6];
@@ -1453,14 +1497,20 @@ const SHOE=(()=>{
     pMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{uScale:{value:600},uLP0:{value:lampP[0]},uLD0:{value:lampD[0]},uLP1:{value:lampP[1]},uLD1:{value:lampD[1]}},vertexShader:PVS,fragmentShader:PFS});
     const pts=new THREE.Points(pGeo,pMat);pts.frustumCulled=false;pts.renderOrder=3;scene.add(pts);
     // invitations : deux anneaux qui pulsent sur l'eau
-    [-1,1].forEach(sd=>{const r=new THREE.Mesh(new THREE.RingGeometry(.55,.62,48),new THREE.MeshBasicMaterial({color:0xE26D3B,transparent:true,opacity:.6,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.position.set(sd*2.6,.04,0);r.renderOrder=2;scene.add(r);inv.push(r);
+    [-1,1].forEach(sd=>{const r=new THREE.Mesh(new THREE.RingGeometry(.55,.62,48),new THREE.MeshBasicMaterial({color:0xE26D3B,transparent:true,opacity:.6,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));r.material.visible=false;   // plus de cercle orange : la mesure reste le support des ondes d'eau (enfants) et de la position des zones
+      r.rotation.x=-Math.PI/2;r.position.set(sd*2.6,.04,0);r.renderOrder=2;scene.add(r);inv.push(r);
       /* invitation au clic : deux ondes d'eau translucides (bord doux, sans orange) qui partent du cercle et s'élargissent sur la flaque, et un voile d'eau à peine plus clair en dessous */
       const mkTex=(draw)=>{const k=document.createElement('canvas');k.width=k.height=256;draw(k.getContext('2d'));return new THREE.CanvasTexture(k)};
-      const ringTex=mkTex(x=>{const g=x.createRadialGradient(128,128,0,128,128,128);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.36,'rgba(255,255,255,0)');g.addColorStop(.46,'rgba(255,255,255,.9)');g.addColorStop(.52,'rgba(255,255,255,.35)');g.addColorStop(.66,'rgba(255,255,255,.08)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,256,256)});
+      const wob=(seed,L)=>mkTex(x=>{x.lineCap='round';   // onde au contour irrégulier (lobes 3, 5 et 8), jamais un cercle parfait
+        for(const [lw,al,bl] of (L||[[16,.1,14],[7,.35,8],[2.6,.85,2]])){x.strokeStyle='rgba(255,255,255,'+al+')';x.lineWidth=lw;x.shadowColor='#fff';x.shadowBlur=bl;x.beginPath();
+          for(let a=0;a<=72;a++){const th=a/72*Math.PI*2,R=60*(1+.07*Math.sin(3*th+seed)+.045*Math.sin(5*th+seed*2.3)+.03*Math.sin(8*th+seed*.7)),X=128+R*Math.cos(th),Y=128+R*Math.sin(th);a?x.lineTo(X,Y):x.moveTo(X,Y)}
+          x.closePath();x.stroke()}});
       const veilTex=mkTex(x=>{const g=x.createRadialGradient(128,128,0,128,128,128);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(.55,'rgba(255,255,255,.25)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,256,256)});
       const mk=(tex,size)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshBasicMaterial({map:tex,color:0xCFEFFF,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.renderOrder=2;r.add(m);return m};
       const halo=mk(veilTex,2.8);halo.position.z=-.005;
-      r.userData.fx={halo,rips:[0,1].map(()=>mk(ringTex,2.4))}});
+      const foc=mk(wob(1.7+(sd>0?.9:0),[[5,1,1.5]]),2.4);   // anneau de focus clavier : trait net et irrégulier, encre foncée de jour / clair de nuit (≥ 3:1), remplace l'ovale orange du bouton
+      r.userData.fx={halo,foc,rips:[0,1].map(j=>mk(wob(.5+j*2.4+(sd>0?1.3:0)),2.4))}});
+    $('#sideL').classList.add('ring3d');$('#sideR').classList.add('ring3d');   // le focus est dessiné dans l'eau : plus d'ovale orange sur le bouton
     ok=true;
   }
   /* --- modèle 3D importé (glTF/GLB) : remplace la chaussure procédurale dès qu'il est chargé ; fichier absent ou illisible → la procédurale reste ---
@@ -1601,10 +1651,13 @@ const SHOE=(()=>{
     {const tg=theme==='light'?1:0;dayK+=(tg-dayK)*Math.min(1,dt*5+(still?1:0));if(Math.abs(tg-dayK)<.005)dayK=tg;gmat.uniforms.uDay.value=dayK;   // flaque de jour : eau claire, lignes de niveau et anneaux en encre
       if(topoSpr){const m=topoSpr.material,L=dayK>.5;if(m.userData.L!==L){m.userData.L=L;m.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.color.set(L?0x12222B:0xffffff);m.opacity=L?.4:.5;m.needsUpdate=true}}
       inv.forEach(r=>{const L=dayK>.5;if(r.material.userData.L!==L){r.material.userData.L=L;r.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;r.material.color.set(L?0xB23F27:0xE26D3B);r.material.needsUpdate=true;const fx=r.userData.fx;if(fx)[fx.halo,...fx.rips].forEach(m=>{m.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;m.material.color.set(L?0x2A6F8C:0xCFEFFF);m.material.needsUpdate=true})}})}
-    inv.forEach((r,i)=>{const s=1+.12*Math.sin(tNow*2.2+i*3);r.scale.setScalar(s);r.material.opacity=(busy?0:.35)+.25*Math.sin(tNow*2.2+i*3)*(busy?0:1)+.15});
     inv.forEach((r,i)=>{const fx=r.userData.fx;if(!fx)return;const k=busy?0:1,L=dayK>.5,se=$(i?'#sideR':'#sideL'),hv=se&&se.matches(':hover,:focus-visible')?1:0;   // survol ou focus de la zone : le halo se renforce (retour visuel)
-      fx.hv=(fx.hv||0)+(hv-(fx.hv||0))*Math.min(1,dt*8);   // halo qui respire et trois ondes décalées (≈ 3 s) ; mouvement réduit : halo fixe, une onde figée
+      fx.hv=(fx.hv||0)+(hv-(fx.hv||0))*Math.min(1,dt*8);
+      if(!reduce&&!busy){fx.nr=(fx.nr===undefined?i*1.4:fx.nr)-dt;if(fx.nr<=0){fx.nr=hv?1.1:3.4;ripple(r.position.x+(Math.random()-.5)*.4,(Math.random()-.5)*.4,hv?.42:.2)}}   // vraies ondes dans le shader d'eau (reflets du ciel qui se déforment) : au repos toutes les ~3 s, au survol / focus toutes les ~1 s, plus marquées   // halo qui respire et trois ondes décalées (≈ 3 s) ; mouvement réduit : halo fixe, une onde figée
       fx.halo.material.opacity=k*((reduce?.1:.07+.04*Math.sin(tNow*1.4+i*2))*(L?1.8:1)+.1*fx.hv);   // voile d'eau translucide
+      {const fv=se&&se.matches(':focus-visible')?1:0;fx.fv=(fx.fv||0)+(fv-(fx.fv||0))*Math.min(1,dt*10);const fm=fx.foc.material,Lf=dayK>.5;
+        if(fm.userData.L!==Lf){fm.userData.L=Lf;fm.blending=Lf?THREE.NormalBlending:THREE.AdditiveBlending;fm.color.set(Lf?0x0B3550:0xFFFFFF);fm.needsUpdate=true}
+        fm.opacity=k*fx.fv*.95;fx.foc.scale.setScalar(reduce?1:1+.025*Math.sin(tNow*2.4+i))}
       fx.rips.forEach((m,j)=>{if(reduce){m.scale.setScalar(1.15);m.material.opacity=j===0?k*(L?.4:.3):0;return}   // mouvement réduit : une onde figée
         const ph=(tNow*.3+j/2+i*.5)%1;m.scale.setScalar(.9+ph*1.35);m.material.opacity=k*Math.pow(1-ph,1.4)*Math.min(1,ph*6)*(L?.55:.42)*(1+.6*fx.hv)})});
     renderer.render(scene,cam);
