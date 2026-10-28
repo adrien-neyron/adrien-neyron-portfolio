@@ -2939,24 +2939,21 @@ const CLEAR=8.6,GAP=.28,SMALL_K=.62,NEEDLE_OUT=[.004,.03];   // NEEDLE_OUT : le 
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 /* année gravée : période du projet, sinon un statut daté de la fiche (« 2026 – en cours »), sinon rien */
 function yearOf(pr){const f=PROJECT_INFO[pr.id],st=f&&f.st||'';return pr.when||(/\d{4}/.test(st)?st:'')}
-/* Inscription des technos (bas du cairn) : seules les lettres s'illuminent, comme si une énergie mystique sortait de la pierre. Chaque techno s'allume à tour de rôle en bleu ciel (0x38BDF8, le bleu du wire) :
-   cœur de lettre clair, arête gravée sombre (lisible sur la pierre claire), halo qui déborde, et quelques étincelles cyan (0x00F2FE) qui montent des lettres. Pas de pastille ni de fond.
+/* Inscription des technos (bas du cairn) : seules les lettres s'illuminent, une techno après l'autre, lentement (≈ 7 s la vague). Lettre bleu nuit profond (#083D63, ≈ 5,5:1 sur la pierre claire, AA) avec un halo bleu ciel
+   (0x38BDF8, le bleu du wire) qui l'éclaire de l'intérieur : le halo éclaircit le fond autour de la lettre, le contraste ne baisse jamais. Aucun trait, aucune pastille, aucune étincelle.
    La bande est redessinée seule depuis sa copie (b.strip). tm = null : état fixe (mouvement réduit, cairns inactifs). */
 const TAG_Y=294,TAG_H=50;
 function drawTags(b,tm){
   const ti=b.tagInfo;if(!ti)return;const c=b.canvas,x=c.getContext('2d'),W=512,Hh=384,sc=c.width/W,cx=W/2,y=318,n=ti.ts.length;
   x.save();x.setTransform(1,0,0,1,0,0);x.drawImage(b.strip,0,TAG_Y*sc);x.setTransform(c.width/W,0,0,c.height/Hh,0,0);
-  x.font=ti.font;x.textAlign='left';x.textBaseline='middle';x.lineJoin='round';
-  const sep='  ·  ',sw=x.measureText(sep).width,ws=ti.ts.map(v=>x.measureText(v).width),tot=ws.reduce((a,v)=>a+v,0)+sw*(n-1),k=i=>tm==null?.55:.15+.85*Math.pow(Math.max(0,Math.sin(tm*2.4-i*1.3)),2);
-  const mix=(a,r)=>{const f=(u,v)=>Math.round(u+(v-u)*a);return 'rgb('+f(10,r[0])+','+f(8,r[1])+','+f(5,r[2])+')'};
+  x.font=ti.font;x.textAlign='left';x.textBaseline='middle';
+  const sep='  ·  ',sw=x.measureText(sep).width,ws=ti.ts.map(v=>x.measureText(v).width),tot=ws.reduce((a,v)=>a+v,0)+sw*(n-1),k=i=>tm==null?.5:.1+.9*Math.pow(.5+.5*Math.sin(tm*.9-i*1.1),1.5);
+  const mix=a=>{const f=(u,v)=>Math.round(u+(v-u)*a);return 'rgb('+f(10,8)+','+f(8,61)+','+f(5,99)+')'};
   let px=cx-tot/2;
   ti.ts.forEach((t,i)=>{const w=ws[i],a=k(i);
-    x.save();x.shadowColor='rgba(56,189,248,'+(.3+.7*a)+')';x.shadowBlur=(4+22*a)*sc;x.fillStyle='rgba(56,189,248,'+(.25+.6*a)+')';x.fillText(t,px,y);x.restore();   // halo qui déborde de la pierre
-    x.save();x.lineWidth=1.5;x.strokeStyle=ti.ink;x.globalAlpha=.9;x.strokeText(t,px,y);x.restore();   // arête gravée sombre : contraste conservé
-    x.fillStyle=mix(Math.pow(a,1.2),[216,247,255]);x.fillText(t,px,y);   // cœur de lettre : de l'encre au bleu très clair
-    if(tm!=null){for(let m=0;m<3;m++){const ph=((tm*.55+i*.37+m*.31)%1),mx=px+w*((m+.5)/3)+Math.sin(tm*2+m+i)*3,my=y-ti.sz*.5-ph*20,al=a*(1-ph)*.9;
-      if(al>.03){x.save();x.shadowColor='rgba(0,242,254,'+al+')';x.shadowBlur=6*sc;x.fillStyle='rgba(0,242,254,'+al+')';x.beginPath();x.arc(mx,my,1.3*(1-ph*.5),0,6.283);x.fill();x.restore()}}}   // étincelles qui montent
-    if(i<n-1){const m=(a+k(i+1))/2;x.save();x.shadowColor='rgba(0,242,254,'+(.3+.7*m)+')';x.shadowBlur=(3+8*m)*sc;x.fillStyle=mix(m,[0,242,254]);x.beginPath();x.arc(px+w+sw/2,y,1.8+.8*m,0,6.283);x.fill();x.restore()}
+    x.save();x.shadowColor='rgba(56,189,248,'+(.25+.7*a)+')';x.shadowBlur=(3+20*a)*sc;x.fillStyle=mix(a);x.fillText(t,px,y);x.fillText(t,px,y);x.restore();   // halo sous la lettre
+    x.fillStyle=ti.hi;x.fillText(t,px+1.2,y+1.2);x.fillStyle=mix(a);x.fillText(t,px,y);
+    if(i<n-1){x.fillStyle=mix(a);x.fillText('·',px+w+sw/2-x.measureText('·').width/2,y)}
     px+=w+sw});
   x.restore();b.tex.needsUpdate=true;
 }
