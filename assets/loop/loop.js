@@ -1640,15 +1640,15 @@ const SHOE=(()=>{
     pair.rotation.x=(reduce?0:my)*.06;
   }
   /* --- gouttelettes en suspension (InstancedMesh) : près du centre d'une zone cible, le temps de la goutte ralentit de façon exponentielle (easeOutExpo sur la distance) ; le curseur proche la soulève très lentement et la fait onduler. Coupé sous prefers-reduced-motion. --- */
-  const ND=[28,20,12][QC.tier]*2,ZR=1.7,dummy=new THREE.Object3D(),DROPS=[];let dropMesh=null;
+  const ND=[28,20,12][QC.tier]*2,ZR=2.6,dummy=new THREE.Object3D(),DROPS=[];let dropMesh=null;
   function dropInit(){
     const m=new THREE.MeshStandardMaterial({color:0x2A6F8C,roughness:.12,metalness:0,transparent:true,opacity:.7,depthWrite:false});
     dropMesh=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,8),m,ND);dropMesh.frustumCulled=false;dropMesh.renderOrder=3;dropMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);dropMesh.count=0;scene.add(dropMesh);
     for(let i=0;i<ND;i++)DROPS.push({z:i%2?1:0,x:0,y:0,zz:0,vy:0,r:0,id:Math.random()*50,a:0});
     DROPS.forEach(d=>dropSpawn(d,true));
   }
-  function dropSpawn(d,seed){const cx=d.z?2.6:-2.6,a=Math.random()*6.283,rho=ZR*1.5*Math.sqrt(Math.random());
-    d.x=cx+Math.cos(a)*rho;d.zz=Math.sin(a)*rho*.8;d.y=seed?.2+Math.random()*2.4:2.4+Math.random()*.6;d.vy=-(seed?Math.random()*.6:0);d.r=.025+Math.random()*.035;d.a=0}
+  function dropSpawn(d,seed){const cx=d.z?2.6:-2.6,a=Math.random()*6.283,rho=ZR*(1.05+.5*Math.random());   // anneau autour de la zone : les gouttes glissent vers le centre et s'y figent
+    d.x=cx+Math.cos(a)*rho;d.zz=Math.sin(a)*rho*.7;d.y=seed?.5+Math.random()*1.6:1.2+Math.random()*1.4;d.vy=0;d.r=.04+Math.random()*.045;d.a=0;d.age=0}
   const easeOutExpo=x=>x>=1?1:1-Math.pow(2,-10*x);
   function stepDrops(dt){
     if(!dropMesh)return;
@@ -1661,12 +1661,13 @@ const SHOE=(()=>{
       const ts=.04+.96*easeOutExpo(Math.min(1,dd/ZR));   // décélération exponentielle en approchant du centre : 1 = temps normal, .04 = quasi suspendue
       const px=ptrV.x-d.x,pz=ptrV.y-d.zz,pr=Math.exp(-(px*px+pz*pz)/2.2)*Math.max(0,ptrV.z)*Math.exp(-dd*dd/(ZR*ZR*1.6));   // proximité du curseur, seulement dans la zone
       const dts=dt*ts;
-      d.vy=Math.max(-3.2,d.vy-6*dts);
+      d.vy=Math.max(-3.2,d.vy-3.2*dts);d.age+=dt;
+      const ix=-dx/(dd+.05),iz=-dz/(dd+.05);d.x+=ix*1.9*dts;d.zz+=iz*1.9*dts;   // glisse vers le centre, de plus en plus lentement
       d.y+=d.vy*dts+.2*pr*dt;   // élévation très lente quand le curseur approche
       d.x+=Math.sin(tNow*.8+d.id)*.14*pr*dt;d.zz+=Math.cos(tNow*.65+d.id*1.7)*.14*pr*dt;   // distorsion organique
       d.a+=((d.y>.02?1:0)-d.a)*Math.min(1,dt*4);
       if(d.y<=0){if(Math.random()<.5)ripple(d.x,d.zz,.16);dropSpawn(d,false);continue}
-      if(d.y>3.1){dropSpawn(d,false);continue}
+      if(d.y>3.1||d.age>16){dropSpawn(d,false);continue}
       const sq=1+Math.min(.9,Math.abs(d.vy)*ts*.35),sz=d.r*d.a*k*(1+.12*Math.sin(tNow*1.6+d.id));   // goutte légèrement étirée dans sa chute
       dummy.position.set(d.x,d.y,d.zz);dummy.scale.set(sz,sz*sq,sz);dummy.updateMatrix();dropMesh.setMatrixAt(n++,dummy.matrix);
     }
