@@ -281,6 +281,7 @@ html.loop-on #mist{position:absolute;inset:0;z-index:1;pointer-events:none;backg
 @keyframes mist{from{transform:translateX(-3%)}to{transform:translateX(3%)}}
 html.loop-on .pside{position:absolute;z-index:3;background:transparent;border:0;padding:0;cursor:pointer}
 html.loop-on .pside:focus-visible{outline:2px solid var(--acc);outline-offset:-4px;border-radius:50%}
+html.loop-on .pside.ring3d:focus-visible{outline:none}   /* flaque 3D prête : le focus clavier est un anneau d'eau irrégulier dessiné dans la scène (trait net, ≥ 3:1) ; sans 3D, le contour ci-dessus reste */
 /* Plus de consigne affichée : les ondes d'eau invitent, tout le côté de la flaque est cliquable. Au focus clavier, la carte de la zone (.pcard.lit) apparaît à sa place : c'est le libellé visible. */
 html.loop-on .pcard.lit{border-color:var(--acc);pointer-events:auto}   /* .pwrap ne capte rien : la carte affichée (avec son bouton d'accès) redevient cliquable */   /* « lit » et non « hot » : .hot est déjà la classe des points d'interaction de la boussole */
 /* Avec une souris, chaque carte n'apparaît qu'au survol (ou au focus clavier) de sa moitié de flaque ;
