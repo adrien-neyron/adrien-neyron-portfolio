@@ -973,6 +973,8 @@ body.static .stop-card{display:none}
 #stopCard .sc-m:empty{display:none}
 #stopCard .sc-t{margin:0 40px 14px 0;font:italic 500 clamp(28px,2.4vw,36px)/1.08 'Cordée Serif','DM Serif Display',Georgia,serif;color:var(--exp-ink)}
 #stopCard .sc-l,:root[data-theme="light"] #stopCard .sc-l{display:block;-webkit-line-clamp:unset;overflow:visible;margin:0 0 14px;font:400 15px/1.6 Inter,system-ui,sans-serif;color:var(--exp-ink)}
+#stopCard .sc-l .par{display:block}
+#stopCard .sc-l .par+.par{margin-top:.6em}   /* paragraphes du résumé saisis dans l'admin (ligne vide) */
 #stopCard [hidden]{display:none!important}
 #stopCard .sc-pts{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px}
 #stopCard .sc-pts li,:root[data-theme="light"] #stopCard .sc-pts li{display:block;-webkit-line-clamp:unset;overflow:visible;position:relative;padding-left:18px;font:400 14px/1.6 Inter,system-ui,sans-serif;color:var(--exp-ink)}

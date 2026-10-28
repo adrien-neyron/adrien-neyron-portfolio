@@ -330,8 +330,8 @@ async function onSubmit() {
         <p class="sf-help">Affichés dans le panneau à côté du cairn : libellé · période, titre, résumé, chiffre clé, aperçus d'image, puis les liens. Le lieu, l'altitude et le kilomètre y sont lus aux lecteurs d'écran.</p>
 
         <div>
-          <label for="sf-summary" class="admin-label">Résumé <span class="sf-tag">Card</span> <span class="normal-case font-normal">(une phrase)</span></label>
-          <textarea id="sf-summary" v-model="form.summary" rows="2" class="admin-input resize-none" />
+          <label for="sf-summary" class="admin-label">Résumé <span class="sf-tag">Card + liste</span> <span class="normal-case font-normal">(retour à la ligne et ligne vide conservés)</span></label>
+          <textarea id="sf-summary" v-model="form.summary" rows="4" class="admin-input resize-y" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-[10rem_1fr] gap-4">
@@ -390,7 +390,7 @@ async function onSubmit() {
           <p class="sf-preview-t">Aperçu du texte de la card</p>
           <p class="sf-mono">{{ [shown.label, form.period].filter(Boolean).join(" · ") }}</p>
           <p class="sf-big">{{ shown.title }}</p>
-          <p v-if="form.summary">{{ form.summary }}</p>
+          <p v-if="form.summary" class="sf-sum">{{ form.summary }}</p>
           <p v-if="shown.keyResult"><strong>{{ shown.keyResult }}</strong></p>
           <div v-if="imgs.filter((i) => i.src).length" class="sf-prev-imgs" role="group" aria-label="Aperçus d'image de la card">
             <figure v-for="(im, i) in imgs.filter((x) => x.src)" :key="im.src + i" class="sf-prev-fig">
@@ -492,4 +492,5 @@ async function onSubmit() {
 .sf-prev-fig { margin: 0; }
 .sf-prev-fig img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 0.375rem; border: 1px solid color-mix(in srgb, var(--color-muted) 30%, transparent); }
 .sf-prev-fig figcaption { margin-top: 0.25rem; font-size: 0.75rem; color: var(--color-muted); }
+.sf-sum { white-space: pre-line; }
 </style>

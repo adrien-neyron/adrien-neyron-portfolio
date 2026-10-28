@@ -973,6 +973,8 @@ html.loop-on #stopCard .sc-m{margin:0 44px 8px 0;font:500 12px/1.5 'JetBrains Mo
 html.loop-on #stopCard .sc-m:empty{display:none}
 html.loop-on #stopCard .sc-t{margin:0 40px 14px 0;font:italic 500 clamp(28px,2.4vw,36px)/1.08 'Cordée Serif','DM Serif Display',Georgia,serif;color:var(--exp-ink)}
 html.loop-on #stopCard .sc-l,html.loop-on[data-theme="light"] #stopCard .sc-l{display:block;-webkit-line-clamp:unset;overflow:visible;margin:0 0 14px;font:400 15px/1.6 Inter,system-ui,sans-serif;color:var(--exp-ink)}
+html.loop-on #stopCard .sc-l .par{display:block}
+html.loop-on #stopCard .sc-l .par+.par{margin-top:.6em}   /* paragraphes du résumé saisis dans l'admin (ligne vide) */
 html.loop-on #stopCard [hidden]{display:none!important}
 html.loop-on #stopCard .sc-pts{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px}
 html.loop-on #stopCard .sc-pts li,html.loop-on[data-theme="light"] #stopCard .sc-pts li{display:block;-webkit-line-clamp:unset;overflow:visible;position:relative;padding-left:18px;font:400 14px/1.6 Inter,system-ui,sans-serif;color:var(--exp-ink)}

@@ -353,3 +353,15 @@ export function validateStageDisplay(raw: { km?: string; gain?: string; altitude
   });
   return issues;
 }
+
+/**
+ * Résumé saisi dans l'admin → paragraphes (ligne vide) et retours à la ligne (`\n`), pour que la mise en page soit conservée
+ * dans la card et dans la liste. `esc` échappe le texte (jamais de HTML brut venu de l'admin).
+ */
+export function summaryParagraphs(text?: string | null): string[][] {
+  return (text ?? "").replace(/\r\n?/g, "\n").split(/\n[ \t]*\n/).map((p) => p.split("\n").map((l) => l.trim()).filter(Boolean)).filter((p) => p.length);
+}
+export function summaryHtml(text: string | null | undefined, esc: (v: string) => string, tag: "p" | "span" = "span"): string {
+  const cls = tag === "span" ? ' class="par"' : "";
+  return summaryParagraphs(text).map((lines) => `<${tag}${cls}>${lines.map(esc).join("<br>")}</${tag}>`).join("");
+}
