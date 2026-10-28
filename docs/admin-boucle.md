@@ -281,3 +281,7 @@ Le résumé d'une étape garde sa mise en page : une **ligne vide** sépare deux
 ### Défilement de la card ≠ défilement de la trace
 
 Quand la card déborde (résumé long, beaucoup d'images) et que le curseur est dessus, la molette (ou le doigt) ne sert qu'à la faire défiler : en haut ou en bas de la card, le geste est absorbé et ne change **ni d'étape ni la position de la page** (`inScroller` dans `assets/loop/loop.js`, plus `overscroll-behavior: contain`). Pour passer à l'étape suivante, la molette se fait hors de la card (ou au clavier / menu « Étapes », inchangés). Une card qui ne déborde pas n'est pas concernée : un cran dessus change d'étape comme ailleurs. Avant le 28/10/2026, arrivé au bout de la card, le cran suivant (ou l'inertie) déplaçait la trace.
+
+### Images en tête de la card
+
+Dans le panneau d'étape, les aperçus d'image (`#scI`) sont **avant le texte** (meta, titre, résumé), pas entre le résumé et le chiffre clé. Le bouton ✕ (en haut à droite, au-dessus de la première image) a un fond « verre » plein et une bordure pour rester lisible sur la photo. Aucune image : le panneau commence par la meta comme avant. L'ordre dans le HTML suit l'ordre visuel (images décoratives, `alt=""` : rien de plus à lire pour les lecteurs d'écran).
