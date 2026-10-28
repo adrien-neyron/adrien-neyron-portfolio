@@ -1855,58 +1855,6 @@ const CAMP=(()=>{
     return g;
   }
 
-  function buildPack(env){   // gilet de trail type S/LAB Sense : noir sobre, corps extensible qui épouse le buste, ailes en filet, cordon élastique dans le dos, flasques hautes sur la poitrine
-    const g=new THREE.Group(),fab=(c,rp)=>new THREE.MeshStandardMaterial({map:fabricTex(c,rp),roughness:.9,metalness:0}),
-      shell=fab('#262B33',3),harn=fab('#2F353F',4),mesh=fab('#1D2229',6),cordM=new THREE.MeshStandardMaterial({color:0x14171B,roughness:.7}),acc=new THREE.MeshStandardMaterial({color:0xE26D3B,roughness:.55}),
-      refl=new THREE.MeshStandardMaterial({color:0xC9D1D6,roughness:.25,metalness:.6,envMap:env,envMapIntensity:.8}),
-      flask=new THREE.MeshStandardMaterial({color:0xE6F0F6,roughness:.18,metalness:0,transparent:true,opacity:.5,depthWrite:false,envMap:env,envMapIntensity:1.1}),
-      water=new THREE.MeshStandardMaterial({color:0x6FA9C9,roughness:.1,metalness:0,transparent:true,opacity:.55,depthWrite:false}),
-      valve=new THREE.MeshStandardMaterial({color:0x1C1F24,roughness:.5});
-    const add=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);g.add(o);return o};
-    const lathe=(pts,flat)=>{const ge=new THREE.LatheGeometry(pts.map(([r,y])=>new THREE.Vector2(r,y)),28);ge.scale(1,1,flat);ge.computeVertexNormals();return ge};   // profil tourné puis aplati : poche souple
-    const FLASK_GEO=lathe([[0,0],[.024,.002],[.037,.012],[.042,.04],[.043,.15],[.04,.19],[.03,.224],[.018,.248],[.013,.258],[.013,.272]],.32),
-      WATER_GEO=lathe([[0,.006],[.022,.008],[.033,.017],[.038,.04],[.039,.15],[0,.153]],.27);
-    const cord=(A,B,m,r)=>{const a=new THREE.Vector3(...A),d=new THREE.Vector3(...B).sub(a),o=new THREE.Mesh(new THREE.CylinderGeometry(r||.007,r||.007,d.length(),6),m);
-      o.position.copy(a).addScaledVector(d,.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());g.add(o);return o};
-    // dos : panneau fin (12 L environ) affiné vers les épaules, poche en filet extensible, laçage élastique croisé, bande réfléchissante
-    {const gb=roundBox(.46,.62,.13,.07),q=gb.attributes.position;for(let i=0;i<q.count;i++){const x=q.getX(i)*(1-.22*Math.max(0,q.getY(i)/.32));q.setX(i,x);q.setZ(i,q.getZ(i)+.55*x*x)}gb.computeVertexNormals();add(gb,shell,0,.35,0)}
-    add(roundBox(.42,.44,.05,.04),mesh,0,.3,.085);
-    const ys=[.52,.45,.38,.31,.24,.17];for(let k=0;k<ys.length-1;k++){cord([k%2?.17:-.17,ys[k],.115],[k%2?-.17:.17,ys[k+1],.115],cordM,.0075);[-.17,.17].forEach(x=>add(new THREE.BoxGeometry(.016,.016,.012),acc,x,ys[k],.118))}   // cordon élastique noir en zigzag, petits arrêts de cordon orange
-    add(new THREE.BoxGeometry(.2,.018,.01),refl,0,.6,.08);
-    // bretelles : passent sur les épaules et redescendent à l'avant en plastron
-    [-1,1].forEach(sx=>{
-      add(roundBox(.13,.05,.3,.024),harn,sx*.16,.66,-.12);   // épaule
-      add(roundBox(.15,.44,.045,.02),harn,sx*.17,.43,-.29);   // plastron
-      add(roundBox(.09,.36,.34,.04),mesh,sx*.265,.32,-.12).rotation.y=sx*.22;   // aile latérale en filet extensible : le gilet s'enroule autour du buste
-      // flasque souple de 500 mL dans la poche de poitrine : corps plat qui s'affine en col, eau aux deux tiers, bouchon et embout
-      const fl=new THREE.Group();fl.position.set(sx*.17,.39,-.33);fl.rotation.z=sx*.06;g.add(fl);
-      const body=new THREE.Mesh(FLASK_GEO,flask);body.renderOrder=3;fl.add(body);
-      const wt=new THREE.Mesh(WATER_GEO,water);wt.renderOrder=2;fl.add(wt);
-      const cap=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,.02,16),valve);cap.position.y=.281;fl.add(cap);
-      const bite=new THREE.Mesh(new THREE.CylinderGeometry(.007,.01,.042,12),acc);bite.position.set(sx*.004,.31,0);bite.rotation.z=-sx*.18;fl.add(bite);
-      add(roundBox(.16,.2,.05,.02),mesh,sx*.17,.33,-.335);   // poche basse en filet
-      add(roundBox(.165,.028,.054,.012),acc,sx*.17,.435,-.337);   // élastique orange qui tient le col de la flasque
-    });
-    // sangles de poitrine (deux, réglables) et petit sifflet cuivré
-    [.58,.47].forEach(y=>add(new THREE.BoxGeometry(.3,.018,.012),acc,0,y,-.32));
-    add(new THREE.CylinderGeometry(.012,.012,.05,8),acc,.05,.47,-.335).rotation.z=Math.PI/2;
-    // finitions : liserés orange sur les épaules, poignée de portage, poche zippée basse, bâtons repliés en carquois, boucles de sangle
-    [-1,1].forEach(sx=>{add(new THREE.BoxGeometry(.012,.014,.3),acc,sx*.2,.69,-.12);add(new THREE.BoxGeometry(.012,.014,.3),acc,sx*.125,.69,-.12)});   // liserés
-    {const lp=new THREE.Mesh(new THREE.TorusGeometry(.05,.01,8,20,Math.PI),harn);lp.position.set(0,.665,.02);lp.rotation.y=Math.PI/2;g.add(lp)}   // poignée de portage en haut du dos
-    add(roundBox(.26,.11,.03,.02),shell,0,.12,.1);   // poche basse zippée
-    add(new THREE.BoxGeometry(.24,.006,.008),cordM,0,.15,.118);   // fermeture
-    add(new THREE.BoxGeometry(.02,.05,.012),acc,.12,.14,.12);   // tirette
-    // bâtons de trail repliés en carquois dans le dos : tube alu, grip orange, pointe
-    [-1,1].forEach(sx=>{const pole=new THREE.Group();pole.position.set(sx*.13,.38,.125);pole.rotation.set(0,0,sx*.05);g.add(pole);
-      const tube=new THREE.Mesh(new THREE.CylinderGeometry(.011,.011,.78,10),refl);pole.add(tube);
-      const grip=new THREE.Mesh(new THREE.CylinderGeometry(.017,.017,.15,12),acc);grip.position.y=.34;pole.add(grip);
-      const tip=new THREE.Mesh(new THREE.ConeGeometry(.012,.07,8),valve);tip.position.y=-.42;tip.rotation.z=Math.PI;pole.add(tip)});
-    [.55,.22].forEach(y=>add(new THREE.BoxGeometry(.34,.025,.02),acc,0,y,.14));   // sangles élastiques qui tiennent les bâtons
-    // boucles noires des sangles de poitrine
-    [.58,.47].forEach(y=>add(new THREE.BoxGeometry(.04,.03,.016),valve,-.06,y,-.33));
-    g.traverse(o=>{if(o.isMesh)o.castShadow=false});
-    return g;
-  }
   function buildLogs(){   // petit tas de bois : bûches coupées, bout clair avec cernes
     const g=new THREE.Group(),sd=sdRnd(41),bark=new THREE.MeshStandardMaterial({map:barkTex(),bumpMap:barkTex(),bumpScale:.05,roughness:1}),cap=new THREE.MeshStandardMaterial({color:0xA89A88,map:ringTex(),roughness:.9});
     const L=[[.12,-.2,0],[.12,0,.04],[.12,.2,-.03],[.29,-.1,.02],[.29,.1,0],[.46,0,.03]];
@@ -2009,7 +1957,6 @@ const CAMP=(()=>{
     const gr=document.createElement('canvas');gr.width=gr.height=128;{const x=gr.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,150,60,.95)');g.addColorStop(.5,'rgba(220,70,20,.5)');g.addColorStop(1,'rgba(120,20,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
     ember=new THREE.Mesh(new THREE.CircleGeometry(.6,32),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(gr),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));ember.rotation.x=-Math.PI/2;ember.position.y=.03;scene.add(ember);
     bloom=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,opacity:.5,fog:false}));bloom.scale.set(4.2,4.2,1);bloom.position.set(0,.75,.15);bloom.renderOrder=1;scene.add(bloom);   // halo de bloom autour du cœur de la flamme (additif, sans post-traitement)
-    const pk=buildPack(env);pk.position.set(-1.62,.02,-.52);pk.scale.setScalar(1.15);pk.rotation.set(.18,.62+Math.PI,.04);scene.add(pk);   // avant (bretelles, flasques) tourné vers le feu, adossé au rocher
     const lgs=buildLogs();lgs.position.set(2.9,0,-.55);lgs.rotation.y=.55;scene.add(lgs);
     flames=[buildFlame(0,1),buildFlame(2.7,.78)];flames[1].position.set(.1,.05,.08);flames.forEach(f=>{f.position.y+=.1;scene.add(f)});
     sky4.style.setProperty('--topo',topoBg());

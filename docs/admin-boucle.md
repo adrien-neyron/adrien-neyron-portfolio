@@ -356,3 +356,6 @@ Sac de trail du bivouac plus abouti (28/10, 23:30) : `buildPack` (`CAMP`) — gr
 
 ## Sac de trail façon gilet S/LAB Sense (28/10/2026)
 `buildPack` (`assets/loop/loop.js`) reprend l'allure d'un gilet d'hydratation Salomon S/LAB Sense 6 : noir/anthracite sobre (`#262B33` / `#2F353F`, filet `#1D2229`), corps plus fin et enveloppant, **ailes latérales en filet** extensible tournées vers l'avant, cordon élastique noir en zigzag dans le dos avec petits arrêts de cordon orange, élastique orange qui retient le col de chaque flasque, poche zippée basse plus étroite. Flasques 500 mL, sangles de poitrine, bâtons en carquois conservés. Seul l'orange de la charte reste en accent. Vérifié : rendu jour et nuit (captures, Chromium logiciel), 209 tests. Non vérifié : rendu sur GPU réel, écrans étroits.
+
+## Sac de trail retiré du bivouac (29/10/2026)
+Le sac (puis le gilet type S/LAB Sense) était trop complexe pour paraître réaliste en primitives three.js : `buildPack` et son appel dans `CAMP.init` sont supprimés. Les sections précédentes sur le sac (28/10) sont historiques. `fabricTex` et `roundBox` restent (montre, tissu). Vérifié : syntaxe, 209 tests. Non vérifié : capture après retrait.
