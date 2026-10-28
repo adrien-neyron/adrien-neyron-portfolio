@@ -17,6 +17,8 @@ export interface IStage extends Document {
   altitude?: number | null;
   steleTags?: string[];   // ligne du bas du cairn
   images?: { src: string; title: string }[];   // absent = images par défaut (data/stages.ts) ; [] = aucune
+  steleTitle?: string;
+  stelePeriod?: string;
   ctaLabel?: string;
   created_at: Date;
   updated_at: Date;
@@ -39,6 +41,8 @@ const StageSchema = new Schema<IStage>(
     altitude:    { type: Number, default: null },
     steleTags:   { type: [String], default: [] },
     images:      { type: [new Schema({ src: String, title: String }, { _id: false })], default: undefined },
+    steleTitle:  String,
+    stelePeriod: String,
     ctaLabel:    String,
   },
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }

@@ -25,7 +25,7 @@ const isEdit = !!props.initial?.key;
 
 const form = ref<Stage>({
   key: "", order: 0, kind: "etape", period: "", title: "", place: "", summary: "",
-  figure: "", figureLabel: "", projects: [], ctaLabel: "",
+  figure: "", figureLabel: "", projects: [], ctaLabel: "", steleTitle: "", stelePeriod: "",
   ...props.initial,
 });
 
@@ -254,16 +254,16 @@ async function onSubmit() {
 
       <!-- 2. Texte commun -->
       <fieldset class="sf-group">
-        <legend>2 · Cairn <span class="sf-tag">et</span> card : texte commun</legend>
-        <p class="sf-help">Le titre est gravé sur la stèle et répété en tête de la card. La période est gravée (avec le lieu) et affichée à côté du libellé dans la card.</p>
+        <legend>2 · Titre et période : cairn et card</legend>
+        <p class="sf-help">Le titre et la période de la card sont ceux du panneau (et de la liste). Le cairn peut graver un titre plus court et une autre période : laisse ses champs vides pour reprendre ceux de la card.</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label for="sf-title" class="admin-label">Titre * <span class="sf-tag">Cairn + card</span></label>
+            <label for="sf-title" class="admin-label">Titre de la card * <span class="sf-tag">Card</span></label>
             <input id="sf-title" v-model="form.title" required aria-required="true" class="admin-input" placeholder="DGFiP, mission via BeTeam" :aria-invalid="!!issueOf('title')" :aria-describedby="describedBy('title')" />
             <p v-if="issueOf('title')" id="sf-err-title" class="sf-err">{{ issueOf("title") }}</p>
           </div>
           <div>
-            <label for="sf-period" class="admin-label">Période <span class="sf-tag">Cairn + card</span></label>
+            <label for="sf-period" class="admin-label">Période de la card <span class="sf-tag">Card</span></label>
             <input id="sf-period" v-model="form.period" class="admin-input" placeholder="Déc. 2023 – Oct. 2025" />
           </div>
         </div>
@@ -273,6 +273,17 @@ async function onSubmit() {
       <fieldset class="sf-group">
         <legend>3 · Sur le cairn <span class="sf-tag">stèle gravée</span></legend>
         <p class="sf-help">Gravés dans la pierre : le libellé (calculé), le lieu et la période, le titre, kilomètre et dénivelé, altitude, puis une ligne du bas. Laisse un champ numérique vide pour garder le calcul automatique.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="sf-stele-title" class="admin-label">Titre du cairn <span class="sf-tag">Cairn</span></label>
+            <input id="sf-stele-title" v-model="form.steleTitle" class="admin-input" :placeholder="form.title ? `vide : ${form.title}` : 'vide : titre de la card'" aria-describedby="sf-stele-title-help" />
+            <p id="sf-stele-title-help" class="mt-1 text-xs text-(--color-muted)">Gravé en grand : un nom court tient mieux qu'une phrase.</p>
+          </div>
+          <div>
+            <label for="sf-stele-period" class="admin-label">Période du cairn <span class="sf-tag">Cairn</span></label>
+            <input id="sf-stele-period" v-model="form.stelePeriod" class="admin-input" :placeholder="form.period ? `vide : ${form.period}` : 'vide : période de la card'" />
+          </div>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div class="md:col-span-1">
             <label for="sf-place" class="admin-label">Lieu <span class="sf-tag">Cairn</span></label>
@@ -304,8 +315,8 @@ async function onSubmit() {
         <div v-if="shown" class="sf-preview" role="group" aria-label="Aperçu du texte gravé sur le cairn">
           <p class="sf-preview-t">Aperçu du texte gravé</p>
           <p class="sf-eng sf-mono">{{ shown.label }}</p>
-          <p v-if="shown.place || shown.period" class="sf-eng sf-mono">{{ [shown.place, shown.period].filter(Boolean).join(" · ") }}</p>
-          <p class="sf-eng sf-big">{{ shown.title }}</p>
+          <p v-if="shown.place || shown.stelePeriod" class="sf-eng sf-mono">{{ [shown.place, shown.stelePeriod].filter(Boolean).join(" · ") }}</p>
+          <p class="sf-eng sf-big">{{ shown.steleTitle }}</p>
           <p class="sf-eng sf-mono">Km {{ shown.km }} · D+ {{ shown.gain }} m</p>
           <p class="sf-eng sf-mono">Altitude {{ shown.altitude ?? "(relevée sur le tracé)" }}{{ shown.altitude != null ? " m" : "" }}</p>
           <p v-if="shown.steleTags.length" class="sf-eng sf-mono">{{ shown.steleTags.slice(0, 4).join(" · ") }}</p>

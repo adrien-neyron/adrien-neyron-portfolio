@@ -2805,7 +2805,7 @@ const cv=$('#parcCanvas');
    Abscisses, km et D+ viennent de buildStageView : étapes à intervalles égaux, bivouac entre ses deux voisins. Les liens mènent aux vraies fiches (/projects/<slug>).
    Les fiches de l'atelier (PROJECT_INFO, CV_FACTS) ne pilotent plus la trace. */
 const STAGES=loopStages(CMS);
-const PROJECTS=STAGES.map((s,i)=>({id:i===0?'depart':s.kind==='final'?'next':'st-'+(s.key||i),sg:s,kind:s.kind,when:s.period,title:s.title,place:s.place||'',stage:s.label,
+const PROJECTS=STAGES.map((s,i)=>({id:i===0?'depart':s.kind==='final'?'next':'st-'+(s.key||i),sg:s,kind:s.kind,when:s.stelePeriod||s.period,title:s.title,cairnTitle:s.steleTitle||s.title,place:s.place||'',stage:s.label,
   tags:s.steleTags||(s.figure?[s.keyResult]:s.links.map(l=>l.title)),result:s.keyResult,mat:s.kind==='final'?'ghost':'stone',t:s.t,small:s.kind==='bivouac'}));   // tags : ligne du bas de la stèle (saisie dans l'admin, sinon chiffre, sinon fiches liées : calculé par buildStageView)
 const OFFICIAL=TRAIL_TOTAL;   // ≈ 180 km et 10 200 m de D+ (simulation inspirée de la Diagonale des Fous), répartis entre les étapes
 
@@ -2975,9 +2975,9 @@ function paintBlock(b){
   x.strokeStyle=TX.ink;x.globalAlpha=.55;x.lineWidth=2;x.beginPath();x.moveTo(cx-34,106);x.lineTo(cx+34,106);x.stroke();x.globalAlpha=1;
   // nom du projet
   const fit=(t,max)=>{let sz=max;x.font=F(sz);while(x.measureText(t).width>MW&&sz>30){sz-=2;x.font=F(sz)}return sz};
-  let lines=[pr.title],size=fit(pr.title,76);
-  if(size<54&&pr.title.includes(' ')){   // nom long : deux lignes équilibrées plutôt qu'une gravure trop petite
-    const ws=pr.title.split(' ');let best=null;
+  const cTitle=pr.cairnTitle||pr.title;let lines=[cTitle],size=fit(cTitle,76);
+  if(size<54&&cTitle.includes(' ')){   // nom long : deux lignes équilibrées plutôt qu'une gravure trop petite
+    const ws=cTitle.split(' ');let best=null;
     for(let i=1;i<ws.length;i++){const l1=ws.slice(0,i).join(' '),l2=ws.slice(i).join(' '),m=Math.max(l1.length,l2.length);if(!best||m<best.m)best={l1,l2,m}}
     lines=[best.l1,best.l2];size=Math.min(fit(best.l1,56),fit(best.l2,56));
   }
@@ -3344,7 +3344,7 @@ function fillCard(pr){const sg=pr.sg,t=pr.t||0;
   sCard.setAttribute('aria-label',"Détails de l'étape "+sg.title);
   $('#scM').textContent=[sg.label,sg.period].filter(Boolean).join(' · ');
   $('#scT').textContent=sg.title;
-  $('#scSr').textContent=[sg.place,'Altitude '+fmtN(altOf(sg,t))+' mètres',stageKmSpeech(sg)].filter(Boolean).join('. ')+'.';   // ce que seule la stèle (décorative) montre
+  $('#scSr').textContent=[(sg.steleTitle&&sg.steleTitle!==sg.title?'Gravé sur la stèle : '+sg.steleTitle:''),(sg.stelePeriod&&sg.stelePeriod!==sg.period?'Période gravée : '+sg.stelePeriod:''),sg.place,'Altitude '+fmtN(altOf(sg,t))+' mètres',stageKmSpeech(sg)].filter(Boolean).join('. ')+'.';   // ce que seule la stèle (décorative) montre
   const l=$('#scL');l.textContent=sg.summary||'';l.hidden=!sg.summary;
   const pl=$('#scP');pl.setAttribute('aria-label','Chiffre clé');pl.innerHTML=sg.figure?`<li><strong>${esc(sg.figure)}</strong>${sg.figureLabel?' '+esc(sg.figureLabel):''}</li>`:'';pl.hidden=!pl.children.length;   // sans chiffre : rien (jamais de valeur inventée)
   const kl=$('#scK');kl.innerHTML='';kl.hidden=true;

@@ -27,6 +27,8 @@ export interface Stage {
   altitude?: number | null;   // altitude (m) gravée sur le cairn et lue aux lecteurs d'écran ; vide : relevée sur le tracé GPS
   steleTags?: string[];       // ligne du bas du cairn (4 au plus) ; vide : le chiffre clé, sinon les fiches liées
   images?: StageImage[];      // aperçus de la card (3 au plus) ; absent : ceux de data/stages.ts, vide : aucun
+  steleTitle?: string;        // titre gravé sur le cairn ; vide : le titre de la card
+  stelePeriod?: string;       // période gravée sur le cairn ; vide : la période de la card
   ctaLabel?: string;          // texte du lien principal de la card ; vide : « Fiche <projet> » (« Écrire la suite ensemble » au cairn final)
 }
 
@@ -43,6 +45,8 @@ export interface StageView extends Omit<Stage, "km" | "gain" | "altitude"> {
   gain: number;           // dénivelé positif cumulé, arrondi à 10 m ; saisi sinon calculé
   altitude: number | null; // altitude saisie ; null : relevée sur le tracé par la carte
   steleTags: string[];    // ligne du bas du cairn, 4 au plus (saisie, sinon chiffre clé, sinon fiches liées)
+  steleTitle: string;     // titre gravé sur le cairn (saisi, sinon titre de la card)
+  stelePeriod: string;    // période gravée sur le cairn (saisie, sinon période de la card)
   cta: string;            // texte du lien principal de la card (saisi, sinon « Fiche … » / « Écrire la suite ensemble »)
   keyResult: string;      // « −50 % de temps de traitement » ; vide sans chiffre
   links: StageLink[];     // fiches liées réellement présentes
@@ -90,6 +94,8 @@ export function normalizeStage(s: Partial<Stage> & Record<string, unknown>): Sta
     altitude: numOrNull(s.altitude),
     steleTags: (Array.isArray(s.steleTags) ? s.steleTags : []).map(str).filter(Boolean).slice(0, 4),
     ...(Array.isArray(s.images) ? { images: normalizeImages(s.images) } : {}),   // absent ≠ vide : absent = images par défaut, vide = aucune
+    steleTitle: str(s.steleTitle),
+    stelePeriod: str(s.stelePeriod),
     ctaLabel: str(s.ctaLabel),
   };
 }
@@ -136,6 +142,8 @@ export function buildStageView(stages: Stage[], projects: StageProjectRef[] = []
       gain: s.gain ?? Math.round((TRAIL_TOTAL.gain * t) / 10) * 10,
       altitude: s.altitude ?? null,
       keyResult: result,
+      steleTitle: s.steleTitle || s.title,
+      stelePeriod: s.stelePeriod || s.period,
       steleTags: s.steleTags?.length ? s.steleTags : result ? [result] : links.map((l) => l.title),
       links,
       cta: s.ctaLabel || (s.kind === "final" ? "Écrire la suite ensemble" : links[0] ? `Fiche ${links[0].title}` : ""),
@@ -303,9 +311,11 @@ export interface StageDisplayRow {
 
 export const STAGE_DISPLAY_MAP: StageDisplayRow[] = [
   { info: "Libellé (Départ, Étape 03, Bivouac…)", field: "calculé", cairn: true, card: true, liste: true, note: "Découle de l'emplacement sur la trace ; ne se saisit pas." },
-  { info: "Titre", field: "title", cairn: true, card: true, liste: true },
+  { info: "Titre de la card", field: "title", cairn: false, card: true, liste: true, note: "Aussi gravé sur le cairn si « Titre du cairn » est vide." },
+  { info: "Titre du cairn", field: "steleTitle", cairn: true, card: false, liste: false, note: "Vide : le titre de la card. Court, il est gravé en grand." },
   { info: "Lieu", field: "place", cairn: true, card: false, liste: true, note: "Lu aux lecteurs d'écran dans la card." },
-  { info: "Période (et année gravée)", field: "period", cairn: true, card: true, liste: true },
+  { info: "Période de la card", field: "period", cairn: false, card: true, liste: true, note: "Aussi gravée sur le cairn si « Période du cairn » est vide." },
+  { info: "Période du cairn (gravée avec le lieu)", field: "stelePeriod", cairn: true, card: false, liste: false, note: "Vide : la période de la card." },
   { info: "Kilomètre", field: "km", cairn: true, card: false, liste: true, note: "Vide : calculé d'après l'emplacement." },
   { info: "Dénivelé positif (D+)", field: "gain", cairn: true, card: false, liste: true, note: "Vide : calculé d'après l'emplacement." },
   { info: "Altitude", field: "altitude", cairn: true, card: false, liste: true, note: "Vide : relevée sur le tracé GPS. Lue aux lecteurs d'écran dans la card." },

@@ -231,3 +231,24 @@ describe('informations affichées sur le cairn et dans la card', () => {
     for (const r of STAGE_DISPLAY_MAP) expect(r.cairn || r.card || r.liste, r.info).toBe(true)
   })
 })
+
+describe('titre et période du cairn distincts de la card', () => {
+  const base = { key: 'k', order: 1, kind: 'etape' as const, period: '2023 – 2025', title: 'DGFiP, mission via BeTeam' }
+  it('vides : reprennent ceux de la card', () => {
+    const v = buildStageView([base])[0]
+    expect(v.steleTitle).toBe(base.title)
+    expect(v.stelePeriod).toBe(base.period)
+  })
+  it('saisis : gravés sur le cairn sans toucher la card', () => {
+    const v = buildStageView([{ ...base, steleTitle: 'DGFiP', stelePeriod: '2023' }])[0]
+    expect(v.steleTitle).toBe('DGFiP')
+    expect(v.stelePeriod).toBe('2023')
+    expect(v.title).toBe(base.title)
+    expect(v.period).toBe(base.period)
+  })
+  it('table d\'affichage : champs listés', () => {
+    const fields = STAGE_DISPLAY_MAP.map((r) => r.field)
+    expect(fields).toContain('steleTitle')
+    expect(fields).toContain('stelePeriod')
+  })
+})

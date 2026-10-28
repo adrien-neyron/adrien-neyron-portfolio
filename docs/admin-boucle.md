@@ -248,7 +248,8 @@ Toute information visible à l'écran est stockée dans la collection `Stage` et
 | Information | Champ | Cairn | Card | Liste |
 |---|---|---|---|---|
 | Libellé (Étape 01…) | calculé de l'emplacement | oui | oui | oui |
-| Titre, période | `title`, `period` | oui | oui | oui |
+| Titre de la card, période de la card | `title`, `period` | non (repris si les champs du cairn sont vides) | oui | oui |
+| Titre du cairn, période du cairn | `steleTitle`, `stelePeriod` (vides = ceux de la card) | oui | non (redits aux lecteurs d'écran s'ils diffèrent) | non |
 | Lieu | `place` | oui | lu aux lecteurs d'écran | oui |
 | Kilomètre, D+ | `km`, `gain` (vide = calcul) | oui | lu aux lecteurs d'écran | oui |
 | Altitude | `altitude` (vide = relevée sur le tracé) | oui | lue aux lecteurs d'écran | oui |
