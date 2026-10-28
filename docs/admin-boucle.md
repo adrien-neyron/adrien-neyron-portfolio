@@ -285,3 +285,10 @@ Quand la card déborde (résumé long, beaucoup d'images) et que le curseur est 
 ### Images de la card : sous le titre, avant le résumé
 
 Dans le panneau d'étape, l'ordre est : meta (libellé · période), titre, **images d'aperçu** (`#scI`), résumé, chiffre clé, technologies, liens. Les images sont donc sous le titre et avant le texte descriptif ; le bouton ✕ (en haut à droite) ne passe plus sur une photo. Aucune image : le résumé suit directement le titre. Images décoratives (`alt=""`) : l'ordre dans le HTML suit l'ordre visuel.
+
+### Guirlande des technos (bas du cairn)
+La ligne des technos gravée en bas du cairn (`steleTags`) s'allume comme une guirlande bleu ciel, le bleu du wire (`0x38BDF8`; les points de séparation sont des ampoules cyan `0x00F2FE`, le cyan du cœur du wire). Chaque techno est une ampoule (pastille arrondie + halo) qui s'allume à tour de rôle, en vague (`drawTags` dans `loop.js`).
+- Seule la bande des technos est redessinée, depuis une copie prise avant la gravure (`b.strip`), à ≈ 15 images/s et **uniquement sur la stèle de l'étape en cours** ; les autres cairns restent fixes (ampoules à demi allumées). L'animation s'arrête dès qu'on quitte l'étape.
+- `prefers-reduced-motion` ou vue statique : aucun mouvement, état fixe.
+- Lisibilité : l'encre reste noire, l'opacité de la pastille est ≤ 50 %, donc le contraste texte/fond reste > 7:1. La stèle est décorative (`aria-hidden`) ; les technos restent dans la card et dans `#scSr`.
+- Aucune couleur nouvelle : mêmes bleus que le wire.

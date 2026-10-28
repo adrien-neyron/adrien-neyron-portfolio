@@ -2939,6 +2939,23 @@ const CLEAR=8.6,GAP=.28,SMALL_K=.62,NEEDLE_OUT=[.004,.03];   // NEEDLE_OUT : le 
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 /* année gravée : période du projet, sinon un statut daté de la fiche (« 2026 – en cours »), sinon rien */
 function yearOf(pr){const f=PROJECT_INFO[pr.id],st=f&&f.st||'';return pr.when||(/\d{4}/.test(st)?st:'')}
+/* Guirlande des technos (bas du cairn) : chaque techno est une ampoule bleu ciel (0x38BDF8, le bleu du wire) qui s'allume à tour de rôle ; les points de séparation sont des ampoules cyan (0x00F2FE).
+   La bande est redessinée seule depuis sa copie (b.strip). tm = null : état fixe (mouvement réduit, cairns inactifs). L'encre reste noire : fond de l'ampoule ≤ 50 % d'opacité, contraste > 7:1. */
+const TAG_Y=294,TAG_H=50;
+function drawTags(b,tm){
+  const ti=b.tagInfo;if(!ti)return;const c=b.canvas,x=c.getContext('2d'),W=512,Hh=384,sc=c.width/W,cx=W/2,y=318,n=ti.ts.length;
+  x.save();x.setTransform(1,0,0,1,0,0);x.drawImage(b.strip,0,TAG_Y*sc);x.setTransform(c.width/W,0,0,c.height/Hh,0,0);
+  x.font=ti.font;x.textAlign='left';x.textBaseline='middle';
+  const sep='  ·  ',sw=x.measureText(sep).width,ws=ti.ts.map(v=>x.measureText(v).width),tot=ws.reduce((a,v)=>a+v,0)+sw*(n-1),k=i=>tm==null?.6:.2+.8*Math.pow(Math.max(0,Math.sin(tm*3.6-i*1.25)),2);
+  let px=cx-tot/2;const lit=[];
+  ti.ts.forEach((t,i)=>{const w=ws[i],a=k(i);lit.push(a);
+    x.save();x.shadowColor='rgba(56,189,248,'+(.35+.65*a)+')';x.shadowBlur=(5+15*a)*sc;x.fillStyle='rgba(56,189,248,'+(.12+.38*a)+')';
+    const l=px-6,r=px+w+6,t0=y-ti.sz*.78,bh=ti.sz*1.56,q=bh/2;x.beginPath();x.moveTo(l+q,t0);x.arc(r-q,t0+q,q,-Math.PI/2,Math.PI/2);x.arc(l+q,t0+q,q,Math.PI/2,Math.PI*1.5);x.closePath();x.fill();x.restore();
+    x.fillStyle=ti.hi;x.fillText(t,px+1.2,y+1.2);x.fillStyle=ti.ink;x.fillText(t,px,y);
+    if(i<n-1){const bx=px+w+sw/2,m=(a+k(i+1))/2;x.save();x.shadowColor='rgba(0,242,254,'+(.4+.6*m)+')';x.shadowBlur=(4+10*m)*sc;x.fillStyle='rgba(0,242,254,'+(.55+.45*m)+')';x.beginPath();x.arc(bx,y,2.3+1.1*m,0,6.283);x.fill();x.restore()}
+    px+=w+sw});
+  x.restore();b.tex.needsUpdate=true;
+}
 function paintBlock(b){
   const c=b.canvas,x=c.getContext('2d'),W=512,Hh=384,pr=Object.assign({},b.proj,{mat:'stone'});   // une seule matière : pierre mate ; mise en page en 512 × 384, dessinée à l'échelle du canvas
   x.setTransform(c.width/W,0,0,c.height/Hh,0,0);
@@ -2990,7 +3007,10 @@ function paintBlock(b){
   {const sz=fitMono(altT,MW,16,12);engrave(altT,276,'500 '+sz+'px '+MONO)}
   // technos : une ligne, séparées par des points ; si elle ne tient pas, la dernière techno part (elle reste dans le texte du panneau pour les lecteurs d'écran)
   {let ts=tags.slice(),t='',sz=0;for(;;){t=ts.map(v=>v.toUpperCase()).join('  ·  ');sz=fitMono(t,MW,18,13);x.font='600 '+sz+'px '+MONO;if(x.measureText(t).width<=MW||ts.length<=1)break;ts.pop()}
-   if(t)engrave(t,318,'500 '+sz+'px '+MONO)}
+   if(t){   // bande des technos : copiée avant la gravure pour pouvoir la redessiner seule (guirlande), puis gravée une première fois (allumée à demi, fixe)
+     const sc=c.width/W,sh=TAG_H*sc;if(!b.strip){b.strip=document.createElement('canvas');b.strip.width=c.width;b.strip.height=Math.ceil(sh)}
+     const sx=b.strip.getContext('2d');sx.setTransform(1,0,0,1,0,0);sx.clearRect(0,0,b.strip.width,b.strip.height);sx.drawImage(c,0,TAG_Y*sc,c.width,sh,0,0,c.width,sh);
+     b.tagInfo={ts:ts.map(v=>v.toUpperCase()),sz,ink:TX.ink,hi:TX.hi,font:'500 '+sz+'px '+MONO};drawTags(b,null)}}
   x.textBaseline='alphabetic';
   b.tex.needsUpdate=true;
 }
@@ -3244,6 +3264,8 @@ function rig(p,dt,snap,intro=0){
   blocks.forEach((bk,i)=>{
     const sel=(hoverIdx===bk.stopIdx||pinnedIdx===bk.stopIdx)?1:0,act=(aw===bk.stopIdx)?mw*.5:0;
     bk.lift+=(Math.max(sel,act)-bk.lift)*(1-Math.exp(-dt*7));
+    {const on=!reduce&&!staticMode&&aw===bk.stopIdx&&mw>.6;   // guirlande : animée seulement sur la stèle de l'étape en cours (≈ 15 images/s), fixe ailleurs
+      if(on&&tNow-(bk.glowT||0)>.066){bk.glowT=tNow;bk.glowOn=1;drawTags(bk,tNow)}else if(!on&&bk.glowOn){bk.glowOn=0;drawTags(bk,null)}}
     const l=ease(bk.lift);
     bk.holder.position.y=bk.base+l*2.6;   // la pierre gravée se soulève un peu du cairn
     bk.shadow.scale.setScalar(1+.25*l);bk.shadow.material.opacity=.6-.3*l;
