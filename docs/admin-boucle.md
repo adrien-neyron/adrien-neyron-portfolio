@@ -277,3 +277,7 @@ Dans le formulaire d'une étape, l'image envoyée apparaît tout de suite à deu
 ### Mise en page du résumé (card et liste)
 
 Le résumé d'une étape garde sa mise en page : une **ligne vide** sépare deux paragraphes, un **retour à la ligne** simple devient un saut de ligne (`summaryHtml` dans `utils/stages.ts`, utilisé par la card de `loop.js` et par la liste HTML `#pList`). Le texte reste échappé : aucun HTML saisi dans l'admin n'est interprété. Dans la card, les paragraphes sont séparés de 0,6 em (`.sc-l .par`, `loop.source.css` → `loop.css`). L'aperçu du formulaire respecte les mêmes sauts de ligne. Avant le 28/10/2026, les retours à la ligne étaient écrasés en un seul bloc.
+
+### Défilement de la card ≠ défilement de la trace
+
+Quand la card déborde (résumé long, beaucoup d'images) et que le curseur est dessus, la molette (ou le doigt) ne sert qu'à la faire défiler : en haut ou en bas de la card, le geste est absorbé et ne change **ni d'étape ni la position de la page** (`inScroller` dans `assets/loop/loop.js`, plus `overscroll-behavior: contain`). Pour passer à l'étape suivante, la molette se fait hors de la card (ou au clavier / menu « Étapes », inchangés). Une card qui ne déborde pas n'est pas concernée : un cran dessus change d'étape comme ailleurs. Avant le 28/10/2026, arrivé au bout de la card, le cran suivant (ou l'inertie) déplaçait la trace.
