@@ -186,6 +186,9 @@ On the stages map each wheel notch, trackpad swipe or finger swipe moves to the 
 ### Inscription des technos (cairn)
 La ligne des technos reste une gravure fixe. Les effets lumineux essayés le 28/10 (guirlande, énergie, lave) ont été retirés ; leçons dans `docs/admin-boucle.md`.
 
+### Persévérer : cercles d'invitation
+Les deux cercles au sol de la flaque ont un halo doux et trois ondes d'eau qui s'élargissent (invitation au clic sans mode d'emploi) ; fixes sous `prefers-reduced-motion`, éteints pendant une interaction. Détails : `docs/admin-boucle.md`.
+
 ### Cohérence étape ↔ projet
 Carte des informations saisies à deux endroits (étape / projet) et règle proposée (le projet est la source, l'étape ne garde que le propre du parcours) : `docs/coherence-informations.md`. Propositions non appliquées.
 
