@@ -235,3 +235,5 @@ Bracelet de la montre du bivouac : brins extrudés à bouts finis (bout arrondi 
 Proportions de la montre du bivouac (boîtier 0,22, bracelet 0,50, brins inégaux 1,9 / 1,2 diamètre, montre tournée à gauche), 29/10/2026. Détails : `docs/admin-boucle.md`.
 
 Montre du bivouac dégagée des pierres du foyer (rotation −1,15, position −0,3 / 1,6, brin long 1,65 diamètre), 29/10/2026. Détails : `docs/admin-boucle.md`.
+
+Fonds en courbes de niveau : toujours des isovaleurs d'un champ d'altitude (`contourPaths` dans `utils/trail.ts`, `isoLines` dans `assets/loop/loop.js`), jamais des ellipses déformées une à une : elles se croisent (29/10/2026). Détails : `docs/admin-boucle.md`.

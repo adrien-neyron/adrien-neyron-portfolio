@@ -4,7 +4,7 @@
  * Généré de façon déterministe à partir de `seed` : identique au rendu serveur
  * et client. Masqué aux technologies d'assistance.
  */
-import { seededRandom } from "~/utils/trail";
+import { contourPaths, seededRandom } from "~/utils/trail";
 
 const props = withDefaults(defineProps<{
   seed?: number;
@@ -17,26 +17,17 @@ const props = withDefaults(defineProps<{
 const W = 1440;
 const H = 640;
 
+// Vraies courbes de niveau d'un champ d'altitude (deux sommets) : elles ne se croisent jamais.
 const paths = computed(() => {
   const rnd = seededRandom(props.seed);
-  const ph = [rnd(), rnd(), rnd()].map((v) => v * Math.PI * 2);
   const cx = (props.cx / 100) * W;
   const cy = (props.cy / 100) * H;
-  const out: { d: string; major: boolean }[] = [];
-  for (let k = 0; k < props.levels; k++) {
-    const r0 = 18 + k * 30;
-    let d = "";
-    for (let i = 0; i <= 140; i++) {
-      const th = (i / 140) * Math.PI * 2;
-      const n = 0.16 * Math.sin(2 * th + ph[0] + k * 0.08)
-              + 0.09 * Math.sin(3 * th + ph[1] - k * 0.05)
-              + 0.05 * Math.sin(5 * th + ph[2] + k * 0.1);
-      const r = r0 * (1 + n * (0.6 + k * 0.04));
-      d += `${i ? "L" : "M"}${(cx + Math.cos(th) * r * 1.4).toFixed(1)} ${(cy + Math.sin(th) * r * 0.95).toFixed(1)}`;
-    }
-    out.push({ d: `${d}Z`, major: k % 5 === 4 });
-  }
-  return out;
+  const peaks = [
+    { x: cx, y: cy, a: 1, sx: 300, sy: 190 },
+    { x: cx - 330 + rnd() * 60, y: cy + 90 + rnd() * 60, a: 0.55, sx: 210, sy: 130 },
+  ];
+  const ds = contourPaths(W, H, peaks, props.levels, { wobble: [rnd() * 6, rnd() * 6] });
+  return ds.map((d, i) => ({ d, major: i % 5 === 4 })).filter((p) => p.d);
 });
 </script>
 

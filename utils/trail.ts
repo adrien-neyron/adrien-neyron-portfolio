@@ -58,3 +58,71 @@ export function formatCoords(coords?: { lat?: number; lon?: number } | null): st
 export function toParagraphs(text?: string | null): string[] {
   return (text ?? "").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 }
+
+/** Sommet gaussien du champ d'altitude (axes sx / sy en pixels). */
+export interface ContourPeak { x: number; y: number; a: number; sx: number; sy: number }
+
+/**
+ * Courbes de niveau d'un champ d'altitude (algorithme « marching squares »).
+ * Chaque courbe est une isovaleur d'un même champ : deux courbes ne peuvent donc
+ * jamais se croiser ni se chevaucher, contrairement à des ellipses déformées une
+ * à une. Déterministe (pas de Math.random) : identique côté serveur et client.
+ * Retourne un tracé SVG par niveau, du plus bas (extérieur) au plus haut.
+ */
+export function contourPaths(
+  W: number,
+  H: number,
+  peaks: ContourPeak[],
+  levels: number,
+  opts: { cell?: number; wobble?: [number, number]; from?: number; to?: number } = {},
+): string[] {
+  const cell = opts.cell ?? 16;
+  const [w0, w1] = opts.wobble ?? [0, 0];
+  const nx = Math.ceil(W / cell) + 1;
+  const ny = Math.ceil(H / cell) + 1;
+  const f = new Float32Array(nx * ny);
+  for (let j = 0; j < ny; j++) {
+    for (let i = 0; i < nx; i++) {
+      const x = i * cell;
+      const y = j * cell;
+      let h = 0;
+      for (const p of peaks) {
+        const dx = (x - p.x) / p.sx;
+        const dy = (y - p.y) / p.sy;
+        h += p.a * Math.exp(-(dx * dx + dy * dy) / 2);
+      }
+      f[j * nx + i] = h + 0.04 * Math.sin(x / 130 + w0) * Math.sin(y / 100 + w1);
+    }
+  }
+  const lo = opts.from ?? 0.06;
+  const hi = opts.to ?? 0.95;
+  const out: string[] = [];
+  for (let li = 0; li < levels; li++) {
+    const L = lo + (levels > 1 ? (li / (levels - 1)) * (hi - lo) : 0);
+    let d = "";
+    for (let j = 0; j < ny - 1; j++) {
+      for (let i = 0; i < nx - 1; i++) {
+        const a = f[j * nx + i];
+        const b = f[j * nx + i + 1];
+        const c = f[(j + 1) * nx + i + 1];
+        const e = f[(j + 1) * nx + i];
+        const k = (a > L ? 8 : 0) | (b > L ? 4 : 0) | (c > L ? 2 : 0) | (e > L ? 1 : 0);
+        if (k === 0 || k === 15) continue;
+        const x0 = i * cell;
+        const y0 = j * cell;
+        const it = (v0: number, v1: number) => (L - v0) / (v1 - v0);
+        const T = [x0 + it(a, b) * cell, y0];
+        const R = [x0 + cell, y0 + it(b, c) * cell];
+        const B = [x0 + it(e, c) * cell, y0 + cell];
+        const Lf = [x0, y0 + it(a, e) * cell];
+        const segs: Record<number, number[][][]> = {
+          1: [[Lf, B]], 2: [[B, R]], 3: [[Lf, R]], 4: [[T, R]], 5: [[T, Lf], [B, R]], 6: [[T, B]], 7: [[T, Lf]],
+          8: [[T, Lf]], 9: [[T, B]], 10: [[T, R], [Lf, B]], 11: [[T, R]], 12: [[Lf, R]], 13: [[B, R]], 14: [[Lf, B]],
+        };
+        for (const [p, q] of segs[k]) d += `M${p[0].toFixed(1)} ${p[1].toFixed(1)}L${q[0].toFixed(1)} ${q[1].toFixed(1)}`;
+      }
+    }
+    out.push(d);
+  }
+  return out;
+}

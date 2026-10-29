@@ -1120,6 +1120,20 @@ function updateMap(p,forceD){
 }
 
 /* ---------- Paire de chaussures de trail 3D, eau en 3D, éclaboussures de particules ---------- */
+function isoLines(x,W,H,peaks,levels,cell,alpha,rgb,lw){   // vraies courbes de niveau d'un champ d'altitude (marching squares) : elles ne se croisent jamais, contrairement à des ellipses déformées une à une
+  const nx=Math.ceil(W/cell)+1,ny=Math.ceil(H/cell)+1,f=new Float32Array(nx*ny);
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const px=i*cell,py=j*cell;let h=0;for(const [cx,cy,a,sx,sy] of peaks){const dx=(px-cx)/sx,dy=(py-cy)/sy;h+=a*Math.exp(-(dx*dx+dy*dy)/2)}f[j*nx+i]=h+.035*Math.sin(px/120+1.3)*Math.sin(py/90+.4)}
+  for(let li=0;li<levels;li++){
+    const L=.06+li/(levels-1)*.9;x.strokeStyle='rgba('+rgb+','+alpha(li,levels)+')';x.lineWidth=lw;x.beginPath();
+    for(let j=0;j<ny-1;j++)for(let i=0;i<nx-1;i++){
+      const a=f[j*nx+i],b=f[j*nx+i+1],c=f[(j+1)*nx+i+1],d=f[(j+1)*nx+i],k=(a>L?8:0)|(b>L?4:0)|(c>L?2:0)|(d>L?1:0);if(k===0||k===15)continue;
+      const x0=i*cell,y0=j*cell,it=(v0,v1)=>(L-v0)/(v1-v0),T=[x0+it(a,b)*cell,y0],R=[x0+cell,y0+it(b,c)*cell],B=[x0+it(d,c)*cell,y0+cell],Lf=[x0,y0+it(a,d)*cell];
+      const S={1:[[Lf,B]],2:[[B,R]],3:[[Lf,R]],4:[[T,R]],5:[[T,Lf],[B,R]],6:[[T,B]],7:[[T,Lf]],8:[[T,Lf]],9:[[T,B]],10:[[T,R],[Lf,B]],11:[[T,R]],12:[[Lf,R]],13:[[B,R]],14:[[Lf,B]]}[k];
+      for(const [p,q] of S){x.moveTo(p[0],p[1]);x.lineTo(q[0],q[1])}
+    }
+    x.stroke();
+  }
+}
 const SHOE=(()=>{
   if(!THREE_OK)return {ready:()=>false,ensure(){},update(){},resize(){},impactScreen(){},rippleScreen(){},pointer(){},cursor(){},calm(){},rainRipple(){},layoutZones(){},setQuality(){},dispose(){}};
   const cv=$('#shoeCanvas');
@@ -1487,8 +1501,7 @@ const SHOE=(()=>{
     pair=new THREE.Group();pair.position.y=.1;scene.add(pair);
     {   // lignes topographiques fines qui flottent derrière et au-dessus de la paire, comme sur la photo : réseau de courbes de niveau qui s'efface vers le bas
       const c=document.createElement('canvas');c.width=640;c.height=360;const x=c.getContext('2d');let sd=11;const rn=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};const ph=[rn()*6,rn()*6,rn()*6];
-      for(let k=0;k<17;k++){const R=26+k*12.5,al=Math.max(.14,.55-.022*k);x.strokeStyle='rgba(255,255,255,'+al+')';x.lineWidth=1.1;x.beginPath();
-        for(let a=0;a<=96;a++){const th=a/96*Math.PI*2,r=R*(1+.17*Math.sin(3*th+ph[0]+k*.08)+.09*Math.sin(5*th+ph[1])+.05*Math.sin(8*th+ph[2]+k*.12)),px=320+r*1.35*Math.cos(th),py=250+r*.78*Math.sin(th);a?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();x.stroke()}
+      isoLines(x,640,360,[[320,240,1,170,95]],17,6,(k,n)=>Math.max(.14,.14+.41*k/(n-1)).toFixed(3),'255,255,255',1.1);
       x.globalCompositeOperation='destination-in';const gr=x.createLinearGradient(0,0,0,360);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(.55,'rgba(0,0,0,.75)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,640,360);
       const topo=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,opacity:.5,depthWrite:false,blending:THREE.AdditiveBlending}));topo.scale.set(9,5,1);topo.position.set(0,3.6,-2.2);scene.add(topo);topoSpr=topo;
     }
@@ -1911,10 +1924,7 @@ const CAMP=(()=>{
   }
   function topoBg(){   // courbes de niveau fines dans le ciel (même motif que la page d'accueil)
     const c=document.createElement('canvas');c.width=1400;c.height=520;const x=c.getContext('2d'),r=sdRnd(77),ph=[r()*6,r()*6,r()*6];
-    for(let k=0;k<22;k++){const R=40+k*26,al=Math.max(.05,.2-.006*k);x.strokeStyle='rgba(255,236,214,'+al+')';x.lineWidth=1.1;x.beginPath();
-      for(let a=0;a<=140;a++){const th=a/140*Math.PI*2,rr=R*(1+.16*Math.sin(3*th+ph[0]+k*.07)+.09*Math.sin(5*th+ph[1])+.05*Math.sin(8*th+ph[2]+k*.1)),px=420+rr*1.7*Math.cos(th),py=120+rr*.8*Math.sin(th);a?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();x.stroke()}
-    for(let k=0;k<14;k++){const R=30+k*30,al=Math.max(.04,.16-.006*k);x.strokeStyle='rgba(255,236,214,'+al+')';x.beginPath();
-      for(let a=0;a<=140;a++){const th=a/140*Math.PI*2,rr=R*(1+.14*Math.sin(3*th+ph[2]+k*.09)+.08*Math.sin(6*th+ph[0])),px=1150+rr*1.5*Math.cos(th),py=60+rr*.7*Math.sin(th);a?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();x.stroke()}
+    isoLines(x,1400,520,[[420,130,1,330,150],[1150,70,.8,260,110]],22,8,(k,n)=>Math.max(.05,.05+.17*k/(n-1)).toFixed(3),'255,236,214',1.1);   // deux sommets : les lignes restent emboîtées, jamais entremêlées
     x.globalCompositeOperation='destination-in';const gr=x.createLinearGradient(0,0,0,520);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(.6,'rgba(0,0,0,.5)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,1400,520);
     return 'url('+c.toDataURL('image/png')+')';
   }
