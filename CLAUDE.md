@@ -233,3 +233,5 @@ Montre du bivouac (`buildWatchGps`) : poussoirs posés sur le cercle du boîtier
 Bracelet de la montre du bivouac : brins extrudés à bouts finis (bout arrondi + trous + passant, boucle à ardillon, barrettes et cornes), 29/10/2026. Détails : `docs/admin-boucle.md`.
 
 Proportions de la montre du bivouac (boîtier 0,22, bracelet 0,50, brins inégaux 1,9 / 1,2 diamètre, montre tournée à gauche), 29/10/2026. Détails : `docs/admin-boucle.md`.
+
+Montre du bivouac dégagée des pierres du foyer (rotation −1,15, position −0,3 / 1,6, brin long 1,65 diamètre), 29/10/2026. Détails : `docs/admin-boucle.md`.

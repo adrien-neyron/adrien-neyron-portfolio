@@ -368,3 +368,6 @@ Dans `buildWatchGps` (`assets/loop/loop.js`), les quatre poussoirs étaient pos�
 
 ## Proportions de la montre du bivouac (29/10/2026)
 Mesures faites par rapport à une montre de trail réelle (~46 mm) : boîtier épaissi de 0,16 à 0,22 (21 % du diamètre au lieu de 15 %), bracelet élargi de 0,46 à 0,50 (≈ 48 % du diamètre), brins **inégaux** : brin à trous ≈ 1,9 diamètre au-delà du boîtier (`LL`), brin à boucle ≈ 1,2 (`LS`). Barrettes, cornes, boucle, passant et poussoirs recalés (poussoirs plus hauts sur le flanc). Montre tournée (`rotation.y` −1,0) et décalée (x −0,3, z 1,3) pour que le brin long reste dans le cadre à gauche, sans toucher la gamelle ni passer sous le pied de page. Vérifié : captures jour et nuit à 1440×900, 209 tests. Non vérifié : écrans étroits / mobile, autres hauteurs de fenêtre.
+
+## Montre dégagée des pierres (29/10/2026)
+Le brin court passait sous une pierre du cercle du foyer (les pierres vont jusqu'à ~1,2 du feu). Montre rapprochée de la caméra et tournée (`rotation.y` −1,15, position x −0,3, z 1,6) : le brin à boucle finit entre le cercle de pierres et la gamelle, le brin à trous reste dans le cadre. Brin long ramené à 1,65 diamètre (`LL`) pour ne pas sortir de l'écran à gauche. Vérifié : capture jour à 1440×900 (aucune pierre sur le bracelet), 209 tests. Non vérifié : nuit après ce réglage, écrans étroits.
