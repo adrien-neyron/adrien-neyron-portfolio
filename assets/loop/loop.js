@@ -1807,7 +1807,7 @@ const CAMP=(()=>{
     const gl=new THREE.Mesh(new THREE.CircleGeometry(.43,48),new THREE.MeshStandardMaterial({map:scr,emissive:0xFFFFFF,emissiveMap:scr,emissiveIntensity:.85,roughness:.12,metalness:0}));gl.rotation.x=-Math.PI/2;gl.position.y=.143;g.add(gl);
     [[-.62,0],[.62,0],[-.62,Math.PI],[.62,Math.PI]].forEach(([th0,off])=>{const th=th0+off,bt=new THREE.Mesh(roundBox(.11,.07,.16,.02,4),new THREE.MeshStandardMaterial({color:0x3A3F45,roughness:.5,metalness:.7})),R=.52;   // poussoirs collés au flanc : posés sur le cercle du boîtier (rayon .52), orientés vers l'extérieur, la moitié rentre dans le boîtier
       bt.position.set(Math.cos(th)*R,.06,Math.sin(th)*R);bt.rotation.y=-th;g.add(bt)});
-    const sm=new THREE.MeshStandardMaterial({map:fabricTex('#1E2126',3),roughness:.9}),steel=new THREE.MeshStandardMaterial({color:0xB4BBC1,roughness:.3,metalness:.9,envMap:env,envMapIntensity:1.1}),dark=new THREE.MeshStandardMaterial({color:0x0C0E11,roughness:.8}),Z0=.4,LL=1.9,LS=1.2;   // brin long (trous) ≈ 1,9 diamètre au-delà du boîtier, brin court (boucle) ≈ 1,2 : proportions d'une vraie montre
+    const sm=new THREE.MeshStandardMaterial({map:fabricTex('#1E2126',3),roughness:.9}),steel=new THREE.MeshStandardMaterial({color:0xB4BBC1,roughness:.3,metalness:.9,envMap:env,envMapIntensity:1.1}),dark=new THREE.MeshStandardMaterial({color:0x0C0E11,roughness:.8}),Z0=.4,LL=1.65,LS=1.2;   // brin long (trous) ≈ 1,9 diamètre au-delà du boîtier, brin court (boucle) ≈ 1,2 : proportions d'une vraie montre
     // bracelet fini : deux brins qui rentrent sous le boîtier (barrettes visibles), brin à trous à bout arrondi et rétréci, brin à boucle ardillon, passant orange
     const strapGeo=(round,L)=>{const sh=new THREE.Shape();sh.moveTo(-.25,0);sh.lineTo(.25,0);
       if(round){sh.lineTo(.2,L-.16);sh.bezierCurveTo(.2,L-.05,.1,L,0,L);sh.bezierCurveTo(-.1,L,-.2,L-.05,-.2,L-.16)}else{sh.lineTo(.23,L);sh.lineTo(-.23,L)}
@@ -1982,7 +1982,7 @@ const CAMP=(()=>{
     const lgs=buildLogs();lgs.position.set(2.9,0,-.55);lgs.rotation.y=.55;scene.add(lgs);
     flames=[buildFlame(0,1),buildFlame(2.7,.78)];flames[1].position.set(.1,.05,.08);flames.forEach(f=>{f.position.y+=.1;scene.add(f)});
     sky4.style.setProperty('--topo',topoBg());
-    const wtc=buildWatchGps(env);wtc.scale.setScalar(.46);wtc.rotation.y=-1.0;wtc.position.set(-.3,.07,1.3);scene.add(wtc);
+    const wtc=buildWatchGps(env);wtc.scale.setScalar(.46);wtc.rotation.y=-1.15;wtc.position.set(-.3,.07,1.6);scene.add(wtc);
     const mg=buildMug(env);mg.scale.setScalar(MUGS);mg.position.set(MUG[0],MUG[1],MUG[2]);scene.add(mg);
     fSys=mkSys(200,FFS,THREE.AdditiveBlending);sSys=mkSys(260,SFS,THREE.AdditiveBlending);mSys=mkSys(110,MFS,THREE.NormalBlending);
     [mSys,fSys,sSys].forEach((q,i)=>{q.pts.renderOrder=3+i;scene.add(q.pts)});
