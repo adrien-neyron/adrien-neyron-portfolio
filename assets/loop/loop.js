@@ -1805,7 +1805,8 @@ const CAMP=(()=>{
     const body=new THREE.Mesh(new THREE.CylinderGeometry(.5,.52,.16,48),new THREE.MeshStandardMaterial({color:0x23272C,roughness:.42,metalness:.65,envMap:env,envMapIntensity:1}));g.add(body);
     const bez=new THREE.Mesh(new THREE.TorusGeometry(.47,.045,10,48),new THREE.MeshStandardMaterial({color:0xA9B1B8,roughness:.3,metalness:.9,envMap:env,envMapIntensity:1.3}));bez.rotation.x=Math.PI/2;bez.position.y=.085;g.add(bez);
     const gl=new THREE.Mesh(new THREE.CircleGeometry(.43,48),new THREE.MeshStandardMaterial({map:scr,emissive:0xFFFFFF,emissiveMap:scr,emissiveIntensity:.85,roughness:.12,metalness:0}));gl.rotation.x=-Math.PI/2;gl.position.y=.083;g.add(gl);
-    [-.7,-.25,.25,.7].forEach((a,i)=>{const bt=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.16),new THREE.MeshStandardMaterial({color:0x3A3F45,roughness:.5,metalness:.7}));bt.position.set(i<2?.54:-.54,.01,i<2?(i?.3:-.3):(i===2?-.3:.3));g.add(bt)});
+    [[-.62,0],[.62,0],[-.62,Math.PI],[.62,Math.PI]].forEach(([th0,off])=>{const th=th0+off,bt=new THREE.Mesh(roundBox(.11,.07,.16,.02,4),new THREE.MeshStandardMaterial({color:0x3A3F45,roughness:.5,metalness:.7})),R=.52;   // poussoirs collés au flanc : posés sur le cercle du boîtier (rayon .52), orientés vers l'extérieur, la moitié rentre dans le boîtier
+      bt.position.set(Math.cos(th)*R,.025,Math.sin(th)*R);bt.rotation.y=-th;g.add(bt)});
     const sm=new THREE.MeshStandardMaterial({map:fabricTex('#1E2126',3),roughness:.9});
     [-1,1].forEach(sg=>{const st=new THREE.Mesh(roundBox(.46,.05,.95,.02),sm);st.position.set(0,-.05,sg*(.52+.45));st.rotation.x=sg*.04;g.add(st)});
     const lp=new THREE.Mesh(roundBox(.5,.07,.1,.02),new THREE.MeshStandardMaterial({color:0xE26D3B,roughness:.6}));lp.position.set(0,-.02,1.1);g.add(lp);
