@@ -1802,34 +1802,34 @@ const CAMP=(()=>{
   },1);
   function buildWatchGps(env){   // montre GPS posée à plat, écran rétroéclairé
     const g=new THREE.Group(),scr=watchScreen();
-    const body=new THREE.Mesh(new THREE.CylinderGeometry(.5,.52,.16,48),new THREE.MeshStandardMaterial({color:0x23272C,roughness:.42,metalness:.65,envMap:env,envMapIntensity:1}));g.add(body);
-    const bez=new THREE.Mesh(new THREE.TorusGeometry(.47,.045,10,48),new THREE.MeshStandardMaterial({color:0xA9B1B8,roughness:.3,metalness:.9,envMap:env,envMapIntensity:1.3}));bez.rotation.x=Math.PI/2;bez.position.y=.085;g.add(bez);
-    const gl=new THREE.Mesh(new THREE.CircleGeometry(.43,48),new THREE.MeshStandardMaterial({map:scr,emissive:0xFFFFFF,emissiveMap:scr,emissiveIntensity:.85,roughness:.12,metalness:0}));gl.rotation.x=-Math.PI/2;gl.position.y=.083;g.add(gl);
+    const body=new THREE.Mesh(new THREE.CylinderGeometry(.5,.52,.22,48),new THREE.MeshStandardMaterial({color:0x23272C,roughness:.42,metalness:.65,envMap:env,envMapIntensity:1}));body.position.y=.03;g.add(body);   // boîtier de 0,22 (21 % du diamètre) : épaisseur d'une montre GPS
+    const bez=new THREE.Mesh(new THREE.TorusGeometry(.47,.045,10,48),new THREE.MeshStandardMaterial({color:0xA9B1B8,roughness:.3,metalness:.9,envMap:env,envMapIntensity:1.3}));bez.rotation.x=Math.PI/2;bez.position.y=.145;g.add(bez);
+    const gl=new THREE.Mesh(new THREE.CircleGeometry(.43,48),new THREE.MeshStandardMaterial({map:scr,emissive:0xFFFFFF,emissiveMap:scr,emissiveIntensity:.85,roughness:.12,metalness:0}));gl.rotation.x=-Math.PI/2;gl.position.y=.143;g.add(gl);
     [[-.62,0],[.62,0],[-.62,Math.PI],[.62,Math.PI]].forEach(([th0,off])=>{const th=th0+off,bt=new THREE.Mesh(roundBox(.11,.07,.16,.02,4),new THREE.MeshStandardMaterial({color:0x3A3F45,roughness:.5,metalness:.7})),R=.52;   // poussoirs collés au flanc : posés sur le cercle du boîtier (rayon .52), orientés vers l'extérieur, la moitié rentre dans le boîtier
-      bt.position.set(Math.cos(th)*R,.025,Math.sin(th)*R);bt.rotation.y=-th;g.add(bt)});
-    const sm=new THREE.MeshStandardMaterial({map:fabricTex('#1E2126',3),roughness:.9}),steel=new THREE.MeshStandardMaterial({color:0xB4BBC1,roughness:.3,metalness:.9,envMap:env,envMapIntensity:1.1}),dark=new THREE.MeshStandardMaterial({color:0x0C0E11,roughness:.8}),L=1.03,Z0=.4;
+      bt.position.set(Math.cos(th)*R,.06,Math.sin(th)*R);bt.rotation.y=-th;g.add(bt)});
+    const sm=new THREE.MeshStandardMaterial({map:fabricTex('#1E2126',3),roughness:.9}),steel=new THREE.MeshStandardMaterial({color:0xB4BBC1,roughness:.3,metalness:.9,envMap:env,envMapIntensity:1.1}),dark=new THREE.MeshStandardMaterial({color:0x0C0E11,roughness:.8}),Z0=.4,LL=1.9,LS=1.2;   // brin long (trous) ≈ 1,9 diamètre au-delà du boîtier, brin court (boucle) ≈ 1,2 : proportions d'une vraie montre
     // bracelet fini : deux brins qui rentrent sous le boîtier (barrettes visibles), brin à trous à bout arrondi et rétréci, brin à boucle ardillon, passant orange
-    const strapGeo=(round)=>{const sh=new THREE.Shape();sh.moveTo(-.23,0);sh.lineTo(.23,0);
-      if(round){sh.lineTo(.19,L-.16);sh.bezierCurveTo(.19,L-.05,.1,L,0,L);sh.bezierCurveTo(-.1,L,-.19,L-.05,-.19,L-.16)}else{sh.lineTo(.21,L);sh.lineTo(-.21,L)}
-      sh.lineTo(-.23,0);const ge=new THREE.ExtrudeGeometry(sh,{depth:.045,bevelEnabled:true,bevelThickness:.005,bevelSize:.005,bevelSegments:1,steps:1,curveSegments:10});ge.rotateX(-Math.PI/2);ge.translate(0,-.07,-Z0);return ge};
+    const strapGeo=(round,L)=>{const sh=new THREE.Shape();sh.moveTo(-.25,0);sh.lineTo(.25,0);
+      if(round){sh.lineTo(.2,L-.16);sh.bezierCurveTo(.2,L-.05,.1,L,0,L);sh.bezierCurveTo(-.1,L,-.2,L-.05,-.2,L-.16)}else{sh.lineTo(.23,L);sh.lineTo(-.23,L)}
+      sh.lineTo(-.25,0);const ge=new THREE.ExtrudeGeometry(sh,{depth:.045,bevelEnabled:true,bevelThickness:.005,bevelSize:.005,bevelSegments:1,steps:1,curveSegments:10});ge.rotateX(-Math.PI/2);ge.translate(0,-.07,-Z0);return ge};
     [-1,1].forEach(sg=>{
-      const grp=new THREE.Group();grp.rotation.x=sg*.04;g.add(grp);
-      const st=new THREE.Mesh(strapGeo(sg>0),sm);if(sg>0)st.rotation.y=Math.PI;grp.add(st);
+      const L=sg>0?LL:LS,grp=new THREE.Group();grp.rotation.x=sg*.04;g.add(grp);
+      const st=new THREE.Mesh(strapGeo(sg>0,L),sm);if(sg>0)st.rotation.y=Math.PI;grp.add(st);
       const zs=sg*(Z0+L),top=-.018;
       if(sg>0){   // brin à trous : cinq trous, couture fine sur les bords
-        for(let k=0;k<5;k++){const h=new THREE.Mesh(new THREE.CylinderGeometry(.021,.021,.004,14),dark);h.position.set(0,top,Z0+.4+k*.095);grp.add(h)}
-        [-.185,.185].forEach(x=>{const sw=new THREE.Mesh(new THREE.BoxGeometry(.006,.003,L-.34),new THREE.MeshStandardMaterial({color:0x3A3F45,roughness:.9}));sw.position.set(x,top,Z0+(L-.34)/2+.05);grp.add(sw)});
-        const lp=new THREE.Mesh(roundBox(.5,.07,.1,.02),new THREE.MeshStandardMaterial({color:0xE26D3B,roughness:.6}));lp.position.set(0,-.045,Z0+.2);grp.add(lp);   // passant orange
+        for(let k=0;k<5;k++){const h=new THREE.Mesh(new THREE.CylinderGeometry(.021,.021,.004,14),dark);h.position.set(0,top,Z0+L-.62+k*.1);grp.add(h)}
+        [-.205,.205].forEach(x=>{const sw=new THREE.Mesh(new THREE.BoxGeometry(.006,.003,L-.34),new THREE.MeshStandardMaterial({color:0x3A3F45,roughness:.9}));sw.position.set(x,top,Z0+(L-.34)/2+.05);grp.add(sw)});
+        const lp=new THREE.Mesh(roundBox(.54,.07,.1,.02),new THREE.MeshStandardMaterial({color:0xE26D3B,roughness:.6}));lp.position.set(0,-.045,Z0+.2);grp.add(lp);   // passant orange
       }else{   // brin à boucle : cadre en acier, ardillon posé sur le brin
         const zb=-(Z0+L)+.03,bt=.032;
-        [-1,1].forEach(x=>{const r=new THREE.Mesh(roundBox(bt,.045,.2,.012,4),steel);r.position.set(x*.255,-.045,zb-.03);grp.add(r)});
-        const cb=new THREE.Mesh(roundBox(.54,.045,bt,.012,4),steel);cb.position.set(0,-.045,zb-.13);grp.add(cb);
-        const hb=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.5,10),steel);hb.rotation.z=Math.PI/2;hb.position.set(0,-.045,zb+.07);grp.add(hb);
+        [-1,1].forEach(x=>{const r=new THREE.Mesh(roundBox(bt,.045,.2,.012,4),steel);r.position.set(x*.275,-.045,zb-.03);grp.add(r)});
+        const cb=new THREE.Mesh(roundBox(.58,.045,bt,.012,4),steel);cb.position.set(0,-.045,zb-.13);grp.add(cb);
+        const hb=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.54,10),steel);hb.rotation.z=Math.PI/2;hb.position.set(0,-.045,zb+.07);grp.add(hb);
         const tg=new THREE.Mesh(roundBox(.024,.02,.2,.008,4),steel);tg.position.set(0,-.012,zb-.02);grp.add(tg);
       }
       // barrette et cornes : le bracelet est tenu au boîtier
-      const bar=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.5,10),steel);bar.rotation.z=Math.PI/2;bar.position.set(0,-.045,sg*.49);g.add(bar);
-      [-1,1].forEach(x=>{const lg=new THREE.Mesh(roundBox(.06,.1,.15,.02,4),new THREE.MeshStandardMaterial({color:0x23272C,roughness:.42,metalness:.65,envMap:env,envMapIntensity:1}));lg.position.set(x*.26,-.02,sg*.5);g.add(lg)});
+      const bar=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.54,10),steel);bar.rotation.z=Math.PI/2;bar.position.set(0,-.045,sg*.49);g.add(bar);
+      [-1,1].forEach(x=>{const lg=new THREE.Mesh(roundBox(.06,.1,.15,.02,4),new THREE.MeshStandardMaterial({color:0x23272C,roughness:.42,metalness:.65,envMap:env,envMapIntensity:1}));lg.position.set(x*.28,-.02,sg*.5);g.add(lg)});
     });
     return g;
   }
@@ -1982,7 +1982,7 @@ const CAMP=(()=>{
     const lgs=buildLogs();lgs.position.set(2.9,0,-.55);lgs.rotation.y=.55;scene.add(lgs);
     flames=[buildFlame(0,1),buildFlame(2.7,.78)];flames[1].position.set(.1,.05,.08);flames.forEach(f=>{f.position.y+=.1;scene.add(f)});
     sky4.style.setProperty('--topo',topoBg());
-    const wtc=buildWatchGps(env);wtc.scale.setScalar(.46);wtc.rotation.y=-.55;wtc.position.set(-.2,.07,1.55);scene.add(wtc);
+    const wtc=buildWatchGps(env);wtc.scale.setScalar(.46);wtc.rotation.y=-1.0;wtc.position.set(-.3,.07,1.3);scene.add(wtc);
     const mg=buildMug(env);mg.scale.setScalar(MUGS);mg.position.set(MUG[0],MUG[1],MUG[2]);scene.add(mg);
     fSys=mkSys(200,FFS,THREE.AdditiveBlending);sSys=mkSys(260,SFS,THREE.AdditiveBlending);mSys=mkSys(110,MFS,THREE.NormalBlending);
     [mSys,fSys,sSys].forEach((q,i)=>{q.pts.renderOrder=3+i;scene.add(q.pts)});
