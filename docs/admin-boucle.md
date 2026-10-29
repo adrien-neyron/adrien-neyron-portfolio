@@ -362,3 +362,6 @@ Le sac (puis le gilet type S/LAB Sense) était trop complexe pour paraître réa
 
 ## Boutons de la montre du bivouac collés au boîtier (29/10/2026)
 Dans `buildWatchGps` (`assets/loop/loop.js`), les quatre poussoirs étaient posés en x = ±0,54 : sur un boîtier rond (rayon 0,52) ceux qui sont en z = ±0,3 flottaient à ~0,08 du flanc. Ils sont maintenant placés sur le cercle du boîtier (angles ±35° de chaque côté, rayon 0,52), orientés vers l'extérieur, moitié rentrée dans le boîtier, arêtes arrondies (`roundBox`). Vérifié : capture jour et nuit (zoom sur la montre), 209 tests. Non vérifié : autres angles de caméra.
+
+## Bracelet de la montre du bivouac finalisé (29/10/2026)
+`buildWatchGps` : les deux brins n'étaient que des pavés coupés net. Ils sont maintenant extrudés depuis une forme (`ExtrudeGeometry`) et rentrent sous le boîtier, tenus par une barrette et deux cornes en acier/alu. Brin à trous : bout arrondi et rétréci, cinq trous, coutures fines sur les bords, passant orange. Brin à boucle : cadre en acier (deux montants, traverse, barre de charnière) et ardillon posé sur le brin. Vérifié : capture jour (zoom), 209 tests. Non vérifié : nuit, autres angles, la boucle (cachée derrière un rocher sur la capture).
