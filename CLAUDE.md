@@ -227,3 +227,5 @@ En fin de scène Persévérer (`l > .8`), la pluie est presque figée (`SHOE.cal
 Le sol du bivouac (contact, `CAMP`) est le même sable que Persévérer (`sandTex`, teinte `dayC` : boue bleutée de nuit, sable clair de jour). Détails : `docs/admin-boucle.md`.
 
 Le sac de trail a été **retiré** de la scène du bivouac (29/10/2026) : trop complexe pour un rendu réaliste (`buildPack` supprimé). Le bivouac garde feu, bûches, gamelle et montre. Détails : `docs/admin-boucle.md`.
+
+Montre du bivouac (`buildWatchGps`) : poussoirs posés sur le cercle du boîtier, collés au flanc (29/10/2026). Détails : `docs/admin-boucle.md`.

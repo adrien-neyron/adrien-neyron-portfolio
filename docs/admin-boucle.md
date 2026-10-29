@@ -359,3 +359,6 @@ Sac de trail du bivouac plus abouti (28/10, 23:30) : `buildPack` (`CAMP`) — gr
 
 ## Sac de trail retiré du bivouac (29/10/2026)
 Le sac (puis le gilet type S/LAB Sense) était trop complexe pour paraître réaliste en primitives three.js : `buildPack` et son appel dans `CAMP.init` sont supprimés. Les sections précédentes sur le sac (28/10) sont historiques. `fabricTex` et `roundBox` restent (montre, tissu). Vérifié : syntaxe, 209 tests. Non vérifié : capture après retrait.
+
+## Boutons de la montre du bivouac collés au boîtier (29/10/2026)
+Dans `buildWatchGps` (`assets/loop/loop.js`), les quatre poussoirs étaient posés en x = ±0,54 : sur un boîtier rond (rayon 0,52) ceux qui sont en z = ±0,3 flottaient à ~0,08 du flanc. Ils sont maintenant placés sur le cercle du boîtier (angles ±35° de chaque côté, rayon 0,52), orientés vers l'extérieur, moitié rentrée dans le boîtier, arêtes arrondies (`roundBox`). Vérifié : capture jour et nuit (zoom sur la montre), 209 tests. Non vérifié : autres angles de caméra.
