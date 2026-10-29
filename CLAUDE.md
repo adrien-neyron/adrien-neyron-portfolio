@@ -229,3 +229,7 @@ Le sol du bivouac (contact, `CAMP`) est le même sable que Persévérer (`sandTe
 Le sac de trail a été **retiré** de la scène du bivouac (29/10/2026) : trop complexe pour un rendu réaliste (`buildPack` supprimé). Le bivouac garde feu, bûches, gamelle et montre. Détails : `docs/admin-boucle.md`.
 
 Montre du bivouac (`buildWatchGps`) : poussoirs posés sur le cercle du boîtier, collés au flanc (29/10/2026). Détails : `docs/admin-boucle.md`.
+
+Bracelet de la montre du bivouac : brins extrudés à bouts finis (bout arrondi + trous + passant, boucle à ardillon, barrettes et cornes), 29/10/2026. Détails : `docs/admin-boucle.md`.
+
+Proportions de la montre du bivouac (boîtier 0,22, bracelet 0,50, brins inégaux 1,9 / 1,2 diamètre, montre tournée à gauche), 29/10/2026. Détails : `docs/admin-boucle.md`.
