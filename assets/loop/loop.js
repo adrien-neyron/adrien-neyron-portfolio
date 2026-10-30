@@ -3063,7 +3063,7 @@ function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depth
     uniforms:{uRes:{value:new THREE.Vector2(1,1)},uW:{value:o.w},uCap:{value:o.cap==null?1:o.cap},uColor:{value:new THREE.Color(o.c)},uC2:{value:new THREE.Color(o.c2||o.c)},uAlpha:{value:o.a},uT:{value:0},uMode:{value:o.mode},
       uLen:{value:geo.userData.len},uH0:{value:0},uH1:{value:0},uV0:{value:0},uV1:{value:1},uVF:{value:.004},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
   m.userData.cw=o.w;m.userData.o=o;FATS.push(m);const mesh=new THREE.Mesh(geo,m);mesh.frustumCulled=false;mesh.renderOrder=o.order||2;scene.add(mesh);return mesh}
-const CLEAR=8.6,GAP=.28,SMALL_K=.62,NEEDLE_OUT=[.004,.03];   // NEEDLE_OUT : le triangle de l'aiguille s'efface entre ces abscisses (il ne parcourt pas la trace)   // SMALL_K : échelle du marqueur de bivouac (pierre gravée et cairn)   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
+const CLEAR=8.6,GAP=.28,SMALL_K=.62,NEEDLE_OUT=[.004,.03],NEEDLE_SUB=.8;   // NEEDLE_OUT : entre ces abscisses le triangle de l'aiguille passe de l'opacité pleine à NEEDLE_SUB, puis reste, discret, en tête du faisceau jusqu'au dernier cairn   // SMALL_K : échelle du marqueur de bivouac (pierre gravée et cairn)   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
 const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 /* année gravée : période du projet, sinon un statut daté de la fiche (« 2026 – en cours »), sinon rien */
 function yearOf(pr){const f=PROJECT_INFO[pr.id],st=f&&f.st||'';return pr.when||(/\d{4}/.test(st)?st:'')}
@@ -3359,9 +3359,9 @@ function rig(p,dt,snap,intro=0){
      nQ.slerp(ball.quaternion,e);ball.quaternion.copy(nQ);ball.position.copy(v3).lerp(nP,e);ball.scale.setScalar(lerp(s0,so,e))}
    const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
   /* Le fil se dessine au fil de l'avancée, sans point qui se déplace : le triangle n'existe qu'au Départ (relais de l'aiguille du cadran pendant la plongée),
-     il s'efface dès que la trace avance (NEEDLE_OUT) ; la lueur part alors du départ et s'arrête à l'abscisse atteinte (tt), sans trou sous l'aiguille. */
-  const nv=1-sm(NEEDLE_OUT[0],NEEDLE_OUT[1],t);ball.visible=nv>.01;ball.children.forEach(m=>{m.material.opacity=nv});
-  const tg0=lerp(tt,tB,nv),hB=nv>.01?tB:0,hT=nv>.01?tt:0;   // tant que le triangle est là, la lueur s'arrête à sa base et rien n'est dessiné dessous
+     il s'atténue (NEEDLE_OUT → NEEDLE_SUB) dès que la trace avance mais reste en tête du faisceau jusqu'au dernier cairn ; la lueur part alors du départ et s'arrête à l'abscisse atteinte (tt), sans trou sous l'aiguille. */
+  const nv=lerp(1,NEEDLE_SUB,sm(NEEDLE_OUT[0],NEEDLE_OUT[1],t));ball.visible=true;ball.children.forEach(m=>{m.material.opacity=nv});
+  const tg0=tB,hB=tB,hT=tt;   // tant que le triangle est là, la lueur s'arrête à sa base et rien n'est dessiné dessous
   // tronçon visible : du cairn où l'on est (ou que l'on vient de quitter) au suivant ; à la dernière étape, de l'avant-dernier cairn au bout. Il glisse en douceur d'un tronçon au suivant
   {const L=curve.getLength(),eps=12/L;let k=0;for(let i=0;i<NS;i++)if(STOPS[i].t<=tt+eps)k=i;
    const v0=k>=NS-1?STOPS[NS-2].t:Math.min(STOPS[k].t,tB),v1=k>=NS-1?1:STOPS[k+1].t,kk=snap||reduce?1:1-Math.exp(-dt*3.5);
