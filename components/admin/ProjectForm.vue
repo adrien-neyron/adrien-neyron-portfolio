@@ -15,7 +15,7 @@ interface ProjectPayload {
   technologies: string[];
   image_light: string;
   image_dark: string;
-  // photo d'ambiance « grain skate » (cartes + en-tête de fiche)
+  // photo d'ambiance (cartes + en-tête de fiche)
   cover: string;
   coverCredit: string;
   coverCreditUrl: string;
@@ -283,16 +283,15 @@ function onSubmit() {
         </div>
       </div>
 
-      <!-- Photo d'ambiance : affichée avec le traitement « grain skate »
-           (N&B contrasté + grain 16 mm) sur les cartes et en tête de fiche.
+      <!-- Photo d'ambiance : affichée en couleur sur les cartes et en tête de fiche.
            Priorité : ta photo (admin) > photo Unsplash stockée en base.
            Les captures ci-dessus restent nettes dans la section « Départ ». -->
       <fieldset class="flex flex-col gap-4 border border-(--color-muted)/30 rounded-lg p-4">
-        <legend class="admin-label px-1">Photo d'ambiance (grain skate)</legend>
+        <legend class="admin-label px-1">Photo d'ambiance</legend>
 
         <div class="flex flex-col md:flex-row gap-4 items-start">
-          <!-- Aperçu avec le filtre du site (décoratif) -->
-          <div class="grain-photo w-full md:w-72 aspect-video rounded-lg shrink-0">
+          <!-- Aperçu (décoratif) -->
+          <div class="w-full md:w-72 aspect-video rounded-lg shrink-0 overflow-hidden bg-(--color-surface)">
             <img v-if="form.cover" :src="form.cover" alt="" class="w-full h-full object-cover" />
           </div>
           <div class="flex flex-col gap-2 min-w-0">
@@ -365,7 +364,7 @@ function onSubmit() {
                   :checked="form.coverUnsplashId === c.id"
                   @change="pickSuggestion(c)"
                 />
-                <span class="grain-photo block aspect-video rounded-md">
+                <span class="block aspect-video rounded-md overflow-hidden bg-(--color-surface)">
                   <img :src="c.thumb" alt="" class="w-full h-full object-cover" loading="lazy" />
                 </span>
                 <span class="text-xs text-(--color-text) truncate">{{ c.alt || "Photo sans description" }}</span>

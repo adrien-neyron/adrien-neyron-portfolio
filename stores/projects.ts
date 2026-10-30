@@ -14,7 +14,7 @@ export interface Project {
   result?: string;      // « Arrivée — résultats »
   technologies: string[];
   image?: { light?: string; dark?: string };
-  cover?: string;         // photo d'ambiance « grain skate » (cartes + en-tête de fiche)
+  cover?: string;         // photo d'ambiance (cartes + en-tête de fiche)
   coverCredit?: string;
   coverCreditUrl?: string;
   coverSource?: "admin" | "unsplash"; // voir server/utils/projectCover.ts

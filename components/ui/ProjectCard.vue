@@ -28,14 +28,14 @@ const props = defineProps<{
   /** lieu et coordonnées de la fiche topo, affichés en étiquette GPS sur la photo */
   place?: string;
   coords?: { lat?: number; lon?: number };
-  /** photo d'ambiance : affichée avec le traitement « grain skate » (main.css) */
+  /** photo d'ambiance (en couleur) */
   cover?: string;
   /** étape de la trace qui porte ce projet (« Étape 02 · DGFiP… ») et son résultat clé — même source que l'accueil (utils/stages.ts) */
   stage?: string;
   keyResult?: string;
 }>();
 
-// Photo d'ambiance en priorité, sinon la capture d'écran — toutes passent par le filtre grain.
+// Photo d'ambiance en priorité, sinon la capture d'écran.
 const photoSrc = computed(() => props.cover || props.imageUrl || "/projectsoon.png");
 
 const gpsLabel = computed(() => {
@@ -66,11 +66,7 @@ const { difficultyLabel, difficultyClass } = useDifficultyBadge();
   >
     <!-- Image -->
     <!-- Photo décorative (alt vide, RGAA 1.2) : le titre de la carte porte l'information -->
-    <!-- Filtre « grain skate » sur TOUTES les cartes, quelle que soit la source de
-         l'image (photo admin, Unsplash, défaut, capture ou /projectsoon.png) :
-         la grille reste homogène. Seule la section « Départ » de la fiche garde
-         la capture nette, pour qu'elle reste lisible. -->
-    <div class="grain-photo relative w-full overflow-hidden">
+    <div class="relative w-full overflow-hidden bg-[var(--color-surface)]">
       <NuxtImg
         :src="photoSrc"
         alt=""
