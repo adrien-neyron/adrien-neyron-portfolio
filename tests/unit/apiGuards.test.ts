@@ -13,6 +13,7 @@ const files = walk(API).map((f) => relative(API, f))
 
 const PUBLIC_WRITES: Record<string, string> = {
   'visitors.post.ts': 'compteur de visites (pas de donnée sensible, écriture bornée)',
+  'contact.post.ts': 'formulaire de contact : validation, champ piège, 5 envois / 10 min / IP, aucune base de données',
 }
 
 describe('routes API', () => {

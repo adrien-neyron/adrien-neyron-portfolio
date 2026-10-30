@@ -178,6 +178,7 @@
         <button type="button" class="cnt" data-k="rdv">Prendre rendez-vous</button>
       </div>
       <form class="cnt-form" id="cntForm" novalidate>
+        <div style="position:absolute;left:-9999px" aria-hidden="true"><input name="site" type="text" tabindex="-1" autocomplete="off"></div>
         <div class="fld"><input id="cnN" name="nom" autocomplete="name" placeholder=" " required><label for="cnN">Votre nom</label></div>
         <div class="fld"><input id="cnE" type="email" name="email" autocomplete="email" placeholder=" " required><label for="cnE">Votre e-mail</label></div>
         <div class="fld"><textarea id="cnM" name="message" rows="3" placeholder=" " required></textarea><label for="cnM">Votre message</label></div>

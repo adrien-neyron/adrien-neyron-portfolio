@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import emailjs from "@emailjs/browser";
 import Swal    from "sweetalert2";
 import { Mail, MapPin, Send, MessageCircle } from "lucide-vue-next";
 import { useProfileStore } from "~/stores/profile";
@@ -11,17 +10,19 @@ profileStore.fetchProfile();
 
 const formEl = ref<HTMLFormElement | null>(null);
 
+const sending = ref(false);
+
+// Envoi par POST /api/contact (même route que le formulaire du Bivouac)
 async function sendEmail(e: Event) {
   e.preventDefault();
-  if (!formEl.value) return;
-
+  if (!formEl.value || sending.value) return;
+  const f = new FormData(formEl.value);
+  sending.value = true;
   try {
-    await emailjs.sendForm(
-      "service_dl9djrv",
-      "template_aybi97f",
-      formEl.value,
-      "MD6rY0SPz1H_153O_"
-    );
+    await $fetch("/api/contact", {
+      method: "POST",
+      body: { nom: f.get("name"), email: f.get("email"), message: f.get("message"), site: f.get("site") },
+    });
     Swal.fire({
       position: "center",
       icon: "success",
@@ -31,12 +32,16 @@ async function sendEmail(e: Event) {
     });
     formEl.value.reset();
   } catch (err: unknown) {
-    console.error(err);
+    const msg = (err as { statusMessage?: string; data?: { statusMessage?: string } })?.data?.statusMessage
+      || (err as { statusMessage?: string })?.statusMessage
+      || "Une erreur est survenue.";
     Swal.fire({
       icon: "error",
-      title: "Oops...",
-      text: "Une erreur est survenue. Réessayez dans quelques instants.",
+      title: "Message non envoyé",
+      text: `${msg} Vous pouvez aussi écrire à ${profileStore.profile.email}.`,
     });
+  } finally {
+    sending.value = false;
   }
 }
 </script>
@@ -119,6 +124,10 @@ async function sendEmail(e: Event) {
         <UiAnimatedSection class="flex-1 w-full">
           <div class="trail-card p-7 bg-white/50 dark:bg-white/3">
             <form ref="formEl" class="space-y-5" @submit="sendEmail">
+              <!-- champ piège anti-robots : invisible, hors tabulation -->
+              <div style="position:absolute;left:-9999px" aria-hidden="true">
+                <input name="site" type="text" tabindex="-1" autocomplete="off" />
+              </div>
               <div>
                 <label for="name" class="block text-xs font-medium mb-1.5 text-[var(--color-text)]/80">
                   Votre nom
@@ -163,10 +172,11 @@ async function sendEmail(e: Event) {
 
               <button
                 type="submit"
+                :disabled="sending"
                 class="w-full py-3 px-6 button-accent rounded-xl font-semibold text-sm flex items-center justify-center gap-2 shadow-md"
               >
                 <Send :size="15" aria-hidden="true" />
-                Envoyer le message
+                {{ sending ? "Envoi en cours…" : "Envoyer le message" }}
               </button>
             </form>
           </div>

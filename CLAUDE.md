@@ -38,6 +38,7 @@ Copy `.env.example` to `.env` and fill in:
 - `AUTH0_DOMAIN` / `AUTH0_CLIENT_ID` — Auth0 SPA app, used to recognise the admin on `/admin/**` (visitors browse it read-only without logging in)
 - `ADMIN_EMAIL` — the only email allowed to write via the admin API (`requireAdminWrite`)
 - `BLOB_READ_WRITE_TOKEN` — Vercel Blob store token, used by `/api/admin/upload` for image/CV uploads from the admin
+- `RESEND_API_KEY` — Resend (free tier), used by `POST /api/contact` (Bivouac form and `/contact`); optional `CONTACT_TO` (default `ADMIN_EMAIL`) and `CONTACT_FROM` (default `onboarding@resend.dev`, which only delivers to the Resend account's own address until a domain is verified). Details: `docs/contact.md`
 - `GEMINI_API_KEY` — Gemini API key (free, no credit card — aistudio.google.com/apikey), used by `/api/admin/carnet/generate` to draft/improve Carnet articles from the admin
 
 ## Architecture
@@ -74,7 +75,7 @@ Two databases:
 - **MongoDB** (via Mongoose, `server/lib/mongodb.ts`) — Projects (`server/models/project.ts`), Stages (`server/models/stage.ts`), Profile singleton (`server/models/profile.ts`), AI tools (`server/models/aiTool.ts`), Carnet articles (`server/models/carnetArticle.ts`).
 - **PostgreSQL** (via pg pool, `server/lib/pgsql.ts`) — Stores visitor count and visitor log.
 
-Public API routes in `server/api/` (no auth): `GET /api/projects`, `GET /api/stages`, `GET /api/profile`, `GET /api/ai-tools`, `GET /api/carnet`, `GET /api/visitors`, `POST /api/visitors`, `GET /api/auth/role` (`{ role: "admin" | "lecteur" }` from the optional Bearer token, via `isAdminRequest` — never throws, UI hint only).
+Public API routes in `server/api/` (no auth): `GET /api/projects`, `GET /api/stages`, `GET /api/profile`, `GET /api/ai-tools`, `GET /api/carnet`, `GET /api/visitors`, `POST /api/visitors`, `POST /api/contact` (contact form, validated, honeypot + 5/10 min/IP), `GET /api/auth/role` (`{ role: "admin" | "lecteur" }` from the optional Bearer token, via `isAdminRequest` — never throws, UI hint only).
 
 Admin API routes in `server/api/admin/` (all behind `requireAdminWrite` from `server/utils/requireAuth.ts` — verifies the Auth0 JWT and checks the email against `ADMIN_EMAIL`):
 - Projects: `GET/POST /api/admin/projects`, `PUT/DELETE /api/admin/projects/[id]`, `POST /api/admin/seed` (imports the static list into Mongo, upsert-only-on-insert)
