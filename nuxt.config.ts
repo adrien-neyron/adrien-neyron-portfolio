@@ -60,6 +60,10 @@ export default defineNuxtConfig({
     // Photos d'ambiance des projets : clé « Access Key » d'une app sur unsplash.com/oauth/applications
     // (serveur uniquement). Absente → pas de recherche auto, photos par défaut de data/projects.ts.
     unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY ?? "",
+    // Formulaire de contact (POST /api/contact) : Resend, offre gratuite. Clé absente → l'API répond 503.
+    resendApiKey: process.env.RESEND_API_KEY ?? "",
+    contactTo:    process.env.CONTACT_TO ?? process.env.ADMIN_EMAIL ?? "adrien.neyron@gmail.com",
+    contactFrom:  process.env.CONTACT_FROM ?? "Portfolio <onboarding@resend.dev>",
     public: {
       auth0Domain:   process.env.AUTH0_DOMAIN    ?? "",
       auth0ClientId: process.env.AUTH0_CLIENT_ID ?? "",

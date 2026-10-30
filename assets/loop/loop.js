@@ -2336,12 +2336,18 @@ $$('#bivtext .cnt').forEach(b=>b.addEventListener('click',()=>{
   if(!u){cntStatus.textContent={email:'L\'adresse e-mail reste à renseigner.',linkedin:'Le lien LinkedIn reste à renseigner.',rdv:'Le lien de prise de rendez-vous reste à renseigner.',github:'Le lien GitHub reste à renseigner.'}[k];return}
   if(k==='email')location.href='mailto:'+u;else window.open(u,'_blank','noopener');
 }));
-$('#cntForm').addEventListener('submit',e=>{
-  e.preventDefault();const f=e.target;
+$('#cntForm').addEventListener('submit',async e=>{
+  e.preventDefault();const f=e.target,btn=f.querySelector('.cnt-send');
   if(!f.checkValidity()){cntStatus.textContent='Merci de remplir les trois champs, avec une adresse e-mail valide.';const bad=f.querySelector(':invalid');if(bad)bad.focus();return}
-  if(CONTACT.email){location.href='mailto:'+CONTACT.email+'?subject='+encodeURIComponent('Contact depuis le portfolio')+'&body='+encodeURIComponent(f.elements.message.value+'\n\n'+f.elements.nom.value+' ('+f.elements.email.value+')');cntStatus.textContent='Votre messagerie s\'ouvre avec le message prêt.'}
-  else cntStatus.textContent='Prototype : le formulaire n\'est pas encore relié à un service d\'envoi.';
-  CAMP.stoke(1);setTimeout(()=>CAMP.stoke(0),900);
+  if(btn.disabled)return;
+  btn.disabled=true;cntStatus.textContent='Envoi en cours…';
+  const mailto=()=>CONTACT.email?' Vous pouvez aussi écrire à '+CONTACT.email+'.':'';
+  try{   // envoi réel par POST /api/contact ; le texte saisi n'est jamais effacé en cas d'échec
+    const r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom:f.elements.nom.value,email:f.elements.email.value,message:f.elements.message.value,site:f.elements.site.value})});
+    if(r.ok){cntStatus.textContent='Message envoyé. Je réponds sous 48 h.';f.reset();CAMP.stoke(1);setTimeout(()=>CAMP.stoke(0),900)}
+    else{let m='';try{m=(await r.json()).statusMessage||''}catch(_){}cntStatus.textContent=(m||'Le message n\'a pas pu être envoyé.')+mailto()}
+  }catch(_){cntStatus.textContent='Le serveur ne répond pas. Votre texte est conservé.'+mailto()}
+  btn.disabled=false;
 });
 $$('#bivtext .cnt,#bivtext input,#bivtext textarea,#bivtext .cnt-send,#restart').forEach(el=>{
   el.addEventListener('pointerenter',()=>CAMP.stoke(1));el.addEventListener('pointerleave',()=>CAMP.stoke(0));
