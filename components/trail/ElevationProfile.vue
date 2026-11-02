@@ -46,8 +46,8 @@ const markers = computed(() => {
       ...ms,
       leftPct: (x / VB_W) * 100,
       top: y,
+      stem: props.height - y,
       align: i === 0 ? "start" : i === m - 1 ? "end" : "center",
-      below: y < props.height / 2,
     };
   });
 });
@@ -70,12 +70,13 @@ const markers = computed(() => {
       v-for="(m, i) in markers"
       :key="i"
       class="marker"
-      :class="[`align-${m.align}`, m.below ? 'below' : 'above']"
+      :class="`align-${m.align}`"
       :style="{ left: `${m.leftPct}%`, top: `${m.top}px` }"
       aria-hidden="true"
     >
+      <span v-if="!compact" class="stem" :style="{ height: `${m.stem}px` }" />
       <span class="dot" />
-      <span class="label">
+      <span class="label" :style="{ top: `${compact ? 14 : m.stem + 10}px` }">
         <span class="label-title">{{ m.label }}</span>
         <span v-if="m.detail" class="label-detail">{{ m.detail }}</span>
       </span>
@@ -96,6 +97,8 @@ svg { display: block; width: 100%; overflow: visible; }
   position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%;
   background: var(--color-bg); border: 3px solid var(--color-accent);
 }
+/* étiquettes rangées sous le tracé, reliées au point par un fil : elles ne chevauchent jamais la courbe */
+.stem { position: absolute; left: -0.5px; top: 7px; width: 0; border-left: 1px dashed color-mix(in srgb, var(--color-accent) 55%, transparent); }
 .label {
   position: absolute; display: flex; flex-direction: column; gap: 2px;
   white-space: nowrap; font-size: 13px; line-height: 1.3;
@@ -105,8 +108,6 @@ svg { display: block; width: 100%; overflow: visible; }
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent);
 }
 .label-detail { color: var(--color-text); }
-.below .label { top: 14px; }
-.above .label { bottom: 14px; }
 .align-start .label { left: -7px; }
 .align-center .label { left: 0; transform: translateX(-50%); text-align: center; }
 .align-end .label { right: -7px; text-align: right; }

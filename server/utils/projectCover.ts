@@ -1,5 +1,5 @@
 /**
- * Photos d'ambiance des cartes projet (« grain skate »)
+ * Photos d'ambiance des cartes projet
  * ─────────────────────────────────────────────────────
  * Ordre de priorité (du plus fort au plus faible) :
  *
@@ -15,9 +15,7 @@
  *      → le front retombe sur la photo par défaut du slug (data/projects.ts),
  *      puis sur la capture d'écran.
  *
- * Le filtre visuel n'est PAS appliqué ici : c'est la classe CSS `.grain-photo`
- * (assets/css/main.css) qui traite toutes les photos, quelle que soit leur
- * source. La base stocke l'original.
+ * Aucun filtre visuel : la base stocke l'original et le site l'affiche en couleur.
  *
  * Licence Unsplash : les photos sont affichées depuis images.unsplash.com
  * (hotlink demandé par les règles de l'API), le photographe est crédité avec
@@ -70,8 +68,8 @@ const RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Sujet photo par catégorie, en anglais (Unsplash indexe surtout en anglais).
- * Des objets et des lieux, jamais des écrans : le grain N&B rend les captures
- * illisibles, et une photo « d'ambiance » raconte le métier, pas l'interface.
+ * Des objets et des lieux, jamais des écrans : une photo « d'ambiance » raconte
+ * le métier, pas l'interface.
  */
 const CATEGORY_QUERIES: Record<string, string> = {
   "Mobile":         "clothes hanger wardrobe",

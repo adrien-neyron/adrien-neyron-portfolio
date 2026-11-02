@@ -11,7 +11,7 @@ import { gotoReady } from './helpers'
  *  - toute règle axe autre que `color-contrast` doit être à 0 violation (bloquant) ;
  *  - `color-contrast` suit un « cliquet » (a11y-baseline.json) : dette connue, qui ne peut que diminuer.
  */
-const PAGES = ['/', '/about', '/projects', '/carnet', '/ai-tools', '/contact', '/outils/allure-denivele']
+const PAGES = ['/', '/about', '/projects', '/carnet', '/ai-tools', '/contact', '/outils/allure-denivele', '/projects/dgfip-outil-metier']
 const baseline = JSON.parse(readFileSync(new URL('./a11y-baseline.json', import.meta.url), 'utf8')) as Record<string, Record<string, number>>
 
 /** Stabilise la page avant mesure : données chargées, apparitions au scroll déclenchées, fondus JS (v-motion) terminés. */

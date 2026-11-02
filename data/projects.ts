@@ -11,7 +11,7 @@ export interface ProjectData {
   result: string;
   technologies: string[];
   image: { light?: string; dark?: string };
-  cover?: string;         // photo d'ambiance « grain skate » (cartes + en-tête de fiche)
+  cover?: string;         // photo d'ambiance (cartes + en-tête de fiche)
   coverCredit?: string;
   coverCreditUrl?: string;
   link?: string;

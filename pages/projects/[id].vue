@@ -3,6 +3,8 @@
  * Fiche topo d'un sentier (projet) — refonte « L'ascension ».
  * Départ (description) → Passages délicats (challenge) → Itinéraire (solution)
  * → Arrivée (result + stats). Données : store projets (Mongo + repli statique).
+ * Mise en page du 30/10/2026 : en-tête en deux colonnes (texte + visuel en couleur), liens d'action dès le haut,
+ * sentier vertical qui relie les étapes de la fiche, appel au contact en fin de page.
  */
 import { ExternalLink, Github } from "lucide-vue-next";
 import { useProjectsStore, type Project } from "~/stores/projects";
@@ -60,6 +62,12 @@ const hasImage = computed(() => {
   return !!src && !src.includes("projectsoon");
 });
 
+// Visuel d'en-tête : photo d'ambiance (en couleur), sinon la capture dans un cadre de navigateur
+const heroKind = computed<"cover" | "shot" | "none">(() =>
+  project.value?.cover ? "cover" : hasImage.value ? "shot" : "none"
+);
+const gpsText = computed(() => [project.value?.place, coords.value].filter(Boolean).join(" · "));
+
 const facts = computed(() => {
   const p = project.value!;
   return [
@@ -73,20 +81,20 @@ const facts = computed(() => {
 
 // Sommaire : seulement les sections réellement présentes sur la fiche
 const sections = computed(() => [
-  { id: "depart",     label: "Départ — le contexte", show: true },
-  { id: "passages",   label: "Passages délicats",    show: !!project.value?.challenge },
-  { id: "itineraire", label: "L'itinéraire choisi",  show: !!project.value?.solution },
-  { id: "arrivee",    label: "Arrivée — résultats",  show: true },
+  { id: "depart",     label: "Départ — le contexte", title: "Le point de départ",         show: true },
+  { id: "passages",   label: "Passages délicats",    title: "Les difficultés du terrain", show: !!project.value?.challenge },
+  { id: "itineraire", label: "L'itinéraire choisi",  title: "Comment je suis passé",      show: !!project.value?.solution },
+  { id: "arrivee",    label: "Arrivée — résultats",  title: "Ce qui a changé",            show: true },
 ].filter((s) => s.show));
 </script>
 
 <template>
   <div v-if="project">
-    <!-- En-tête -->
+    <!-- En-tête : texte à gauche, visuel à droite -->
     <header class="relative overflow-hidden">
       <TrailContourBackground :seed="11 + currentIndex" :cx="76" :cy="48" />
-      <div class="relative max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 py-14 sm:py-20">
-        <nav aria-label="Fil d'Ariane" class="font-mono text-xs text-(--color-muted) mb-6">
+      <div class="relative max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pt-10 sm:pt-14 pb-10 sm:pb-14">
+        <nav aria-label="Fil d'Ariane" class="font-mono text-xs text-(--color-muted) mb-8">
           <ol class="flex flex-wrap gap-2">
             <li><NuxtLink to="/" class="hover:underline">Accueil</NuxtLink></li>
             <li aria-hidden="true">/</li>
@@ -96,61 +104,84 @@ const sections = computed(() => [
           </ol>
         </nav>
 
-        <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-accent) mb-4 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span>{{ stage ? stage.label : `Sentier ${number}` }}<template v-if="project.place"> · {{ project.place }}</template></span>
-          <span v-if="coords" class="text-(--color-muted) normal-case tracking-normal">— {{ coords }}</span>
-        </p>
+        <div :class="['grid gap-10 items-center', heroKind !== 'none' ? 'lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14' : '']">
+          <div>
+            <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-accent) mb-4 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span>{{ stage ? stage.label : `Sentier ${number}` }}<template v-if="project.place"> · {{ project.place }}</template></span>
+              <span v-if="coords" class="text-(--color-muted) normal-case tracking-normal">— {{ coords }}</span>
+            </p>
 
-        <h1 class="text-4xl sm:text-6xl leading-[1.02] text-(--color-text) max-w-3xl">
-          {{ project.title }}
-        </h1>
-        <p v-if="project.tagline" class="mt-4 text-xl sm:text-2xl text-(--color-accent) max-w-3xl" style="font-family: var(--font-title); font-style: italic;">
-          {{ project.tagline }}
-        </p>
-        <!-- Sur la trace : l'étape et son résultat clé (mêmes données que l'accueil) -->
-        <p v-if="stage" class="mt-6 font-mono text-sm text-(--color-text) flex flex-wrap gap-x-3 gap-y-1">
-          <span>{{ stageHeading(stage) }}<template v-if="stage.period"> · {{ stage.period }}</template></span>
-          <strong v-if="stage.keyResult" class="font-semibold text-(--color-accent)">{{ stage.keyResult }}</strong>
-        </p>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl leading-[1.04] text-(--color-text)">
+              {{ project.title }}
+            </h1>
+            <p v-if="project.tagline" class="mt-4 text-xl sm:text-2xl text-(--color-accent)" style="font-family: var(--font-title); font-style: italic;">
+              {{ project.tagline }}
+            </p>
+
+            <!-- Sur la trace : l'étape et son résultat clé (mêmes données que l'accueil) -->
+            <div v-if="stage" class="key-result mt-7">
+              <p class="font-mono text-xs uppercase tracking-[0.12em] text-(--color-muted)">
+                {{ stageHeading(stage) }}<template v-if="stage.period"> · {{ stage.period }}</template>
+              </p>
+              <p v-if="stage.keyResult" class="mt-1 text-2xl text-(--color-text)" style="font-family: var(--font-title);">
+                {{ stage.keyResult }}
+              </p>
+            </div>
+
+            <!-- Actions dès le haut de la fiche -->
+            <div v-if="project.link || project.code" class="flex flex-wrap gap-3 mt-8">
+              <a v-if="project.link" :href="project.link" target="_blank" rel="noopener noreferrer" class="button-accent px-6 py-3 min-h-11 rounded-full text-sm font-semibold inline-flex items-center gap-2">
+                <ExternalLink :size="16" aria-hidden="true" /> Voir le site <span class="sr-only">(nouvel onglet)</span>
+              </a>
+              <a v-if="project.code" :href="project.code" target="_blank" rel="noopener noreferrer" class="button-empty px-6 py-3 min-h-11 rounded-full text-sm font-semibold inline-flex items-center gap-2">
+                <Github :size="16" aria-hidden="true" /> Voir le code <span class="sr-only">(nouvel onglet)</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Visuel : photo d'ambiance en couleur (décorative, alt vide, RGAA 1.2), sinon la capture dans un cadre -->
+          <figure v-if="heroKind !== 'none'" class="hero-visual">
+            <div v-if="heroKind === 'cover'" class="visual-frame">
+              <NuxtImg :src="project.cover!" alt="" width="1200" height="750" class="w-full h-full object-cover" />
+              <span v-if="gpsText" class="gps-tag absolute bottom-3 left-3" aria-hidden="true">{{ gpsText }}</span>
+            </div>
+            <div v-else class="visual-frame browser">
+              <div class="browser-bar" aria-hidden="true"><span /><span /><span /></div>
+              <NuxtImg
+                :src="project.image!.light!"
+                :alt="`Capture d'écran : ${project.title}`"
+                width="1200"
+                height="750"
+                class="w-full object-cover object-top"
+              />
+            </div>
+            <figcaption v-if="heroKind === 'cover' && project.coverCredit" class="mt-2 font-mono text-[11px] text-(--color-muted)">
+              Photo :
+              <a v-if="project.coverCreditUrl" :href="project.coverCreditUrl" target="_blank" rel="noopener" class="underline underline-offset-2 hover:text-(--color-accent)">
+                {{ project.coverCredit }}<span class="sr-only"> (nouvelle fenêtre)</span>
+              </a>
+              <template v-else>{{ project.coverCredit }}</template>
+            </figcaption>
+          </figure>
+        </div>
       </div>
     </header>
 
-    <!-- Photo d'ambiance « grain skate » (décorative : alt vide, RGAA 1.2).
-         Le lieu et les coordonnées sont déjà dans l'en-tête ; l'étiquette GPS
-         sur la photo est donc masquée aux lecteurs d'écran. -->
-    <figure v-if="project.cover" class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 mb-10">
-      <div class="grain-photo rounded-xl h-56 sm:h-80 lg:h-[26rem]">
-        <NuxtImg :src="project.cover" alt="" width="1600" height="700" class="w-full h-full object-cover" />
-        <span v-if="project.place || coords" class="gps-tag absolute bottom-3 left-3" aria-hidden="true">
-          {{ [project.place, coords].filter(Boolean).join(" · ") }}
-        </span>
-      </div>
-      <figcaption v-if="project.coverCredit" class="mt-2 font-mono text-[11px] text-(--color-muted)">
-        Photo :
-        <a v-if="project.coverCreditUrl" :href="project.coverCreditUrl" target="_blank" rel="noopener" class="underline underline-offset-2 hover:text-(--color-accent)">
-          {{ project.coverCredit }}<span class="sr-only"> (nouvelle fenêtre)</span>
-        </a>
-        <template v-else>{{ project.coverCredit }}</template>
-      </figcaption>
-    </figure>
-
-    <!-- Fiche technique -->
-    <dl class="border-y border-(--color-accent)/20 bg-(--color-surface)">
-      <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 grid grid-cols-2 lg:grid-cols-5">
-        <div
-          v-for="(f, i) in facts"
-          :key="f.k"
-          :class="['py-4 pr-4', i > 0 ? 'lg:pl-5 lg:border-l lg:border-(--color-accent)/20' : '']"
-        >
+    <!-- Fiche technique : une carte par information -->
+    <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20">
+      <dl class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div v-for="f in facts" :key="f.k" class="fact">
           <dt class="font-mono text-[11px] uppercase tracking-[0.12em] text-(--color-muted)">{{ f.k }}</dt>
-          <dd class="mt-1 text-sm font-medium text-(--color-text)">{{ f.v }}</dd>
+          <dd class="mt-1.5 text-sm font-medium text-(--color-text) leading-snug">{{ f.v }}</dd>
         </div>
-      </div>
-    </dl>
+      </dl>
+    </div>
 
     <!-- Profil du sentier -->
-    <figure class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pt-12">
-      <TrailElevationProfile :points="points" :milestones="milestones" :height="190" />
+    <figure class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 mt-10">
+      <div class="profile-card">
+        <TrailElevationProfile :points="points" :milestones="milestones" :height="150" />
+      </div>
       <figcaption class="mt-3 font-mono text-xs text-(--color-muted)">
         Profil du sentier<template v-if="milestones.length"> :
           <span v-for="(m, i) in milestones" :key="m.label">{{ m.label }}<template v-if="m.detail"> ({{ m.detail }})</template>{{ i < milestones.length - 1 ? " → " : "." }}</span>
@@ -159,84 +190,82 @@ const sections = computed(() => [
     </figure>
 
     <!-- Topo-guide -->
-    <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 py-14 grid gap-12 lg:grid-cols-[220px_minmax(0,1fr)]">
+    <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 py-14 grid gap-10 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-14">
       <nav aria-label="Itinéraire de la fiche" class="lg:sticky lg:top-24 self-start">
         <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-muted) mb-3">Itinéraire</p>
-        <ol class="flex flex-wrap lg:flex-col gap-3">
-          <li v-for="s in sections" :key="s.id">
-            <a :href="`#${s.id}`" class="toc-link">{{ s.label }}</a>
+        <ol class="flex flex-wrap lg:flex-col gap-x-5 gap-y-3">
+          <li v-for="(s, i) in sections" :key="s.id">
+            <a :href="`#${s.id}`" class="toc-link"><span class="toc-n" aria-hidden="true">{{ i + 1 }}</span>{{ s.label }}</a>
           </li>
         </ol>
       </nav>
 
-      <div class="flex flex-col gap-14">
-        <section id="depart" class="topo-section" aria-labelledby="h-depart">
-          <p class="topo-eyebrow"><span class="blaze" aria-hidden="true" />Départ — le contexte</p>
-          <h2 id="h-depart" class="topo-h2">Le point de départ</h2>
-          <p v-for="(p, i) in toParagraphs(project.description)" :key="i" class="topo-p">{{ p }}</p>
-          <!-- Capture d'écran : laissée nette (pas de grain) pour rester lisible -->
-          <figure v-if="hasImage" class="relative mt-2 overflow-hidden rounded-xl border border-(--color-accent)/15">
-            <NuxtImg
-              :src="project.image!.light!"
-              :alt="`Capture d'écran : ${project.title}`"
-              width="1200"
-              height="600"
-              class="w-full"
-            />
-            <figcaption v-if="!project.cover && (project.place || coords)" class="gps-tag absolute bottom-3 left-3">
-              {{ [project.place, coords].filter(Boolean).join(" · ") }}
-            </figcaption>
-          </figure>
-        </section>
+      <!-- Le sentier : une ligne verticale relie les étapes de la fiche -->
+      <div class="trail">
+        <section v-for="(s, i) in sections" :id="s.id" :key="s.id" class="chapter" :aria-labelledby="`h-${s.id}`">
+          <span class="chapter-n" aria-hidden="true">{{ i + 1 }}</span>
+          <p class="topo-eyebrow">{{ s.label }}</p>
+          <h2 :id="`h-${s.id}`" class="topo-h2">{{ s.title }}</h2>
 
-        <section v-if="project.challenge" id="passages" class="topo-section" aria-labelledby="h-passages">
-          <p class="topo-eyebrow"><span class="blaze" aria-hidden="true" />Passages délicats</p>
-          <h2 id="h-passages" class="topo-h2">Les difficultés du terrain</h2>
-          <p v-for="(p, i) in toParagraphs(project.challenge)" :key="i" class="topo-p">{{ p }}</p>
-        </section>
+          <template v-if="s.id === 'depart'">
+            <p v-for="(p, k) in toParagraphs(project.description)" :key="k" class="topo-p">{{ p }}</p>
+            <!-- Capture d'écran : à cet endroit seulement si elle n'est pas déjà le visuel d'en-tête -->
+            <figure v-if="hasImage && heroKind === 'cover'" class="visual-frame browser mt-2">
+              <div class="browser-bar" aria-hidden="true"><span /><span /><span /></div>
+              <NuxtImg :src="project.image!.light!" :alt="`Capture d'écran : ${project.title}`" width="1200" height="600" class="w-full" />
+            </figure>
+          </template>
 
-        <section v-if="project.solution" id="itineraire" class="topo-section" aria-labelledby="h-itineraire">
-          <p class="topo-eyebrow"><span class="blaze" aria-hidden="true" />L'itinéraire choisi</p>
-          <h2 id="h-itineraire" class="topo-h2">Comment je suis passé</h2>
-          <p v-for="(p, i) in toParagraphs(project.solution)" :key="i" class="topo-p">{{ p }}</p>
-        </section>
+          <template v-else-if="s.id === 'passages'">
+            <p v-for="(p, k) in toParagraphs(project.challenge)" :key="k" class="topo-p">{{ p }}</p>
+          </template>
 
-        <section id="arrivee" class="topo-section" aria-labelledby="h-arrivee">
-          <p class="topo-eyebrow"><span class="blaze" aria-hidden="true" />Arrivée — résultats</p>
-          <h2 id="h-arrivee" class="topo-h2">Ce qui a changé</h2>
-          <p v-for="(p, i) in toParagraphs(project.result)" :key="i" class="topo-p">{{ p }}</p>
+          <template v-else-if="s.id === 'itineraire'">
+            <p v-for="(p, k) in toParagraphs(project.solution)" :key="k" class="topo-p">{{ p }}</p>
+          </template>
 
-          <ul v-if="project.stats?.length" class="grid gap-4 sm:grid-cols-3 mt-2">
-            <li v-for="s in project.stats" :key="s.value + s.label" class="rounded-lg bg-(--color-surface) p-5">
-              <span class="block text-4xl leading-none text-(--color-accent)" style="font-family: var(--font-title);">{{ s.value }}</span>
-              <span class="block mt-2 text-sm text-(--color-muted)">{{ s.label }}</span>
-            </li>
-          </ul>
+          <template v-else>
+            <p v-for="(p, k) in toParagraphs(project.result)" :key="k" class="topo-p">{{ p }}</p>
 
-          <ul class="flex flex-wrap gap-2 mt-2" aria-label="Technologies">
-            <li v-for="tech in project.technologies" :key="tech"><UiTechBadge :label="tech" variant="featured" /></li>
-          </ul>
+            <ul v-if="project.stats?.length" class="grid gap-3 sm:grid-cols-3 mt-2">
+              <li v-for="st in project.stats" :key="st.value + st.label" class="stat">
+                <span class="block text-4xl leading-none text-(--color-accent)" style="font-family: var(--font-title);">{{ st.value }}</span>
+                <span class="block mt-2 text-sm text-(--color-muted) leading-snug">{{ st.label }}</span>
+              </li>
+            </ul>
 
-          <div v-if="project.code || project.link" class="flex flex-wrap gap-3 mt-2">
-            <a v-if="project.code" :href="project.code" target="_blank" rel="noopener noreferrer" class="button-empty px-5 py-3 rounded-full text-sm font-semibold inline-flex items-center gap-2">
-              <Github :size="16" aria-hidden="true" /> Voir le code <span class="sr-only">(nouvel onglet)</span>
-            </a>
-            <a v-if="project.link" :href="project.link" target="_blank" rel="noopener noreferrer" class="button-accent px-5 py-3 rounded-full text-sm font-semibold inline-flex items-center gap-2">
-              <ExternalLink :size="16" aria-hidden="true" /> Voir le site <span class="sr-only">(nouvel onglet)</span>
-            </a>
-          </div>
+            <div class="mt-3">
+              <p class="font-mono text-xs uppercase tracking-[0.12em] text-(--color-muted) mb-2">Stack</p>
+              <ul class="flex flex-wrap gap-2" aria-label="Technologies">
+                <li v-for="tech in project.technologies" :key="tech"><UiTechBadge :label="tech" variant="featured" /></li>
+              </ul>
+            </div>
+          </template>
         </section>
       </div>
     </div>
 
+    <!-- Fin de fiche : prolonger vers le contact -->
+    <section class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pb-14" aria-labelledby="h-fin">
+      <div class="end-cta">
+        <div>
+          <h2 id="h-fin" class="text-2xl sm:text-3xl text-(--color-text)">Une étape à écrire ensemble&nbsp;?</h2>
+          <p class="mt-2 text-(--color-muted) max-w-xl">Un projet similaire, un audit d'accessibilité, une mission Vue 3 : dites-moi où vous voulez aller.</p>
+        </div>
+        <NuxtLink to="/contact" class="button-accent px-6 py-3 min-h-11 rounded-full text-sm font-semibold inline-flex items-center gap-2 shrink-0">
+          Me contacter <span aria-hidden="true">→</span>
+        </NuxtLink>
+      </div>
+    </section>
+
     <!-- Sentiers voisins -->
-    <nav v-if="prevProject && nextProject" aria-label="Sentiers voisins" class="border-t border-(--color-accent)/20">
-      <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 grid grid-cols-2">
-        <NuxtLink :to="`/projects/${slugOf(prevProject)}`" class="neighbour py-8 pr-4">
+    <nav v-if="prevProject && nextProject" aria-label="Sentiers voisins" class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pb-16">
+      <div class="grid sm:grid-cols-2 gap-3">
+        <NuxtLink :to="`/projects/${slugOf(prevProject)}`" class="neighbour">
           <span class="neighbour-k">← Sentier précédent</span>
           <span class="neighbour-t">{{ prevProject.title }}</span>
         </NuxtLink>
-        <NuxtLink :to="`/projects/${slugOf(nextProject)}`" class="neighbour py-8 pl-4 text-right border-l border-(--color-accent)/20">
+        <NuxtLink :to="`/projects/${slugOf(nextProject)}`" class="neighbour sm:text-right">
           <span class="neighbour-k">Sentier suivant →</span>
           <span class="neighbour-t">{{ nextProject.title }}</span>
         </NuxtLink>
@@ -246,32 +275,84 @@ const sections = computed(() => [
 </template>
 
 <style scoped>
-.toc-link {
-  display: inline-flex; align-items: center; gap: 0.6rem;
-  font-size: 0.95rem; color: var(--color-text); text-decoration: none;
+.key-result { border-left: 3px solid var(--color-accent); padding-left: 1rem; max-width: 34rem; }
+
+/* visuel d'en-tête */
+.hero-visual { margin: 0; }
+.visual-frame {
+  position: relative; overflow: hidden; border-radius: 1rem; aspect-ratio: 16 / 10;
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
+  box-shadow: 0 18px 48px -18px color-mix(in srgb, var(--color-text) 35%, transparent);
 }
-.toc-link::before {
-  content: ""; width: 10px; height: 10px; border-radius: 50%;
-  border: 2px solid var(--color-accent); flex: none;
+.visual-frame.browser { aspect-ratio: auto; }
+.browser-bar { display: flex; gap: 6px; padding: 10px 12px; background: var(--color-surface); border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 30%, transparent); }
+.browser-bar span { width: 9px; height: 9px; border-radius: 50%; background: color-mix(in srgb, var(--color-muted) 55%, transparent); }
+.hero-visual .browser img { max-height: 24rem; }
+
+/* fiche technique */
+.fact {
+  padding: 0.9rem 1rem; border-radius: 0.9rem; background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 14%, transparent);
 }
+
+/* profil */
+.profile-card {
+  padding: 1.5rem 1.5rem 0.5rem; border-radius: 1rem; background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+
+/* sommaire */
+.toc-link { display: inline-flex; align-items: center; gap: 0.7rem; min-height: 2.25rem; font-size: 0.95rem; color: var(--color-text); text-decoration: none; }
 .toc-link:hover { text-decoration: underline; text-underline-offset: 3px; }
-
-.topo-section { display: flex; flex-direction: column; gap: 1.1rem; border-top: 1.5px solid var(--color-text); padding-top: 1.5rem; scroll-margin-top: 6rem; }
-.topo-eyebrow {
-  display: flex; align-items: center; gap: 0.8rem; margin: 0;
-  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted);
+.toc-n {
+  display: inline-flex; align-items: center; justify-content: center; flex: none; width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--color-accent); color: var(--color-accent); font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
 }
-.topo-h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1.08; color: var(--color-text); margin: 0; }
-.topo-p { font-size: 1.05rem; line-height: 1.7; color: var(--color-text); max-width: 68ch; margin: 0; }
 
-/* balise de sentier GR : blanc au-dessus du rouge */
-.blaze { display: inline-flex; flex-direction: column; gap: 3px; }
-.blaze::before, .blaze::after { content: ""; width: 30px; height: 7px; }
-.blaze::before { background: #fff; outline: 1px solid color-mix(in srgb, var(--color-muted) 60%, transparent); outline-offset: -1px; }
-.blaze::after { background: #C8352B; }
+/* le sentier : ligne verticale pointillée + une balise numérotée par étape */
+.trail { position: relative; display: flex; flex-direction: column; gap: 3rem; padding-left: 3rem; }
+.trail::before {
+  content: ""; position: absolute; left: 15px; top: 16px; bottom: 16px; width: 0;
+  border-left: 2px dashed color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+.chapter { position: relative; display: flex; flex-direction: column; gap: 1rem; scroll-margin-top: 6rem; }
+.chapter-n {
+  position: absolute; left: -3rem; top: 0; width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-accent); color: var(--color-bg); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700;
+  box-shadow: 0 0 0 5px var(--color-bg);
+}
+.topo-eyebrow { margin: 0; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
+.topo-h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.1; color: var(--color-text); margin: 0; }
+.topo-p { font-size: 1.05rem; line-height: 1.75; color: var(--color-text); max-width: 68ch; margin: 0; }
 
-.neighbour { display: flex; flex-direction: column; gap: 0.35rem; text-decoration: none; }
+.stat {
+  padding: 1.1rem 1.25rem; border-radius: 0.9rem; background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 14%, transparent);
+  border-left: 3px solid var(--color-accent);
+}
+
+/* fin de fiche */
+.end-cta {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;
+  padding: 1.75rem 2rem; border-radius: 1.25rem; background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+
+/* voisins */
+.neighbour {
+  display: flex; flex-direction: column; gap: 0.35rem; text-decoration: none; padding: 1.25rem 1.5rem; border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent); transition: border-color 0.2s, background-color 0.2s;
+}
+.neighbour:hover { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-surface) 70%, transparent); }
 .neighbour-k { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-muted); }
-.neighbour-t { font-family: var(--font-title); font-size: clamp(1.3rem, 2.6vw, 2rem); line-height: 1.15; color: var(--color-text); }
+.neighbour-t { font-family: var(--font-title); font-size: clamp(1.25rem, 2.4vw, 1.8rem); line-height: 1.15; color: var(--color-text); }
 .neighbour:hover .neighbour-t { color: var(--color-accent); }
+
+@media (max-width: 640px) {
+  .trail { padding-left: 2.4rem; }
+  .chapter-n { left: -2.4rem; width: 28px; height: 28px; font-size: 0.75rem; }
+  .trail::before { left: 13px; }
+}
 </style>

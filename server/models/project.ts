@@ -11,7 +11,7 @@ export interface IProject extends Document {
   result?: string;
   technologies: string[];
   image?: { light?: string; dark?: string };        // capture d'écran (affichée nette sur la fiche)
-  // Photo d'ambiance « grain skate » (cartes + en-tête de fiche) et son crédit
+  // Photo d'ambiance (cartes + en-tête de fiche) et son crédit
   cover?: string;
   coverCredit?: string;                             // « Imthaz Ahamed / Unsplash »
   coverCreditUrl?: string;
