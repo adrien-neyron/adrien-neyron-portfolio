@@ -24,7 +24,7 @@ const currentIndex = computed(() => list.value.findIndex((p) => slugOf(p) === ro
 const project = computed(() => list.value[currentIndex.value]);
 
 if (!project.value) {
-  throw createError({ statusCode: 404, statusMessage: "Sentier introuvable", fatal: true });
+  throw createError({ statusCode: 404, statusMessage: "Projet introuvable", fatal: true });
 }
 
 // Étape de la trace qui porte ce projet : même numéro, nom et résultat clé que l'accueil et /projects (utils/stages.ts)
@@ -47,7 +47,7 @@ const nextProject = computed(() =>
 );
 
 useHead({
-  title: computed(() => `${project.value?.title ?? "Sentier"} — Sentiers | Adrien Neyron`),
+  title: computed(() => `${project.value?.title ?? "Projet"} — Projets | Adrien Neyron`),
   meta: [{ name: "description", content: computed(() => project.value?.tagline || project.value?.description || "") }],
 });
 
@@ -94,7 +94,7 @@ const sections = computed(() => [
           <ol class="flex flex-wrap gap-2">
             <li><NuxtLink to="/" class="hover:underline">Accueil</NuxtLink></li>
             <li aria-hidden="true">/</li>
-            <li><NuxtLink to="/projects" class="hover:underline">Sentiers</NuxtLink></li>
+            <li><NuxtLink to="/projects" class="hover:underline">Projets</NuxtLink></li>
             <li aria-hidden="true">/</li>
             <li aria-current="page">{{ project.title }}</li>
           </ol>
@@ -103,7 +103,7 @@ const sections = computed(() => [
         <div :class="['grid gap-10 items-center', heroKind !== 'none' ? 'lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14' : '']">
           <div>
             <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-accent) mb-4 flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span>{{ stage ? stage.label : `Sentier ${number}` }}<template v-if="project.place"> · {{ project.place }}</template></span>
+              <span>{{ stage ? stage.label : `Projet ${number}` }}<template v-if="project.place"> · {{ project.place }}</template></span>
               <span v-if="coords" class="text-(--color-muted) normal-case tracking-normal">— {{ coords }}</span>
             </p>
 
@@ -243,14 +243,14 @@ const sections = computed(() => [
     </section>
 
     <!-- Sentiers voisins -->
-    <nav v-if="prevProject && nextProject" aria-label="Sentiers voisins" class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pb-16">
+    <nav v-if="prevProject && nextProject" aria-label="Projets voisins" class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pb-16">
       <div class="grid sm:grid-cols-2 gap-3">
         <NuxtLink :to="`/projects/${slugOf(prevProject)}`" class="neighbour">
-          <span class="neighbour-k">← Sentier précédent</span>
+          <span class="neighbour-k">← Projet précédent</span>
           <span class="neighbour-t">{{ prevProject.title }}</span>
         </NuxtLink>
         <NuxtLink :to="`/projects/${slugOf(nextProject)}`" class="neighbour sm:text-right">
-          <span class="neighbour-k">Sentier suivant →</span>
+          <span class="neighbour-k">Projet suivant →</span>
           <span class="neighbour-t">{{ nextProject.title }}</span>
         </NuxtLink>
       </div>

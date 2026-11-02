@@ -86,7 +86,7 @@ Chaque étape : tests, axe, contrastes, Lighthouse, mise à jour de ce fichier e
 - [x] Étape 3 — navigation unique (02/11/2026, branche `feat/menu-unique-fiche-epuree`) :
   - source unique `data/navigation.ts` (ordre et libellés de la boucle : Se repérer · Accueil, S'équiper · Équipement, Monter · Sentiers, Persévérer · Le Randonneur et Carnet, Se poser · Contact) pour le menu des pages, le pied de page et le menu « Étapes » de l'accueil (`loop.html`, garde-fou : `tests/unit/navigation.test.ts`) ;
   - `TrailNav` refait : bouton « Étapes » avec libellé visible, tiroir aux couleurs des rôles (jour / nuit), `/about` présent, Échap + retour du focus, cibles 44 px, **barre de progression du scroll supprimée**, identité du centre lisible (corrige la dette `.identity`) ;
-  - boucle : « Atelier » → « Équipement », « Expériences » → « Sentiers » (menu et surtitres), lien d'en-tête « Projets » → « Sentiers ».
+  - boucle : « Atelier » → « Équipement », « Expériences » → « Projets » (menu et surtitres), lien d'en-tête « Projets » → « Projets ».
   - Reste : les deux menus d'**instruments** (réglages d'affichage : « Outils » de la boucle, engrenage des pages) sont encore deux composants distincts ; la boucle ne propose pas de liens directs vers `/about`, `/carnet`, `/ai-tools`.
 - [ ] Étape 4 — charte unique
 - [ ] Étape 5 — pied de page commun, mentions légales, accessibilité
@@ -128,3 +128,5 @@ Hex ou `rgba()` dans le code des pages et composants (hors boucle) : `TrailNav.v
 
 ### Reste à vérifier
 `npm test`, `npm run build && npm run test:e2e`, Lighthouse mobile (perf ≥ 90, a11y 100), essai à la molette et au pavé sur l'accueil.
+
+> **02/11/2026 — « Sentiers » devient « Projets »** : le libellé visible du menu, de l'en-tête de l'accueil, du titre/fil d'Ariane/compteur de `/projects` et des fiches (« Projet 01 », voisins) est « Projets ». Les URL (`/projects`) et la métaphore « Monter » ne changent pas ; le mot « sentier » reste dans le texte narratif (accroche, passages décrivant la trace).

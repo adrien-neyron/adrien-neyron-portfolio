@@ -5,7 +5,7 @@ import { watchErrors, gotoReady } from './helpers'
 const PAGES: { path: string; title: RegExp }[] = [
   { path: '/', title: /Adri|Neyron/i },
   { path: '/about', title: /Randonneur/ },
-  { path: '/projects', title: /Sentiers|Projets/i },
+  { path: '/projects', title: /Projets/i },
   { path: '/carnet', title: /Carnet/i },
   { path: '/ai-tools', title: /Équipement IA/ },
   { path: '/contact', title: /Bivouac/ },
