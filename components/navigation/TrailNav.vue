@@ -167,7 +167,7 @@ onUnmounted(() => { panel.value = null; });
 
 .steps { list-style: none; margin: 0; padding: 0 8px; display: flex; flex-direction: column; gap: 2px; }
 .step { padding: 6px 6px 4px; border-radius: 14px; }
-.step.is-active { background: color-mix(in srgb, var(--color-accent) 9%, transparent); box-shadow: inset 3px 0 0 var(--color-accent); }
+.step.is-active { box-shadow: inset 3px 0 0 var(--color-accent); }
 .step-h { display: flex; align-items: baseline; gap: 12px; margin: 0; padding: 0 6px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
 .step.is-active .step-h { color: var(--color-accent); }
 .step-n { color: var(--color-accent); letter-spacing: 0.06em; }
