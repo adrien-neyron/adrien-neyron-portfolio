@@ -3,7 +3,7 @@ import { ref, watch, nextTick, onUnmounted } from "vue";
 import { NAV_STEPS } from "~/data/navigation";
 
 /**
- * Menu unique des pages : mêmes étapes, même ordre et mêmes libellés que le menu « Étapes »
+ * Menu unique des pages : mêmes étapes, même ordre et mêmes libellés que le menu de l'accueil
  * de l'accueil (data/navigation.ts). Réglages d'affichage (thème, son…) à gauche, menu à droite.
  */
 const route    = useRoute();
@@ -62,7 +62,7 @@ watch(() => route.path, () => { isOpen.value = false; });
         @click="isOpen ? close(false) : (isOpen = true)"
       >
         <span class="topo-lines" aria-hidden="true"><i /><i /><i /></span>
-        <span>Étapes</span>
+        <span>Menu</span>
       </button>
     </div>
   </header>
@@ -75,7 +75,7 @@ watch(() => route.path, () => { isOpen.value = false; });
     <Transition name="drawer">
       <nav v-if="isOpen" id="site-menu" ref="drawer" aria-label="Navigation principale" class="nav-drawer" @keydown="onKey">
         <div class="drawer-head">
-          <span class="drawer-eyebrow">Parcours · 5 étapes</span>
+          <span class="drawer-eyebrow">Parcours</span>
           <button type="button" class="drawer-close" @click="close()">Fermer<span class="sr-only"> le menu</span></button>
         </div>
 
@@ -119,7 +119,7 @@ watch(() => route.path, () => { isOpen.value = false; });
 }
 .identity:hover { color: var(--color-accent); }
 
-/* bouton « Étapes » : libellé toujours visible (la métaphore seule ne suffit pas) */
+/* bouton « Menu » : libellé toujours visible (la métaphore seule ne suffit pas) */
 .menu-btn {
   display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px;
   font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
