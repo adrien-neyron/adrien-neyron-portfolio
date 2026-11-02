@@ -46,6 +46,11 @@ const nextProject = computed(() =>
   navList.value.length > 1 ? navList.value[(navIndex.value + 1) % navList.value.length] : undefined
 );
 
+// Le menu de l'en-tête indique « Projets ↳ <ce projet> » (vous êtes ici)
+const navSub = useState<string>("nav-sub", () => "");
+watchEffect(() => { navSub.value = project.value?.title ?? ""; });
+onBeforeUnmount(() => { navSub.value = ""; });
+
 useHead({
   title: computed(() => `${project.value?.title ?? "Projet"} — Projets | Adrien Neyron`),
   meta: [{ name: "description", content: computed(() => project.value?.tagline || project.value?.description || "") }],

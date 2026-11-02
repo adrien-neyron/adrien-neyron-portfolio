@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, onUnmounted } from "vue";
+import { ref, computed, watch, nextTick, onUnmounted } from "vue";
 import { NAV_STEPS } from "~/data/navigation";
 
 /**
- * Menu unique des pages : mêmes étapes, même ordre et mêmes libellés que le menu « Étapes »
- * de l'accueil (data/navigation.ts). Réglages d'affichage (thème, son…) à gauche, menu à droite.
+ * En-tête unique des pages, calqué sur celui de l'accueil : marque à gauche, puis « Menu | Projets | Outils »
+ * (mêmes libellés, même ordre), panneaux déroulants centrés sous l'en-tête. Le panneau « Menu » liste les étapes
+ * de data/navigation.ts (mêmes que l'accueil) et indique « vous êtes ici » ; sur une fiche projet, la ligne
+ * « Projets » porte le nom du projet (useState « nav-sub », renseigné par la fiche).
  */
-const route    = useRoute();
-const isOpen   = ref(false);
-const burger   = ref<HTMLButtonElement | null>(null);
-const drawer   = ref<HTMLElement | null>(null);
+type Panel = "menu" | "tools" | null;
+const route  = useRoute();
+const panel  = ref<Panel>(null);
+const menuBtn  = ref<HTMLButtonElement | null>(null);
+const toolsBtn = ref<HTMLButtonElement | null>(null);
+const menuEl   = ref<HTMLElement | null>(null);
+const toolsEl  = ref<HTMLElement | null>(null);
+const sub = useState<string>("nav-sub", () => "");
 
 function isActive(path: string) {
   if (path === "/") return route.path === "/";
@@ -20,24 +26,24 @@ function ariaCurrent(path: string): "page" | "true" | undefined {
   if (!isActive(path)) return undefined;
   return route.path === path ? "page" : "true";
 }
+const projectsCurrent = computed(() => ariaCurrent("/projects"));
 
-// Ouvert : le défilement de la page est bloqué, le focus entre dans le menu ; fermé : il revient au bouton
-watch(isOpen, async (open) => {
-  if (!import.meta.client) return;
-  document.body.style.overflow = open ? "hidden" : "";
-  if (open) {
-    await nextTick();
-    drawer.value?.querySelector<HTMLElement>("a, button")?.focus();
-  }
-});
-onUnmounted(() => { if (import.meta.client) document.body.style.overflow = ""; });
-
+function toggle(p: Exclude<Panel, null>) { panel.value = panel.value === p ? null : p; }
 function close(returnFocus = true) {
-  isOpen.value = false;
-  if (returnFocus) nextTick(() => burger.value?.focus());
+  const was = panel.value;
+  panel.value = null;
+  if (returnFocus && was) nextTick(() => (was === "menu" ? menuBtn : toolsBtn).value?.focus());
 }
-function onKey(e: KeyboardEvent) { if (e.key === "Escape" && isOpen.value) close(); }
-watch(() => route.path, () => { isOpen.value = false; });
+function onKey(e: KeyboardEvent) { if (e.key === "Escape" && panel.value) close(); }
+
+// Ouvert : le focus entre dans le panneau ; Échap ou clic à côté le referme et rend le focus au bouton
+watch(panel, async (p) => {
+  if (!p) return;
+  await nextTick();
+  (p === "menu" ? menuEl : toolsEl).value?.querySelector<HTMLElement>("a, button")?.focus();
+});
+watch(() => route.path, () => { panel.value = null; });
+onUnmounted(() => { panel.value = null; });
 </script>
 
 <template>
@@ -46,59 +52,60 @@ watch(() => route.path, () => { isOpen.value = false; });
 
   <header role="banner" class="nav-header" @keydown="onKey">
     <div class="nav-inner">
-      <!-- Gauche : réglages d'affichage -->
-      <NavigationSettingsGear />
+      <NuxtLink to="/" class="brand" aria-label="Cordée, retour à l'accueil">
+        <svg class="logo" aria-hidden="true" focusable="false" viewBox="0 0 40 56">
+          <g transform="rotate(20 20 28)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 5C29 5 33 12 31 20L27.5 44C26.6 50 22.6 52.6 18.2 52.6C11.4 52.6 7 48.4 8 42L13 14C14 8.4 16.2 5 20 5Z" stroke="var(--color-accent)" stroke-width="4.6" />
+            <path d="M20 5C29 5 33 12 31 20L27.5 44C26.6 50 22.6 52.6 18.2 52.6C11.4 52.6 7 48.4 8 42L13 14C14 8.4 16.2 5 20 5Z" stroke="var(--color-bg)" stroke-opacity=".55" stroke-width="4.6" stroke-dasharray="1 2.1" />
+            <path d="M30.6 22L27.4 43" stroke="var(--color-accent)" stroke-width="3.2" />
+            <rect x="25" y="27.5" width="7.2" height="10.5" rx="2" transform="rotate(8 28.6 32.8)" fill="var(--color-bg)" stroke="var(--color-accent)" stroke-width="1.6" />
+          </g>
+        </svg>
+        <span class="bn">Cordée</span>
+      </NuxtLink>
 
-      <!-- Centre : identité (lien vers l'accueil) -->
-      <NuxtLink to="/" class="identity" aria-label="Adrien Neyron, retour à l'accueil">Adrien Neyron</NuxtLink>
-
-      <!-- Droite : menu des étapes -->
-      <button
-        ref="burger"
-        type="button"
-        class="menu-btn"
-        :aria-expanded="isOpen"
-        aria-controls="site-menu"
-        @click="isOpen ? close(false) : (isOpen = true)"
-      >
-        <span class="topo-lines" aria-hidden="true"><i /><i /><i /></span>
-        <span>Étapes</span>
-      </button>
+      <div class="topnav">
+        <button ref="menuBtn" type="button" class="top-btn" :aria-expanded="panel === 'menu'" aria-controls="site-menu" @click="toggle('menu')">Menu</button>
+        <span class="sep" aria-hidden="true" />
+        <NuxtLink to="/projects" class="top-btn" :aria-current="projectsCurrent">Projets</NuxtLink>
+        <span class="sep" aria-hidden="true" />
+        <button ref="toolsBtn" type="button" class="top-btn" :aria-expanded="panel === 'tools'" aria-controls="site-tools" @click="toggle('tools')">Outils</button>
+      </div>
+      <span aria-hidden="true" />
     </div>
   </header>
 
   <Teleport to="body">
-    <Transition name="overlay">
-      <div v-if="isOpen" class="nav-backdrop" aria-hidden="true" @click="close(false)" />
-    </Transition>
+    <div v-if="panel" class="nav-backdrop" aria-hidden="true" @click="close(false)" />
 
-    <Transition name="drawer">
-      <nav v-if="isOpen" id="site-menu" ref="drawer" aria-label="Navigation principale" class="nav-drawer" @keydown="onKey">
-        <div class="drawer-head">
-          <span class="drawer-eyebrow">Parcours · 5 étapes</span>
-          <button type="button" class="drawer-close" @click="close()">Fermer<span class="sr-only"> le menu</span></button>
+    <Transition name="drop">
+      <nav v-if="panel === 'menu'" id="site-menu" ref="menuEl" aria-label="Plan du site" class="panel" @keydown="onKey">
+        <div class="panel-head">
+          <span class="panel-eyebrow">Parcours</span>
+          <button type="button" class="panel-close" @click="close()">Fermer<span class="sr-only"> le menu</span></button>
         </div>
-
-        <ol class="stages">
-          <li v-for="(step, i) in NAV_STEPS" :key="step.metaphor" :class="['stage', { 'is-active': stepActive(step.links) }]">
-            <span class="stage-meta">
-              <span class="stage-num" aria-hidden="true">{{ String(i + 1).padStart(2, "0") }}</span>
-              <span class="stage-metaphor">{{ step.metaphor }}</span>
-            </span>
-            <span class="stage-links">
-              <NuxtLink
-                v-for="l in step.links"
-                :key="l.path"
-                :to="l.path"
-                :aria-current="ariaCurrent(l.path)"
-                :class="['stage-link', { 'is-active': isActive(l.path) }]"
-              >{{ l.label }}</NuxtLink>
-            </span>
+        <ol class="steps">
+          <li v-for="(step, i) in NAV_STEPS" :key="step.metaphor" :class="['step', { 'is-active': stepActive(step.links) }]">
+            <p class="step-h"><span class="step-n" aria-hidden="true">{{ String(i + 1).padStart(2, "0") }}</span>{{ step.metaphor }}</p>
+            <ul class="step-links">
+              <li v-for="l in step.links" :key="l.path">
+                <NuxtLink :to="l.path" :aria-current="ariaCurrent(l.path)" :class="['lnk', { 'is-active': isActive(l.path) }]">{{ l.label }}</NuxtLink>
+                <p v-if="l.path === '/projects' && sub" class="here"><span class="sr-only">Vous êtes ici : </span><span aria-hidden="true">↳ </span>{{ sub }}</p>
+              </li>
+            </ul>
           </li>
         </ol>
-
-        <p class="drawer-foot">Dev · Trail · Formation</p>
       </nav>
+    </Transition>
+
+    <Transition name="drop">
+      <section v-if="panel === 'tools'" id="site-tools" ref="toolsEl" aria-label="Outils" class="panel" @keydown="onKey">
+        <div class="panel-head">
+          <span class="panel-eyebrow">Outils</span>
+          <button type="button" class="panel-close" @click="close()">Fermer<span class="sr-only"> les outils</span></button>
+        </div>
+        <NavigationToolsList />
+      </section>
     </Transition>
   </Teleport>
 </template>
@@ -111,68 +118,69 @@ watch(() => route.path, () => { isOpen.value = false; });
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
 }
-.nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; min-height: 56px; }
+.nav-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 6px 12px; min-height: 56px; }
 
-.identity {
-  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--color-text); text-decoration: none; padding: 10px 8px; min-height: 44px; display: inline-flex; align-items: center;
+.brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; min-width: 44px; justify-self: start; color: var(--color-accent); text-decoration: none; }
+.brand .logo { width: 19px; height: 27px; flex: none; }
+.brand .bn { display: none; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--color-text); }
+@media (min-width: 640px) { .brand .bn { display: inline; } }
+.brand:hover .bn { color: var(--color-accent); }
+
+.topnav { display: flex; align-items: center; gap: 2px; }
+.sep { width: 1px; height: 12px; background: color-mix(in srgb, var(--color-muted) 55%, transparent); }
+.top-btn {
+  position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.3em; text-transform: uppercase; text-decoration: none;
+  color: var(--color-text);
 }
-.identity:hover { color: var(--color-accent); }
-
-/* bouton « Étapes » : libellé toujours visible (la métaphore seule ne suffit pas) */
-.menu-btn {
-  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px;
-  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--color-text); background: var(--color-surface);
-  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent); border-radius: 999px;
-  transition: border-color 0.2s, color 0.2s;
+@media (min-width: 640px) { .top-btn { padding: 0 16px; letter-spacing: 0.34em; } }
+.top-btn::after {
+  content: ""; position: absolute; left: 12px; right: 12px; bottom: 8px; height: 1px; background: var(--color-accent);
+  transform: scaleX(0); transition: transform 0.4s;
 }
-.menu-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
-.topo-lines { position: relative; width: 20px; height: 14px; display: block; }
-.topo-lines i { position: absolute; right: 0; height: 1.5px; border-radius: 2px; background: var(--color-accent); }
-.topo-lines i:nth-child(1) { top: 1px;  width: 20px; }
-.topo-lines i:nth-child(2) { top: 6px;  width: 14px; opacity: 0.7; }
-.topo-lines i:nth-child(3) { top: 11px; width: 8px;  opacity: 0.45; }
+.top-btn:hover, .top-btn[aria-expanded="true"], .top-btn[aria-current] { color: var(--color-accent); }
+.top-btn:hover::after, .top-btn[aria-expanded="true"]::after, .top-btn[aria-current]::after { transform: scaleX(1); }
 
-.nav-backdrop { position: fixed; inset: 0; z-index: 55; background: color-mix(in srgb, var(--color-text) 45%, transparent); backdrop-filter: blur(3px); }
-.overlay-enter-active { transition: opacity 0.3s ease-out; }
-.overlay-leave-active { transition: opacity 0.22s ease-in; }
-.overlay-enter-from, .overlay-leave-to { opacity: 0; }
-
-.nav-drawer {
-  position: fixed; right: 0; top: 0; bottom: 0; width: min(340px, 100vw); z-index: 56;
-  display: flex; flex-direction: column; padding: 20px 22px; overflow-y: auto;
+/* panneaux déroulants centrés sous l'en-tête, comme sur l'accueil */
+.nav-backdrop { position: fixed; inset: 0; z-index: 55; }
+.panel {
+  position: fixed; left: 50%; top: 60px; transform: translateX(-50%); z-index: 56;
+  width: min(332px, calc(100vw - 28px)); max-height: calc(100vh - 76px); overflow-y: auto; padding: 0 0 8px;
   background: var(--color-bg); color: var(--color-text);
-  border-left: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent); border-radius: 18px;
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--color-text) 22%, transparent);
 }
-.drawer-enter-active { transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1); }
-.drawer-leave-active { transition: transform 0.25s cubic-bezier(0.55, 0, 1, 0.45); }
-.drawer-enter-from, .drawer-leave-to { transform: translateX(100%); }
+.drop-enter-active { transition: opacity 0.22s ease-out, transform 0.22s ease-out; }
+.drop-leave-active { transition: opacity 0.15s ease-in, transform 0.15s ease-in; }
+.drop-enter-from, .drop-leave-to { opacity: 0; transform: translate(-50%, -6px); }
 
-.drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
-.drawer-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-muted); }
-.drawer-close {
-  min-height: 44px; padding: 0 14px; border-radius: 999px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--color-text); border: 1px solid color-mix(in srgb, var(--color-muted) 60%, transparent);
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between; padding: 8px 10px 8px 18px; margin-bottom: 6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
 }
-.drawer-close:hover { color: var(--color-accent); border-color: var(--color-accent); }
-
-.stages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; flex: 1; }
-.stage { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 14px 0; border-top: 1px solid color-mix(in srgb, var(--color-muted) 30%, transparent); }
-.stage:last-child { border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 30%, transparent); }
-.stage-meta { display: flex; align-items: baseline; gap: 10px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
-.stage.is-active .stage-meta { color: var(--color-accent); }
-.stage-links { display: flex; flex-wrap: wrap; gap: 2px 18px; }
-.stage-link {
-  display: inline-flex; align-items: center; min-height: 44px; font-family: var(--font-title); font-size: 1.6rem; line-height: 1.1;
-  color: var(--color-text); text-decoration: none;
+.panel-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-muted); }
+.panel-close {
+  min-height: 44px; padding: 0 12px; border-radius: 999px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--color-text);
 }
-.stage-link:hover { color: var(--color-accent); }
-.stage-link.is-active { color: var(--color-accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.panel-close:hover { color: var(--color-accent); }
 
-.drawer-foot { margin: 22px 0 0; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
+.steps { list-style: none; margin: 0; padding: 0 8px; display: flex; flex-direction: column; gap: 2px; }
+.step { padding: 6px 6px 4px; border-radius: 14px; }
+.step.is-active { background: color-mix(in srgb, var(--color-accent) 9%, transparent); box-shadow: inset 3px 0 0 var(--color-accent); }
+.step-h { display: flex; align-items: baseline; gap: 12px; margin: 0; padding: 0 6px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
+.step.is-active .step-h { color: var(--color-accent); }
+.step-n { color: var(--color-accent); letter-spacing: 0.06em; }
+.step-links { list-style: none; margin: 0; padding: 0 0 0 34px; }
+.lnk {
+  display: flex; align-items: center; min-height: 44px; padding: 0 8px; border-radius: 10px; text-decoration: none;
+  font-family: var(--font-mono); font-size: 15px; color: var(--color-text);
+}
+.lnk:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.lnk.is-active { color: var(--color-accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+.here { margin: -4px 0 6px; padding: 0 8px; font-family: var(--font-mono); font-size: 12px; color: var(--color-muted); }
 
 @media (prefers-reduced-motion: reduce) {
-  .overlay-enter-active, .overlay-leave-active, .drawer-enter-active, .drawer-leave-active { transition: none; }
+  .drop-enter-active, .drop-leave-active, .top-btn::after { transition: none; }
 }
 </style>
