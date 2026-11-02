@@ -5,7 +5,7 @@ import { gotoReady, waitHydrated } from './helpers'
  * Trace en étapes (docs/admin-boucle.md, « Étapes ») : sans 3D ni animation, toutes les étapes restent lisibles,
  * dans l'ordre, avec dates et vrais liens vers les fiches. Sans base, les étapes par défaut (data/stages.ts) s'affichent.
  */
-test('accueil : lien « Projets » visible dès le premier écran, avant la 3D', async ({ page }) => {
+test('accueil : lien « Sentiers » visible dès le premier écran, avant la 3D', async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem('cordee-gate-vu', '1'))
   await gotoReady(page, '/')
   const link = page.locator('header.top a.top-link')

@@ -83,7 +83,11 @@ Chaque étape : tests, axe, contrastes, Lighthouse, mise à jour de ce fichier e
   - `/camp-de-base` : redirection 301 vers `/` (`routeRules`), page mise à la corbeille, tests smoke et axe ajustés.
   - Reste signalé : l'étape Départ couvre sept. 2010 – oct. 2021 (11 ans), le texte dit 12 ans ; à trancher à l'étape 6 (parcours).
 - [ ] Étape 2 — préférences partagées (thème, son)
-- [ ] Étape 3 — navigation unique
+- [x] Étape 3 — navigation unique (02/11/2026, branche `feat/menu-unique-fiche-epuree`) :
+  - source unique `data/navigation.ts` (ordre et libellés de la boucle : Se repérer · Accueil, S'équiper · Équipement, Monter · Sentiers, Persévérer · Le Randonneur et Carnet, Se poser · Contact) pour le menu des pages, le pied de page et le menu « Étapes » de l'accueil (`loop.html`, garde-fou : `tests/unit/navigation.test.ts`) ;
+  - `TrailNav` refait : bouton « Étapes » avec libellé visible, tiroir aux couleurs des rôles (jour / nuit), `/about` présent, Échap + retour du focus, cibles 44 px, **barre de progression du scroll supprimée**, identité du centre lisible (corrige la dette `.identity`) ;
+  - boucle : « Atelier » → « Équipement », « Expériences » → « Sentiers » (menu et surtitres), lien d'en-tête « Projets » → « Sentiers ».
+  - Reste : les deux menus d'**instruments** (réglages d'affichage : « Outils » de la boucle, engrenage des pages) sont encore deux composants distincts ; la boucle ne propose pas de liens directs vers `/about`, `/carnet`, `/ai-tools`.
 - [ ] Étape 4 — charte unique
 - [ ] Étape 5 — pied de page commun, mentions légales, accessibilité
 - [ ] Étape 6 — contenus (qualités, parcours, formulaire, chiffres)

@@ -9,7 +9,7 @@
 import { ExternalLink, Github } from "lucide-vue-next";
 import { useProjectsStore, type Project } from "~/stores/projects";
 import { useStagesStore } from "~/stores/stages";
-import { defaultProfile, formatCoords, toParagraphs } from "~/utils/trail";
+import { formatCoords, toParagraphs } from "~/utils/trail";
 import { buildStageView, isListedProject, stageHeading, stageOfProject } from "~/utils/stages";
 
 const route = useRoute();
@@ -53,10 +53,6 @@ useHead({
 
 const number = computed(() => String(currentIndex.value + 1).padStart(2, "0"));
 const coords = computed(() => formatCoords(project.value?.coords));
-const points = computed(() =>
-  project.value?.profile?.length ? project.value.profile : defaultProfile(slugOf(project.value!))
-);
-const milestones = computed(() => project.value?.milestones ?? []);
 const hasImage = computed(() => {
   const src = project.value?.image?.light;
   return !!src && !src.includes("projectsoon");
@@ -177,20 +173,8 @@ const sections = computed(() => [
       </dl>
     </div>
 
-    <!-- Profil du sentier -->
-    <figure class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 mt-10">
-      <div class="profile-card">
-        <TrailElevationProfile :points="points" :milestones="milestones" :height="150" />
-      </div>
-      <figcaption class="mt-3 font-mono text-xs text-(--color-muted)">
-        Profil du sentier<template v-if="milestones.length"> :
-          <span v-for="(m, i) in milestones" :key="m.label">{{ m.label }}<template v-if="m.detail"> ({{ m.detail }})</template>{{ i < milestones.length - 1 ? " → " : "." }}</span>
-        </template>
-      </figcaption>
-    </figure>
-
     <!-- Topo-guide -->
-    <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 py-14 grid gap-10 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-14">
+    <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pt-12 pb-14 grid gap-10 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-14">
       <nav aria-label="Itinéraire de la fiche" class="lg:sticky lg:top-24 self-start">
         <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-muted) mb-3">Itinéraire</p>
         <ol class="flex flex-wrap lg:flex-col gap-x-5 gap-y-3">
@@ -293,12 +277,6 @@ const sections = computed(() => [
 /* fiche technique */
 .fact {
   padding: 0.9rem 1rem; border-radius: 0.9rem; background: var(--color-surface);
-  border: 1px solid color-mix(in srgb, var(--color-accent) 14%, transparent);
-}
-
-/* profil */
-.profile-card {
-  padding: 1.5rem 1.5rem 0.5rem; border-radius: 1rem; background: color-mix(in srgb, var(--color-surface) 70%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-accent) 14%, transparent);
 }
 

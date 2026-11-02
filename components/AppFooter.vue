@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { NAV_LINKS } from "~/data/navigation";
 const year = new Date().getFullYear();
 </script>
 
@@ -15,15 +16,9 @@ const year = new Date().getFullYear();
       <!-- Liens rapides -->
       <nav aria-label="Navigation pied de page" class="flex flex-wrap justify-center gap-x-5 gap-y-1">
         <NuxtLink
-          v-for="link in [
-            { to: '/', label: 'Accueil' },
-            { to: '/projects', label: 'Projets' },
-            { to: '/ai-tools', label: 'IA' },
-            { to: '/about', label: 'À propos' },
-            { to: '/contact', label: 'Contact' },
-          ]"
-          :key="link.to"
-          :to="link.to"
+          v-for="link in NAV_LINKS"
+          :key="link.path"
+          :to="link.path"
           class="text-xs text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors"
         >
           {{ link.label }}
