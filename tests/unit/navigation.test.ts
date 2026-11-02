@@ -11,7 +11,7 @@ describe('navigation unique', () => {
     expect(paths).toEqual(['/', '/ai-tools', '/projects', '/about', '/carnet', '/contact'])
   })
 
-  it('le menu « Étapes » de l’accueil (loop.html) porte les mêmes métaphores et libellés, dans le même ordre', () => {
+  it('le menu de l’accueil (loop.html) porte les mêmes métaphores et libellés, dans le même ordre', () => {
     const html = readFileSync(new URL('../../assets/loop/loop.html', import.meta.url), 'utf8')
     const menu = html.slice(html.indexOf('id="railNav"'))
     const items = [...menu.matchAll(/<span class="m">([^<]+)<\/span><span class="l">([^<]+)<\/span>/g)].slice(0, 5).map((m) => [m[1], m[2]])
