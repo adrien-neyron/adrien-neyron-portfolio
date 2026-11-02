@@ -65,7 +65,7 @@ onUnmounted(() => { panel.value = null; });
       </NuxtLink>
 
       <div class="topnav">
-        <button ref="menuBtn" type="button" class="top-btn" :aria-expanded="panel === 'menu'" aria-controls="site-menu" @click="toggle('menu')">Menu</button>
+        <button ref="menuBtn" type="button" class="top-btn" :aria-expanded="panel === 'menu'" aria-controls="site-menu" @click="toggle('menu')">Étapes</button>
         <span class="sep" aria-hidden="true" />
         <NuxtLink to="/projects" class="top-btn" :aria-current="projectsCurrent">Projets</NuxtLink>
         <span class="sep" aria-hidden="true" />
@@ -82,7 +82,7 @@ onUnmounted(() => { panel.value = null; });
       <nav v-if="panel === 'menu'" id="site-menu" ref="menuEl" aria-label="Plan du site" class="panel" @keydown="onKey">
         <div class="panel-head">
           <span class="panel-eyebrow">Parcours</span>
-          <button type="button" class="panel-close" @click="close()">Fermer<span class="sr-only"> le menu</span></button>
+          <button type="button" class="panel-close" @click="close()">Fermer<span class="sr-only"> les étapes</span></button>
         </div>
         <ol class="steps">
           <li v-for="(step, i) in NAV_STEPS" :key="step.metaphor" :class="['step', { 'is-active': stepActive(step.links) }]">
