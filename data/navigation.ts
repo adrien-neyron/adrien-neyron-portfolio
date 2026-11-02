@@ -7,14 +7,14 @@
 export interface NavLink { label: string; path: string }
 export interface NavStep {
   metaphor: string;          // « Monter »
-  label: string;             // « Sentiers »
+  label: string;             // « Projets »
   links: NavLink[];          // pages de l'étape (une ou plusieurs)
 }
 
 export const NAV_STEPS: NavStep[] = [
   { metaphor: "Se repérer", label: "Accueil",    links: [{ label: "Accueil", path: "/" }] },
   { metaphor: "S'équiper",  label: "Équipement", links: [{ label: "Équipement", path: "/ai-tools" }] },
-  { metaphor: "Monter",     label: "Sentiers",   links: [{ label: "Sentiers", path: "/projects" }] },
+  { metaphor: "Monter",     label: "Projets",    links: [{ label: "Projets", path: "/projects" }] },
   { metaphor: "Persévérer", label: "Le Randonneur et Carnet", links: [{ label: "Le Randonneur", path: "/about" }, { label: "Carnet", path: "/carnet" }] },
   { metaphor: "Se poser",   label: "Contact",    links: [{ label: "Contact", path: "/contact" }] },
 ];

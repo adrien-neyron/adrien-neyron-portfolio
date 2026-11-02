@@ -20,7 +20,7 @@ const TIME_BY_SECTION: Array<[prefix: string, time: PageTime]> = [
   ["/about",    "dawn"],    // Le Randonneur
   ["/carnet",   "golden"],  // Carnet
   ["/contact",  "night"],   // Bivouac
-  ["/projects", "day"],     // Sentiers
+  ["/projects", "day"],     // Projets
   ["/ai-tools", "day"],     // Équipement
   ["/outils",   "day"],
 ];

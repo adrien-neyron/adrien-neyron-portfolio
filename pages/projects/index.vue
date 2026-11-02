@@ -4,7 +4,7 @@ import { useStagesStore } from "~/stores/stages";
 import { useProfileStore } from "~/stores/profile";
 import { buildStageView, isListedProject, projectType, stageHeading, stageOfProject } from "~/utils/stages";
 
-useHead({ title: "Les Sentiers — Projets | Adrien Neyron" });
+useHead({ title: "Projets | Adrien Neyron" });
 
 // Chargement côté serveur : projets, étapes et bandeau sont dans le HTML initial (SEO, et
 // lisibles même si le JavaScript échoue).
@@ -47,7 +47,7 @@ const filtered = computed(() =>
 const countLabel = computed(() => {
   const n = filtered.value.length;
   const f = FILTERS.find((x) => x.value === activeFilter.value)!;
-  return `${n} sentier${n > 1 ? "s" : ""}${activeFilter.value !== "tous" ? ` · ${f.label}` : ""}`;
+  return `${n} projet${n > 1 ? "s" : ""}${activeFilter.value !== "tous" ? ` · ${f.label}` : ""}`;
 });
 </script>
 
@@ -61,10 +61,10 @@ const countLabel = computed(() => {
           <ol class="flex gap-2">
             <li><NuxtLink to="/" class="hover:underline">Accueil</NuxtLink></li>
             <li aria-hidden="true">/</li>
-            <li aria-current="page">Sentiers</li>
+            <li aria-current="page">Projets</li>
           </ol>
         </nav>
-        <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-accent) mb-4">Sentiers · Projets</p>
+        <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-accent) mb-4">Monter · Projets</p>
         <h1 class="text-4xl sm:text-6xl leading-[1.02] text-(--color-text) max-w-3xl">
           Chaque projet est une trace, <em class="text-(--color-accent)">avec ses passages délicats.</em>
         </h1>
@@ -84,7 +84,7 @@ const countLabel = computed(() => {
 
     <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 py-12 sm:py-16">
       <!-- Filtres -->
-      <div class="flex flex-wrap items-center gap-2 mb-4" role="group" aria-label="Filtrer les sentiers : missions ou projets perso">
+      <div class="flex flex-wrap items-center gap-2 mb-4" role="group" aria-label="Filtrer les projets : missions ou projets perso">
         <button
           v-for="f in FILTERS"
           :key="f.value"
@@ -103,8 +103,8 @@ const countLabel = computed(() => {
       </div>
       <p class="font-mono text-xs text-(--color-muted) mb-8" aria-live="polite">{{ countLabel }}</p>
 
-      <!-- Liste des sentiers — présentation des cartes d'origine (UiProjectCard) -->
-      <ul v-if="filtered.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-label="Sentiers">
+      <!-- Liste des projets — présentation des cartes d'origine (UiProjectCard) -->
+      <ul v-if="filtered.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-label="Projets">
         <li v-for="{ p: project, st } in filtered" :key="project._id">
           <UiAnimatedSection class="h-full">
             <UiProjectCard
@@ -133,7 +133,7 @@ const countLabel = computed(() => {
       </ul>
 
       <p v-else class="text-center py-20 text-(--color-muted)">
-        Aucun sentier de ce type pour l'instant.
+        Aucun projet de ce type pour l'instant.
       </p>
     </div>
   </div>
