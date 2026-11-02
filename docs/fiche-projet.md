@@ -7,7 +7,7 @@
 - **En-tête en deux colonnes** (une seule colonne sans visuel) : titre, accroche, « résultat clé » de l'étape (filet d'accent), boutons **Voir le site / Voir le code dès le haut** (44 px) | visuel : photo d'ambiance en couleur (décorative, `alt=""`, crédit en légende), sinon la capture dans un cadre de navigateur. Si photo **et** capture existent, la capture apparaît dans « Départ ».
 - **Fiche technique** : une carte par information (2 colonnes en mobile, 5 en bureau).
 - **Profil du sentier : retiré le 02/11/2026** (purement décoratif). Le composant `TrailElevationProfile` est supprimé ; les champs `profile` et `milestones` restent dans le modèle, l'admin (« Fiche topo ») et le repli statique mais ne sont plus affichés (candidats à suppression).
-- **Sentier vertical** : ligne pointillée reliant des balises numérotées 1 à 4 (sections présentes seulement), sommaire à numéros identiques, résultats chiffrés en cartes à filet d'accent, stack avec son libellé.
+- **Sentier vertical** : ligne pointillée reliant des balises numérotées 1 à 4 (sections présentes seulement) (le sommaire latéral a été retiré le 02/11/2026 : la fiche se lit d'une traite, en une colonne), résultats chiffrés en cartes à filet d'accent, stack avec son libellé.
 - **Fin de fiche** : « Une étape à écrire ensemble ? » → `/contact` (voir `docs/audit-ux-projets-contact.md`), puis cartes précédent / suivant.
 - **Contrastes corrigés au passage** : `.button-accent` et `.button-empty:hover` en nuit (texte `--color-bg` au lieu de blanc : 3,0 → ≈ 6:1) ; `UiTechBadge` `featured` (texte `--color-text`, 4,3 → ≥ 4,5:1).
 

@@ -75,7 +75,7 @@ const facts = computed(() => {
   ].filter((f) => f.v);
 });
 
-// Sommaire : seulement les sections réellement présentes sur la fiche
+// Chapitres : seulement les sections réellement présentes sur la fiche
 const sections = computed(() => [
   { id: "depart",     label: "Départ — le contexte", title: "Le point de départ",         show: true },
   { id: "passages",   label: "Passages délicats",    title: "Les difficultés du terrain", show: !!project.value?.challenge },
@@ -174,18 +174,9 @@ const sections = computed(() => [
     </div>
 
     <!-- Topo-guide -->
-    <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pt-12 pb-14 grid gap-10 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-14">
-      <nav aria-label="Itinéraire de la fiche" class="lg:sticky lg:top-24 self-start">
-        <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-muted) mb-3">Itinéraire</p>
-        <ol class="flex flex-wrap lg:flex-col gap-x-5 gap-y-3">
-          <li v-for="(s, i) in sections" :key="s.id">
-            <a :href="`#${s.id}`" class="toc-link"><span class="toc-n" aria-hidden="true">{{ i + 1 }}</span>{{ s.label }}</a>
-          </li>
-        </ol>
-      </nav>
-
+    <div class="max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pt-12 pb-14">
       <!-- Le sentier : une ligne verticale relie les étapes de la fiche -->
-      <div class="trail">
+      <div class="trail max-w-3xl">
         <section v-for="(s, i) in sections" :id="s.id" :key="s.id" class="chapter" :aria-labelledby="`h-${s.id}`">
           <span class="chapter-n" aria-hidden="true">{{ i + 1 }}</span>
           <p class="topo-eyebrow">{{ s.label }}</p>
@@ -278,14 +269,6 @@ const sections = computed(() => [
 .fact {
   padding: 0.9rem 1rem; border-radius: 0.9rem; background: var(--color-surface);
   border: 1px solid color-mix(in srgb, var(--color-accent) 14%, transparent);
-}
-
-/* sommaire */
-.toc-link { display: inline-flex; align-items: center; gap: 0.7rem; min-height: 2.25rem; font-size: 0.95rem; color: var(--color-text); text-decoration: none; }
-.toc-link:hover { text-decoration: underline; text-underline-offset: 3px; }
-.toc-n {
-  display: inline-flex; align-items: center; justify-content: center; flex: none; width: 24px; height: 24px; border-radius: 50%;
-  border: 2px solid var(--color-accent); color: var(--color-accent); font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
 }
 
 /* le sentier : ligne verticale pointillée + une balise numérotée par étape */
