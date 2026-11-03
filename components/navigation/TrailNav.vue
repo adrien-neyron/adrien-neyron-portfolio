@@ -104,7 +104,7 @@ onUnmounted(() => { panel.value = null; });
             <ul class="step-links">
               <li>
                 <NuxtLink :to="sceneHref(step)" :aria-current="stepActive(step.links) ? 'true' : undefined" :class="['lnk', { 'is-active': stepActive(step.links) }]">{{ step.label }}</NuxtLink>
-                <ol v-if="step.scene === 'monter' && stageView.length" class="substeps" aria-label="Étapes du sentier">
+                <ol v-if="step.scene === 'ascension' && stageView.length" class="substeps" aria-label="Cairns du sentier">
                   <li v-for="st in stageView" :key="st.key" :class="{ biv: st.kind === 'bivouac' }">
                     <NuxtLink :to="stageHref(st)" class="sub-lnk" :aria-current="stageCurrent(st)">
                       <i class="sub-n" aria-hidden="true">{{ stageNum(st) }}</i><span>{{ st.label }} · {{ st.title }}</span>

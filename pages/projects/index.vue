@@ -57,7 +57,7 @@ const countLabel = computed(() => {
     <header class="relative overflow-hidden border-b border-(--color-accent)/15">
       <TrailContourBackground :seed="7" :cx="78" :cy="30" />
       <div class="relative max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24">
-        <TrailBackToScene scene="monter" />
+        <TrailBackToScene scene="ascension" />
         <nav aria-label="Fil d'Ariane" class="font-mono text-xs text-(--color-muted) mb-6">
           <ol class="flex gap-2">
             <li><NuxtLink to="/" class="hover:underline">Accueil</NuxtLink></li>
@@ -65,7 +65,7 @@ const countLabel = computed(() => {
             <li aria-current="page">Projets</li>
           </ol>
         </nav>
-        <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-accent) mb-4">Monter · Projets</p>
+        <p class="font-mono text-xs uppercase tracking-[0.14em] text-(--color-accent) mb-4">L'ascension · Les projets</p>
         <h1 class="text-4xl sm:text-6xl leading-[1.02] text-(--color-text) max-w-3xl">
           Chaque projet est une trace, <em class="text-(--color-accent)">avec ses passages délicats.</em>
         </h1>

@@ -16,11 +16,11 @@ export interface NavStep {
 export const sceneHref = (step: Pick<NavStep, "scene">) => (step.scene ? `/#${step.scene}` : "/");
 
 export const NAV_STEPS: NavStep[] = [
-  { metaphor: "Se repérer", label: "Accueil",    links: [{ label: "Accueil", path: "/" }], scene: "" },
-  { metaphor: "S'équiper",  label: "Équipement", links: [{ label: "Équipement", path: "/ai-tools" }], scene: "equiper" },
-  { metaphor: "Monter",     label: "Projets",    links: [{ label: "Projets", path: "/projects" }], scene: "monter" },
-  { metaphor: "Persévérer", label: "Le Randonneur et Carnet", links: [{ label: "Le Randonneur", path: "/about" }, { label: "Carnet", path: "/carnet" }], scene: "perseverer" },
-  { metaphor: "Se poser",   label: "Contact",    links: [{ label: "Contact", path: "/contact" }], scene: "poser" },
+  { metaphor: "La trace",    label: "Accueil et déroulé", links: [{ label: "Accueil", path: "/" }], scene: "" },
+  { metaphor: "S'équiper",  label: "Outils développés", links: [{ label: "Équipement", path: "/ai-tools" }], scene: "equiper" },
+  { metaphor: "L'ascension", label: "Les projets", links: [{ label: "Projets", path: "/projects" }], scene: "ascension" },
+  { metaphor: "Le randonneur", label: "Profil et blog", links: [{ label: "Le Randonneur", path: "/about" }, { label: "Carnet", path: "/carnet" }], scene: "randonneur" },
+  { metaphor: "Le bivouac", label: "Me contacter", links: [{ label: "Contact", path: "/contact" }], scene: "bivouac" },
 ];
 
 /** Liens à plat (pied de page, tests). */
