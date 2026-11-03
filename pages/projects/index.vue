@@ -57,6 +57,7 @@ const countLabel = computed(() => {
     <header class="relative overflow-hidden border-b border-(--color-accent)/15">
       <TrailContourBackground :seed="7" :cx="78" :cy="30" />
       <div class="relative max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24">
+        <TrailBackToScene scene="monter" />
         <nav aria-label="Fil d'Ariane" class="font-mono text-xs text-(--color-muted) mb-6">
           <ol class="flex gap-2">
             <li><NuxtLink to="/" class="hover:underline">Accueil</NuxtLink></li>

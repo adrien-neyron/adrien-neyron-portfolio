@@ -152,7 +152,9 @@ function setupGate(): boolean {
     document.getElementById('main')?.focus({ preventScroll: true })
   }
   // déjà vu : classe aussi posée ici (retour sur l'accueil sans rechargement), elle autorise l'aiguille du préchargement
-  if (seen()) { gate.hidden = true; root.classList.add('gate-seen'); return false }
+  // lien profond vers une scène (`/#equiper`… depuis le menu des pages) : le visiteur sait où il va, pas d'écran d'intro
+  const deepLink = /^#(equiper|monter|perseverer|poser)$/.test(location.hash)
+  if (seen() || deepLink) { gate.hidden = true; root.classList.add('gate-seen'); return false }
   root.classList.add('gate-on')
   others.forEach((el) => el.setAttribute('inert', ''))
   const skipBtn = document.getElementById('gateSkip') as HTMLButtonElement | null

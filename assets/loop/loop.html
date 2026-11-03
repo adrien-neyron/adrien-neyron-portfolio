@@ -9,11 +9,11 @@
       <nav class="menu" id="menuSteps" aria-label="Plan de la boucle" hidden>
         <div class="mh" aria-hidden="true"><span class="t">Parcours</span><svg class="mr rose" aria-hidden="true" focusable="false" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19.6" fill="none" stroke="url(#cg)" stroke-width="1.3"/><circle cx="24" cy="24" r="19.6" fill="none" stroke="#2A130A" stroke-opacity=".55" stroke-width="1.3" stroke-dasharray="1 2.1"/><path d="M24 8L25.3 20.86L30.79 17.21L27.14 22.7L40 24L27.14 25.3L30.79 30.79L25.3 27.14L24 40L22.7 27.14L17.21 30.79L20.86 25.3L8 24L20.86 22.7L17.21 17.21L22.7 20.86Z" fill="rgba(226,109,59,.2)" stroke="url(#cg)" stroke-width="1.5" stroke-linejoin="round"/><path d="M24 8L25.3 20.86L30.79 17.21L27.14 22.7L40 24L27.14 25.3L30.79 30.79L25.3 27.14L24 40L22.7 27.14L17.21 30.79L20.86 25.3L8 24L20.86 22.7L17.21 17.21L22.7 20.86Z" fill="none" stroke="#2A130A" stroke-opacity=".3" stroke-width="1.5" stroke-dasharray="1 2.4" stroke-linejoin="round"/><path d="M24 8L25.3 20.86L24 24L22.7 20.86Z" fill="url(#cg2)" opacity=".92"/><circle cx="24" cy="24" r="2.2" fill="#120B07" stroke="url(#cg2)" stroke-width="1"/><g class="mk"><circle cx="24" cy="3.6" r="1.9" fill="url(#cg2)" stroke="#E26D3B" stroke-width=".8"/></g></svg></div>
         <ol id="railNav">
-          <li><button type="button" data-p="0.02" data-s="s1"><span class="m">Se repérer</span><span class="l">Accueil</span></button></li>
-          <li><button type="button" data-p="0.155" data-s="s1"><span class="m">S'équiper</span><span class="l">Équipement</span></button></li>
-          <li><button type="button" data-p="0.41" data-s="s2"><span class="m">Monter</span><span class="l">Projets</span></button></li>
-          <li><button type="button" data-p="0.67" data-s="s3"><span class="m">Persévérer</span><span class="l">Le Randonneur et Carnet</span></button></li>
-          <li><button type="button" data-p="0.845" data-s="s4"><span class="m">Se poser</span><span class="l">Contact</span></button></li>
+          <li><button type="button" data-h="accueil" data-p="0.02" data-s="s1"><span class="m">Se repérer</span><span class="l">Accueil</span></button></li>
+          <li><button type="button" data-h="equiper" data-p="0.155" data-s="s1"><span class="m">S'équiper</span><span class="l">Équipement</span></button></li>
+          <li><button type="button" data-h="monter" data-p="0.41" data-s="s2"><span class="m">Monter</span><span class="l">Projets</span></button></li>
+          <li><button type="button" data-h="perseverer" data-p="0.67" data-s="s3"><span class="m">Persévérer</span><span class="l">Le Randonneur et Carnet</span></button></li>
+          <li><button type="button" data-h="poser" data-p="0.845" data-s="s4"><span class="m">Se poser</span><span class="l">Contact</span></button></li>
         </ol>
       </nav>
     </div>
@@ -58,6 +58,7 @@
       <h2>Des outils construits pour le terrain</h2>
       <p class="sub">Architecte de données et de l'interface, je donne vie à des applications web Vue et TypeScript accessibles, propulsées par des classes Java robustes et administrables en temps réel.</p>
     </div>
+    <p class="scene-more" id="eqMore"><a class="cnt" href="/ai-tools">Voir tout l'équipement<span aria-hidden="true"> →</span></a></p>
     <ul class="tools" id="tools" aria-label="Outils construits"></ul>
     <div class="loader" id="loader" role="status">
       <p><span class="sr-only">Chargement en cours. </span><span id="loadLabel">Montée au sommet</span> <span id="pct" aria-hidden="true">0</span><span aria-hidden="true"> m</span></p>
@@ -176,6 +177,7 @@
         <button type="button" class="cnt" data-k="linkedin">LinkedIn</button>
         <button type="button" class="cnt" data-k="github">GitHub</button>
         <button type="button" class="cnt" data-k="rdv">Prendre rendez-vous</button>
+        <a class="cnt" href="/contact">Page Contact<span aria-hidden="true"> →</span></a>
       </div>
       <form class="cnt-form" id="cntForm" novalidate>
         <div style="position:absolute;left:-9999px" aria-hidden="true"><input name="site" type="text" tabindex="-1" autocomplete="off"></div>
@@ -219,7 +221,7 @@
       <li><b>Ouverture d'esprit</b><span>Curiosité technique.</span></li>
     </ul>
     <p class="facts">Développeur front-end : Vue 3, TypeScript, accessibilité RGAA. Missions à la DGFiP (Paris) et sur Click2SellSite (Lyon).</p>
-    <div class="sh-actions"><a class="sh-main" href="/2025_CV_AdrienNEYRON.pdf" data-cv download>Télécharger le CV (PDF)</a><button type="button" class="sh-alt" id="proBack">Revenir au sentier</button></div>
+    <div class="sh-actions"><a class="sh-main" href="/2025_CV_AdrienNEYRON.pdf" data-cv download>Télécharger le CV (PDF)</a><a class="sh-alt" href="/about">Voir la page Le Randonneur</a><button type="button" class="sh-alt" id="proBack">Revenir au sentier</button></div>
   </div>
 </dialog>
 
@@ -244,7 +246,7 @@
     <div class="sh-filters" role="group" aria-label="Filtrer les articles"><button type="button" aria-pressed="true" data-f="all">Tous</button><button type="button" aria-pressed="false" data-f="course">Récits de course</button><button type="button" aria-pressed="false" data-f="matos">Matériel et outils</button><button type="button" aria-pressed="false" data-f="coulisses">Coulisses</button></div>
     <p class="sh-note">Articles de lancement proposés (brouillons) : la liste réelle viendra du blog.</p>
     <ol class="sh-list" id="carList"></ol>
-    <div class="sh-actions"><button type="button" class="sh-main" id="carBack2">← Retrouver le chemin principal</button></div>
+    <div class="sh-actions"><a class="sh-alt" href="/carnet">Voir la page Carnet</a><button type="button" class="sh-main" id="carBack2">← Retrouver le chemin principal</button></div>
   </div>
 </dialog>
 
