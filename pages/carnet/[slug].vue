@@ -48,7 +48,7 @@ const renderedContent = computed(() => {
   <div v-if="article" class="min-h-screen py-20 px-6 sm:px-12 lg:px-20">
     <div class="max-w-3xl mx-auto">
 
-      <TrailBackToScene scene="perseverer" />
+      <TrailBackToScene scene="randonneur" />
 
       <!-- Retour -->
       <UiAnimatedSection>

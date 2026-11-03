@@ -9,11 +9,11 @@
       <nav class="menu" id="menuSteps" aria-label="Plan de la boucle" hidden>
         <div class="mh" aria-hidden="true"><span class="t">Parcours</span><svg class="mr rose" aria-hidden="true" focusable="false" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19.6" fill="none" stroke="url(#cg)" stroke-width="1.3"/><circle cx="24" cy="24" r="19.6" fill="none" stroke="#2A130A" stroke-opacity=".55" stroke-width="1.3" stroke-dasharray="1 2.1"/><path d="M24 8L25.3 20.86L30.79 17.21L27.14 22.7L40 24L27.14 25.3L30.79 30.79L25.3 27.14L24 40L22.7 27.14L17.21 30.79L20.86 25.3L8 24L20.86 22.7L17.21 17.21L22.7 20.86Z" fill="rgba(226,109,59,.2)" stroke="url(#cg)" stroke-width="1.5" stroke-linejoin="round"/><path d="M24 8L25.3 20.86L30.79 17.21L27.14 22.7L40 24L27.14 25.3L30.79 30.79L25.3 27.14L24 40L22.7 27.14L17.21 30.79L20.86 25.3L8 24L20.86 22.7L17.21 17.21L22.7 20.86Z" fill="none" stroke="#2A130A" stroke-opacity=".3" stroke-width="1.5" stroke-dasharray="1 2.4" stroke-linejoin="round"/><path d="M24 8L25.3 20.86L24 24L22.7 20.86Z" fill="url(#cg2)" opacity=".92"/><circle cx="24" cy="24" r="2.2" fill="#120B07" stroke="url(#cg2)" stroke-width="1"/><g class="mk"><circle cx="24" cy="3.6" r="1.9" fill="url(#cg2)" stroke="#E26D3B" stroke-width=".8"/></g></svg></div>
         <ol id="railNav">
-          <li><button type="button" data-h="accueil" data-p="0.02" data-s="s1"><span class="m">Se repérer</span><span class="l">Accueil</span></button></li>
-          <li><button type="button" data-h="equiper" data-p="0.155" data-s="s1"><span class="m">S'équiper</span><span class="l">Équipement</span></button></li>
-          <li><button type="button" data-h="monter" data-p="0.41" data-s="s2"><span class="m">Monter</span><span class="l">Projets</span></button></li>
-          <li><button type="button" data-h="perseverer" data-p="0.67" data-s="s3"><span class="m">Persévérer</span><span class="l">Le Randonneur et Carnet</span></button></li>
-          <li><button type="button" data-h="poser" data-p="0.845" data-s="s4"><span class="m">Se poser</span><span class="l">Contact</span></button></li>
+          <li><button type="button" data-h="accueil" data-p="0.02" data-s="s1"><span class="m">La trace</span><span class="l">Accueil et déroulé</span></button></li>
+          <li><button type="button" data-h="equiper" data-p="0.155" data-s="s1"><span class="m">S'équiper</span><span class="l">Outils développés</span></button></li>
+          <li><button type="button" data-h="ascension" data-p="0.41" data-s="s2"><span class="m">L'ascension</span><span class="l">Les projets</span></button></li>
+          <li><button type="button" data-h="randonneur" data-p="0.67" data-s="s3"><span class="m">Le randonneur</span><span class="l">Profil et blog</span></button></li>
+          <li><button type="button" data-h="bivouac" data-p="0.845" data-s="s4"><span class="m">Le bivouac</span><span class="l">Me contacter</span></button></li>
         </ol>
       </nav>
     </div>
@@ -54,7 +54,7 @@
       <p class="lede">Développeur front-end Vue 3 / TypeScript, spécialisé RGAA et WCAG. J’ai appris à guider des équipes avant d’apprendre à guider des utilisateurs.</p>
     </div>
     <div class="head" id="head2" style="opacity:0">
-      <p class="eyebrow">S'équiper · Équipement</p>
+      <p class="eyebrow">S'équiper · Outils développés</p>
       <h2>Des outils construits pour le terrain</h2>
       <p class="sub">Architecte de données et de l'interface, je donne vie à des applications web Vue et TypeScript accessibles, propulsées par des classes Java robustes et administrables en temps réel.</p>
     </div>
@@ -72,7 +72,7 @@
     <div id="sky2" aria-hidden="true"></div>
     <canvas id="parcCanvas" aria-hidden="true"></canvas>
     <div id="pTags" aria-hidden="true"></div>
-    <nav class="pl-stages plate" aria-label="Étapes du sentier"><ol id="pStageList"></ol></nav>
+    <nav class="pl-stages plate" aria-label="Cairns du sentier"><ol id="pStageList"></ol></nav>
     <div class="pl-dock">
       <a class="pl-more" id="plMore" hidden href="/projects"><span class="t">Voir la fiche</span><span class="sr-only n"></span><span aria-hidden="true"> →</span></a>
     </div>
@@ -114,7 +114,7 @@
     </svg>
     <div class="vignette" aria-hidden="true"></div>
     <div class="head">
-      <p class="eyebrow">Monter · Projets</p>
+      <p class="eyebrow">L'ascension · Les projets</p>
       <h2 id="h-map">Chaque projet, une étape avec sa preuve</h2>
       <p class="tot" id="mapTot" aria-hidden="true">Km 180 · D+ 10 200 m</p>
       <p class="sr-only">Parcours complet : 180 km et 10 200 mètres de dénivelé positif.</p>
@@ -152,7 +152,7 @@
     <button type="button" class="pside" id="sideR" aria-label="Poser le pied à droite : Le Carnet"></button>
     <div class="pwrap">
       <div class="head">
-        <p class="eyebrow">Persévérer · Le Randonneur et Carnet</p>
+        <p class="eyebrow">Le randonneur · Profil et blog</p>
         <h2 id="h-flaque">Une foulée après l'autre, et le récit de la route</h2>
         <p class="sub sr-only">Posez le pied dans l'eau : à gauche, le profil ; à droite, le carnet de trail. Utilisez les deux boutons de la flaque, au clavier comme à la souris.</p>
       </div>
@@ -211,7 +211,7 @@
 </footer>
 
 <dialog id="dlgProfil" class="sheet" aria-labelledby="proT">
-  <div class="sh-head"><div><p class="eyebrow">Persévérer · Profil</p><h2 id="proT">Le Randonneur</h2></div><button type="button" class="sh-x" id="proX">Fermer<span class="sr-only"> le profil</span></button></div>
+  <div class="sh-head"><div><p class="eyebrow">Le randonneur · Profil</p><h2 id="proT">Le Randonneur</h2></div><button type="button" class="sh-x" id="proX">Fermer<span class="sr-only"> le profil</span></button></div>
   <div class="sh-body">
     <p class="lead">12 ans de formation et de management, puis 5 ans de code. Ce que la cordée m'a appris du travail en équipe, je le retrouve dans chaque projet.</p>
     <ul class="skills">

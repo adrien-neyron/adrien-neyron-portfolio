@@ -50,7 +50,7 @@ describe('applyLoopContent', () => {
   it('un champ vide garde le texte par défaut du champ voisin', () => {
     const out = applyLoopContent(markup, { toolsHead: { title: 'Seul le titre' } })
     expect(out).toContain('<h2>Seul le titre</h2>')
-    expect(out).toContain("S'équiper · Équipement")
+    expect(out).toContain("S'équiper · Outils développés")
   })
 
   it('échappe le HTML saisi (pas d’injection)', () => {

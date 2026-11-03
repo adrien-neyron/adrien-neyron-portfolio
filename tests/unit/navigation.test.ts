@@ -19,7 +19,7 @@ describe('navigation unique', () => {
   })
 
   it('chaque étape mène à une scène de l’accueil, et le bouton du menu de la boucle porte la même ancre', () => {
-    expect(NAV_STEPS.map(sceneHref)).toEqual(['/', '/#equiper', '/#monter', '/#perseverer', '/#poser'])
+    expect(NAV_STEPS.map(sceneHref)).toEqual(['/', '/#equiper', '/#ascension', '/#randonneur', '/#bivouac'])
     const html = readFileSync(new URL('../../assets/loop/loop.html', import.meta.url), 'utf8')
     const menu = html.slice(html.indexOf('id="railNav"'))
     const hashes = [...menu.matchAll(/data-h="([^"]+)"/g)].slice(0, 5).map((m) => m[1])

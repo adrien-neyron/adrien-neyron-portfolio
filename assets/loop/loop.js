@@ -3601,7 +3601,7 @@ function finishLoad(){
   live.textContent='Boussole calée sur le nord. Faites défiler pour explorer.';
   gotoHash();
 }
-/* Lien profond depuis les pages (`/#equiper`, `/#monter`, `/#perseverer`, `/#poser`) : le menu des pages et ceux de l'accueil
+/* Lien profond depuis les pages (`/#equiper`, `/#ascension`, `/#randonneur`, `/#bivouac`) : le menu des pages et ceux de l'accueil
    mènent aux mêmes scènes. Ouvre directement la scène, sans animation de défilement (mouvement réduit respecté d'office). */
 function gotoHash(){
   const h=decodeURIComponent(location.hash.slice(1));
