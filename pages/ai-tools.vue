@@ -2,7 +2,7 @@
 import { Cpu, ArrowRight } from "lucide-vue-next";
 import { useAiToolsStore } from "~/stores/aiTools";
 
-useHead({ title: "Équipement IA | Adrien Neyron" });
+useHead({ title: "Outils développés | Adrien Neyron" });
 
 const aiToolsStore = useAiToolsStore();
 aiToolsStore.fetchAiTools();
@@ -31,7 +31,7 @@ const filtered = computed(() =>
             <span class="text-xs font-mono text-[var(--color-accent)] uppercase tracking-widest">Intelligence artificielle</span>
           </div>
           <h1 class="text-3xl sm:text-5xl font-bold text-[var(--color-text)] mb-3">
-            Équipement IA
+            Outils développés
           </h1>
           <p class="text-[var(--color-muted)] max-w-2xl leading-relaxed text-sm sm:text-base">
             Les outils d'intelligence artificielle que j'intègre dans mes projets et que je propose à mes clients
