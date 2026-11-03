@@ -7,7 +7,7 @@ const PAGES: { path: string; title: RegExp }[] = [
   { path: '/about', title: /Randonneur/ },
   { path: '/projects', title: /Projets/i },
   { path: '/carnet', title: /Carnet/i },
-  { path: '/ai-tools', title: /Équipement IA/ },
+  { path: '/ai-tools', title: /Outils développés/ },
   { path: '/contact', title: /Bivouac/ },
   { path: '/outils/allure-denivele', title: /Calculateur d'allure/ },
 ]

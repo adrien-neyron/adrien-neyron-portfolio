@@ -17,7 +17,7 @@ export const sceneHref = (step: Pick<NavStep, "scene">) => (step.scene ? `/#${st
 
 export const NAV_STEPS: NavStep[] = [
   { metaphor: "La trace",    label: "Accueil et déroulé", links: [{ label: "Accueil", path: "/" }], scene: "" },
-  { metaphor: "S'équiper",  label: "Outils développés", links: [{ label: "Équipement", path: "/ai-tools" }], scene: "equiper" },
+  { metaphor: "S'équiper",  label: "Outils développés", links: [{ label: "Outils développés", path: "/ai-tools" }], scene: "equiper" },
   { metaphor: "L'ascension", label: "Les projets", links: [{ label: "Projets", path: "/projects" }], scene: "ascension" },
   { metaphor: "Le randonneur", label: "Profil et blog", links: [{ label: "Le Randonneur", path: "/about" }, { label: "Carnet", path: "/carnet" }], scene: "randonneur" },
   { metaphor: "Le bivouac", label: "Me contacter", links: [{ label: "Contact", path: "/contact" }], scene: "bivouac" },
