@@ -34,7 +34,7 @@ Voir `docs/tests.md`. Avant tout push : `npm test` ; avant une release : `npm ru
 
 Copy `.env.example` to `.env` and fill in:
 - `MONGODB_URI` — MongoDB connection string (stores projects, profile, AI tools)
-- `POSTGRES_URL` — PostgreSQL connection string (stores visitor tracking)
+- `POSTGRES_URL` — PostgreSQL connection string (optional; no route uses it since the visitor counter was removed in Nov 2026, `server/lib/pgsql.ts` kept for future use)
 - `AUTH0_DOMAIN` / `AUTH0_CLIENT_ID` — Auth0 SPA app, used to recognise the admin on `/admin/**` (visitors browse it read-only without logging in)
 - `ADMIN_EMAIL` — the only email allowed to write via the admin API (`requireAdminWrite`)
 - `BLOB_READ_WRITE_TOKEN` — Vercel Blob store token, used by `/api/admin/upload` for image/CV uploads from the admin
@@ -57,7 +57,6 @@ This is a **Nuxt 3 portfolio** with a Nitro backend, redesigned around a "trail/
 
 Stores in `stores/`, all following the same pattern — fetch the Mongo-backed API, fall back to a static default if it's empty/erroring (so the site still renders if Mongo is paused):
 - `ui.ts` — Controls popup modal visibility
-- `visitor.ts` — Fetches/increments visitor count via API
 - `projects.ts` — Projects, falls back to `data/projects.ts`
 - `profile.ts` — Singleton bio/contact/CV profile, falls back to `data/resume.json` + `staticProfileFallback` (used by `pages/index.vue` for the hero title/tagline, `pages/about.vue`, `pages/contact.vue`)
 - `aiTools.ts` — AI tools list, falls back to `data/ai-tools.ts` (used by `pages/ai-tools.vue`)
@@ -73,9 +72,9 @@ Stores in `stores/`, all following the same pattern — fetch the Mongo-backed A
 
 Two databases:
 - **MongoDB** (via Mongoose, `server/lib/mongodb.ts`) — Projects (`server/models/project.ts`), Stages (`server/models/stage.ts`), Profile singleton (`server/models/profile.ts`), AI tools (`server/models/aiTool.ts`), Carnet articles (`server/models/carnetArticle.ts`).
-- **PostgreSQL** (via pg pool, `server/lib/pgsql.ts`) — Stores visitor count and visitor log.
+- **PostgreSQL** (via pg pool, `server/lib/pgsql.ts`) — No route uses it at the moment (the visitor counter was removed in Nov 2026 for GDPR reasons: no audience tracking, see `/mentions-legales`).
 
-Public API routes in `server/api/` (no auth): `GET /api/projects`, `GET /api/stages`, `GET /api/profile`, `GET /api/ai-tools`, `GET /api/carnet`, `GET /api/visitors`, `POST /api/visitors`, `POST /api/contact` (contact form, validated, honeypot + 5/10 min/IP), `GET /api/auth/role` (`{ role: "admin" | "lecteur" }` from the optional Bearer token, via `isAdminRequest` — never throws, UI hint only).
+Public API routes in `server/api/` (no auth): `GET /api/projects`, `GET /api/stages`, `GET /api/profile`, `GET /api/ai-tools`, `GET /api/carnet`, `POST /api/contact` (contact form, validated, honeypot + 5/10 min/IP), `GET /api/auth/role` (`{ role: "admin" | "lecteur" }` from the optional Bearer token, via `isAdminRequest` — never throws, UI hint only).
 
 Admin API routes in `server/api/admin/` (all behind `requireAdminWrite` from `server/utils/requireAuth.ts` — verifies the Auth0 JWT and checks the email against `ADMIN_EMAIL`):
 - Projects: `GET/POST /api/admin/projects`, `PUT/DELETE /api/admin/projects/[id]`, `POST /api/admin/seed` (imports the static list into Mongo, upsert-only-on-insert)

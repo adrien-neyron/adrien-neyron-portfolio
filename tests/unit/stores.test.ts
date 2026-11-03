@@ -4,7 +4,6 @@ import { useProjectsStore } from '~/stores/projects'
 import { useCarnetStore } from '~/stores/carnet'
 import { useAiToolsStore } from '~/stores/aiTools'
 import { useProfileStore, staticProfileFallback } from '~/stores/profile'
-import { useVisitorStore } from '~/stores/visitor'
 import { projects as staticProjects } from '~/data/projects'
 import { carnetArticles } from '~/data/carnet'
 import { aiTools } from '~/data/ai-tools'
@@ -65,18 +64,5 @@ describe('stores — repli quand la base est vide ou indisponible', () => {
     $fetch.mockRejectedValue(new Error('x'))
     const s = useProfileStore(); await s.fetchProfile()
     expect(s.profile).toEqual(staticProfileFallback); expect(s.error).toBeTruthy()
-  })
-})
-
-describe('store visiteur', () => {
-  it('ne compte qu’une visite par navigateur', async () => {
-    const mem = new Map<string, string>()
-    vi.stubGlobal('localStorage', { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => mem.set(k, v) })
-    $fetch.mockResolvedValue({ count: 42 })
-    const s = useVisitorStore()
-    await s.trackVisit(); await s.trackVisit()
-    expect($fetch).toHaveBeenCalledTimes(1)
-    expect($fetch.mock.calls[0][1]).toMatchObject({ method: 'POST' })
-    expect(s.count).toBe(42)
   })
 })
