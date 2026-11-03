@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onUnmounted } from "vue";
 import { NAV_STEPS } from "~/data/navigation";
+import { useStagesStore } from "~/stores/stages";
+import { useProjectsStore } from "~/stores/projects";
+import { buildStageView } from "~/utils/stages";
 
 /**
- * En-tête unique des pages, calqué sur celui de l'accueil : marque à gauche, puis « Menu | Projets | Outils »
- * (mêmes libellés, même ordre), panneaux déroulants centrés sous l'en-tête. Le panneau « Menu » liste les étapes
- * de data/navigation.ts (mêmes que l'accueil) et indique « vous êtes ici » ; sur une fiche projet, la ligne
- * « Projets » porte le nom du projet (useState « nav-sub », renseigné par la fiche).
+ * En-tête unique des pages, calqué sur celui de l'accueil : marque à gauche, puis « Étapes | Projets | Outils »
+ * (mêmes libellés, même ordre), panneaux déroulants centrés sous l'en-tête. Le panneau « Étapes » liste les étapes
+ * de data/navigation.ts (mêmes que l'accueil) et indique « vous êtes ici » ; sous « Projets », la frise des étapes de la trace
+ * (Départ, Étape 01…, Bivouac, Cairn final) comme sur l'accueil, l'étape du projet affiché étant marquée.
  */
 type Panel = "menu" | "tools" | null;
 const route  = useRoute();
@@ -15,7 +18,17 @@ const menuBtn  = ref<HTMLButtonElement | null>(null);
 const toolsBtn = ref<HTMLButtonElement | null>(null);
 const menuEl   = ref<HTMLElement | null>(null);
 const toolsEl  = ref<HTMLElement | null>(null);
-const sub = useState<string>("nav-sub", () => "");
+// Sous-menu de « Projets » : la frise des étapes de la trace, comme sur l'accueil (Départ, Étape 01…, Bivouac, Cairn final)
+const stagesStore   = useStagesStore();
+const projectsStore = useProjectsStore();
+const stageView = computed(() => buildStageView(stagesStore.stages, projectsStore.projects.map((p) => ({ slug: p.slug || p._id, title: p.title }))));
+const stageNum = (st: { kind: string; num: number | null }) =>
+  st.kind === "depart" ? "00" : st.num ? String(st.num).padStart(2, "0") : st.kind === "bivouac" ? "BV" : "∞";
+const stageHref = (st: { href: string }) => st.href || "/projects";
+const stageCurrent = (st: { links: { slug: string }[]; href: string }): "page" | undefined => {
+  if (route.path.startsWith("/projects/")) return st.links.some((l) => route.path === `/projects/${encodeURIComponent(l.slug)}`) ? "page" : undefined;
+  return undefined;
+};
 
 function isActive(path: string) {
   if (path === "/") return route.path === "/";
@@ -39,6 +52,7 @@ function onKey(e: KeyboardEvent) { if (e.key === "Escape" && panel.value) close(
 // Ouvert : le focus entre dans le panneau ; Échap ou clic à côté le referme et rend le focus au bouton
 watch(panel, async (p) => {
   if (!p) return;
+  if (p === "menu") await Promise.all([stagesStore.fetchStages(), projectsStore.fetchProjects()]);
   await nextTick();
   (p === "menu" ? menuEl : toolsEl).value?.querySelector<HTMLElement>("a, button")?.focus();
 });
@@ -90,7 +104,13 @@ onUnmounted(() => { panel.value = null; });
             <ul class="step-links">
               <li v-for="l in step.links" :key="l.path">
                 <NuxtLink :to="l.path" :aria-current="ariaCurrent(l.path)" :class="['lnk', { 'is-active': isActive(l.path) }]">{{ l.label }}</NuxtLink>
-                <p v-if="l.path === '/projects' && sub" class="here"><span class="sr-only">Vous êtes ici : </span><span aria-hidden="true">↳ </span>{{ sub }}</p>
+                <ol v-if="l.path === '/projects' && stageView.length" class="substeps" aria-label="Étapes du sentier">
+                  <li v-for="st in stageView" :key="st.key" :class="{ biv: st.kind === 'bivouac' }">
+                    <NuxtLink :to="stageHref(st)" class="sub-lnk" :aria-current="stageCurrent(st)">
+                      <i class="sub-n" aria-hidden="true">{{ stageNum(st) }}</i><span>{{ st.label }} · {{ st.title }}</span>
+                    </NuxtLink>
+                  </li>
+                </ol>
               </li>
             </ul>
           </li>
@@ -178,7 +198,15 @@ onUnmounted(() => { panel.value = null; });
 }
 .lnk:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
 .lnk.is-active { color: var(--color-accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
-.here { margin: -4px 0 6px; padding: 0 8px; font-family: var(--font-mono); font-size: 12px; color: var(--color-muted); }
+.substeps { list-style: none; margin: 0 0 6px 14px; padding: 0 0 0 10px; border-left: 1px dashed color-mix(in srgb, var(--color-accent) 45%, transparent); }
+.sub-lnk {
+  display: grid; grid-template-columns: 26px 1fr; align-items: center; column-gap: 6px; min-height: 44px; padding: 2px 8px; border-radius: 10px; text-decoration: none;
+  font-family: var(--font-mono); font-size: 12px; line-height: 1.25; color: var(--color-text);
+}
+.sub-lnk:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.sub-n { font-style: normal; font-size: 11px; letter-spacing: 0.04em; color: var(--color-accent); }
+.sub-lnk[aria-current] { color: var(--color-accent); text-decoration: underline; text-underline-offset: 4px; }
+.biv .sub-lnk { color: var(--color-muted); }
 
 @media (prefers-reduced-motion: reduce) {
   .drop-enter-active, .drop-leave-active, .top-btn::after { transition: none; }
