@@ -1038,3 +1038,11 @@ a.cnt{display:inline-flex;align-items:center;text-decoration:none}
 body.static .scene-more{position:static;transform:none;visibility:visible;opacity:1;pointer-events:auto;text-align:center;margin:16px 0}
 @media (prefers-reduced-motion:reduce){.scene-more{transition:none}}
 #dlgCarnet .sh-alt{background:transparent;color:#1B2A24;border:1px solid #1B2A24}
+
+/* Frise des étapes (carte « L'ascension ») : points lisibles sur tous les fonds, jour comme nuit (≥ 3:1, WCAG 1.4.11).
+   Anneau sombre autour de chaque point (le fond de la carte est clair le jour), contour orange clair plein, point plein une fois passé. */
+.pl-stages .dot{width:11px;height:11px;border:2px solid #FF8A57;background:#050811;box-shadow:0 0 0 3px rgba(5,8,17,.88)}
+.pl-stages button.past .dot{background:#FF8A57}
+.pl-stages button[aria-current="true"] .dot{width:13px;height:13px;background:#FF8A57;border-color:#FFFFFF;box-shadow:0 0 0 3px rgba(5,8,17,.9),0 0 12px rgba(255,138,87,.9);transform:none}
+.pl-stages button:hover .dot,.pl-stages button:focus-visible .dot{background:#FFFFFF;border-color:#FF8A57}
+.pl-stages button:focus-visible{outline:3px solid #FFFFFF;outline-offset:-6px;border-radius:50%;box-shadow:0 0 0 1px #050811}
