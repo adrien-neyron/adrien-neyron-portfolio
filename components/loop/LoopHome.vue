@@ -59,7 +59,7 @@ useHead({
     { name: 'twitter:card', content: 'summary' },
   ],
   // Écran de la corde déjà vu dans cette session : masqué dès le premier affichage (pas de clignotement avant l'hydratation)
-  script: [{ key: 'gate-seen', innerHTML: "try{var th=localStorage.getItem('asc-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=th}catch(e){}try{if(sessionStorage.getItem('cordee-gate-vu')==='1')document.documentElement.classList.add('gate-seen')}catch(e){}" }],
+  script: [{ key: 'gate-seen', innerHTML: "try{var cm=localStorage.getItem('color-mode');var th=cm==='dark'||cm==='light'?cm:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=th}catch(e){}try{if(sessionStorage.getItem('cordee-gate-vu')==='1')document.documentElement.classList.add('gate-seen')}catch(e){}" }],
   // Styles de la boucle intégrés au HTML (environ 12 Ko compressés) : pas de feuille de style à attendre avant l'affichage
   style: [{ key: 'loop-css', textContent: loopCss }],
   // Police des titres (Cormorant Garamond, servie par le site) : préchargée, c'est elle qui dessine le titre du premier écran
@@ -237,7 +237,13 @@ onMounted(() => {
   setTimeout(() => void start(), 1200)
 })
 
+// Jour / Nuit partagé avec les pages : un choix fait dans la boucle met à jour @nuxtjs/color-mode (même clé de stockage)
+const colorMode = useColorMode()
+const onTheme = (e: Event) => { const t = (e as CustomEvent<string>).detail; if (t === 'dark' || t === 'light') colorMode.preference = t }
+onMounted(() => addEventListener('cordee-theme', onTheme))
+
 onBeforeUnmount(() => {
+  removeEventListener('cordee-theme', onTheme)
   gone = true
   WAKE.forEach((t) => removeEventListener(t, onWake))
   loop?.destroy()

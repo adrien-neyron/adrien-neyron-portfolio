@@ -37,7 +37,8 @@ const QDPR=()=>[1.5,1,.75][QC.tier];
 /* ---------- État ---------- */
 let charte='expe';try{charte=localStorage.getItem('asc-charte')||'expe'}catch(e){}
 let theme='light';
-try{theme=localStorage.getItem('asc-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+/* Jour / Nuit PARTAGÉ avec les pages : même clé que @nuxtjs/color-mode (`color-mode` : light | dark | system). `system` ou absent = réglage de l'appareil. */
+try{const cm=localStorage.getItem('color-mode');theme=cm==='dark'||cm==='light'?cm:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
 /* Vue statique d'office : mouvement réduit, connexion lente / économie de données / appareil léger (décidé par la page, LOADERS.lite), ou choix mémorisé du visiteur */
 let prefStatic=false;try{prefStatic=localStorage.getItem('asc-static')==='1'}catch(e){}
 let staticMode=reduce||!!(LOADERS&&LOADERS.lite)||prefStatic, paused=false, loaded=false;
@@ -2521,7 +2522,8 @@ $('#tgStatic').addEventListener('click',()=>{setStatic(!staticMode);try{localSto
 $('#loadSkip').addEventListener('click',()=>{finishLoad();$('#main').focus({preventScroll:true})});
 $('#tgNight').addEventListener('click',e=>{
   theme=theme==='dark'?'light':'dark';root.dataset.theme=theme;if(strapApply)strapApply(theme==='dark');applyDialTheme();
-  try{localStorage.setItem('asc-theme',theme)}catch(err){}
+  try{localStorage.setItem('color-mode',theme)}catch(err){}
+  dispatchEvent(new CustomEvent('cordee-theme',{detail:theme}));   // LoopHome.vue met à jour useColorMode : les pages suivent sans rechargement
   e.currentTarget.setAttribute('aria-pressed',String(theme==='dark'));
   if(staticMode)drawStatic();
 });

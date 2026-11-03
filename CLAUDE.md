@@ -238,3 +238,5 @@ Proportions de la montre du bivouac (boîtier 0,22, bracelet 0,50, brins inégau
 Montre du bivouac dégagée des pierres du foyer (rotation −1,15, position −0,3 / 1,6, brin long 1,65 diamètre), 29/10/2026. Détails : `docs/admin-boucle.md`.
 
 Fonds en courbes de niveau : toujours des isovaleurs d'un champ d'altitude (`contourPaths` dans `utils/trail.ts`, `isoLines` dans `assets/loop/loop.js`), jamais des ellipses déformées une à une : elles se croisent (29/10/2026). Détails : `docs/admin-boucle.md`.
+
+Jour / Nuit partagé accueil ↔ pages (03/11/2026) : une seule clé `localStorage['color-mode']` (@nuxtjs/color-mode). La boucle la lit/écrit (`theme` dans `loop.js`, événement `cordee-theme` relayé par `LoopHome.vue` vers `useColorMode().preference`) ; plus de clé `asc-theme`. Détails : `docs/audit-coherence.md`.
