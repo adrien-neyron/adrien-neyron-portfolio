@@ -377,3 +377,6 @@ Trois fonds dessinaient chaque courbe comme une ellipse déformée avec une phas
 
 ## Frise des étapes de la carte : points lisibles (03/11/2026)
 Les points de la frise (`.pl-stages .dot`, à droite de la scène « L'ascension ») étaient trop discrets (7 px, contour orange à 65 % d'opacité, quasi invisibles sur le fond clair du jour, WCAG 1.4.11). Désormais : point de 11 px, contour orange clair `#FF8A57` plein, centre sombre, anneau sombre de 3 px qui isole le point du fond (jour comme nuit) ; points passés pleins ; point courant 13 px, contour blanc et halo ; survol / focus = point blanc, focus clavier = anneau blanc de 3 px. Les libellés (`.stip`) restent affichés au survol et au focus. Règles ajoutées en fin de `loop.source.css`.
+
+## Formulaire projet : textes plus parlants (03/11/2026)
+`components/admin/ProjectForm.vue` : les libellés gardent leur nom explicite (« Défi », « Solution »…) et y ajoutent la section de la fiche qu'ils alimentent (« Défi · les passages délicats », « Résultat · l'arrivée »…), avec une courte aide entre parenthèses et des exemples en placeholder. Les libellés Titre, Slug, Tagline, Rôle, Description, Défi, Solution et Résultat sont maintenant associés à leur champ (`for` / `id` : RGAA 11.1). Les autres libellés du formulaire restent à relier.
