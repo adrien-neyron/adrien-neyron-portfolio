@@ -218,49 +218,49 @@ function onSubmit() {
       <!-- Titre + Slug -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="admin-label">Titre *</label>
-          <input v-model="form.title" required class="admin-input" placeholder="Boutique Trail Running" />
+          <label for="pf-title" class="admin-label">Titre du projet *</label>
+          <input id="pf-title" v-model="form.title" required class="admin-input" placeholder="Boutique Trail Running" />
         </div>
         <div>
-          <label class="admin-label">Slug *</label>
-          <input v-model="form.slug" required class="admin-input font-mono text-sm" placeholder="boutique-trail-running" />
+          <label for="pf-slug" class="admin-label">Slug * <span class="normal-case font-normal">(l'adresse de la fiche : /projects/ce-slug)</span></label>
+          <input id="pf-slug" v-model="form.slug" required class="admin-input font-mono text-sm" placeholder="boutique-trail-running" />
         </div>
       </div>
 
       <!-- Tagline + Rôle -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="admin-label">Tagline</label>
-          <input v-model="form.tagline" class="admin-input" placeholder="Sentier commercial — e-commerce…" />
+          <label for="pf-tagline" class="admin-label">Tagline <span class="normal-case font-normal">(une phrase qui donne envie d'ouvrir la fiche)</span></label>
+          <input id="pf-tagline" v-model="form.tagline" class="admin-input" placeholder="Sentier commercial — e-commerce…" />
         </div>
         <div>
-          <label class="admin-label">Rôle</label>
-          <input v-model="form.role" class="admin-input" placeholder="Développeur Full-Stack" />
+          <label for="pf-role" class="admin-label">Rôle <span class="normal-case font-normal">(ce que tu as porté dans l'équipe)</span></label>
+          <input id="pf-role" v-model="form.role" class="admin-input" placeholder="Développeur Full-Stack" />
         </div>
       </div>
 
       <!-- Description -->
       <div>
-        <label class="admin-label">Description</label>
-        <textarea v-model="form.description" rows="3" class="admin-input resize-none" />
+        <label for="pf-description" class="admin-label">Description · le départ <span class="normal-case font-normal">(le contexte et la commande, en deux ou trois phrases)</span></label>
+        <textarea id="pf-description" v-model="form.description" rows="3" class="admin-input resize-none" placeholder="Quel était le point de départ ? Qui a demandé quoi, et pourquoi ?" />
       </div>
 
       <!-- Défi + Solution -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="admin-label">Défi</label>
-          <textarea v-model="form.challenge" rows="4" class="admin-input resize-none" />
+          <label for="pf-challenge" class="admin-label">Défi · les passages délicats <span class="normal-case font-normal">(ce qui a résisté)</span></label>
+          <textarea id="pf-challenge" v-model="form.challenge" rows="4" class="admin-input resize-none" placeholder="Où ça coinçait : contrainte technique, délai, dette, accessibilité…" />
         </div>
         <div>
-          <label class="admin-label">Solution</label>
-          <textarea v-model="form.solution" rows="4" class="admin-input resize-none" />
+          <label for="pf-solution" class="admin-label">Solution · l'itinéraire choisi <span class="normal-case font-normal">(ta méthode et tes choix)</span></label>
+          <textarea id="pf-solution" v-model="form.solution" rows="4" class="admin-input resize-none" placeholder="Comment tu as contourné l'obstacle : approche, outils, arbitrages." />
         </div>
       </div>
 
       <!-- Résultat -->
       <div>
-        <label class="admin-label">Résultat</label>
-        <textarea v-model="form.result" rows="2" class="admin-input resize-none" />
+        <label for="pf-result" class="admin-label">Résultat · l'arrivée <span class="normal-case font-normal">(ce qui a changé, avec un chiffre si possible)</span></label>
+        <textarea id="pf-result" v-model="form.result" rows="2" class="admin-input resize-none" placeholder="Où tu es arrivé : ce que ça a changé pour les utilisateurs." />
       </div>
 
       <!-- Technologies -->
@@ -287,7 +287,7 @@ function onSubmit() {
            Priorité : ta photo (admin) > photo Unsplash stockée en base.
            Les captures ci-dessus restent nettes dans la section « Départ ». -->
       <fieldset class="flex flex-col gap-4 border border-(--color-muted)/30 rounded-lg p-4">
-        <legend class="admin-label px-1">Photo d'ambiance</legend>
+        <legend class="admin-label px-1">Photo d'ambiance <span class="normal-case font-normal">(le paysage qui donne le ton de la fiche)</span></legend>
 
         <div class="flex flex-col md:flex-row gap-4 items-start">
           <!-- Aperçu (décoratif) -->
@@ -392,11 +392,11 @@ function onSubmit() {
       <!-- Liens -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="admin-label">Lien démo (optionnel)</label>
+          <label class="admin-label">Lien démo <span class="normal-case font-normal">(optionnel : le projet en ligne)</span></label>
           <input v-model="form.link" type="url" class="admin-input" placeholder="https://…" />
         </div>
         <div>
-          <label class="admin-label">Lien code source (optionnel)</label>
+          <label class="admin-label">Lien code source <span class="normal-case font-normal">(optionnel : le dépôt)</span></label>
           <input v-model="form.code" type="url" class="admin-input" placeholder="https://github.com/…" />
         </div>
       </div>
@@ -440,7 +440,7 @@ function onSubmit() {
 
       <!-- Fiche topo (refonte « L'ascension ») -->
       <fieldset class="space-y-4 border-t pt-6" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
-        <legend class="admin-label">Fiche topo — carte et profil</legend>
+        <legend class="admin-label">Fiche topo — carte et profil <span class="normal-case font-normal">(les repères du sentier : où, quand, quel dénivelé)</span></legend>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label for="pf-place" class="admin-label">Lieu</label>
