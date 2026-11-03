@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onUnmounted } from "vue";
-import { NAV_STEPS } from "~/data/navigation";
+import { NAV_STEPS, sceneHref } from "~/data/navigation";
 import { useStagesStore } from "~/stores/stages";
 import { useProjectsStore } from "~/stores/projects";
 import { buildStageView } from "~/utils/stages";
@@ -102,9 +102,9 @@ onUnmounted(() => { panel.value = null; });
           <li v-for="(step, i) in NAV_STEPS" :key="step.metaphor" :class="['step', { 'is-active': stepActive(step.links) }]">
             <p class="step-h"><span class="step-n" aria-hidden="true">{{ String(i + 1).padStart(2, "0") }}</span>{{ step.metaphor }}</p>
             <ul class="step-links">
-              <li v-for="l in step.links" :key="l.path">
-                <NuxtLink :to="l.path" :aria-current="ariaCurrent(l.path)" :class="['lnk', { 'is-active': isActive(l.path) }]">{{ l.label }}</NuxtLink>
-                <ol v-if="l.path === '/projects' && stageView.length" class="substeps" aria-label="Étapes du sentier">
+              <li>
+                <NuxtLink :to="sceneHref(step)" :aria-current="stepActive(step.links) ? 'true' : undefined" :class="['lnk', { 'is-active': stepActive(step.links) }]">{{ step.label }}</NuxtLink>
+                <ol v-if="step.scene === 'monter' && stageView.length" class="substeps" aria-label="Étapes du sentier">
                   <li v-for="st in stageView" :key="st.key" :class="{ biv: st.kind === 'bivouac' }">
                     <NuxtLink :to="stageHref(st)" class="sub-lnk" :aria-current="stageCurrent(st)">
                       <i class="sub-n" aria-hidden="true">{{ stageNum(st) }}</i><span>{{ st.label }} · {{ st.title }}</span>

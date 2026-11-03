@@ -2419,6 +2419,7 @@ function draw(p,dt){
   const split=LAY.sx>0&&!staticMode;CS=split?.17:.07;CST=split?.012:STEP;CSP=split?.12:.07;CEND=split?[.26,.29]:[.24,.28];CREV=split?[.20,.225]:[.19,.22];   // grand écran : accueil = texte à gauche, montre à droite
   document.documentElement.classList.toggle('hero-split',split);head1.style.opacity=split?(p<.5?1-sm(.075,.10,p):0):Math.max(1-sm(.04,.08,p),sm(.96,1,p));
   head2.style.opacity=split?trap(p,.11,.14,.17,.20):trap(p,.08,.11,.24,.28);   // le titre « S'équiper » attend que l'accroche ait disparu
+  $('#eqMore').classList.toggle('on',+head2.style.opacity>.85);   // lien « Voir tout l'équipement » : visible (et focalisable) avec le titre
   chips.forEach((c,i)=>{
     const o=hoverCards()
       ?trap(p,CS,CS+.03,CEND[0],CEND[1])*Math.max(cardReveal(i,dt),sm(CREV[0],CREV[1],p))   // souris : la carte du bouton survolé, puis toutes en fin de scène
@@ -3598,6 +3599,15 @@ function finishLoad(){
   root.style.overflow='';
   nRot=((nRot%TAU)+TAU)%TAU;if(nRot>Math.PI)nRot-=TAU;nVel=-2.2;
   live.textContent='Boussole calée sur le nord. Faites défiler pour explorer.';
+  gotoHash();
+}
+/* Lien profond depuis les pages (`/#equiper`, `/#monter`, `/#perseverer`, `/#poser`) : le menu des pages et ceux de l'accueil
+   mènent aux mêmes scènes. Ouvre directement la scène, sans animation de défilement (mouvement réduit respecté d'office). */
+function gotoHash(){
+  const h=decodeURIComponent(location.hash.slice(1));
+  const b=h&&document.querySelector('#railNav button[data-h="'+h+'"]');if(!b)return;
+  if(staticMode)document.getElementById(b.dataset.s).scrollIntoView({behavior:'auto'});
+  else jumpTo(parseFloat(b.dataset.p));
 }
 /* Chargement progressif : chaque scène 3D (et la chaussure de 1 Mo) n'est préparée qu'à l'approche de sa scène,
    pendant un temps libre du navigateur ; un saut direct par le menu la prépare à l'arrivée (ensure() dans draw). */
@@ -3613,7 +3623,7 @@ initAurora();if(!THREE_OK)initWater();
 if(THREE_OK)initThree();
 applyQuality();
 layoutTools();sizeThree();sizePuddle();
-if(staticMode){setStatic(true);loaded=true;loader.classList.add('done')}
+if(staticMode){setStatic(true);loaded=true;loader.classList.add('done');gotoHash()}
 else root.style.overflow='hidden';
 let fpsEma=.016,slowT=0;
 function frame(ts){

@@ -90,6 +90,7 @@ const sections = computed(() => [
     <header class="relative overflow-hidden">
       <TrailContourBackground :seed="11 + currentIndex" :cx="76" :cy="48" />
       <div class="relative max-w-6xl mx-auto px-6 sm:px-12 lg:px-20 pt-10 sm:pt-14 pb-10 sm:pb-14">
+        <TrailBackToScene scene="monter" />
         <nav aria-label="Fil d'Ariane" class="font-mono text-xs text-(--color-muted) mb-8">
           <ol class="flex flex-wrap gap-2">
             <li><NuxtLink to="/" class="hover:underline">Accueil</NuxtLink></li>

@@ -1029,3 +1029,12 @@ html.loop-on .pl-list ul.lk a:hover{text-decoration-thickness:2px}
 html.loop-on .pl-more{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 /* rail des étapes : le bivouac, petit marqueur, n'est pas une étape */
 html.loop-on .pl-stages li.biv .dot{transform:scale(.6)}
+
+/* Liens « voir la page » des scènes (cohérence accueil ↔ pages, docs/audit-coherence.md) */
+html.loop-on a.cnt{display:inline-flex;align-items:center;text-decoration:none}
+html.loop-on .scene-more{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:5;margin:0;opacity:0;pointer-events:none;transition:opacity .3s}
+html.loop-on .scene-more:not(.on){visibility:hidden}
+html.loop-on .scene-more.on{opacity:1;pointer-events:auto}
+html.loop-on body.static .scene-more{position:static;transform:none;visibility:visible;opacity:1;pointer-events:auto;text-align:center;margin:16px 0}
+@media (prefers-reduced-motion:reduce){html.loop-on .scene-more{transition:none}}
+html.loop-on #dlgCarnet .sh-alt{background:transparent;color:#1B2A24;border:1px solid #1B2A24}
