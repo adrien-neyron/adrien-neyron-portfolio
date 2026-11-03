@@ -28,14 +28,14 @@ const props = defineProps<{
   /** lieu et coordonnées de la fiche topo, affichés en étiquette GPS sur la photo */
   place?: string;
   coords?: { lat?: number; lon?: number };
-  /** photo d'ambiance (en couleur) */
+  /** photo d'ambiance : affichée avec le traitement « grain skate » (main.css) */
   cover?: string;
   /** étape de la trace qui porte ce projet (« Étape 02 · DGFiP… ») et son résultat clé — même source que l'accueil (utils/stages.ts) */
   stage?: string;
   keyResult?: string;
 }>();
 
-// Photo d'ambiance en priorité, sinon la capture d'écran.
+// Photo d'ambiance en priorité, sinon la capture d'écran — toutes passent par le filtre grain.
 const photoSrc = computed(() => props.cover || props.imageUrl || "/projectsoon.png");
 
 const gpsLabel = computed(() => {
@@ -66,7 +66,11 @@ const { difficultyLabel, difficultyClass } = useDifficultyBadge();
   >
     <!-- Image -->
     <!-- Photo décorative (alt vide, RGAA 1.2) : le titre de la carte porte l'information -->
-    <div class="relative w-full overflow-hidden bg-[var(--color-surface)]">
+    <!-- Filtre « grain skate » sur TOUTES les cartes, quelle que soit la source de
+         l'image (photo admin, Unsplash, défaut, capture ou /projectsoon.png) :
+         la grille reste homogène. Seule la section « Départ » de la fiche garde
+         la capture nette, pour qu'elle reste lisible. -->
+    <div class="grain-photo relative w-full overflow-hidden">
       <NuxtImg
         :src="photoSrc"
         alt=""
@@ -107,7 +111,7 @@ const { difficultyLabel, difficultyClass } = useDifficultyBadge();
       <!-- Résultat clé de l'étape (source unique), sinon l'impact saisi sur le projet -->
       <div
         v-if="keyResult || impact"
-        class="text-xs font-semibold text-[var(--color-accent)] bg-[var(--color-accent)]/8 rounded-lg px-3 py-1.5"
+        class="text-xs font-semibold text-[var(--color-accent-text)] bg-[var(--color-accent)]/8 rounded-lg px-3 py-1.5"
       >
         {{ keyResult || impact }}
       </div>
