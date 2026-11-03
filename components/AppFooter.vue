@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { NAV_LINKS } from "~/data/navigation";
 const year = new Date().getFullYear();
+
+// Liens de navigation + pages légales (mentions légales et déclaration d'accessibilité : obligatoires sur chaque page)
+const FOOTER_LINKS = [
+  ...NAV_LINKS,
+  { label: "Mentions légales", path: "/mentions-legales" },
+  { label: "Accessibilité", path: "/accessibilite" },
+];
 </script>
 
 <template>
@@ -16,7 +23,7 @@ const year = new Date().getFullYear();
       <!-- Liens rapides -->
       <nav aria-label="Navigation pied de page" class="flex flex-wrap justify-center gap-x-5 gap-y-1">
         <NuxtLink
-          v-for="link in NAV_LINKS"
+          v-for="link in FOOTER_LINKS"
           :key="link.path"
           :to="link.path"
           class="text-xs text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors"

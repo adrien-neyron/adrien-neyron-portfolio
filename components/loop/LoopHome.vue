@@ -36,7 +36,7 @@ const { data: loopContent } = await useFetch<LoopContentTexts>('/api/loop-conten
 const page = computed(() => applyLoopContent(markup, loopContent.value))
 
 // URL publique : sert aux balises Open Graph et au lien canonique
-const SITE_URL = 'https://adrien-neyron-portfolio.vercel.app'
+const SITE_URL = String(useRuntimeConfig().public.siteUrl).replace(/\/$/, '')
 const SITE_TITLE = 'Adrien Neyron — développeur front-end · Vue 3, TypeScript, accessibilité'
 
 useHead({
@@ -195,11 +195,13 @@ function setupGate(): boolean {
   }
   // Plus de bouton central : un clic n'importe où sur l'écran (sauf « Passer l'intro ») ouvre tout de suite.
   gate.addEventListener('click', (e) => { if (!(e.target as HTMLElement).closest('#gateSkip')) untie() })
-  // « Passer l'intro » : on ferme l'écran tout de suite, sans attendre la 3D, et on passe en vue statique (mémorisée)
+  // « Passer l'intro » : on ferme l'écran tout de suite, sans attendre la 3D, et on passe en vue statique POUR CETTE VISITE
+  // seulement (sessionStorage). La préférence durable reste le bouton « Vue statique » (localStorage `asc-static`) : un clic
+  // sur « Passer » ne doit pas priver le visiteur de la 3D à ses retours suivants.
   document.getElementById('gateSkip')?.addEventListener('click', () => {
     if (opening) return
     opening = true
-    try { localStorage.setItem('asc-static', '1') } catch { /* stockage indisponible : la vue statique s'applique pour cette visite seulement */ }
+    try { sessionStorage.setItem('asc-static-visit', '1') } catch { /* stockage indisponible : la vue statique s'applique quand même pour cette visite */ }
     const live = document.getElementById('live')
     if (live) live.textContent = 'Intro passée : le contenu est affiché directement.'
     gateOpen = false

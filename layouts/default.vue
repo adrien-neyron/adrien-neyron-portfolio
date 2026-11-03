@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import "~/assets/css/main.css";
-import { useVisitorStore } from "~/stores/visitor";
 
-const visitorStore = useVisitorStore();
 const route  = useRoute();
 const router = useRouter();
 
-onMounted(async () => {
-  await visitorStore.fetchCount();
-  await visitorStore.trackVisit();
-});
+// Suivi des visiteurs retiré (RGPD, audit du 03/11/2026) : aucune donnée n'est envoyée au chargement.
 
 // ─── Moment de la page (refonte « L'ascension ») ─────────────────────────
 // Chaque rubrique a son moment de la journée ; les couleurs correspondantes sont

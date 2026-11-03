@@ -2,15 +2,10 @@
 import { Gauge, Info } from "lucide-vue-next";
 import { TERRAINS, computePace, formatDuree, formatAllure, type Terrain } from "~/utils/allure";
 
-useHead({
+usePageSeo({
   title: "Calculateur d'allure trail D+ | Adrien Neyron",
-  meta: [
-    {
-      name: "description",
-      content:
-        "Calculateur gratuit d'allure et de temps de course en trail running qui intègre le D+ et le D- réels du parcours — plus juste qu'un calculateur d'allure plate classique.",
-    },
-  ],
+  description:
+    "Calculateur gratuit d'allure et de temps de course en trail running qui intègre le D+ et le D- réels du parcours — plus juste qu'un calculateur d'allure plate classique.",
 });
 
 // ─── Entrées (stockées en texte brut pour rester robuste sur les états

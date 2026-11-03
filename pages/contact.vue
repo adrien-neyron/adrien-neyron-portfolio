@@ -3,7 +3,10 @@ import Swal    from "sweetalert2";
 import { Mail, MapPin, Send, MessageCircle } from "lucide-vue-next";
 import { useProfileStore } from "~/stores/profile";
 
-useHead({ title: "Bivouac — Contact | Adrien Neyron" });
+usePageSeo({
+  title: "Bivouac — Contact | Adrien Neyron",
+  description: "Un projet front-end ou un audit d'accessibilité RGAA ? Décrivez votre besoin, réponse sous 48 h.",
+});
 
 const profileStore = useProfileStore();
 profileStore.fetchProfile();

@@ -40,7 +40,7 @@ let theme='light';
 /* Jour / Nuit PARTAGÉ avec les pages : même clé que @nuxtjs/color-mode (`color-mode` : light | dark | system). `system` ou absent = réglage de l'appareil. */
 try{const cm=localStorage.getItem('color-mode');theme=cm==='dark'||cm==='light'?cm:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
 /* Vue statique d'office : mouvement réduit, connexion lente / économie de données / appareil léger (décidé par la page, LOADERS.lite), ou choix mémorisé du visiteur */
-let prefStatic=false;try{prefStatic=localStorage.getItem('asc-static')==='1'}catch(e){}
+let prefStatic=false;try{prefStatic=localStorage.getItem('asc-static')==='1'||sessionStorage.getItem('asc-static-visit')==='1'}catch(e){}
 let staticMode=reduce||!!(LOADERS&&LOADERS.lite)||prefStatic, paused=false, loaded=false;
 let tNow=0, pS=0, last=performance.now(), loadT0=performance.now();
 let seen=false;try{seen=localStorage.getItem('asc-seen')==='1'}catch(e){}
@@ -2518,7 +2518,7 @@ $('#railNav').addEventListener('click',()=>closeMenus(null));
 $('#openSet').addEventListener('click',()=>closeMenus(null));
 $('#brand').addEventListener('click',e=>{e.preventDefault();staticMode?scrollTo(0,0):jumpTo(.0004);$('#main').focus({preventScroll:true})});
 $('#tgPause').addEventListener('click',e=>{paused=!paused;document.body.classList.toggle('paused',paused);e.currentTarget.setAttribute('aria-pressed',String(paused))});
-$('#tgStatic').addEventListener('click',()=>{setStatic(!staticMode);try{localStorage.setItem('asc-static',staticMode?'1':'0')}catch(e){}});
+$('#tgStatic').addEventListener('click',()=>{setStatic(!staticMode);try{localStorage.setItem('asc-static',staticMode?'1':'0');sessionStorage.removeItem('asc-static-visit')}catch(e){}});
 $('#loadSkip').addEventListener('click',()=>{finishLoad();$('#main').focus({preventScroll:true})});
 $('#tgNight').addEventListener('click',e=>{
   theme=theme==='dark'?'light':'dark';root.dataset.theme=theme;if(strapApply)strapApply(theme==='dark');applyDialTheme();
@@ -2540,16 +2540,16 @@ $('#ftContact').addEventListener('click',()=>{
   root.style.overflow='';jumpTo(.845);$('#main').focus({preventScroll:true});
 });
 const DLG={
-  legal:{t:'Mentions légales',b:`<h3>Éditeur</h3><p>Adrien Neyron, entrepreneur individuel en EURL, Haute-Savoie (France).</p><p class="todo">[SIRET et adresse à renseigner]</p>
+  legal:{t:'Mentions légales',b:`<h3>Éditeur</h3><p>Adrien Neyron, entrepreneur individuel, 1435 route de la Barliette, 74300 Araches-la-Frasse (France). SIRET : 834 362 758 00031.</p>
     <h3>Directeur de la publication</h3><p>Adrien Neyron.</p>
-    <h3>Contact</h3><p class="todo">[adresse e-mail à renseigner]</p>
+    <h3>Contact</h3><p><a href="mailto:adrien.neyron@gmail.com">adrien.neyron@gmail.com</a></p>
     <h3>Hébergeur</h3><p>Vercel Inc., États-Unis (vercel.com).</p>
-    <h3>Crédits</h3><p>Les photos d'ambiance viennent d'Unsplash ; chaque crédit figure sur la fiche du projet concerné.</p><p>Titres : police « Cormorant Garamond » © The Cormorant Project Authors, licence <a href="https://openfontlicense.org/" target="_blank" rel="noopener">SIL OFL 1.1<span class="sr-only"> (nouvel onglet)</span></a>, hébergée sur ce site.</p>
-    <h3>Données personnelles</h3><p>Météo locale : pour afficher l'altitude et la météo en bas de l'écran, votre ville approximative est déduite de votre adresse IP par l'hébergeur (Vercel). Seules des coordonnées arrondies (à une dizaine de kilomètres près) sont transmises au service météo Open-Meteo (open-meteo.com), sans votre adresse IP. Aucune de ces données n'est conservée.</p><p class="todo">[finalités, durée de conservation et droits d'accès pour le formulaire de contact : à rédiger]</p>`},
+    <h3>Crédits</h3><p>Les photos d\'ambiance viennent d\'Unsplash ; chaque crédit figure sur la fiche du projet concerné.</p><p>Titres : police « Cormorant Garamond » © The Cormorant Project Authors, licence <a href="https://openfontlicense.org/" target="_blank" rel="noopener">SIL OFL 1.1<span class="sr-only"> (nouvel onglet)</span></a>, hébergée sur ce site.</p>
+    <h3>Données personnelles</h3><p>Météo locale : pour afficher l\'altitude et la météo en bas de l\'écran, votre ville approximative est déduite de votre adresse IP par l\'hébergeur (Vercel). Seules des coordonnées arrondies (à une dizaine de kilomètres près) sont transmises au service météo Open-Meteo (open-meteo.com), sans votre adresse IP. Aucune de ces données n\'est conservée.</p><p>Le formulaire de contact sert uniquement à répondre à votre demande. Droits d\'accès, de rectification et de suppression : <a href="mailto:adrien.neyron@gmail.com">adrien.neyron@gmail.com</a>.</p><p><a href="/mentions-legales">Version complète</a></p>`},
   a11y:{t:'Déclaration d\'accessibilité',b:`<p>Ce site vise la conformité au niveau AA des WCAG 2.1 et au RGAA 4.1.</p>
-    <h3>État de conformité</h3><p class="todo">[non évalué : audit RGAA à réaliser avant la mise en ligne]</p>
+    <h3>État de conformité</h3><p>Non évalué à ce jour : un audit RGAA complet sera réalisé et cette déclaration mise à jour. Des contrôles automatisés (axe-core) sont exécutés à chaque livraison.</p>
     <h3>Ce qui est prévu</h3><ul><li>Tout le contenu est en texte ; la 3D et les décors sont ignorés par les lecteurs d'écran.</li><li>Un plan de navigation permet d'atteindre chaque scène au clavier.</li><li>Boutons « Pause », « Vue statique » et « Mode nuit ». La vue statique s'active seule si votre appareil demande moins d'animations.</li><li>Lien d'évitement, focus visible, cibles d'au moins 44 px.</li></ul>
-    <h3>Signaler un problème</h3><p class="todo">[adresse e-mail accessibilité à renseigner]</p>
+    <h3>Signaler un problème</h3><p><a href="mailto:adrien.neyron@gmail.com">adrien.neyron@gmail.com</a> — <a href="/accessibilite">version complète</a></p>
     <h3>Voie de recours</h3><p>Sans réponse satisfaisante, vous pouvez saisir le Défenseur des droits (defenseurdesdroits.fr).</p>
     <h3>Établie le</h3><p>29 septembre 2026.</p>`}
 };

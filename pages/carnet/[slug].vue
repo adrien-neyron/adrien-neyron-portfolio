@@ -7,7 +7,8 @@ const route = useRoute();
 const { categoryClass, categoryIcon } = useCarnetCategory();
 
 const store = useCarnetStore();
-onMounted(() => store.fetchArticles());
+// Chargé côté serveur : le titre, la description et l'image de partage sont dans le HTML initial
+await store.fetchArticles();
 
 const article = computed(() =>
   store.articles.find((a) => a.slug === route.params.slug)
@@ -15,8 +16,11 @@ const article = computed(() =>
 
 const notFound = computed(() => !store.loading && store.articles.length > 0 && !article.value);
 
-useHead({
+usePageSeo({
   title: computed(() => `${article.value?.title ?? "Article"} | Le Carnet — Adrien Neyron`),
+  description: computed(() => article.value?.excerpt),
+  image: computed(() => article.value?.cover),
+  type: "article",
 });
 
 function formatDate(value: string) {

@@ -2,7 +2,10 @@
 import { BookOpen, Filter, ChevronRight } from "lucide-vue-next";
 import { useCarnetStore } from "~/stores/carnet";
 
-useHead({ title: "Le Carnet — Trail, Dev & Coulisses | Adrien Neyron" });
+usePageSeo({
+  title: "Le Carnet — Trail, Dev & Coulisses | Adrien Neyron",
+  description: "Articles sur le trail, le développement front-end, l'accessibilité et les coulisses de ce portfolio.",
+});
 
 const { categoryClass, categoryIcon } = useCarnetCategory();
 

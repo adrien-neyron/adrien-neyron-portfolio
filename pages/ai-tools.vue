@@ -2,7 +2,10 @@
 import { Cpu, ArrowRight } from "lucide-vue-next";
 import { useAiToolsStore } from "~/stores/aiTools";
 
-useHead({ title: "Outils développés | Adrien Neyron" });
+usePageSeo({
+  title: "Outils développés | Adrien Neyron",
+  description: "Les outils développés par Adrien Neyron : applications et utilitaires pour le trail, la formation et l'automatisation.",
+});
 
 const aiToolsStore = useAiToolsStore();
 aiToolsStore.fetchAiTools();

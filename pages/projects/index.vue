@@ -4,7 +4,10 @@ import { useStagesStore } from "~/stores/stages";
 import { useProfileStore } from "~/stores/profile";
 import { buildStageView, isListedProject, projectType, stageHeading, stageOfProject } from "~/utils/stages";
 
-useHead({ title: "Projets | Adrien Neyron" });
+usePageSeo({
+  title: "Projets | Adrien Neyron",
+  description: "Missions en production et projets personnels : le point de départ, les difficultés, l'itinéraire et le résultat de chaque projet.",
+});
 
 // Chargement côté serveur : projets, étapes et bandeau sont dans le HTML initial (SEO, et
 // lisibles même si le JavaScript échoue).

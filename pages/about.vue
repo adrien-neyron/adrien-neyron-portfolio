@@ -2,7 +2,10 @@
 import { MapPin, Download, Mail } from "lucide-vue-next";
 import { useProfileStore } from "~/stores/profile";
 
-useHead({ title: "Le Randonneur — À propos | Adrien Neyron" });
+usePageSeo({
+  title: "Le Randonneur — À propos | Adrien Neyron",
+  description: "Dix ans de management et de formation, puis le développement front-end : le parcours, les valeurs et la stack d'Adrien Neyron.",
+});
 
 const profileStore = useProfileStore();
 profileStore.fetchProfile();
@@ -68,14 +71,18 @@ const skills = {
       <UiAnimatedSection>
         <div class="flex flex-col md:flex-row gap-10 items-center mb-16">
           <!-- Photo interactive -->
-          <div
-            class="relative w-56 h-56 shrink-0 cursor-pointer"
+          <button
+            type="button"
+            class="relative w-56 h-56 shrink-0 cursor-pointer block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
+            :aria-pressed="hovered"
+            aria-label="Afficher ma photo"
+            @click="hovered = !hovered"
             @mouseenter="hovered = true"
             @mouseleave="hovered = false"
           >
             <NuxtImg
               src="/sculpture.png"
-              alt="Silhouette"
+              alt=""
               class="w-full h-full object-contain rounded-2xl border border-[var(--color-accent)]/20"
             />
             <Transition
@@ -94,7 +101,7 @@ const skills = {
                 />
               </div>
             </Transition>
-          </div>
+          </button>
 
           <!-- Identité -->
           <div>

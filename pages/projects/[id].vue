@@ -46,9 +46,12 @@ const nextProject = computed(() =>
   navList.value.length > 1 ? navList.value[(navIndex.value + 1) % navList.value.length] : undefined
 );
 
-useHead({
+// Image de partage : la photo d'ambiance du projet (jamais l'image « bientôt » par défaut)
+usePageSeo({
   title: computed(() => `${project.value?.title ?? "Projet"} — Projets | Adrien Neyron`),
-  meta: [{ name: "description", content: computed(() => project.value?.tagline || project.value?.description || "") }],
+  description: computed(() => project.value?.tagline || project.value?.description),
+  image: computed(() => project.value?.cover),
+  imageAlt: computed(() => (project.value ? `Photo d'ambiance du projet ${project.value.title}` : undefined)),
 });
 
 const number = computed(() => String(currentIndex.value + 1).padStart(2, "0"));

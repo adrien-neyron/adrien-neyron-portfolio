@@ -65,6 +65,8 @@ export default defineNuxtConfig({
     contactTo:    process.env.CONTACT_TO ?? process.env.ADMIN_EMAIL ?? "adrien.neyron@gmail.com",
     contactFrom:  process.env.CONTACT_FROM ?? "Portfolio <onboarding@resend.dev>",
     public: {
+      // URL publique du site (canonical, Open Graph, sitemap) : à changer au passage au domaine propre
+      siteUrl: process.env.SITE_URL ?? "https://adrien-neyron-portfolio.vercel.app",
       auth0Domain:   process.env.AUTH0_DOMAIN    ?? "",
       auth0ClientId: process.env.AUTH0_CLIENT_ID ?? "",
     },
