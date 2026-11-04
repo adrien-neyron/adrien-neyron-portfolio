@@ -17,7 +17,7 @@ L'accueil (boucle 3D, `components/loop/LoopHome.vue` + `assets/loop/loop.js`) li
 | Profil | `loopTitle` | titre (h1) du premier écran **et** accroche de l'écran de la corde |
 | Profil | `loopLede` | sous-texte du premier écran |
 | Profil | `loopDialName`, `loopDialRole` | cadran de la montre : nom (vide → « ADRIEN NEYRON ») et ligne de titre (vide → « DÉVELOPPEUR × TRAILEUR × FORMATEUR »), réduits automatiquement s'ils sont trop longs |
-| Profil | `loopDialXpLabel`, `loopDialXpValue` | cadran : libellé et valeur d'expérience (vides → « EXPÉRIENCE: » / « 17 ANS ») |
+| Profil | `loopDialXpLabel`, `loopDialXpValue` | cadran : libellé et valeur d'expérience (vides → « DÉV. 5 ANS » / « TERRAIN 20 ANS » ; la seconde valeur se calcule : année en cours − 2006, début dans le sport) |
 | Profil | `loopToolsEyebrow`, `loopToolsTitle`, `loopToolsLede` | texte de l'étape « S'équiper » (vides → texte de `loop.html`) ; injecté côté serveur dans `#head2` |
 | Profil | `loopLead` (« Accueil » → accroche) | fiche « Profil » : paragraphe d'accroche |
 | Profil | `loopFacts` | fiche « Profil » : phrase de synthèse |

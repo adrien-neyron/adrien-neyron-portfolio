@@ -168,7 +168,7 @@ let CS=.07,CST=STEP,CSP=.07,CEND=[.24,.28],CREV=[.19,.22];   // CSP : début des
    Le texte écrit dans le balisage et dans les tableaux ci-dessous est le REPLI : un champ vide ou une API
    en échec laisse donc l'accueil exactement comme avant. Les chaînes venues de l'admin passent par esc() avant tout innerHTML. */
 const CMS=(LOADERS&&LOADERS.content)||{};
-const DIAL_T=Object.assign({name:'ADRIEN NEYRON',role:'DÉVELOPPEUR × TRAILEUR × FORMATEUR',xpLabel:'DÉV. 5 ANS',xpValue:'TERRAIN 11 ANS'},Object.fromEntries(Object.entries((CMS&&CMS.dial)||{}).filter(([k,v])=>typeof v==='string'&&v.trim()).map(([k,v])=>[k,v.trim()])));   // texte du cadran : admin (Accueil), sinon repli
+const DIAL_T=Object.assign({name:'ADRIEN NEYRON',role:'DÉVELOPPEUR × TRAILEUR × FORMATEUR',xpLabel:'DÉV. 5 ANS',xpValue:'TERRAIN '+(new Date().getFullYear()-2006)+' ANS'},Object.fromEntries(Object.entries((CMS&&CMS.dial)||{}).filter(([k,v])=>typeof v==='string'&&v.trim()).map(([k,v])=>[k,v.trim()])));   // texte du cadran : admin (Accueil), sinon repli
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const okUrl=u=>{if(!u)return '';try{const x=new URL(u,location.href);return /^(https?:|mailto:)$/.test(x.protocol)?x.href:''}catch(e){return ''}};
 const shortT=t=>String(t).split(/\s[—–-]\s/)[0];   // titre court pour les blocs 3D : « Click2SellSite — Sprint… » → « Click2SellSite »
