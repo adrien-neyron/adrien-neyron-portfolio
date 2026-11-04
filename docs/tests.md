@@ -43,7 +43,7 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 
 ## Accessibilité : politique « cliquet »
 - Toute règle axe **autre que `color-contrast`** doit être à **0** violation.
-- `color-contrast` : dette connue suivie dans `tests/e2e/a11y-baseline.json` (nombre maximal de nœuds par page/thème). Le test échoue si ça **augmente** ; quand on corrige, **baisser** la valeur. Objectif : tout à 0 puis supprimer le fichier.
+- `color-contrast` : suivi dans `tests/e2e/a11y-baseline.json` (nombre maximal de nœuds par page/thème). **Depuis novembre 2026, toutes les valeurs sont à 0** : plus aucune dette de contraste détectée par axe, en clair comme en sombre. Le test échoue dès qu'un contraste insuffisant réapparaît. Le fichier est conservé pour tolérer, si besoin, une dette temporaire documentée ; il peut être supprimé si l'on préfère un test strict.
 - axe n'attrape qu'une partie des critères RGAA : l'audit manuel (clavier, lecteur d'écran, zoom 200 %) reste nécessaire (voir `docs/audit-ux-ui.md`).
 
 ## CI
