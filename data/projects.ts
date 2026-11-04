@@ -93,8 +93,8 @@ export const projects: ProjectData[] = [
     coverCredit: "Visuel d'accueil de SportFlow",
     coverCreditUrl: "https://with-coachflow.vercel.app",
     image: {
-      light: "/recentprojects/coachflow-hero.png",
-      dark: "/recentprojects/coachflow-hero.png",
+      light: "/recentprojects/coachflow-hero.webp",
+      dark: "/recentprojects/coachflow-hero.webp",
     },
     link: "https://with-coachflow.vercel.app/",
     code: "https://github.com/adrien-neyron/CoachFlow",

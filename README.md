@@ -37,7 +37,6 @@ Fichier `.env` en local, Vercel › Settings › Environment Variables en produc
 | `npm run build` | Build de production dans `.output/`. |
 | `npm run test:e2e` | Tests navigateur (Playwright, axe) sur le build : lancer `npm run build` avant. |
 | `npm run test:all` | Couverture, build, puis e2e. |
-| `npm run lint` | ESLint. |
 
 ## Accessibilité
 
@@ -60,6 +59,6 @@ Tout est dans `docs/` ; `CLAUDE.md` donne la vue d'ensemble pour les assistants 
 | Tests | `docs/tests.md` |
 | Audits | `docs/audit-coherence.md`, `docs/audit-ux-ui.md`, `docs/audit-ux-projets-contact.md` |
 
-## Licence et contact
+## Contact
 
-Code et contenus © Adrien Neyron. Mentions légales : `/mentions-legales`.
+Mentions légales : `/mentions-legales`. Contact : voir la page `/contact`.
