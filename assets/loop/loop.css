@@ -1047,7 +1047,13 @@ html.loop-on .pl-stages button[aria-current="true"] .dot{width:13px;height:13px;
 html.loop-on .pl-stages button:hover .dot,html.loop-on .pl-stages button:focus-visible .dot{background:#FFFFFF;border-color:#FF8A57}
 html.loop-on .pl-stages button:focus-visible{outline:3px solid #FFFFFF;outline-offset:-6px;border-radius:50%;box-shadow:0 0 0 1px #050811}
 
-/* Infobulle des points de la frise (« Étape 03 · Préparer la voie ») : pastille OPAQUE posée au-dessus de la fiche d'étape (la frise est en z-index 14, la fiche en 6), lisible en jour comme en nuit. Avant : fond transparent, le libellé s'écrivait sur le texte de la fiche, et il était blanc (#FFF) en thème clair. Couleurs = jetons du thème (WCAG 1.4.3 texte, 1.4.11 contour). */
-html.loop-on .pl-stages .stip{padding:6px 14px;border-radius:999px;background:var(--bg);border:1px solid var(--acc-text);box-shadow:0 8px 22px rgba(0,0,0,.35);text-shadow:none;color:var(--fg)}
-html.loop-on .pl-stages .stip i{color:var(--acc-text)}
-html.loop-on .pl-stages .stip .lb{color:var(--fg);font-weight:600}
+/* Vue statique : liste des étapes lisible (04/11/2026) — mesure limitée, jetons de la scène (jour/nuit), en-tête et pied de page
+   avec un fond (ils étaient transparents et le texte défilait dessous). */
+html.loop-on body.static .pl-list{max-width:74ch;margin-inline:auto;padding:96px 18px 40px}
+html.loop-on body.static .pl-list>li{margin:18px 0;padding:22px 24px;background:var(--card);border-color:var(--line);color:var(--fg);font-size:16px;line-height:1.7}
+html.loop-on body.static .pl-list h3{font-size:clamp(22px,3vw,28px);line-height:1.2;margin-bottom:6px}
+html.loop-on body.static .pl-list .e{color:var(--acc-text)}
+html.loop-on body.static .pl-list li ul li{border-color:var(--line);color:var(--fg)}
+html.loop-on body.static main{padding-bottom:120px}
+html.loop-on body.static header.top{background:color-mix(in srgb,var(--bg) 94%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);min-height:56px}
+html.loop-on body.static footer.perma{background:color-mix(in srgb,var(--bg) 94%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
