@@ -1046,3 +1046,8 @@ body.static .scene-more{position:static;transform:none;visibility:visible;opacit
 .pl-stages button[aria-current="true"] .dot{width:13px;height:13px;background:#FF8A57;border-color:#FFFFFF;box-shadow:0 0 0 3px rgba(5,8,17,.9),0 0 12px rgba(255,138,87,.9);transform:none}
 .pl-stages button:hover .dot,.pl-stages button:focus-visible .dot{background:#FFFFFF;border-color:#FF8A57}
 .pl-stages button:focus-visible{outline:3px solid #FFFFFF;outline-offset:-6px;border-radius:50%;box-shadow:0 0 0 1px #050811}
+
+/* Infobulle des points de la frise (« Étape 03 · Préparer la voie ») : pastille OPAQUE posée au-dessus de la fiche d'étape (la frise est en z-index 14, la fiche en 6), lisible en jour comme en nuit. Avant : fond transparent, le libellé s'écrivait sur le texte de la fiche, et il était blanc (#FFF) en thème clair. Couleurs = jetons du thème (WCAG 1.4.3 texte, 1.4.11 contour). */
+.pl-stages .stip{padding:6px 14px;border-radius:999px;background:var(--bg);border:1px solid var(--acc-text);box-shadow:0 8px 22px rgba(0,0,0,.35);text-shadow:none;color:var(--fg)}
+.pl-stages .stip i{color:var(--acc-text)}
+.pl-stages .stip .lb{color:var(--fg);font-weight:600}

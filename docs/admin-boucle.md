@@ -380,3 +380,7 @@ Les points de la frise (`.pl-stages .dot`, à droite de la scène « L'ascension
 
 ## Formulaire projet : textes plus parlants (03/11/2026)
 `components/admin/ProjectForm.vue` : les libellés gardent leur nom explicite (« Défi », « Solution »…) et y ajoutent la section de la fiche qu'ils alimentent (« Défi · les passages délicats », « Résultat · l'arrivée »…), avec une courte aide entre parenthèses et des exemples en placeholder. Les libellés Titre, Slug, Tagline, Rôle, Description, Défi, Solution et Résultat sont maintenant associés à leur champ (`for` / `id` : RGAA 11.1). Les autres libellés du formulaire restent à relier.
+
+
+## Frise des étapes : infobulle lisible (04/11/2026)
+Au survol ou au focus clavier d'un point de la frise (`.pl-stages`, à droite de la scène « L'ascension »), une infobulle `.stip` affiche « Étape 03 · Préparer la voie ». Problèmes corrigés : fond transparent, donc le libellé s'écrivait sur le texte de la fiche d'étape ouverte (la frise est en `z-index: 14`, la fiche `.stop-card` en `6`) ; texte forcé en blanc `#FFFFFF`, invisible en thème clair. Désormais : pastille **opaque** (`background: var(--bg)`), contour 1 px `var(--acc-text)`, texte `var(--fg)`, numéro `var(--acc-text)`, ombre portée. Les couleurs suivent les jetons du thème, donc contrastes AA en jour comme en nuit (WCAG 1.4.3 et 1.4.11). Le style est à la fin de `loop.source.css` ; `loop.css` est régénéré par `node scripts/scope-loop-css.cjs assets/loop/loop.source.css assets/loop/loop.css` (un test vérifie qu'ils restent synchronisés).
