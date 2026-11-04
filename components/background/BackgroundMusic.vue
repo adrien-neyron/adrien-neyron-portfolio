@@ -36,5 +36,6 @@ watch(audioSrc, (src) => {
 </script>
 
 <template>
-  <audio ref="audioEl" :src="audioSrc" loop :muted="isMuted" />
+  <!-- preload="none" : les pistes (jusqu'à 18 Mo) ne sont téléchargées qu'au premier « son activé » -->
+  <audio ref="audioEl" :src="audioSrc" preload="none" loop :muted="isMuted" />
 </template>

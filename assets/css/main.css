@@ -80,7 +80,7 @@ body::before {
   inset: -8%;
   background-image:
     linear-gradient(color-mix(in srgb, var(--color-bg) 72%, transparent), color-mix(in srgb, var(--color-bg) 72%, transparent)),
-    url("/bivouac-light.png");
+    url("/bivouac-light.webp");
   background-size: cover;
   background-position: center;
   z-index: 0;
@@ -91,7 +91,7 @@ body::before {
 html.dark body::before {
   background-image:
     linear-gradient(color-mix(in srgb, var(--color-bg) 60%, transparent), color-mix(in srgb, var(--color-bg) 60%, transparent)),
-    url("/bivouac.png");
+    url("/bivouac.webp");
 }
 
 @keyframes bgZoom {

@@ -54,7 +54,7 @@ export const projects: ProjectData[] = [
       dark: "/projectsoon.png",
     },
     difficulty: "Professionnel",
-    duration: "Depuis mai 2026 (en cours)",
+    duration: "Mai – octobre 2026",
     category: "E-commerce",
     status: "Case study pro",
     impact: "RGAA/WCAG 2.1 AA · gate CI a11y · tests Orca · 7 langues",

@@ -14,7 +14,7 @@ const hovered = ref(false);
 
 const timeline = [
   {
-    period: "2011 – 2021",
+    period: "2010 – 2021",
     title: "Éducateur sportif & Formateur",
     description: "10 ans dans les secteurs du sport, du tourisme et du social. Animation, enseignement, conception de parcours pédagogiques pour des publics variés.",
     icon: "🏃",
@@ -57,7 +57,7 @@ const values = [
 const skills = {
   Frontend:  ["Vue.js", "Nuxt 3", "TypeScript", "Tailwind CSS", "Three.js", "TresJS", "GSAP"],
   Backend:   ["Node.js", "Express.js", "PostgreSQL", "MongoDB", "Mongoose", "REST API"],
-  Outils:    ["Git", "Figma", "Make", "EmailJS", "Pinia", "Vite", "Stripe"],
+  Outils:    ["Git", "Figma", "Make", "Resend", "Pinia", "Vite", "Stripe"],
   IA:        ["Claude / Anthropic", "GPT-4 / OpenAI", "Cursor", "Midjourney", "Perplexity"],
 };
 </script>
@@ -81,7 +81,7 @@ const skills = {
             @mouseleave="hovered = false"
           >
             <NuxtImg
-              src="/sculpture.png"
+              src="/sculpture.webp"
               alt=""
               class="w-full h-full object-contain rounded-2xl border border-[var(--color-accent)]/20"
             />
