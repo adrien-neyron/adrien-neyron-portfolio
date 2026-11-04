@@ -87,7 +87,7 @@ const filtered = computed(() =>
             :class="[
               'px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200',
               activeFilter === cat
-                ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]'
+                ? 'bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]'
                 : 'bg-transparent text-[var(--color-muted)] border-[var(--color-accent)]/20 hover:border-[var(--color-accent)]/50 hover:text-[var(--color-accent)]',
             ]"
             @click="activeFilter = cat"

@@ -65,9 +65,9 @@ export const staticProfileFallback: Profile = {
   job2: resume.basics.job2,
   description: resume.basics.description,
   summary: resume.basics.summary,
-  headerSubtitle: "Fullstack JS · Vue.js / Node.js · AI & Automation",
+  headerSubtitle: "Front-end · Vue 3 / TypeScript · Accessibilité RGAA",
   about: [
-    "Je suis Adrien Neyron, développeur fullstack créatif spécialisé en JavaScript, avec des frameworks comme Vue, Nuxt, React et Node.js. Je code principalement en TypeScript. Ma passion pour le code me pousse à créer des solutions innovantes qui résolvent de vrais problèmes.",
+    "Je suis Adrien Neyron, développeur front-end spécialisé en Vue 3 et TypeScript, avec une pratique fullstack (Node.js, FastAPI) et l'accessibilité RGAA/WCAG au cœur de ma façon de coder. Ma passion pour le code me pousse à créer des solutions innovantes qui résolvent de vrais problèmes.",
     "Avec un solide bagage en gestion et un sens aigu de la résolution de problèmes, j'apporte une perspective unique à chaque projet. Je combine un code propre avec une réflexion UX/UI pour créer des applications à la fois fonctionnelles et agréables à utiliser.",
     "Tailwind CSS et Bootstrap sont mes outils de prédilection pour des interfaces responsives. J'explore aussi Three.js, @vueuse/motion et TresJS pour donner vie à mes créations.",
     "Passionné par l'apprentissage et l'innovation, j'aime relever des défis et transformer des idées en expériences numériques fluides et interactives.",

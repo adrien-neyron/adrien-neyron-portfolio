@@ -18,7 +18,8 @@
   --color-bg:        #F5F0E8;
   --color-text:      #2C2416;
   --color-accent:    #A84E20;  /* 4.8:1 sur --color-bg  ✓ WCAG AA */
-  --color-accent-text: #8F4119; /* accent pour petit texte sur fond teinté (≥ 5.5:1) */
+  --color-accent-text: #7F3A15; /* accent pour petit texte sur fond teinté (≥ 5:1) */
+  --color-on-accent: #ffffff; /* texte sur fond accent plein */
   --color-secondary: #3C5C3A;  /* 6.1:1 sur --color-bg  ✓ WCAG AA */
   --color-highlight: #E8A838;  /* usage décoratif uniquement        */
   --color-surface:   #EDE7D9;
@@ -31,7 +32,8 @@
   --color-bg:        #1A1410;
   --color-text:      #F0E8D8;
   --color-accent:    #E07840;
-  --color-accent-text: #E07840;
+  --color-accent-text: #F29A6B;
+  --color-on-accent: #1A1410;
   --color-secondary: #7AAD78;
   --color-highlight: #F0C050;
   --color-surface:   #251E16;
@@ -62,7 +64,8 @@ html.dark[data-time="night"] {
   --color-surface:   #16262C;
   --color-text:      #F0E8D8;
   --color-accent:    #E07840;  /* 5.8:1 sur le fond, 5.1:1 sur la surface ✓ */
-  --color-accent-text: #E07840;
+  --color-accent-text: #F29A6B;
+  --color-on-accent: #1A1410;
   --color-secondary: #7AAD78;
   --color-highlight: #F0C050;
   --color-muted:     #A6B3AE;  /* 8.2:1 ✓ */

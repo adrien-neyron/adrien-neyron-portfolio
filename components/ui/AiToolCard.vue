@@ -5,9 +5,9 @@ defineProps<{ tool: AiToolItem }>();
 
 const categoryColor: Record<string, string> = {
   Productivité:    "bg-[var(--color-secondary)]/20 text-[var(--color-secondary)]",
-  Création:        "bg-[var(--color-highlight)]/20 text-[var(--color-highlight)]",
-  Analyse:         "bg-[var(--color-accent)]/20 text-[var(--color-accent)]",
-  Automatisation:  "bg-[var(--color-muted)]/20 text-[var(--color-muted)]",
+  Création:        "bg-[var(--color-highlight)]/20 text-[var(--color-text)]",
+  Analyse:         "bg-[var(--color-accent)]/20 text-[var(--color-accent-text)]",
+  Automatisation:  "bg-[var(--color-muted)]/20 text-[var(--color-text)]/80",
 };
 </script>
 

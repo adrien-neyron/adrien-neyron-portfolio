@@ -29,7 +29,7 @@ const timeline = [
   },
   {
     period: "2023 – Aujourd'hui",
-    title: "Développeur Full-Stack Sport & Outdoor",
+    title: "Développeur front-end Sport & Outdoor",
     description: "Conception d'interfaces métier, de plateformes e-commerce et d'une plateforme LMS pour les acteurs du sport. Intégration d'outils IA. Profil hybride : développeur + formateur + passionné trail.",
     icon: "🚀",
     color: "var(--color-accent)",
@@ -50,7 +50,7 @@ const values = [
   {
     icon: "🗺️",
     title: "La Vision",
-    description: "12 ans de formation et de management sur le terrain donnent une perspective business. Je construis des outils utiles, pas juste techniques.",
+    description: "11 ans de formation et de management sur le terrain donnent une perspective business. Je construis des outils utiles, pas juste techniques.",
   },
 ];
 
@@ -116,7 +116,7 @@ const skills = {
               <MapPin :size="14" aria-hidden="true" />
               {{ profileStore.profile.location.city }}, {{ profileStore.profile.location.region }}
               <span class="w-px h-3 bg-[var(--color-muted)]/40 mx-1" />
-              5 ans de développement · 12 ans de formation et de management
+              5 ans de développement · 11 ans de formation et de management
             </div>
             <p class="text-sm text-[var(--color-text)]/70 leading-relaxed max-w-lg">
               {{ profileStore.profile.description }}
@@ -205,7 +205,7 @@ const skills = {
             >
               <span class="text-4xl block mb-3">{{ value.icon }}</span>
               <h3 class="font-semibold text-[var(--color-text)] mb-2">{{ value.title }}</h3>
-              <p class="text-xs text-[var(--color-text)]/60 leading-relaxed">{{ value.description }}</p>
+              <p class="text-xs text-[var(--color-text)]/75 leading-relaxed">{{ value.description }}</p>
             </div>
           </div>
         </div>
