@@ -2387,7 +2387,7 @@ function drawWarp(p){
   wctx.globalCompositeOperation='source-over';
 }
 function restartAdventure(){
-  if(staticMode){lap++;setLap();scrollTo(0,0);return}
+  if(staticMode){lap++;setLap();staticGo('s1');return}
   restartBtn.blur();cinematicTo(1,2400,'in');
 }
 restartBtn.addEventListener('click',restartAdventure);
@@ -2466,6 +2466,12 @@ function drawStatic(){
   bivtext.style.opacity=1;bivtext.style.visibility='visible';bivtext.style.pointerEvents='auto';stars.style.opacity=1;restartBtn.style.opacity=1;restartBtn.style.visibility='visible';CAMP.ensure();CAMP.update(1,0,true);
   $('#s4').style.background='var(--bg)';
 }
+/* Saut vers une scène en vue statique : le focus suit jusqu'au titre (tabindex -1, comme le h1 des pages), sinon la tabulation repartirait de l'ancien endroit */
+function staticGo(id,h){
+  const sc=document.getElementById(id),eq=h==='equiper',t=eq?$('#head2 h2'):sc.querySelector('h1,h2');
+  (eq?$('#head2'):sc).scrollIntoView({behavior:'auto'});
+  t.tabIndex=-1;t.focus({preventScroll:true});
+}
 function setStatic(v){
   staticMode=v;document.body.classList.toggle('static',v);
   $('#tgStatic').setAttribute('aria-pressed',String(v));
@@ -2495,7 +2501,7 @@ addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5)*2;my=(e.clientY/
 /* ---------- Commandes ---------- */
 $('#railNav').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
-  if(staticMode){document.getElementById(b.dataset.s).scrollIntoView({behavior:'auto'});return}
+  if(staticMode){staticGo(b.dataset.s,b.dataset.h);return}
   scrollTo({top:unwarp(parseFloat(b.dataset.p))*maxScroll(),behavior:reduce?'auto':'smooth'});
 });
 /* ---------- Menus en burger : étapes du parcours et outils de réglage (motif « disclosure » : bouton, état, panneau) ---------- */
@@ -2536,7 +2542,7 @@ let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{layout
 const dlg=$('#dlg');
 $('#ftContact').addEventListener('click',()=>{
   finishLoad();
-  if(staticMode){document.getElementById('s4').scrollIntoView({behavior:'auto'});return}
+  if(staticMode){staticGo('s4');return}
   root.style.overflow='';jumpTo(.845);$('#main').focus({preventScroll:true});
 });
 const DLG={
@@ -3553,7 +3559,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape')pinnedIdx=-1});
 /* ---------- Vue statique et interface publique ---------- */
 function staticView(){
   if(!inited)return;resize();updateSky(.3);
-  const c=curve.getPointAt(.5),ext=Math.max(bx1-bx0-2*pad,bz1-bz0-2*pad)*1.12,hs=Math.max(900,ext*.5/Math.tan(14*Math.PI/180));camPos.set(c.x,hs,c.z+70);camTgt.set(c.x,0,c.z);cam.position.copy(camPos);cam.lookAt(camTgt);cam.fov=28;cam.updateProjectionMatrix();
+  const cx=(bx0+bx1)/2,cz=(bz0+bz1)/2,tn=Math.tan(14*Math.PI/180),hs=Math.max(900,(bz1-bz0-2*pad)*.74/tn,(bx1-bx0-2*pad)*.74/(tn*cam.aspect));camPos.set(cx,hs,cz+70);camTgt.set(cx,0,cz);   // emprise entière de la trace, dans le bandeau comme sur téléphone
+ cam.position.copy(camPos);cam.lookAt(camTgt);cam.fov=28;cam.updateProjectionMatrix();
   FATS.forEach(m=>{const u=m.uniforms;u.uT.value=1;u.uTime.value=0;u.uV0.value=0;u.uV1.value=1;u.uH0.value=u.uH1.value=0});   // vue statique : toute la trace, sans aiguille
   if(ball)ball.visible=false;
   blocks.forEach(b=>{b.lift=0;b.holder.position.y=b.base});
@@ -3608,7 +3615,7 @@ function finishLoad(){
 function gotoHash(){
   const h=decodeURIComponent(location.hash.slice(1));
   const b=h&&document.querySelector('#railNav button[data-h="'+h+'"]');if(!b)return;
-  if(staticMode)document.getElementById(b.dataset.s).scrollIntoView({behavior:'auto'});
+  if(staticMode)staticGo(b.dataset.s,b.dataset.h);
   else jumpTo(parseFloat(b.dataset.p));
 }
 /* Chargement progressif : chaque scène 3D (et la chaussure de 1 Mo) n'est préparée qu'à l'approche de sa scène,

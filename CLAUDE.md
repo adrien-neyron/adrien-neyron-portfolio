@@ -239,3 +239,5 @@ Montre du bivouac dégagée des pierres du foyer (rotation −1,15, position −
 Fonds en courbes de niveau : toujours des isovaleurs d'un champ d'altitude (`contourPaths` dans `utils/trail.ts`, `isoLines` dans `assets/loop/loop.js`), jamais des ellipses déformées une à une : elles se croisent (29/10/2026). Détails : `docs/admin-boucle.md`.
 
 Jour / Nuit partagé accueil ↔ pages (03/11/2026) : une seule clé `localStorage['color-mode']` (@nuxtjs/color-mode). La boucle la lit/écrit (`theme` dans `loop.js`, événement `cordee-theme` relayé par `LoopHome.vue` vers `useColorMode().preference`) ; plus de clé `asc-theme`. Détails : `docs/audit-coherence.md`.
+
+Vue statique de l'accueil (`body.static`, 05/11/2026) : page éditoriale dans le flux, 3D en bandeaux décoratifs, texte jamais sur un canvas 3D, pied de page non fixe, focus déplacé par `staticGo()`. Une nouvelle scène doit y être mise en page. Détails : `docs/preferences-visiteur.md`.

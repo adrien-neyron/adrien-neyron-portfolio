@@ -1047,13 +1047,95 @@ body.static .scene-more{position:static;transform:none;visibility:visible;opacit
 .pl-stages button:hover .dot,.pl-stages button:focus-visible .dot{background:#FFFFFF;border-color:#FF8A57}
 .pl-stages button:focus-visible{outline:3px solid #FFFFFF;outline-offset:-6px;border-radius:50%;box-shadow:0 0 0 1px #050811}
 
-/* Vue statique : liste des étapes lisible (04/11/2026) — mesure limitée, jetons de la scène (jour/nuit), en-tête et pied de page
-   avec un fond (ils étaient transparents et le texte défilait dessous). */
-body.static .pl-list{max-width:74ch;margin-inline:auto;padding:96px 18px 40px}
-body.static .pl-list>li{margin:18px 0;padding:22px 24px;background:var(--card);border-color:var(--line);color:var(--fg);font-size:16px;line-height:1.7}
-body.static .pl-list h3{font-size:clamp(22px,3vw,28px);line-height:1.2;margin-bottom:6px}
-body.static .pl-list .e{color:var(--acc-text)}
-body.static .pl-list li ul li{border-color:var(--line);color:var(--fg)}
-body.static main{padding-bottom:120px}
-body.static header.top{background:color-mix(in srgb,var(--bg) 94%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);min-height:56px}
-body.static footer.perma{background:color-mix(in srgb,var(--bg) 94%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+/* Vue statique : une page éditoriale (05/11/2026). Tout est dans le flux, dans la même colonne (--gut) : rien n'est coupé à faible hauteur
+   ni à 200 % de zoom, le pied de page ne recouvre plus rien. La 3D reste décorative, cantonnée à des bandeaux : la carte ouvre « L'ascension »,
+   la flaque ferme « Le randonneur », le feu reste à côté du formulaire. Le texte n'est jamais sur un canvas 3D.
+   Les !important répondent aux styles inline de layoutTools() et sizePuddle(). Détails : docs/preferences-visiteur.md. */
+body.static{--gut:max(clamp(16px,5vw,48px),calc((100% - 1040px)/2));--band:clamp(220px,42vh,400px);--band3:clamp(280px,56vh,520px);--rail:clamp(26px,4vw,40px);--pad:clamp(48px,7vw,88px)}
+html:has(body.static){scroll-padding-top:calc(var(--hh,64px) + 12px)}
+body.static main{padding-bottom:0}
+body.static main *,body.static header.top *{animation:none!important}
+body.static .scene{min-height:0;overflow:hidden}
+body.static main:focus,body.static .scene h1:focus,body.static .scene h2:focus{outline:none}   /* main et titres atteints par le menu : cibles du focus, pas des commandes (même règle que les pages) ; le contour de main encadrait toute la page */
+body.static .eyebrow{font-size:13px}
+body.static header.top{background:var(--bg);border-bottom:1px solid var(--line);min-height:56px}
+body.static footer.perma{position:static;display:flex;gap:8px 16px;padding:16px var(--gut) calc(env(safe-area-inset-bottom,0px) + 16px);background:var(--bg);border-top:1px solid var(--line)}
+body.static footer.perma::before{display:none}
+body.static footer.perma .copy{display:block;margin:0}
+body.static footer.perma nav{flex-wrap:wrap;justify-content:center}
+body.static footer.perma .ico:not(.lbl){gap:6px;padding:0 8px;color:var(--fg)}
+body.static footer.perma .ico:not(.lbl)::after{position:static;display:inline;padding:0;background:none;opacity:1;transform:none;font-size:13px;color:inherit;box-shadow:none;border:0}
+
+/* Titres : mêmes tailles partout ; aucun titre posé sur la 3D */
+body.static :is(#head1,#head2,#s2 .head,#s3 .head){position:relative;left:auto;right:auto;top:auto;transform:none;width:auto;max-width:none;margin:0;text-align:left;text-shadow:none;pointer-events:auto;opacity:1!important;visibility:visible!important}
+body.static :is(#head1,#head2,#s2 .head,#s3 .head)::before{display:none}
+body.static :is(#head2,#s2 .head,#s3 .head) h2{font:italic 500 clamp(28px,4vw,40px)/1.15 var(--serif);letter-spacing:0;text-transform:none;color:var(--fg)}
+body.static :is(#head1,#head2) :is(p.sub,.lede){max-width:62ch;margin:12px 0 0;font-size:16px;line-height:1.7;letter-spacing:0;color:var(--fg)}
+body.static :is(#head1,#head2,#s2 .head,#s3 .head) .eyebrow{margin-bottom:10px;font-size:13px;letter-spacing:.04em;text-transform:none}
+body.static :is(.cnt,.route){gap:.4em}   /* inline-flex avale l'espace avant la flèche */
+
+/* Scène 1 : accroche, puis l'équipement */
+body.static #s1{display:flex;flex-direction:column;gap:clamp(24px,4vw,36px);padding:calc(var(--hh,64px) + clamp(32px,6vw,72px)) var(--gut) var(--pad)}
+body.static #s1 #compassCanvas,body.static #s1 #toolLines,body.static #s1 #spot,body.static #s1 .tip{display:none!important}
+body.static #s1 #head1 h1{font-size:clamp(36px,6vw,64px);line-height:1.08}
+body.static #s1 #head1 .lede{font-size:clamp(16px,1.6vw,18px)}
+body.static #s1 #head2{margin-top:clamp(8px,2vw,16px);padding-top:clamp(28px,4vw,40px);border-top:1px solid var(--line)}
+body.static #s1 #tools{position:static;left:auto;right:auto;bottom:auto;width:auto;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:12px}
+body.static #s1 #tools .chip{position:static!important;left:auto!important;top:auto!important;width:auto;transform:none!important;visibility:visible!important;opacity:1!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+body.static #s1 .chip span.d{font-size:14px;opacity:1}
+body.static #s1 #eqMore{margin:0;text-align:left}
+
+/* Scène 2 : la carte en bandeau, puis les étapes sur un sentier pointillé (comme les chapitres de la fiche projet) */
+body.static #s2{padding:0 var(--gut) var(--pad);background:var(--bg)}
+body.static #sky2,body.static #parcCanvas{top:0;bottom:auto;height:var(--band);-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 84%,transparent);mask-image:linear-gradient(transparent,#000 12%,#000 84%,transparent)}
+body.static #s2 .head{margin-top:calc(var(--band) + 8px);z-index:2}
+body.static #s2 .head h2{max-width:24ch}
+body.static #s2 .head p.tot{margin:12px 0 0;font:500 14px/1.4 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;color:var(--muted)}
+body.static .pl-list{display:block;position:relative;margin:clamp(24px,4vw,36px) 0 0;padding:0 0 0 var(--rail)}
+body.static .pl-list::before{content:"";position:absolute;left:7px;top:30px;bottom:30px;border-left:2px dotted var(--muted)}
+body.static .pl-list>li{position:relative;margin:0 0 16px;padding:clamp(18px,3vw,26px);background:var(--card);border-color:var(--line);color:var(--fg);font-size:16px;line-height:1.7}
+body.static .pl-list>li:last-child{margin-bottom:0}
+body.static .pl-list>li::before{content:"";position:absolute;left:calc(-1*var(--rail));top:clamp(20px,3vw,28px);width:16px;height:16px;border-radius:50%;background:var(--bg);border:3px solid var(--acc-text)}
+body.static .pl-list>li.st-depart::before,body.static .pl-list>li.st-final::before{background:var(--acc-text)}
+body.static .pl-list>li.st-bivouac::before{left:calc(3px - var(--rail));top:clamp(24px,3vw,32px);width:10px;height:10px;border-width:2px}
+body.static .pl-list .st-bivouac{margin-left:0}
+body.static .pl-list h3{font-size:clamp(23px,3vw,28px);line-height:1.2;margin-bottom:6px}
+body.static .pl-list .e{font-size:13px;margin-bottom:6px;color:var(--acc-text)}
+body.static #pList .pl,body.static #pList .km{font-size:13px;letter-spacing:.03em;color:var(--muted)}
+body.static #pList .pl{margin:0 0 8px}
+body.static #pList .km{margin:10px 0 0}
+body.static .pl-list .fig{margin:12px 0 0;font-size:14px;line-height:1.4}
+body.static .pl-list .fig strong{display:block;margin:0 0 2px;font:500 clamp(26px,3vw,32px)/1.15 var(--serif);color:var(--acc-text)}
+body.static .pl-list ul.lk{display:flex;flex-wrap:wrap;gap:0 24px;margin:6px 0 -6px}
+body.static .pl-list ul.lk a{display:inline-block;min-height:0;padding-block:11px;line-height:22px}
+@media (min-width:760px){
+  body.static .pl-list>li{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:32px}
+  body.static .pl-list>li>*{grid-column:1}
+  body.static .pl-list>li>.fig{grid-column:2;grid-row:1/span 6;width:22ch;margin:0;text-align:right}
+}
+
+/* Scène 3 : deux cartes, puis la flaque en bandeau. Sans 3D interactive, les zones de la flaque (sans libellé ni focus visible) sont retirées :
+   les boutons des cartes font le même travail. La consigne « posez le pied » ne vaut plus ici. */
+body.static #s3{padding:var(--pad) var(--gut) var(--band3)}
+body.static #s3 canvas{top:auto;bottom:0;height:var(--band3);-webkit-mask-image:linear-gradient(transparent,#000 20%,#000 86%,transparent);mask-image:linear-gradient(transparent,#000 20%,#000 86%,transparent)}
+body.static #mist,body.static .pside,body.static #s3 .head .sub{display:none}
+body.static #s3 .pwrap{position:relative;inset:auto;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;pointer-events:auto}
+@media (min-width:700px){body.static #s3 .pwrap{grid-template-columns:repeat(2,minmax(0,1fr))}}
+body.static #s3 .head{grid-column:1/-1;margin-bottom:clamp(8px,2vw,16px)}
+body.static #s3 .pcard{position:relative;left:auto;right:auto;top:auto!important;width:auto;max-width:none;margin:0;padding:clamp(18px,3vw,26px);opacity:1;visibility:visible;transform:none;pointer-events:auto}
+body.static #s3 .pcard h3{font-size:clamp(23px,3vw,28px);margin-bottom:6px}
+body.static #s3 .pcard p{font-size:16px;line-height:1.7}
+
+/* Scène 4 : le feu à gauche, le formulaire à droite, dans le flux (fond plein : plus de texte sur le feu) */
+body.static #s4{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);align-content:center;gap:16px 24px;min-height:100vh;min-height:100svh;padding:calc(var(--hh,64px) + 24px) var(--gut) var(--pad)}
+body.static #bivtext{position:relative;grid-column:2;left:auto;right:auto;top:auto;bottom:auto;transform:none;width:auto;max-height:none;overflow:visible;padding:clamp(20px,3vw,28px);background:var(--card);border-color:var(--line);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+body.static #bivtext .lead{display:block;font-size:16px}
+body.static #restart{position:relative;grid-column:2;left:auto;right:auto;top:auto;bottom:auto;justify-self:start;transform:none;flex-direction:row;gap:10px;width:auto;min-height:44px;padding:4px 18px 4px 8px;background:var(--card);border:1px solid var(--fg);border-radius:999px;color:var(--acc-text)}
+body.static #restart svg{width:32px;height:32px;filter:none}
+body.static #restart:hover svg,body.static #restart:focus-visible svg{transform:none}
+body.static #restart span{font-size:14px;color:var(--fg);text-shadow:none}
+@media (max-width:899px){
+  body.static #s4{grid-template-columns:minmax(0,1fr);min-height:0;padding-top:var(--band3)}
+  body.static #bivtext,body.static #restart{grid-column:1}
+  body.static #campCanvas,body.static #s4 .camp-fx{bottom:auto;height:calc(var(--band3) + 40px);-webkit-mask-image:linear-gradient(#000 75%,transparent);mask-image:linear-gradient(#000 75%,transparent)}
+}
