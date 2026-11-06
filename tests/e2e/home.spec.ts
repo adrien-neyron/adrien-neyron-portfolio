@@ -6,7 +6,7 @@ import { gotoReady, watchErrors, waitHydrated } from './helpers'
  * Voir docs/ecran-accueil-corde.md.
  */
 test.describe('Accueil : écran d’accueil et intro 3D', () => {
-  test('le bouton « Passer l’intro » ferme l’écran tout de suite et mémorise la vue statique', async ({ page }) => {
+  test('le bouton « Passer l’intro » ferme l’écran tout de suite et garde la vue statique pour cette visite seulement', async ({ page }) => {
     const errors = watchErrors(page)
     await gotoReady(page, '/')
     await waitHydrated(page)
@@ -17,7 +17,8 @@ test.describe('Accueil : écran d’accueil et intro 3D', () => {
     await skip.focus()
     await page.keyboard.press('Enter') // utilisable au clavier
     await expect(gate).toBeHidden({ timeout: 2000 }) // sans attendre la 3D ni l'animation de 1,1 s
-    expect(await page.evaluate(() => localStorage.getItem('asc-static'))).toBe('1')
+    expect(await page.evaluate(() => sessionStorage.getItem('asc-static-visit'))).toBe('1')
+    expect(await page.evaluate(() => localStorage.getItem('asc-static'))).toBeNull() // pas de préférence durable : la prochaine visite retrouve l'animation
     // la vue statique s'applique dès que la boucle est prête
     await expect(page.locator('body')).toHaveClass(/static/, { timeout: 20_000 })
     await expect(page.locator('#loader')).toBeHidden()

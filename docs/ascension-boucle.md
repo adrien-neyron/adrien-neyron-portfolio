@@ -38,7 +38,7 @@ Texte toujours présent dans le HTML ; 3D décorative (`aria-hidden`) ; lien d'�
 ## À faire avant de remplacer `/`
 1. Polices : la boucle charge Fraunces, Space Grotesk et JetBrains Mono (lien Google Fonts) ; le site utilise DM Serif Display et Inter. **Décision à prendre**, puis auto-héberger les polices.
 2. Mode nuit : relier le bouton de la boucle (`asc-…`) à `@nuxtjs/color-mode` (la préférence du visiteur l'emporte toujours).
-3. Contenu : constante `CONTACT` (e-mail, LinkedIn, rendez-vous) ; liste réelle des projets (`PROJECTS`) à brancher sur `stores/projects.ts` ; pile technique de la DGFiP ; chiffres à valider (« −50 % », « 7 langues ») ; CV PDF (`public/2025_CV_AdrienNEYRON.pdf` existe déjà : mettre à jour le lien du pied de page).
+3. Contenu : constante `CONTACT` (e-mail, LinkedIn, rendez-vous) ; liste réelle des projets (`PROJECTS`) à brancher sur `stores/projects.ts` ; pile technique de la DGFiP ; chiffres à valider (« −50 % », « 7 langues ») ; CV PDF (`public/CV_Adrien_Neyron.pdf` existe déjà : mettre à jour le lien du pied de page).
 4. Pages légales : remplacer les fenêtres « Mentions légales » et « Accessibilité » par de vraies pages ; renseigner SIRET, adresse, e-mail légal, état de conformité après audit.
 5. Son : le prototype synthétise ses sons ; le site a `NATURE.mp3`, `FEU_DE_CHEMINEE.mp3`, `NIGHT.mp3` : décider lesquels garder.
 6. Parité avec `/projects` : filtres par catégorie, compteur, fiche topo (annulés dans le prototype à la demande d'Adri).

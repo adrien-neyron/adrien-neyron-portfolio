@@ -107,8 +107,8 @@ describe('lien CV (rendu serveur)', () => {
   it('par défaut : un fichier qui existe dans public/', async () => {
     const { existsSync } = await import('node:fs')
     expect(markup).not.toContain('/cv-adrien-neyron.pdf')
-    expect(markup.match(/href="\/2025_CV_AdrienNEYRON\.pdf" data-cv/g)).toHaveLength(2)
-    expect(existsSync(new URL('../../public/2025_CV_AdrienNEYRON.pdf', import.meta.url))).toBe(true)
+    expect(markup.match(/href="\/CV_Adrien_Neyron\.pdf" data-cv/g)).toHaveLength(2)
+    expect(existsSync(new URL('../../public/CV_Adrien_Neyron.pdf', import.meta.url))).toBe(true)
   })
   it('CV de l’admin : remplace tous les liens ; URL douteuse ignorée', () => {
     const out = applyLoopContent(markup, { profile: { cvUrl: 'https://blob.example/cv.pdf' } })

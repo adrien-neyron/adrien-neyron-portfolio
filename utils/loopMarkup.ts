@@ -11,7 +11,7 @@ export interface LoopTexts { eyebrow?: string; title?: string; lede?: string }
 export interface LoopContentTexts { hero?: LoopTexts | null; toolsHead?: LoopTexts | null; stages?: StageView[] | null; profile?: { cvUrl?: string } | null }
 
 /** Lien CV par défaut de loop.html (fichier présent dans public/) ; remplacé par celui de l'admin s'il est valide. */
-export const DEFAULT_CV = '/2025_CV_AdrienNEYRON.pdf'
+export const DEFAULT_CV = '/CV_Adrien_Neyron.pdf'
 
 export const escHtml = (v: string) =>
   v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')

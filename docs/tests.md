@@ -35,7 +35,7 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 - `smoke` : 8 pages publiques (titre, `lang=fr`, un seul `h1`, aucune erreur JS/console, aucune ressource du site en 4xx), 404, slug de carnet inconnu, polices et glb servis. Aussi lancé en mobile (Pixel 7).
 - `api` : `/api/loop-content` ; 13 routes admin d'écriture → 401 sans session ; `GET /api/admin/projects` → 401 ; aucune écriture publique.
 - `home` (vue statique) : cartes du randonneur visibles, pied de page dans le flux, ordre du DOM, focus du menu « Étapes », rien de coupé en 320 × 568 et 1280 × 420.
-- `home` : écran d'accueil — ouverture automatique sans clic, « Passer l'intro » (clavier, ferme l'écran sans attendre la 3D, vue statique mémorisée), « Dénouer la corde » (accélérateur), économiseur de données / 2G.
+- `home` : écran d'accueil — ouverture automatique sans clic, « Passer l'intro » (clavier, ferme l'écran sans attendre la 3D, vue statique pour la visite seulement), « Dénouer la corde » (accélérateur), économiseur de données / 2G.
 - (`home` couvre aussi la transition en éclats : canvas `.intro-shatter` créé puis retiré, repli sans canvas en `prefers-reduced-motion`.)
 - `calculator` : calculateur d'allure (valeur par défaut, saisie, champ vide sans `NaN`, `aria-pressed` au clavier).
 - `admin` : `/admin*` redirige vers la connexion.

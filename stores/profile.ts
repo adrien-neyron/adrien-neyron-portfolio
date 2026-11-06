@@ -80,7 +80,7 @@ export const staticProfileFallback: Profile = {
     { value: "500+", label: "personnes formées" },
   ],
   pictureUrl: "/profile.png",
-  cvUrl: "/2025_CV_AdrienNEYRON.pdf",
+  cvUrl: "/CV_Adrien_Neyron.pdf",
   url: resume.basics.url,
   keywords: resume.basics.keywords,
   location: resume.basics.location,
