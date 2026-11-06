@@ -48,11 +48,11 @@ html.loop-on .head p.sub{margin-top:10px;color:var(--muted);font-size:15px;max-w
    sans l'écran de chargement ; loop.js prend la main ensuite (classe html.loop-live posée par LoopHome.vue) */
 html.loop-on:not(.loop-live):not([data-theme="light"]){--bg:#02040A;--fg:#E6F4F1;--muted:#A8B9C0;--line:#26344A;--acc:#E26D3B;--acc-text:#E26D3B;--card:#121B2B}   /* palette « aube » de loop.js au départ de la boucle (sombre dans les deux modes) */
 html.loop-on:not(.loop-live) #s1{visibility:visible;opacity:1}
-/* Préchargement : le titre et le lien « Projets » sont déjà là et ne bougent plus à l'arrivée de la 3D. Le reste reste dans le DOM
+/* Préchargement : le logo Cordée, le titre et le lien « Projets » sont déjà là et ne bougent plus à l'arrivée de la 3D. Le reste reste dans le DOM
    (opacity, pas display/visibility : lecteurs d'écran et clavier ne sont pas touchés) et apparaît en fondu avec la 3D. */
-html.loop-on:not(.loop-live) header.top>:not(.topnav),html.loop-on:not(.loop-live) .topnav>:not(.top-link),html.loop-on:not(.loop-live) footer.perma,html.loop-on:not(.loop-live) .altrail,html.loop-on:not(.loop-live) .hud,html.loop-on:not(.loop-live) .hint,html.loop-on:not(.loop-live) .cta{opacity:0!important}
-html.loop-on.loop-live header.top>:not(.topnav),html.loop-on.loop-live .topnav>:not(.top-link),html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:sceneIn 1s ease-out .4s backwards}
-@media (prefers-reduced-motion:reduce){html.loop-on.loop-live header.top>:not(.topnav),html.loop-on.loop-live .topnav>:not(.top-link),html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:none}}
+html.loop-on:not(.loop-live) header.top>:not(.topnav,.brand),html.loop-on:not(.loop-live) .topnav>:not(.top-link),html.loop-on:not(.loop-live) footer.perma,html.loop-on:not(.loop-live) .altrail,html.loop-on:not(.loop-live) .hud,html.loop-on:not(.loop-live) .hint,html.loop-on:not(.loop-live) .cta{opacity:0!important}
+html.loop-on.loop-live header.top>:not(.topnav,.brand),html.loop-on.loop-live .topnav>:not(.top-link),html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:sceneIn 1s ease-out .4s backwards}
+@media (prefers-reduced-motion:reduce){html.loop-on.loop-live header.top>:not(.topnav,.brand),html.loop-on.loop-live .topnav>:not(.top-link),html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:none}}
 html.loop-on:not(.loop-live) .scene:not(#s1){display:none}   /* scènes suivantes pas encore mises en page : leurs polices ne sont pas téléchargées au premier affichage */
 html.loop-on #toolLines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 html.loop-on #toolLines line{stroke:var(--acc);stroke-width:1.5;stroke-dasharray:1;stroke-dashoffset:1;fill:none}

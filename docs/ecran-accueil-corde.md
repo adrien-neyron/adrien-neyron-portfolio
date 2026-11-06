@@ -42,7 +42,7 @@ L'aiguille de la boussole qui tourne (`#preload`, animation `preSpin`) n'appara�
 ## Relais préchargement → scène 3D (anti-sursaut)
 
 Trois causes possibles d'un « sursaut » au relais, toutes traitées :
-- **Coupe franche de la scène 3D** : `#compassCanvas` et `#aurora` apparaissent en fondu (`sceneIn`, 1,2 s) dès `html.loop-live`, désactivé en `prefers-reduced-motion`. Le titre et le lien « Projets », déjà affichés, sont exclus de ce fondu : ils ne doivent jamais repasser par 0 (test `home`).
+- **Coupe franche de la scène 3D** : `#compassCanvas` et `#aurora` apparaissent en fondu (`sceneIn`, 1,2 s) dès `html.loop-live`, désactivé en `prefers-reduced-motion`. Le logo Cordée, le titre et le lien « Projets », déjà affichés, sont exclus de ce fondu : ils ne doivent jamais repasser par 0 (test `home`).
 - **Saut de vitesse de l'aiguille** : l'aiguille HTML tournait à 3,7 rad/s, la 3D à 7–15 rad/s. `updateCompass` fait monter la vitesse de 3,7 vers celle du chargement sur ~0,9 s (lissage `k²(3−2k)`).
 - **Relais aiguille/scène** : classe `fade` sur `#preload` à l'arrivée de l'aiguille au centre du cadran (0,95 s) ; elle disparaît en 0,3 s au-dessus de l'aiguille 3D réapparue.
 
