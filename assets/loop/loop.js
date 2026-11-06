@@ -2442,7 +2442,7 @@ function draw(p,dt){
   const intro=p<.25;document.body.classList.toggle('intro',intro);
   hint.textContent=p>.97?'Encore un pas : la boucle se referme':'';
   hint.style.opacity=p>.97?1:0;
-  const ctaOn=loaded&&p<.05;cta.style.opacity=ctaOn?1:0;cta.style.visibility=ctaOn?'visible':'hidden';
+  const ctaOn=loaded&&p<(split?.085:.05);cta.style.opacity=ctaOn?1:0;cta.style.visibility=ctaOn?'visible':'hidden';
 }
 
 /* ---------- Mode statique ---------- */

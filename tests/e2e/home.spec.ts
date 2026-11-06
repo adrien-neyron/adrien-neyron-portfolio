@@ -32,6 +32,11 @@ test.describe('Accueil : arrivée sur la montre', () => {
     expect(await page.evaluate(() => (window as unknown as { __min: number }).__min)).toBe(1)
   })
 
+  test('le bouton de la visite guidée suit le paragraphe d’accroche', async ({ page }) => {
+    await gotoReady(page, '/')
+    await expect(page.locator('#head1 .lede + #cta')).toBeAttached()
+  })
+
   test('pas d’écran de chargement : on défile dès que la montre est là, sans attendre l’aiguille', async ({ page }) => {
     test.setTimeout(90_000) // sans carte graphique (CI), le premier rendu 3D occupe le navigateur plusieurs secondes
     await gotoReady(page, '/')

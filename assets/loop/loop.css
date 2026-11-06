@@ -197,7 +197,7 @@ html.loop-on .push{position:absolute;z-index:4;width:44px;height:44px;transform:
 html.loop-on .push:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
 html.loop-on body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont toutes affichées */
 html.loop-on #toolLines{display:none}   /* cartes de l'atelier : plus de trait vers la montre */
-html.loop-on .tip{position:absolute;z-index:4;max-width:240px;padding:10px 13px;background:rgba(10,12,16,.94);color:#E6F4F1;border:1px solid rgba(255,255,255,.25);border-radius:12px;pointer-events:none;opacity:0;visibility:hidden;transform:translate(-50%,0);transition:opacity .2s,visibility .2s}
+html.loop-on .tip{position:absolute;z-index:5;max-width:240px;padding:10px 13px;background:rgba(10,12,16,.94);color:#E6F4F1;border:1px solid rgba(255,255,255,.25);border-radius:12px;pointer-events:none;opacity:0;visibility:hidden;transform:translate(-50%,0);transition:opacity .2s,visibility .2s}
 html.loop-on .tip.on{opacity:1;visibility:visible}
 html.loop-on .tip b{display:block;font:500 18px/1.2 var(--serif)}
 html.loop-on .tip span{display:block;margin-top:2px;font-size:14px;color:#B9C2CA}
@@ -222,16 +222,18 @@ html.loop-on body.static .bgfx{display:none}
 
 /* Transition : plongée dans le verre, ligne GPX qui s'échappe du cadran, perspective de chemin */
 html.loop-on .s2::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(var(--bg) 0%,transparent 48%);opacity:var(--fog,0)}
-html.loop-on .cta{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 58px);z-index:26;display:flex;align-items:center;gap:12px;min-height:52px;padding:2px 14px;border:0;border-radius:0;background:none;color:#E6F4F1;font:600 12.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.3em;text-transform:uppercase;text-shadow:0 0 14px rgba(5,8,17,.95),0 1px 2px rgba(5,8,17,.9);cursor:pointer;visibility:hidden;opacity:0;transform:translateX(-50%) perspective(620px) rotateX(24deg);transform-origin:50% 100%;transition:opacity .4s,color .25s,transform .35s;-webkit-box-reflect:below -3px linear-gradient(transparent 50%,rgba(230,244,241,.16))}
-html.loop-on .cta .play{flex:none;width:18px;height:18px;margin-bottom:6px}   /* icône « lecture » : couleur du texte, alignée sur le texte souligné */
+html.loop-on .cta{display:inline-flex;align-items:center;gap:14px;min-height:56px;margin-top:18px;padding:6px 0;border:0;border-radius:0;background:none;color:var(--fg);font:600 clamp(15px,1.25vw,17px)/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 0 1px var(--bg),0 0 2px var(--bg),0 0 3px var(--bg),0 0 5px var(--bg),0 0 8px var(--bg),0 0 12px var(--bg),0 0 18px var(--bg),0 0 26px var(--bg);cursor:pointer;pointer-events:auto;visibility:hidden;opacity:0;transition:opacity .4s,color .25s}   /* suite du paragraphe d'accroche : .head ne capte rien, le bouton si ; caché, il garde sa place pour que le titre ne bouge pas à son arrivée ; halo dense : maillage et montre passent derrière, contraste mesuré sur les pixels */
+html.loop-on .cta .play{flex:none;width:26px;height:26px;margin-bottom:6px}   /* icône « lecture » : couleur du texte, alignée sur le texte souligné */
 html.loop-on .cta .txt{position:relative;padding-bottom:6px}
-html.loop-on .cta .txt::after{content:"";position:absolute;left:0;right:.3em;bottom:0;height:1px;background:linear-gradient(90deg,transparent,var(--underline),transparent);transform:scaleX(0);transition:transform .4s}   /* même soulignement que Étapes / Outils (.burger::after) : il grandit depuis le centre au survol */
-html.loop-on .cta:hover,html.loop-on .cta:focus-visible{color:#FFFFFF}
+html.loop-on .cta .txt::after{content:"";position:absolute;left:0;right:.14em;bottom:0;height:1px;background:linear-gradient(90deg,transparent,var(--underline),transparent);transform:scaleX(0);transition:transform .4s}   /* même soulignement que Étapes / Outils (.burger::after) : il grandit depuis le centre au survol */
+html.loop-on .cta:hover,html.loop-on .cta:focus-visible{color:var(--brand-hover)}
+html.loop-on .cta:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 html.loop-on .cta:hover .txt::after,html.loop-on .cta:focus-visible .txt::after{transform:scaleX(1)}
 html.loop-on .cta .sm{display:none}
 @media (prefers-reduced-motion:reduce){html.loop-on .cta,html.loop-on .cta .txt::after{transition:none}}
 html.loop-on body.static .cta{display:none}
 @media (max-width:899px){html.loop-on .cta .lg{display:none}html.loop-on .cta .sm{display:inline}}
+@media (max-width:999px) and (max-height:640px){html.loop-on .cta{padding:6px 14px;border-radius:8px;background:color-mix(in srgb,var(--bg) 84%,transparent)}}   /* écran bas : le bouton passe sur la montre et ses reflets, le halo ne suffit plus */
 
 /* Scène 2 : parcours 3D des projets (relief en lignes cuivrées, blocs de pierre, de métal et de cuir) */
 html.loop-on #s2 #mapSvg,html.loop-on #s2 .vignette,html.loop-on #s2 .mcard{display:none}
@@ -680,11 +682,8 @@ html.loop-on:not(.loop-live) .preload{opacity:1}
 @media (prefers-reduced-motion:reduce){html.loop-on .pre-needle{animation:none}html.loop-on .preload,html.loop-on .preload.go,html.loop-on .pre-needle{transition:none}html.loop-on.loop-live #compassCanvas,html.loop-on.loop-live #aurora{animation:none}}
 
 /* Mode jour : « Lancer la visite guidée » sans fond ni contour, texte sombre de la charte (--fg) à halo clair (--brand-halo), soulignement --underline. Focus --focus. */
-html.loop-on[data-theme="light"] .cta{padding:2px 14px;border:0;background:none;box-shadow:none;color:var(--fg);text-shadow:0 0 1px var(--brand-halo),0 0 2px var(--brand-halo),0 0 3px var(--brand-halo),0 0 5px var(--brand-halo),0 0 8px var(--brand-halo),0 0 12px var(--brand-halo),0 0 18px var(--brand-halo),0 0 26px var(--brand-halo)}   /* halo dense : le sol (rochers sombres) passe derrière, contraste mesuré ≥ 4,5:1 autour des lettres */
 html.loop-on[data-theme="light"] .cta .txt{white-space:nowrap}
-html.loop-on[data-theme="light"] .cta:hover,html.loop-on[data-theme="light"] .cta:focus-visible{color:var(--brand-hover)}
 html.loop-on[data-theme="light"] .cta .txt::after{height:2px}
-html.loop-on[data-theme="light"] .cta:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 
 /* ===== Accessibilité du mode jour (revue du 12/10/2026) =====
    Cibles : texte 4,5:1 minimum ; contours de boutons et de champs, icônes et anneaux de focus 3:1 minimum (WCAG 1.4.3, 1.4.11, 2.4.7). */
@@ -746,7 +745,7 @@ html.loop-on #head1 .lede{max-width:min(520px,100%)}   /* 3 lignes équilibrées
 html.loop-on[data-theme="light"] #head1 .who{color:#9A4A1B}   /* cuivre brûlé */
 html.loop-on[data-theme="light"] #head1 .lede{color:#2C2825;opacity:.85}   /* anthracite bronze */
 /* scrim : lueur crème très douce derrière le texte (pas de boîte), pour isoler le texte du ciel et du sol 3D */
-html.loop-on #head1{isolation:isolate}
+html.loop-on #head1{isolation:isolate;z-index:4}   /* au-dessus des zones cliquables de la montre : sur petit écran, le bouton de la visite les chevauche */
 html.loop-on[data-theme="light"] #head1::before{content:"";position:absolute;z-index:-1;inset:-44px -16px -40px;pointer-events:none;background:radial-gradient(ellipse closest-side at 50% 50%,rgba(252,247,238,.88) 0%,rgba(252,247,238,.7) 50%,rgba(252,247,238,0) 100%)}
 
 /* ===== Accueil grand écran : disposition asymétrique (texte à gauche, montre à droite en 3/4) ===== */

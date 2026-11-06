@@ -73,5 +73,11 @@ Tests : `tests/e2e/home.spec.ts` (passer l'intro au clavier, parcours normal inc
 ## Accueil large : texte à gauche, montre à droite (octobre 2026)
 Sur grand écran (≥ 1000 px, hors vue statique), l'accueil est dès l'arrivée : accroche, nom et sous-texte à gauche (classe `html.hero-split` posée par `update()` dans `loop.js`, règles en fin de `loop.source.css`), montre à droite (`hk` dans `loop.js`, décalage `LAY.sx` = 20 % de la largeur). Au défilement, le texte s'efface et la montre passe à gauche pour « S'équiper », puis revient au centre avant le zoom. Sur mobile et en vue statique, la disposition centrée est inchangée. La transition d'intro fait partir la fissure de la montre quand `hero-split` est actif (`setEpicenter`, voir `docs/intro-craquelure.md`).
 
+## Bouton de la visite guidée (novembre 2026)
+
+« Lancer la visite guidée » suit le paragraphe d'accroche dans `#head1` : même alignement que le texte, 15 à 17 px, cible de 56 px. Il apparaît avec la 3D ; caché, il garde sa place, donc le titre ne bouge pas. Sur grand écran, il s'efface avec le texte.
+
+Il n'a pas de fond : un halo dense `--bg` le détache du maillage. Sous 1000 × 640 px, il passe sur la montre et reçoit une plaque `--bg`. `#head1` passe au-dessus des zones cliquables de la montre (`.hot`), sinon elles captent le clic.
+
 ## « S'équiper » : montre à gauche, texte à droite, lisibilité
 Le menu Parcours envoie « S'équiper » sur le palier stable de la scène (`data-p="0.155"`, plus 0,19 qui tombait en plein fondu) : montre à gauche, titre et sous-texte à droite, texte pleinement opaque. Pour la lisibilité sur la 3D (aurore, relief), un voile radial est posé derrière `#head1` et `#head2` à partir de 1000 px : nuit `rgba(5,8,17,.88)`, jour crème `rgba(252,247,238,.88)` ; le sous-texte et le titre passent en `--fg` (nuit `#E6F4F1`, jour `#12222B`, plus de 10:1). Eyebrow : `--acc-text` (≥ 4,5:1). Règles en fin de `loop.source.css`.
