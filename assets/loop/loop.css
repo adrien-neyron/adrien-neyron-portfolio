@@ -1000,6 +1000,9 @@ html.loop-on .pl-stages li.biv .dot{transform:scale(.6)}
 
 /* Liens « voir la page » des scènes (cohérence accueil ↔ pages, docs/audit-coherence.md) */
 html.loop-on a.cnt{display:inline-flex;align-items:center;text-decoration:none}
+html.loop-on .eq-tip{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 104px);z-index:5;margin:0;padding:8px 16px;border-radius:999px;transform:translateX(-50%);white-space:nowrap;background:color-mix(in srgb,var(--bg) 88%,transparent);font:600 15px/1.3 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;color:var(--fg);opacity:0;pointer-events:none;transition:opacity .35s}   /* invite souris uniquement : les boutons ont leur propre nom au clavier et au lecteur d'écran */
+html.loop-on .eq-tip.on{opacity:1}
+html.loop-on body.static .eq-tip{display:none}
 html.loop-on .scene-more{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:5;margin:0;opacity:0;pointer-events:none;transition:opacity .3s}
 html.loop-on .scene-more:not(.on){visibility:hidden}
 html.loop-on .scene-more.on{opacity:1;pointer-events:auto}

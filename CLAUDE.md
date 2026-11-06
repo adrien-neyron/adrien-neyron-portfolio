@@ -201,6 +201,9 @@ In `buildStrapRing` the buckle and the two keepers are rounded, bevelled frames 
 ### Guided-tour button
 « Lancer la visite guidée » (`.cta`, `assets/loop/loop.source.css`) sits inside `#head1`, right after the lede: left-aligned with the text on wide screens, centred on narrow ones, 15–17 px, 56 px high. It has no background: `--fg` text with a dense `--bg` text-shadow, measured on real pixels over the mesh; below 1000 × 640 px it passes over the watch and gets a `--bg` plate. Hidden, it keeps its place, so the title doesn't move when it appears. `#head1` is above the watch hit zones (`.hot`), the tooltip `.tip` above `#head1`. Edit `loop.source.css`, then regenerate `loop.css` with `node scripts/scope-loop-css.cjs`.
 
+### Watch-button hint (S'équiper)
+When the mouse moves while the case buttons are active, `#eqTip` (« Cliquer sur les boutons de la montre ») shows under the watch; gone 2.5 s after the last move, on a button or card, and for good once a fiche was opened. Mouse only, `aria-hidden`. Details: `docs/ecran-accueil-corde.md`.
+
 ### LatheGeometry orientation
 A `LatheGeometry` profile must be listed so its faces point outwards (the watch bezel goes outer edge → top → inner edge); listed the other way, back-face culling made the bezel rim see-through at some angles. Details: `docs/ascension-boucle.md`.
 
