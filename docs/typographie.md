@@ -4,7 +4,7 @@ Règle (12/10/2026) : **deux familles au maximum**.
 
 | Usage | Famille | Où |
 |---|---|---|
-| Titres et récit | **Cordée Serif** (Cormorant Garamond, romain et italique) | `h1`, `h2`, `h3`, titres de cartes (`.chip b`, `.tip b`, `.skills b`), nom de marque, « ordée » de l'écran de la corde |
+| Titres et récit | **Cordée Serif** (Cormorant Garamond, romain et italique) | `h1`, `h2`, `h3`, titres de cartes (`.chip b`, `.tip b`, `.skills b`), nom de marque |
 | Tout le reste (technique et interface) | **JetBrains Mono** (variable, 400 à 700) | surtitres, sous-titres et accroche, boutons, menus « Étapes » et « Outils », pied de page, fiches, chiffres clés, cadran et textes de la montre 3D |
 
 L'ancienne sans-serif (Inter) n'est plus utilisée sur l'accueil (elle reste celle des autres pages du site).

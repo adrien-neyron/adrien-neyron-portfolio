@@ -11,9 +11,9 @@ html.loop-on{
 }
 html.loop-on[data-theme="dark"]{--bg:#050811;--fg:#E6F4F1;--muted:#A8B9C0;--line:#26344A;--acc:#E26D3B;--acc-text:#E26D3B;--card:#121B2B}
 /* Jetons « marque » : mêmes clés dans les deux thèmes (symétrie jour / nuit). Les composants ne citent que ces rôles. */
-html.loop-on,html.loop-on[data-theme="dark"]{--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--gate-bg:radial-gradient(120% 90% at 50% 40%,#0E1A2C 0%,#070B14 62%,#03050A 100%);--gate-fg:#F3E3CF;--gate-rest:#E9B48C;--gate-tag:#D9C3AE;--gate-focus:#FFD9C2;--gate-topo:#E26D3B;--gate-topo-a:.16;--gate-mtn:#0A0F1A;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}
-@media (prefers-color-scheme: dark){html.loop-on:not([data-theme="light"]){--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--gate-bg:radial-gradient(120% 90% at 50% 40%,#0E1A2C 0%,#070B14 62%,#03050A 100%);--gate-fg:#F3E3CF;--gate-rest:#E9B48C;--gate-tag:#D9C3AE;--gate-focus:#FFD9C2;--gate-topo:#E26D3B;--gate-topo-a:.16;--gate-mtn:#0A0F1A;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}}
-html.loop-on[data-theme="light"]{--brand:#27465C;--brand-hover:#16303F;--brand-fill:#F2EEE6;--brand-halo:rgba(252,247,238,.9);--sep:#27465C;--underline:#27465C;--focus:#1B1712;--ft:235,195,156;--gate-bg:radial-gradient(120% 90% at 50% 40%,#FFFCF7 0%,#F7EFE3 62%,#EBDFCF 100%);--gate-fg:#2C2825;--gate-rest:#8F2F1B;--gate-tag:#4E200E;--gate-focus:#1B1712;--gate-topo:#27465C;--gate-topo-a:.16;--gate-mtn:#CFD9DE;--needle-1:#D2672B;--needle-2:#A8401B;--needle-3:#4A4F55;--needle-4:#23272B;--needle-pivot:#1B1712;--muted:#435862}
+html.loop-on,html.loop-on[data-theme="dark"]{--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}
+@media (prefers-color-scheme: dark){html.loop-on:not([data-theme="light"]){--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}}
+html.loop-on[data-theme="light"]{--brand:#27465C;--brand-hover:#16303F;--brand-fill:#F2EEE6;--brand-halo:rgba(252,247,238,.9);--sep:#27465C;--underline:#27465C;--focus:#1B1712;--ft:235,195,156;--needle-1:#D2672B;--needle-2:#A8401B;--needle-3:#4A4F55;--needle-4:#23272B;--needle-pivot:#1B1712;--muted:#435862}
 html.loop-on{scroll-padding-top:env(safe-area-inset-top,0px);color-scheme:light dark}
 html.loop-on *,html.loop-on *::before,html.loop-on *::after{box-sizing:border-box}
 html.loop-on body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.55 'JetBrains Mono',ui-monospace,monospace;overflow-x:hidden;-webkit-font-smoothing:antialiased}
@@ -50,7 +50,7 @@ html.loop-on:not(.loop-live):not([data-theme="light"]){--bg:#050811;--fg:#E6F4F1
 html.loop-on:not(.loop-live) #s1{visibility:visible;opacity:1}
 /* Préchargement : AUCUNE inscription, seule l'aiguille est visible. Les textes restent dans le DOM (opacity, pas display/visibility :
    lecteurs d'écran et clavier ne sont pas touchés) et réapparaissent en fondu quand la 3D est là. */
-html.loop-on:not(.loop-live) header.top>:not(.topnav),html.loop-on:not(.loop-live) .topnav>:not(.top-link),html.loop-on:not(.loop-live) #head1,html.loop-on:not(.loop-live) footer.perma,html.loop-on:not(.loop-live) .altrail,html.loop-on:not(.loop-live) .hud,html.loop-on:not(.loop-live) .hint,html.loop-on:not(.loop-live) .cta{opacity:0!important}
+html.loop-on:not(.loop-live) header.top>:not(.topnav),html.loop-on:not(.loop-live) .topnav>:not(.top-link),html.loop-on:not(.loop-live) footer.perma,html.loop-on:not(.loop-live) .altrail,html.loop-on:not(.loop-live) .hud,html.loop-on:not(.loop-live) .hint,html.loop-on:not(.loop-live) .cta{opacity:0!important}
 html.loop-on.loop-live header.top,html.loop-on.loop-live #head1,html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:sceneIn .8s ease-out .25s backwards}
 @media (prefers-reduced-motion:reduce){html.loop-on.loop-live header.top,html.loop-on.loop-live #head1,html.loop-on.loop-live footer.perma,html.loop-on.loop-live .altrail,html.loop-on.loop-live .cta{animation:none}}
 html.loop-on:not(.loop-live) .scene:not(#s1){display:none}   /* scènes suivantes pas encore mises en page : leurs polices ne sont pas téléchargées au premier affichage */
@@ -638,21 +638,6 @@ html.loop-on[data-theme="light"] .cnt-form input:focus,html.loop-on[data-theme="
 html.loop-on[data-theme="light"] .cnt-send:focus-visible{outline-color:#1F1A14}
 html.loop-on[data-theme="light"] .hud{opacity:calc(.92*var(--hudk,1));font-weight:500;color:var(--fg);text-shadow:0 0 6px var(--bg),0 0 12px var(--bg)}
 
-/* ===== Écran d'accueil « corde en C » (intro avant la montre) ===== */
-html.loop-on .gate{cursor:pointer;position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:var(--gate-bg);color:var(--gate-fg);overflow:hidden;transition:opacity .7s ease,visibility .7s}
-html.loop-on .gate[hidden]{display:none}
-html.loop-on .gate.gate-out{opacity:0;visibility:hidden}
-html.loop-on .gate-in{position:relative;display:flex;flex-direction:column;align-items:center;gap:clamp(22px,5vh,44px);padding:24px 20px;text-align:center;max-width:1180px}
-html.loop-on .gate-name{margin:0}
-html.loop-on .gate-tag{margin:0;max-width:min(94vw,1100px);font:500 clamp(2rem,6.6vw,5.4rem)/1.08 var(--serif);letter-spacing:.012em;text-transform:uppercase;text-wrap:balance;color:var(--gate-fg)}
-html.loop-on .gate-skip{margin-top:clamp(2px,1vh,10px);font:500 .95rem/1.3 'JetBrains Mono',monospace;color:var(--gate-tag);background:none;border:0;padding:12px 16px;min-height:44px;cursor:pointer;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
-html.loop-on .gate-skip:hover{text-decoration-thickness:2px}
-html.loop-on .gate-skip:focus-visible{outline:3px solid var(--gate-focus);outline-offset:3px;border-radius:6px}
-/* Dénouer : la corde se retire, le nœud se défait */
-html.loop-on .gate.gate-untie .gate-tag,html.loop-on .gate.gate-untie .gate-skip{opacity:0;transition:opacity .6s}
-html.loop-on.gate-on{overflow:hidden}
-@media (prefers-reduced-motion:reduce){html.loop-on .gate{transition:none!important}}
-@media (forced-colors:active){html.loop-on .gate{background:Canvas;color:CanvasText}}
 
 /* ===== Audit UX/UI : lisibilité, un seul départ, accès recruteur ===== */
 /* Halos de texte et couleurs pilotés par la palette (--bg, --fg) : lisibles de jour comme de nuit, au lieu d'un halo noir et d'un texte blanc fixes */
@@ -676,9 +661,6 @@ html.loop-on footer.perma nav{gap:6px}
 html.loop-on .chip{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-color:color-mix(in srgb,var(--fg) 28%,var(--line))}
 html.loop-on .chip span.d{color:var(--fg);opacity:.85}
 
-/* Écran de la corde déjà vu dans la session : masqué dès le premier rendu */
-html.loop-on.gate-seen .gate{display:none}
-
 /* Préchargement : le logo au-dessus de l'aiguille de la boussole qui tourne. L'aiguille est au centre du cadran de la montre,
    même forme (orange au nord, blanche au sud) : en fondu, elle se confond avec l'aiguille de la montre 3D. */
 html.loop-on .preload{position:fixed;inset:0;z-index:450;pointer-events:none;opacity:0;transition:opacity 1s ease}
@@ -694,7 +676,7 @@ html.loop-on .preload.fade .pre-needle{opacity:0;transition-delay:.15s}
 html.loop-on.loop-live #compassCanvas,html.loop-on.loop-live #aurora{animation:sceneIn .7s ease-out}
 @keyframes sceneIn{from{opacity:0}}
 html.loop-on .preload.done{visibility:hidden}
-html.loop-on.gate-seen:not(.loop-live) .preload{opacity:1}   /* seulement sans l'écran de la corde (déjà vu, classe posée dès le premier rendu) : jamais par-dessus */
+html.loop-on:not(.loop-live) .preload{opacity:1}
 @media (prefers-reduced-motion:reduce){html.loop-on .pre-needle{animation:none}html.loop-on .preload,html.loop-on .preload.go,html.loop-on .pre-needle{transition:none}html.loop-on.loop-live #compassCanvas,html.loop-on.loop-live #aurora{animation:none}}
 
 /* Mode jour : « Lancer la visite guidée » sans fond ni contour, texte sombre de la charte (--fg) à halo clair (--brand-halo), soulignement --underline. Focus --focus. */
@@ -792,11 +774,8 @@ html.loop-on[data-theme="light"] .brand:hover .logo rect,html.loop-on[data-theme
 html.loop-on[data-theme="light"] .brand:hover .logo path:nth-of-type(3){stroke:#FCF7EE}
 html.loop-on .brand:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:8px}
 
-/* Écran de la corde et préchargement : ils suivent le mode jour ou nuit (clair : fond crème, relief ardoise ; nuit : fond noir d'origine) */
-html.loop-on[data-theme="light"] 
-
-
-.pre-needle path:nth-of-type(1){fill:var(--needle-1)}
+/* Aiguille de préchargement en mode jour : directement aux couleurs finales de l'aiguille 3D (pas de changement de teinte au relais) */
+html.loop-on[data-theme="light"] .pre-needle path:nth-of-type(1){fill:var(--needle-1)}
 html.loop-on .pre-needle path:nth-of-type(2){fill:var(--needle-2)}
 html.loop-on .pre-needle path:nth-of-type(3){fill:var(--needle-3)}
 html.loop-on .pre-needle path:nth-of-type(4){fill:var(--needle-4)}
@@ -822,6 +801,8 @@ html.loop-on[data-theme="light"] header.top .burger,html.loop-on[data-theme="lig
 html.loop-on.hero-split #head1{left:clamp(48px,6vw,120px);top:50%;transform:translateY(-50%);width:min(44vw,620px);text-align:left}
 html.loop-on.hero-split #head1 h1{font-size:clamp(34px,4.2vw,62px)}
 html.loop-on.hero-split #head1 .lede{margin-left:0;margin-right:0}
+/* Le titre se lit dès le premier rendu, sans attendre la 3D (connexion lente) : même place que hero-split sur grand écran, pour ne pas sauter au démarrage */
+@media (min-width:1000px){html.loop-on:not(.loop-live) #head1{left:clamp(48px,6vw,120px);top:50%;transform:translateY(-50%);width:min(44vw,620px);text-align:left}html.loop-on:not(.loop-live) #head1 h1{font-size:clamp(34px,4.2vw,62px)}html.loop-on:not(.loop-live) #head1 .lede{margin-left:0;margin-right:0}}
 
 /* Lisibilité des textes posés sur la 3D (accueil et « S'équiper », ≥ 1000 px) : voile radial derrière le texte, couleurs pleines.
    Nuit : fond #050811 à 86 % ; jour : crème à 88 % (déjà en place pour #head2). Le texte courant passe en --fg (au lieu de --muted). */

@@ -1,5 +1,7 @@
 # Écran d'accueil « accroche en éclats »
 
+> **Retiré le 06/11/2026** : l'écran d'accroche, sa transition en éclats et GSAP n'existent plus. L'accueil arrive directement sur la montre : le titre s'affiche dès le premier rendu, l'aiguille de préchargement tourne pendant que la 3D charge. Document gardé pour l'historique ; les parties « aiguille » et « relais » restent valables.
+
 Écran d'attente affiché avant la montre : la phrase d'accroche (« Beaucoup ont le cap. Peu connaissent le sentier. ») en grandes capitales serif sur fond uni nuit ou jour, le lien « Passer l'intro » (aucun bouton central : l'écran s'ouvre seul, ou au clic n'importe où). Il se fissure et tombe en éclats pour révéler la montre 3D (voir `docs/intro-craquelure.md`).
 
 Modèle visuel : capture fournie par Adri (accroche en capitales, éclats, montre au centre). La corde en C d'origine a été retirée en octobre 2026.
@@ -47,6 +49,8 @@ Trois causes possibles d'un « sursaut » au relais, toutes traitées :
 Mesure (localhost) : canvas 0,43 → 1 pendant que l'aiguille HTML reste à 1, puis l'aiguille tombe à 0 : aucune image où les deux sont partiellement transparentes.
 
 ## Aucune inscription pendant le préchargement
+**Remplacé le 06/11/2026** : `#head1` (surtitre, titre, accroche) s'affiche dès le premier rendu, à sa place finale (mesuré : sur mobile en connexion lente simulée, le titre restait invisible 18 s, et le plus grand élément affiché passe au `h1` à environ 2 s). Le reste de ce paragraphe vaut pour les autres éléments.
+
 Pendant le préchargement (`html:not(.loop-live)`), seule l'aiguille est visible : en-tête, titre et accroche (`#head1`), pied de page, règle d'altitude, HUD, indice et bouton « Visite guidée » sont à `opacity:0`. Ils restent dans le DOM (pas de `display`/`visibility`), donc lecteurs d'écran et clavier ne sont pas affectés. Ils réapparaissent en fondu (`sceneIn` 0,8 s, décalé de 0,25 s) quand la scène 3D est visible ; pas d'animation en `prefers-reduced-motion`.
 
 

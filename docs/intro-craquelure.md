@@ -1,5 +1,7 @@
 # Transition d'intro « craquelure et chute »
 
+> **Retiré le 06/11/2026** : voir `docs/ecran-accueil-corde.md`. Document gardé pour l'historique.
+
 À l'ouverture de l'écran d'accueil (clic, délai automatique, ou clavier), il (`#gate`) se fissure depuis le centre, se brise en éclats qui s'écartent, ondulent et tombent vers la caméra, et révèle la scène 3D (la montre, le terrain en fil de fer).
 
 ## Fichiers

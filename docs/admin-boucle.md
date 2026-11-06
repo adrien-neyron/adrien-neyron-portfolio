@@ -14,7 +14,7 @@ L'accueil (boucle 3D, `components/loop/LoopHome.vue` + `assets/loop/loop.js`) li
 | Admin | Champ | Endroit sur l'accueil |
 |---|---|---|
 | Profil | `loopEyebrow` | surtitre du premier écran |
-| Profil | `loopTitle` | titre (h1) du premier écran **et** accroche de l'écran de la corde |
+| Profil | `loopTitle` | titre (h1) du premier écran |
 | Profil | `loopLede` | sous-texte du premier écran |
 | Profil | `loopDialName`, `loopDialRole` | cadran de la montre : nom (vide → « ADRIEN NEYRON ») et ligne de titre (vide → « DÉVELOPPEUR × TRAILEUR × FORMATEUR »), réduits automatiquement s'ils sont trop longs |
 | Profil | `loopDialXpLabel`, `loopDialXpValue` | cadran : libellé et valeur d'expérience (vides → « DÉV. 5 ANS » / « TERRAIN 20 ANS » ; la seconde valeur se calcule : année en cours − 2006, début dans le sport) |
@@ -229,7 +229,7 @@ Un projet admin est rattaché à un arrêt existant par mots du `slug` ou du tit
 ## Limites connues
 
 - Sans JavaScript, ou avant la première interaction, on voit les textes du balisage (volontaire : SEO, lecteurs d'écran).
-- Restent statiques (hors du premier écran) : les libellés des boutons de l'écran de la corde et de la visite guidée, la fiche du calculateur d'allure et de l'analyseur GPX (voir « Outils : même application ou non »), les quatre compétences de la fiche « Profil », le texte du bivouac.
+- Restent statiques (hors du premier écran) : les libellés des boutons de la visite guidée, la fiche du calculateur d'allure et de l'analyseur GPX (voir « Outils : même application ou non »), les quatre compétences de la fiche « Profil », le texte du bivouac.
 - Les titres longs sont raccourcis pour les blocs 3D (texte avant « — »), la fiche garde le titre complet.
 
 ## Accessibilité

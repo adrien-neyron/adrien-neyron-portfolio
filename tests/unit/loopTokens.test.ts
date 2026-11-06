@@ -33,8 +33,8 @@ const ratio = (a: string, b: string) => { const [x, y] = [lum(a), lum(b)].sort((
 
 describe('jetons jour / nuit', () => {
   it('on a bien trouvé les deux palettes', () => {
-    expect(Object.keys(dark).length).toBeGreaterThan(20)
-    expect(Object.keys(light).length).toBeGreaterThan(20)
+    expect(Object.keys(dark).length).toBeGreaterThan(15)
+    expect(Object.keys(light).length).toBeGreaterThan(15)
   })
 
   it('symétrie : chaque jeton existe en jour ET en nuit', () => {

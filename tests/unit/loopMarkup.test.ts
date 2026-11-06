@@ -8,7 +8,7 @@ const markup = readFileSync(new URL('../../assets/loop/loop.html', import.meta.u
 describe('loop.html : contrat avec les champs « Accueil » de l’admin', () => {
   // Si une de ces balises est renommée, l’admin n’agit plus sur l’accueil sans aucune erreur visible.
   it.each([
-    '<p class="eyebrow who">', '<h1 id="h1">', '<p class="lede">', '<p class="gate-tag">',
+    '<p class="eyebrow who">', '<h1 id="h1">', '<p class="lede">',
     'id="head2"', '<p class="eyebrow">', '<h2>', '<p class="sub">',
   ])('contient %s', (tag) => { expect(markup).toContain(tag) })
 
@@ -30,12 +30,11 @@ describe('applyLoopContent', () => {
     expect(applyLoopContent(markup, { hero: { eyebrow: '  ', title: '', lede: undefined } })).toBe(base)
   })
 
-  it('remplace surtitre, titre (h1 + écran de la corde) et sous-texte', () => {
+  it('remplace surtitre, titre et sous-texte', () => {
     const out = applyLoopContent(markup, { hero: { eyebrow: 'Eyebrow X', title: 'Titre X', lede: 'Lede X' } })
     expect(out).toContain('<p class="eyebrow who">Eyebrow X</p>')
     expect(out).toContain('<h1 id="h1">Titre X</h1>')
     expect(out).toContain('<p class="lede">Lede X</p>')
-    expect(out).toContain('<p class="gate-tag">Titre X</p>')
   })
 
   it('remplace le bloc S’équiper sans toucher aux autres surtitres', () => {

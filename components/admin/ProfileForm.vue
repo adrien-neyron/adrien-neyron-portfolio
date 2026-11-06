@@ -132,7 +132,7 @@ function onSubmit() {
           <input id="pr-loop-eyebrow" v-model="form.loopEyebrow" type="text" maxlength="80" class="admin-input" />
         </div>
         <div>
-          <label for="pr-loop-title" class="admin-label">Titre de l'accueil <span class="normal-case font-normal">— repris sur l'écran de la corde</span></label>
+          <label for="pr-loop-title" class="admin-label">Titre de l'accueil</label>
           <input id="pr-loop-title" v-model="form.loopTitle" type="text" maxlength="120" class="admin-input" />
         </div>
         <div>

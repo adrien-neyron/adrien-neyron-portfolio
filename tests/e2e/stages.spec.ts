@@ -6,7 +6,6 @@ import { gotoReady, waitHydrated } from './helpers'
  * dans l'ordre, avec dates et vrais liens vers les fiches. Sans base, les étapes par défaut (data/stages.ts) s'affichent.
  */
 test('accueil : lien « Projets » visible dès le premier écran, avant la 3D', async ({ page }) => {
-  await page.addInitScript(() => sessionStorage.setItem('cordee-gate-vu', '1'))
   await gotoReady(page, '/')
   const link = page.locator('header.top a.top-link')
   await expect(link).toBeVisible()
@@ -18,7 +17,6 @@ test('accueil en mouvement réduit : toutes les étapes, dans l’ordre, avec da
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await gotoReady(page, '/')
   await waitHydrated(page)
-  await page.getByRole('button', { name: /Passer l.intro/ }).click()
   await expect(page.locator('body')).toHaveClass(/static/, { timeout: 30_000 })
   const list = page.locator('#pList')
   await expect(list).toBeVisible()

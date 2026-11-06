@@ -40,7 +40,7 @@ let theme='light';
 /* Jour / Nuit PARTAGÉ avec les pages : même clé que @nuxtjs/color-mode (`color-mode` : light | dark | system). `system` ou absent = réglage de l'appareil. */
 try{const cm=localStorage.getItem('color-mode');theme=cm==='dark'||cm==='light'?cm:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
 /* Vue statique d'office : mouvement réduit, connexion lente / économie de données / appareil léger (décidé par la page, LOADERS.lite), ou choix mémorisé du visiteur */
-let prefStatic=false;try{prefStatic=localStorage.getItem('asc-static')==='1'||sessionStorage.getItem('asc-static-visit')==='1'}catch(e){}
+let prefStatic=false;try{prefStatic=localStorage.getItem('asc-static')==='1'}catch(e){}
 let staticMode=reduce||!!(LOADERS&&LOADERS.lite)||prefStatic, paused=false, loaded=false;
 let tNow=0, pS=0, last=performance.now(), loadT0=performance.now();
 let seen=false;try{seen=localStorage.getItem('asc-seen')==='1'}catch(e){}
@@ -909,7 +909,6 @@ function preEnd(){if(!preEl||preT0===-2)return;preEl.classList.remove('sync');pr
 function preSync(){
   if(!preEl||preT0===-2)return;
   if(preT0===-1){
-    if(!root.classList.contains('gate-seen')||root.classList.contains('gate-on')){preBox.classList.add('done');preT0=-2;return}
     preT0=tNow;preEl.classList.add('sync');preBox.classList.add('go');
   }
   const t=tNow-preT0;
@@ -2525,7 +2524,7 @@ $('#railNav').addEventListener('click',()=>closeMenus(null));
 $('#openSet').addEventListener('click',()=>closeMenus(null));
 $('#brand').addEventListener('click',e=>{e.preventDefault();staticMode?scrollTo(0,0):jumpTo(.0004);$('#main').focus({preventScroll:true})});
 $('#tgPause').addEventListener('click',e=>{paused=!paused;document.body.classList.toggle('paused',paused);e.currentTarget.setAttribute('aria-pressed',String(paused))});
-$('#tgStatic').addEventListener('click',()=>{setStatic(!staticMode);try{localStorage.setItem('asc-static',staticMode?'1':'0');sessionStorage.removeItem('asc-static-visit')}catch(e){}});
+$('#tgStatic').addEventListener('click',()=>{setStatic(!staticMode);try{localStorage.setItem('asc-static',staticMode?'1':'0')}catch(e){}});
 $('#tgNight').addEventListener('click',e=>{
   theme=theme==='dark'?'light':'dark';root.dataset.theme=theme;if(strapApply)strapApply(theme==='dark');applyDialTheme();
   try{localStorage.setItem('color-mode',theme)}catch(err){}

@@ -34,7 +34,7 @@ export interface IProfile extends Document {
   loopLead?: string;     // accueil : accroche de la fiche « Le Randonneur »
   loopFacts?: string;    // accueil : ligne de faits de la fiche « Le Randonneur »
   loopEyebrow?: string;  // accueil : surtitre au-dessus du titre
-  loopTitle?: string;    // accueil : titre (h1) et accroche de l'écran de la corde
+  loopTitle?: string;    // accueil : titre (h1)
   loopLede?: string;     // accueil : sous-texte sous le titre
   loopDialName?: string;   // accueil : nom affiché sur le cadran de la montre
   loopDialRole?: string;   // accueil : ligne de titre du cadran

@@ -33,10 +33,6 @@ Le repli CSS de `:root` reprend désormais les valeurs du jour (l'ancien `--mute
 ## Jetons de la porte de chargement et de l'aiguille
 | Jeton | Nuit | Jour |
 |---|---|---|
-| `--gate-bg` | dégradé `#0E1A2C → #03050A` | dégradé `#FFFCF7 → #EBDFCF` |
-| `--gate-fg` / `--gate-rest` / `--gate-tag` | `#F3E3CF` / `#E9B48C` / `#D9C3AE` | `#2C2825` / `#8F2F1B` / `#4E200E` |
-| `--gate-focus` | `#FFD9C2` | `#1B1712` |
-| `--gate-topo` / `--gate-mtn` | `#E26D3B` / — | `#27465C` / `#CFD9DE` |
 | `--needle-1…4` | `#F59A5C #D4581F #DDE3E7 #9AA3AA` | `#D2672B #A8401B #4A4F55 #23272B` |
 | `--needle-pivot` | `#0B0D10` | `#1B1712` |
 

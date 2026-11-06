@@ -78,7 +78,6 @@ export function applyLoopContent(markup: string, content?: LoopContentTexts | nu
     html = swap(html, '<p class="eyebrow who">', '</p>', h.eyebrow)
     html = swap(html, '<h1 id="h1">', '</h1>', h.title)
     html = swap(html, '<p class="lede">', '</p>', h.lede)
-    html = swap(html, '<p class="gate-tag">', '</p>', h.title)
   }
   if (t) {
     // Étape « S'équiper » : on cible le bloc #head2 pour ne pas toucher aux autres surtitres / paragraphes

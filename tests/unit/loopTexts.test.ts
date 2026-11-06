@@ -9,7 +9,6 @@ describe('textes de l’accueil affichés dans /admin', () => {
     ['<p class="eyebrow who">', d.loopEyebrow, '</p>'],
     ['<h1 id="h1">', d.loopTitle, '</h1>'],
     ['<p class="lede">', d.loopLede, '</p>'],
-    ['<p class="gate-tag">', d.loopTitle, '</p>'],
     ['<p class="eyebrow">', d.loopToolsEyebrow, '</p>'],
     ['<h2>', d.loopToolsTitle, '</h2>'],
     ['<p class="sub">', d.loopToolsLede, '</p>'],
