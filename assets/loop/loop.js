@@ -44,7 +44,7 @@ let prefStatic=false;try{prefStatic=localStorage.getItem('asc-static')==='1'||se
 let staticMode=reduce||!!(LOADERS&&LOADERS.lite)||prefStatic, paused=false, loaded=false;
 let tNow=0, pS=0, last=performance.now(), loadT0=performance.now();
 let seen=false;try{seen=localStorage.getItem('asc-seen')==='1'}catch(e){}
-const LOAD_MS=reduce||seen?450:2600;
+const LOAD_MS=reduce||seen?450:1000;   // l'aiguille tourne puis se cale sur le nord ; le défilement reste libre et la cale aussitôt
 let mx=0,my=0;
 
 /* ---------- Palettes par moment de la journée ---------- */
@@ -87,7 +87,7 @@ let pal=palette(0);
 
 /* ---------- Références ---------- */
 const S=[$('#s1'),$('#s2'),$('#s3'),$('#s4')];
-const head1=$('#head1'),head2=$('#head2'),loader=$('#loader'),pctEl=$('#pct'),loadBar=$('#loadBar');
+const head1=$('#head1'),head2=$('#head2');
 const hint=$('#hint'),live=$('#live');
 const isMobile=()=>innerWidth<900;
 
@@ -2286,7 +2286,7 @@ dlgTool.addEventListener('close',()=>{const o=toolOpener;toolOpener=null;if(o&&o
 $('#tools').addEventListener('click',e=>{const b=e.target.closest('.cb');if(!b)return;openTool([...$('#tools').children].indexOf(b.closest('li')),b)});
 function openCarnet(){root.style.overflow='hidden';document.body.classList.add('horspiste');dlgCarnet.showModal()}
 [dlgProfil,dlgCarnet,dlgTool].forEach(d=>{
-  d.addEventListener('close',()=>{document.body.classList.remove('horspiste');root.style.overflow=(loaded||staticMode)?'':'hidden'});
+  d.addEventListener('close',()=>{document.body.classList.remove('horspiste');root.style.overflow=''});
   d.addEventListener('click',e=>{if(e.target===d)d.close()});
 });
 $('#toolX').addEventListener('click',()=>dlgTool.close());$('#toolBack').addEventListener('click',()=>dlgTool.close());
@@ -2490,7 +2490,8 @@ function jumpTo(p){scrollTo(0,unwarp(p)*maxScroll());pS=p}
 let lastY=0,wheelAcc=0,lap=1;
 function setLap(){}   // le premier écran n'affiche plus « Se repérer · Km 0 » (nom et métier à la place) ; le tour reste compté dans lap
 addEventListener('scroll',()=>{
-  if(staticMode||!loaded)return;
+  if(staticMode)return;
+  finishLoad();
   const y=scrollY,m=maxScroll();
   if(y>=m-2&&y>lastY){lap++;setLap();jumpTo(.0004);lastY=scrollY;return}
   lastY=y;
@@ -2525,7 +2526,6 @@ $('#openSet').addEventListener('click',()=>closeMenus(null));
 $('#brand').addEventListener('click',e=>{e.preventDefault();staticMode?scrollTo(0,0):jumpTo(.0004);$('#main').focus({preventScroll:true})});
 $('#tgPause').addEventListener('click',e=>{paused=!paused;document.body.classList.toggle('paused',paused);e.currentTarget.setAttribute('aria-pressed',String(paused))});
 $('#tgStatic').addEventListener('click',()=>{setStatic(!staticMode);try{localStorage.setItem('asc-static',staticMode?'1':'0');sessionStorage.removeItem('asc-static-visit')}catch(e){}});
-$('#loadSkip').addEventListener('click',()=>{finishLoad();$('#main').focus({preventScroll:true})});
 $('#tgNight').addEventListener('click',e=>{
   theme=theme==='dark'?'light':'dark';root.dataset.theme=theme;if(strapApply)strapApply(theme==='dark');applyDialTheme();
   try{localStorage.setItem('color-mode',theme)}catch(err){}
@@ -2565,7 +2565,7 @@ $$('[data-dlg]').forEach(b=>b.addEventListener('click',()=>{
 }));
 $('#dlgX').addEventListener('click',()=>dlg.close());
 dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
-dlg.addEventListener('close',()=>{root.style.overflow=(loaded||staticMode)?'':'hidden'});
+dlg.addEventListener('close',()=>{root.style.overflow=''});
 
 
 
@@ -2694,7 +2694,7 @@ const setDlg=$('#setDlg');
 $('#openSet').addEventListener('click',()=>{root.style.overflow='hidden';setDlg.showModal()});
 $('#setX').addEventListener('click',()=>setDlg.close());
 setDlg.addEventListener('click',e=>{if(e.target===setDlg)setDlg.close()});
-setDlg.addEventListener('close',()=>{root.style.overflow=(loaded||staticMode)?'':'hidden'});
+setDlg.addEventListener('close',()=>{root.style.overflow=''});
 
 
 /* ---------- Points d'interaction : qualités aux points cardinaux, compétences, expérience ---------- */
@@ -3600,12 +3600,11 @@ return {ensure,update,resize:sizeIt,staticView,dynamicView,setQuality,stopPs,top
 
 })();
 
-/* ---------- Chargement ---------- */
+/* ---------- Calage de l'aiguille ---------- */
 function finishLoad(){
   if(loaded)return;
   try{localStorage.setItem('asc-seen','1')}catch(e){}
-  loaded=true;loader.classList.add('done');
-  root.style.overflow='';
+  loaded=true;
   nRot=((nRot%TAU)+TAU)%TAU;if(nRot>Math.PI)nRot-=TAU;nVel=-2.2;
   live.textContent='Boussole calée sur le nord. Faites défiler pour explorer.';
   gotoHash();
@@ -3627,13 +3626,11 @@ function prewarm(p){
 }
 
 /* ---------- Démarrage ---------- */
-if(seen)$('#loadLabel').textContent='Boussole prête';
 initAurora();if(!THREE_OK)initWater();
 if(THREE_OK)initThree();
 applyQuality();
 layoutTools();sizeThree();sizePuddle();
-if(staticMode){setStatic(true);loaded=true;loader.classList.add('done');gotoHash()}
-else root.style.overflow='hidden';
+if(staticMode){setStatic(true);loaded=true;gotoHash()}
 let fpsEma=.016,slowT=0;
 function frame(ts){
   if(DEAD)return;
@@ -3644,7 +3641,7 @@ function frame(ts){
     if(slowT>2.5&&QC.tier<2){QC.tier++;applyQuality();slowT=0;fpsEma=.016;ecoSync()}   // la page ralentit : on allège
   }
   if(!paused)tNow+=dt;
-  if(!loaded){const lp=clamp((ts-loadT0)/LOAD_MS);pctEl.textContent=Math.round(lp*2480).toLocaleString('fr-FR');loadBar.style.transform=`scaleX(${lp})`;if(lp>=1)finishLoad()}
+  if(!loaded&&ts-loadT0>=LOAD_MS)finishLoad();
   if(!staticMode){
     const pr=loaded?warp(clamp(scrollY/Math.max(1,maxScroll()))):0;
     if(Math.abs(pr-pS)>.5)pS=pr;else pS+=(pr-pS)*(1-Math.exp(-dt*(cine?20:9)));   // pendant une transition (déjà lissée), la scène suit le défilement presque sans retard

@@ -21,8 +21,21 @@ test.describe('Accueil : écran d’accueil et intro 3D', () => {
     expect(await page.evaluate(() => localStorage.getItem('asc-static'))).toBeNull() // pas de préférence durable : la prochaine visite retrouve l'animation
     // la vue statique s'applique dès que la boucle est prête
     await expect(page.locator('body')).toHaveClass(/static/, { timeout: 20_000 })
-    await expect(page.locator('#loader')).toBeHidden()
     expect(errors, errors.join('\n')).toEqual([])
+  })
+
+  test('pas d’écran de chargement : on défile dès que la montre est là, sans attendre l’aiguille', async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem('cordee-gate-vu', '1'))
+    await gotoReady(page, '/')
+    await waitHydrated(page)
+    await page.mouse.move(300, 300)
+    await expect(page.locator('html')).toHaveClass(/loop-live/, { timeout: 20_000 })
+    await expect(page.locator('#loader, #loadSkip')).toHaveCount(0)
+    // une fenêtre fermée avant le calage de l'aiguille ne doit pas laisser le défilement bloqué
+    await page.evaluate(() => { document.getElementById('openSet')?.click(); (document.getElementById('setDlg') ?? document.querySelector('dialog[open]') as HTMLDialogElement | null)?.close() })
+    await expect.poll(() => page.evaluate(() => document.documentElement.style.overflow)).toBe('')
+    await expect.poll(async () => { await page.mouse.wheel(0, 200); return page.evaluate(() => scrollY) }, { timeout: 5000 }).toBeGreaterThan(0)
+    await expect(page.locator('#live')).toContainText('Boussole calée sur le nord')
   })
 
   test('sans aucun clic, l’écran s’ouvre seul et l’écran se ferme', async ({ page }) => {

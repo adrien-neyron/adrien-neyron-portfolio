@@ -111,7 +111,7 @@ function isLiteDevice(): boolean {
   return !!nav.connection?.saveData || /^(slow-)?2g$/.test(nav.connection?.effectiveType ?? '') || (nav.deviceMemory !== undefined && nav.deviceMemory <= 2)
 }
 
-/** Démarre la boucle : la montre 3D remplace la boussole 2D et son chargement (altitude, calage du nord) se joue à l'écran. */
+/** Démarre la boucle : la montre 3D remplace la boussole 2D et son aiguille se cale sur le nord. */
 let started = false
 async function start() {
   if (started) return
@@ -169,7 +169,7 @@ function setupGate(): boolean {
     const live = document.getElementById('live')
     if (live) live.textContent = "L'ascension commence."
     gateOpen = false
-    // La boucle démarre tout de suite : sous l'écran, la montre 3D se met en place et son chargement (altitude, calage du nord) se joue à l'écran.
+    // La boucle démarre tout de suite : sous l'écran, la montre 3D se met en place et son aiguille se cale sur le nord.
     void start()
     // 1) Transition en éclats (IntroTransition.vue) : l'écran se fissure et tombe quand la montre est prête (maxWait au plus).
     //    `false` = impossible (mouvement réduit, pas de WebGL, erreur) et le DOM n'a pas été touché : on retombe sur le fondu.

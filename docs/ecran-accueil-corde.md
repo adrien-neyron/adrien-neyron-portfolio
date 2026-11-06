@@ -10,7 +10,7 @@ Modèle visuel : capture fournie par Adri (accroche en capitales, éclats, montr
 - `components/loop/LoopHome.vue` : fonction `setupGate()`.
 
 ## Fonctionnement
-Principe : **pas d'écran de chargement**. Le chargement se joue à l'écran, sur la montre GPS (la montre 3D se met en place, le nord se cale, l'altimètre monte), comme prévu à l'origine dans la boucle.
+Principe : **pas d'écran de chargement**. Le chargement se joue à l'écran, sur la montre GPS (la montre 3D se met en place, l'aiguille tourne puis se cale sur le nord), comme prévu à l'origine dans la boucle.
 
 1. Dès le premier affichage, l'écran est dans le HTML (il masque la boussole 2D de secours du hero). S'il a déjà été vu dans la session (`sessionStorage` : `cordee-gate-vu`), un petit script d'en-tête pose `html.gate-seen` avant le premier rendu : l'écran n'apparaît pas.
 2. Pendant l'écran : le reste de la page est `inert` (clavier, lecteurs d'écran) et le défilement est bloqué (`html.gate-on`). Le focus est sur « Passer l'intro ».
@@ -55,7 +55,7 @@ Pendant le préchargement (`html:not(.loop-live)`), seule l'aiguille est visible
 Pour qu'un visiteur pressé (recruteur) ou un appareil limité ne soit jamais bloqué par l'intro 3D :
 
 - **« Passer l'intro et aller au contenu »** (`#gateSkip`) : ferme l'écran tout de suite, sans attendre la 3D ni l'animation du nœud, et active la **vue statique** (toutes les scènes empilées, sans animation). Le choix est mémorisé dans `localStorage` (`asc-static` = `1`) ; le réglage « Vue statique » le désactive (`0`). Utilisable au clavier, nom accessible explicite.
-- **« Passer »** (`#loadSkip`) dans le chargement « Montée au sommet » : termine l'animation d'altitude immédiatement (`finishLoad()`) et débloque le défilement.
+- **Aucun blocage après l'écran** : le loader « Montée au sommet » (barre, compteur d'altitude, bouton « Passer ») a été retiré le 06/11/2026. Il ne mesurait rien (minuteur) et bloquait le défilement. L'aiguille tourne 1 s (0,45 s après la première visite ou en mouvement réduit) puis se cale ; le premier défilement la cale aussitôt (`finishLoad()`).
 - **Vue statique d'office** (`isLiteDevice()` dans `LoopHome.vue`, passé à `initLoop` via `lite`) : économiseur de données (`saveData`), connexion `2g` / `slow-2g`, ou 2 Go de mémoire ou moins (`deviceMemory`). Ces API n'existent pas sous Safari / Firefox : on ne présume alors rien. Mouvement réduit : déjà en vue statique.
 - **Délai de l'écran** : sans clic, il s'ouvre seul (4,5 s au plus) ; après un clic, il se ferme au plus tard 4 s plus tard (au lieu de 8 s), même si la 3D n'est pas prête. Le son n'en dépend pas : il est activé uniquement par le bouton « Son » des réglages.
 - **Sans WebGL** : repli 2D déjà en place (`THREE_OK`), et la qualité baisse seule si la page ralentit (`applyQuality`).

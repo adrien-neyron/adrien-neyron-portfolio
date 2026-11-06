@@ -116,6 +116,7 @@ Vérifier ce qui est suivi : `git ls-files content "Claude outputs" models-src p
 Hex ou `rgba()` dans le code des pages et composants (hors boucle) : `TrailNav.vue` 24, `SettingsGear.vue` 17, `AppBackground.vue` 6, `ProfileForm.vue` 3, `ContourBackground.vue` 2, `pages/projects/[id].vue` 2, `pages/admin/index.vue` 2, `pages/admin/carnet/index.vue` 2, et 1 dans chacun de `CarnetForm`, `FileUpload`, `pages/admin/ai-tools`, `pages/admin/profile`, `pages/admin/stages` (dont `#e53e3e` pour les erreurs). À traiter avec l'étape 4 (charte unique) : un jeton « erreur » manque dans `main.css`.
 
 ### Écran de chargement (« Montée au sommet 0 → 2 480 m »)
+**Retiré le 06/11/2026** : voir `docs/ecran-accueil-corde.md`. Constat d'origine ci-dessous.
 - Rôle : masquer le temps que la scène 3D s'installe et bloquer le défilement (`overflow: hidden`) tant que `loaded` est faux ; à la fin, la boussole se cale sur le nord (`finishLoad`), le lecteur d'écran entend « Boussole calée sur le nord. Faites défiler pour explorer. ».
 - **La barre est fictive** : elle suit le temps (`LOAD_MS`), pas le chargement réel. 2,6 s à la première visite, 0,45 s ensuite (`localStorage asc-seen`), 0,45 s avec `prefers-reduced-motion`. Le chargement réel des scènes est progressif (`prewarm`, `requestIdleCallback`) et ne dépend pas de cette barre.
 - Bouton « Passer le chargement » : présent. Pistes (à décider) : raccourcir à ~1 s ; ou adosser la fin au 1er rendu 3D réel plutôt qu'à un minuteur.

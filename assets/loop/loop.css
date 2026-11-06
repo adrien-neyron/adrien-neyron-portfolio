@@ -48,7 +48,6 @@ html.loop-on .head p.sub{margin-top:10px;color:var(--muted);font-size:15px;max-w
    sans l'écran de chargement ; loop.js prend la main ensuite (classe html.loop-live posée par LoopHome.vue) */
 html.loop-on:not(.loop-live):not([data-theme="light"]){--bg:#050811;--fg:#E6F4F1;--muted:#A8B9C0;--line:#26344A;--acc:#E26D3B;--acc-text:#E26D3B;--card:#121B2B}   /* palette « aube » de loop.js au départ de la boucle (sombre dans les deux modes) */
 html.loop-on:not(.loop-live) #s1{visibility:visible;opacity:1}
-html.loop-on:not(.loop-live) .loader{display:none}
 /* Préchargement : AUCUNE inscription, seule l'aiguille est visible. Les textes restent dans le DOM (opacity, pas display/visibility :
    lecteurs d'écran et clavier ne sont pas touchés) et réapparaissent en fondu quand la 3D est là. */
 html.loop-on:not(.loop-live) header.top>:not(.topnav),html.loop-on:not(.loop-live) .topnav>:not(.top-link),html.loop-on:not(.loop-live) #head1,html.loop-on:not(.loop-live) footer.perma,html.loop-on:not(.loop-live) .altrail,html.loop-on:not(.loop-live) .hud,html.loop-on:not(.loop-live) .hint,html.loop-on:not(.loop-live) .cta{opacity:0!important}
@@ -69,14 +68,6 @@ html.loop-on .chip span.d{color:var(--muted);font-size:13px;line-height:1.35}
   html.loop-on .chip b{font-size:15px}
   html.loop-on #toolLines{display:none}
 }
-html.loop-on .loader{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);width:min(300px,80%);text-align:center;transition:opacity .6s}
-html.loop-on .loader .bar{height:2px;background:var(--line);margin-top:10px;overflow:hidden}
-html.loop-on .loader .bar i{display:block;height:100%;background:var(--acc);transform-origin:left;transform:scaleX(0)}
-html.loop-on .loader p{font:500 13px 'JetBrains Mono',monospace;color:var(--muted)}
-html.loop-on .loader.done{opacity:0;pointer-events:none}
-html.loop-on .loader .load-skip{margin-top:6px;font:500 12px 'JetBrains Mono',monospace;color:var(--muted);background:none;border:0;padding:12px 16px;min-height:44px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-html.loop-on .loader .load-skip:focus-visible{outline:2px solid var(--focus,currentColor);outline-offset:2px;border-radius:6px}
-html.loop-on .loader.done .load-skip{visibility:hidden}
 
 /* Scène 2 : carte */
 html.loop-on #mapSvg{position:absolute;inset:0;width:100%;height:100%;transform-origin:50% 90%}
@@ -180,7 +171,7 @@ html.loop-on .altrail .ln{position:absolute;left:50%;top:0;bottom:0;width:1.5px;
 html.loop-on .altrail .tk{position:absolute;left:3px;width:10px;height:1.5px;background:var(--fg);opacity:.6}
 html.loop-on .altrail .dot{position:absolute;left:50%;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px rgba(255,255,255,.25)}
 html.loop-on body.static .altrail,html.loop-on body.static .grain{display:none}
-html.loop-on .head,html.loop-on .chip,html.loop-on .mcard,html.loop-on .pwrap,html.loop-on .bivtext,html.loop-on .loader,html.loop-on #toolLines{z-index:2}
+html.loop-on .head,html.loop-on .chip,html.loop-on .mcard,html.loop-on .pwrap,html.loop-on .bivtext,html.loop-on #toolLines{z-index:2}
 @media (max-width:899px){html.loop-on .altrail{right:4px;top:16vh;height:42vh}}
 html.loop-on #head1{width:min(900px,calc(100% - 32px));top:calc(var(--hh) - 10px)}   /* hero remonté vers l'en-tête : plus d'air au-dessus de la montre */
 html.loop-on #head1 h1{font-size:clamp(26px,3.8vw,46px)}
@@ -379,7 +370,6 @@ html.loop-on body.static .stage{position:static;height:auto;overflow:visible}
 html.loop-on body.static .scene{position:relative;inset:auto;min-height:100vh;min-height:100svh;visibility:visible!important;opacity:1!important;background:var(--bg);color:var(--fg)}
 html.loop-on body.static .hint,html.loop-on body.static .hud{display:none}
 html.loop-on body.static .ball{transform:translate(-50%,-50%) scale(1)!important}
-html.loop-on body.static .loader{display:none}
 @media (prefers-reduced-motion:reduce){html.loop-on *{scroll-behavior:auto!important}html.loop-on .pcard,html.loop-on .mcard{transition:none}}
 
 /* ── Intégration dans le site Nuxt : neutralise les styles globaux de assets/css/main.css sur la boucle ──
@@ -733,8 +723,6 @@ html.loop-on[data-theme="light"] .pl-more:focus-visible{background:#8F2F1B;color
 /* Ligne d'altitude / météo : pastille claire pour rester lisible sur le sol sombre du bivouac */
 html.loop-on[data-theme="light"] .hud{padding:3px 12px;border-radius:999px;background:color-mix(in srgb,var(--bg) 88%,transparent);text-shadow:none}
 /* Indicateur de chargement de l'accueil (« Boussole prête… ») : pastille claire et texte sombre sur le sable */
-html.loop-on[data-theme="light"] .loader{padding:8px 14px 10px;border-radius:14px;background:color-mix(in srgb,var(--bg) 90%,transparent)}
-html.loop-on[data-theme="light"] .loader p{color:var(--fg)}
 /* Cartes cliquables de l'atelier : contour plein à 3,6:1 (le contour pâle d'origine tombait vers 1,5:1) */
 html.loop-on[data-theme="light"] .chip{border-color:#6B8089}
 
