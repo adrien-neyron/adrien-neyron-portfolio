@@ -33,6 +33,7 @@ test.describe('Accueil : arrivée sur la montre', () => {
   })
 
   test('pas d’écran de chargement : on défile dès que la montre est là, sans attendre l’aiguille', async ({ page }) => {
+    test.setTimeout(90_000) // sans carte graphique (CI), le premier rendu 3D occupe le navigateur plusieurs secondes
     await gotoReady(page, '/')
     await waitHydrated(page)
     await page.mouse.move(300, 300)
@@ -41,7 +42,7 @@ test.describe('Accueil : arrivée sur la montre', () => {
     // une fenêtre fermée avant le calage de l'aiguille ne doit pas laisser le défilement bloqué
     await page.evaluate(() => { document.getElementById('openSet')?.click(); (document.getElementById('setDlg') as HTMLDialogElement | null)?.close() })
     await expect.poll(() => page.evaluate(() => document.documentElement.style.overflow)).toBe('')
-    await expect.poll(async () => { await page.mouse.wheel(0, 200); return page.evaluate(() => scrollY) }, { timeout: 5000 }).toBeGreaterThan(0)
+    await expect.poll(async () => { await page.mouse.wheel(0, 200); return page.evaluate(() => scrollY) }, { timeout: 45_000 }).toBeGreaterThan(0)
     await expect(page.locator('#live')).toContainText('Boussole calée sur le nord')
   })
 

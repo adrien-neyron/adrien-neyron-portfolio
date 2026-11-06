@@ -5,12 +5,17 @@ import { gotoReady, waitHydrated } from './helpers'
  * Trace en étapes (docs/admin-boucle.md, « Étapes ») : sans 3D ni animation, toutes les étapes restent lisibles,
  * dans l'ordre, avec dates et vrais liens vers les fiches. Sans base, les étapes par défaut (data/stages.ts) s'affichent.
  */
-test('accueil : lien « Projets » visible dès le premier écran, avant la 3D', async ({ page }) => {
-  await gotoReady(page, '/')
+test('accueil : logo, titre et lien « Projets » visibles dès le premier écran, avant la 3D', async ({ browser }) => {
+  // sans JavaScript, la 3D ne démarre jamais : c'est exactement ce qui s'affiche avant elle, quelle que soit la vitesse de la machine
+  const context = await browser.newContext({ javaScriptEnabled: false })
+  const page = await context.newPage()
+  await page.goto('/')
+  await expect(page.locator('#brand')).toBeVisible()
+  await expect(page.locator('#h1')).toBeVisible()
   const link = page.locator('header.top a.top-link')
   await expect(link).toBeVisible()
   await expect(link).toHaveAttribute('href', '/projects')
-  expect(await page.evaluate(() => document.documentElement.classList.contains('loop-live'))).toBe(false)
+  await context.close()
 })
 
 test('accueil en mouvement réduit : toutes les étapes, dans l’ordre, avec dates et liens', async ({ page }) => {
