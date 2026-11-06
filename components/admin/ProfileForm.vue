@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { Profile } from "~/stores/profile";
+import { LOOP_TEXT_DEFAULTS } from "~/data/loopTexts";
 
 const props = defineProps<{ initial: Profile; loading?: boolean; readonly?: boolean }>();
 const emit  = defineEmits<{ submit: [payload: Profile] }>();
 
+// Textes de l'accueil jamais saisis : le champ montre celui qui est en ligne, prêt à être modifié
+const loopTexts = Object.fromEntries(
+  Object.entries(LOOP_TEXT_DEFAULTS).map(([key, text]) => [key, props.initial[key as keyof typeof LOOP_TEXT_DEFAULTS]?.trim() || text]),
+);
+
 const form = ref<Profile>({
   ...props.initial,
+  ...loopTexts,
   location: { ...props.initial.location },
   profiles: [...props.initial.profiles],
   trailStats: (props.initial.trailStats ?? []).map((s) => ({ ...s })),
@@ -117,9 +124,9 @@ function onSubmit() {
         </div>
       </div>
 
-      <!-- Accueil « L'ascension » : textes de la fiche Le Randonneur et du Bivouac -->
+      <!-- Accueil « L'ascension » : textes du premier écran, de « S'équiper » et de la fiche Le Randonneur -->
       <fieldset class="space-y-4 border-t pt-6" style="border-color: color-mix(in srgb, var(--color-accent) 15%, transparent);">
-        <legend class="admin-label">Accueil « L'ascension » <span class="normal-case font-normal">(vide : le texte par défaut de l'accueil est conservé)</span></legend>
+        <legend class="admin-label">Accueil « L'ascension » <span class="normal-case font-normal">(un champ vidé reprend le texte par défaut)</span></legend>
         <div>
           <label for="pr-loop-eyebrow" class="admin-label">Surtitre de l'accueil <span class="normal-case font-normal">— au-dessus du titre (ex. « Adrien Neyron »)</span></label>
           <input id="pr-loop-eyebrow" v-model="form.loopEyebrow" type="text" maxlength="80" class="admin-input" />
@@ -156,7 +163,7 @@ function onSubmit() {
         <fieldset class="space-y-4 border border-[var(--line,#ccc)] rounded p-4">
           <legend class="admin-label px-1">Étape « S'équiper »</legend>
           <div>
-            <label for="pr-tools-eyebrow" class="admin-label">Surtitre <span class="normal-case font-normal">— vide : « S'équiper · Atelier »</span></label>
+            <label for="pr-tools-eyebrow" class="admin-label">Surtitre</label>
             <input id="pr-tools-eyebrow" v-model="form.loopToolsEyebrow" type="text" maxlength="60" class="admin-input" />
           </div>
           <div>

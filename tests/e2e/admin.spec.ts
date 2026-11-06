@@ -31,6 +31,14 @@ test.describe('Admin : visite en lecture seule', () => {
     for (const field of await fields.all()) await expect(field).toBeDisabled()
   })
 
+  test('les textes de l’accueil sont visibles dans le profil, le texte saisi passe avant le défaut', async ({ page }) => {
+    await page.route('**/api/profile', (route) => route.fulfill({ json: { loopTitle: 'Titre saisi', loopToolsTitle: '   ' } }))
+    await page.goto('/admin/profile')
+    await expect(page.locator('#pr-loop-title')).toHaveValue('Titre saisi')
+    await expect(page.locator('#pr-tools-title')).toHaveValue('Des outils construits pour le terrain')
+    await expect(page.locator('#pr-tools-lede')).toHaveValue(/^Architecte de données/)
+  })
+
   test('le rôle renvoyé sans jeton est « lecteur »', async ({ request }) => {
     const res = await request.get('/api/auth/role')
     expect(await res.json()).toEqual({ role: 'lecteur' })
