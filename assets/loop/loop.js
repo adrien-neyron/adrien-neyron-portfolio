@@ -3630,6 +3630,7 @@ if(THREE_OK)initThree();
 applyQuality();
 layoutTools();sizeThree();sizePuddle();
 if(staticMode){setStatic(true);loaded=true;gotoHash()}
+else{setVisible(S[0],1);root.classList.toggle('hero-split',LAY.sx>0)}   // le premier écran garde sa place et sa visibilité jusqu'au premier rendu 3D (parfois long)
 let fpsEma=.016,slowT=0;
 function frame(ts){
   if(DEAD)return;

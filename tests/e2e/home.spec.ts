@@ -16,6 +16,22 @@ test.describe('Accueil : arrivée sur la montre', () => {
     expect(errors, errors.join('\n')).toEqual([])
   })
 
+  test('le titre et le lien « Projets » ne clignotent pas à l’arrivée de la 3D', async ({ page }) => {
+    await gotoReady(page, '/')
+    await page.evaluate(() => {
+      const w = window as unknown as { __min: number }
+      w.__min = 1
+      const tick = () => {
+        for (const id of ['#head1', '#h1', 'header.top', '.top-link']) w.__min = Math.min(w.__min, +getComputedStyle(document.querySelector(id)!).opacity)
+        requestAnimationFrame(tick)
+      }
+      tick()
+    })
+    await expect(page.locator('html')).toHaveClass(/loop-live/, { timeout: 20_000 })
+    await page.waitForTimeout(1500)
+    expect(await page.evaluate(() => (window as unknown as { __min: number }).__min)).toBe(1)
+  })
+
   test('pas d’écran de chargement : on défile dès que la montre est là, sans attendre l’aiguille', async ({ page }) => {
     await gotoReady(page, '/')
     await waitHydrated(page)
