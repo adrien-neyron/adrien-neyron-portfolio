@@ -789,7 +789,7 @@ footer.perma{min-height:62px;padding-bottom:env(safe-area-inset-bottom,0px)}
 /* Bandeau du pied de page : le dégradé démarre beaucoup plus haut (≈ 22 % de la hauteur, 120 à 240 px) et reprend la couleur du haut du fond :
    nuit = bleu nuit du ciel `#050811` ; jour = abricot du sommet du ciel `#EBC39C` */
 footer.perma{background:none;isolation:isolate}
-footer.perma::before{content:"";position:absolute;left:0;right:0;bottom:0;height:clamp(120px,22vh,240px);z-index:-1;pointer-events:none;
+.stage::after{content:"";position:absolute;left:0;right:0;bottom:0;height:clamp(120px,22vh,240px);z-index:4;pointer-events:none;   /* voile du pied de page : dans la scène, sous les liens du bas (z-index 5) qu'il délavait quand il était dans le pied de page */
   background:linear-gradient(to bottom,rgba(var(--ft),0) 0%,rgba(var(--ft),.32) 38%,rgba(var(--ft),.72) 72%,rgba(var(--ft),.94) 100%)}
 :root[data-theme="light"] footer.perma .copy{color:#4E200E}
 
@@ -1000,12 +1000,13 @@ body.static .stop-card{display:none}
 
 /* Liens « voir la page » des scènes (cohérence accueil ↔ pages, docs/audit-coherence.md) */
 a.cnt{display:inline-flex;align-items:center;text-decoration:none}
-.eq-tip{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 104px);z-index:5;margin:0;padding:8px 16px;border-radius:999px;transform:translateX(-50%);white-space:nowrap;background:color-mix(in srgb,var(--bg) 88%,transparent);font:600 15px/1.3 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;color:var(--fg);opacity:0;pointer-events:none;transition:opacity .35s}   /* invite souris uniquement : les boutons ont leur propre nom au clavier et au lecteur d'écran */
+.eq-tip{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 126px);z-index:5;margin:0;padding:8px 16px;border-radius:999px;transform:translateX(-50%);white-space:nowrap;background:color-mix(in srgb,var(--bg) 88%,transparent);font:600 15px/1.3 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;color:var(--fg);opacity:0;pointer-events:none;transition:opacity .35s}   /* invite souris uniquement : les boutons ont leur propre nom au clavier et au lecteur d'écran */
 .eq-tip.on{opacity:1}
 body.static .eq-tip{display:none}
-.scene-more{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:5;margin:0;opacity:0;pointer-events:none;transition:opacity .3s}
+.scene-more{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 70px);z-index:5;margin:0;opacity:0;pointer-events:none;transition:opacity .3s}   /* au-dessus du pied de page fixe (62 px), qui le recouvrait */
 .scene-more:not(.on){visibility:hidden}
 .scene-more.on{opacity:1;pointer-events:auto}
+.scene-more .cnt{white-space:nowrap}
 body.static .scene-more{position:static;transform:none;visibility:visible;opacity:1;pointer-events:auto;text-align:center;margin:16px 0}
 @media (prefers-reduced-motion:reduce){.scene-more{transition:none}}
 #dlgCarnet .sh-alt{background:transparent;color:#1B2A24;border:1px solid #1B2A24}
@@ -1031,7 +1032,7 @@ body.static main:focus,body.static .scene h1:focus,body.static .scene h2:focus{o
 body.static .eyebrow{font-size:13px}
 body.static header.top{background:var(--bg);border-bottom:1px solid var(--line);min-height:56px}
 body.static footer.perma{position:static;display:flex;gap:8px 16px;padding:16px var(--gut) calc(env(safe-area-inset-bottom,0px) + 16px);background:var(--bg);border-top:1px solid var(--line)}
-body.static footer.perma::before{display:none}
+body.static .stage::after{display:none}
 body.static footer.perma .copy{display:block;margin:0}
 body.static footer.perma nav{flex-wrap:wrap;justify-content:center}
 body.static footer.perma .ico:not(.lbl){gap:6px;padding:0 8px;color:var(--fg)}

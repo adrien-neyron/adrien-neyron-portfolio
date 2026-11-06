@@ -81,5 +81,7 @@ Il n'a pas de fond : un halo dense `--bg` le détache du maillage. Sous 1000 × 
 
 ## « S'équiper » : montre à gauche, texte à droite, lisibilité
 
+**Lien « Voir tout l'équipement »** (`#eqMore`) : visible avec le titre, puis tant que les cartes sont là. Il est posé au-dessus du pied de page fixe. Le voile en dégradé du bas de l'écran est dans la scène (`.stage::after`, z-index 4), sous les liens du bas : dans le pied de page, il les délavait.
+
 **Invite aux boutons** (`#eqTip`) : quand la souris bouge pendant que les boutons du boîtier sont actifs, « Cliquer sur les boutons de la montre » s'affiche sous la montre. Le message disparaît 2,5 s après le dernier mouvement (`EQ_TIP_MS`), quand la souris est sur un bouton ou une carte, et ne revient plus après l'ouverture d'une fiche. Il ne concerne que la souris : pas d'affichage au tactile, sur mobile ou en vue statique, et il reste `aria-hidden` car chaque bouton porte déjà son nom. Plaque `--bg` pour rester lisible sur le maillage et les rochers.
 Le menu Parcours envoie « S'équiper » sur le palier stable de la scène (`data-p="0.155"`, plus 0,19 qui tombait en plein fondu) : montre à gauche, titre et sous-texte à droite, texte pleinement opaque. Pour la lisibilité sur la 3D (aurore, relief), un voile radial est posé derrière `#head1` et `#head2` à partir de 1000 px : nuit `rgba(5,8,17,.88)`, jour crème `rgba(252,247,238,.88)` ; le sous-texte et le titre passent en `--fg` (nuit `#E6F4F1`, jour `#12222B`, plus de 10:1). Eyebrow : `--acc-text` (≥ 4,5:1). Règles en fin de `loop.source.css`.
