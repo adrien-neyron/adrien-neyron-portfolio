@@ -1,24 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
-
-const isDark = ref(false);
+/**
+ * Halos décoratifs du fond des pages classiques. Couleurs : uniquement les rôles de main.css
+ * (--color-accent, --color-secondary, --color-highlight), donc jour / nuit / thèmes « Bivouac » suivent
+ * sans code JS ; seule l'intensité (--o) est adoucie en mode sombre. Purement décoratif : aria-hidden.
+ */
 const { isPaused } = useSceneState();
-
-onMounted(() => {
-  isDark.value = document.documentElement.classList.contains("dark");
-  const obs = new MutationObserver(() => {
-    isDark.value = document.documentElement.classList.contains("dark");
-  });
-  obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-  onUnmounted(() => obs.disconnect());
-});
 </script>
 
 <template>
   <div aria-hidden="true">
-    <div class="blob blob-a" :class="{ dark: isDark, paused: isPaused }" />
-    <div class="blob blob-b" :class="{ dark: isDark, paused: isPaused }" />
-    <div class="blob blob-c" :class="{ dark: isDark, paused: isPaused }" />
+    <div class="blob blob-a" :class="{ paused: isPaused }" />
+    <div class="blob blob-b" :class="{ paused: isPaused }" />
+    <div class="blob blob-c" :class="{ paused: isPaused }" />
   </div>
 </template>
 
@@ -34,34 +27,31 @@ onMounted(() => {
 .blob.paused { animation-play-state: paused; }
 
 .blob-a {
+  --o: 30%;
   width: 65vw; height: 65vw;
   top: -20vw; right: -15vw;
-  background: radial-gradient(circle, rgba(196, 98, 45, 0.30) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) var(--o), transparent) 0%, transparent 70%);
   animation: blobA 22s ease-in-out infinite;
 }
-.blob-a.dark {
-  background: radial-gradient(circle, rgba(224, 120, 64, 0.22) 0%, transparent 70%);
-}
-
 .blob-b {
+  --o: 28%;
   width: 55vw; height: 55vw;
   bottom: -15vw; left: -10vw;
-  background: radial-gradient(circle, rgba(92, 122, 90, 0.28) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-secondary) var(--o), transparent) 0%, transparent 70%);
   animation: blobB 30s ease-in-out infinite;
 }
-.blob-b.dark {
-  background: radial-gradient(circle, rgba(122, 173, 120, 0.20) 0%, transparent 70%);
-}
-
 .blob-c {
+  --o: 18%;
   width: 45vw; height: 45vw;
   top: 25vh; left: 28vw;
-  background: radial-gradient(circle, rgba(232, 168, 56, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-highlight) var(--o), transparent) 0%, transparent 70%);
   animation: blobC 38s ease-in-out infinite;
 }
-.blob-c.dark {
-  background: radial-gradient(circle, rgba(240, 192, 80, 0.13) 0%, transparent 70%);
-}
+
+/* mode sombre : halos un peu plus discrets */
+:global(html.dark) .blob-a { --o: 22%; }
+:global(html.dark) .blob-b { --o: 20%; }
+:global(html.dark) .blob-c { --o: 13%; }
 
 @keyframes blobA {
   0%,  100% { transform: translate(0, 0)    scale(1);    }
