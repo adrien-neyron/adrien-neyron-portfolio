@@ -672,25 +672,9 @@ function applyDialTheme(){   // cadran + aiguille + affichage selon le thème
 /* ---------- Décor de l'accueil : sol rocheux, rochers, massif en fil de fer lumineux (cyan à gauche, cuivre à droite) ---------- */
 const FOOT=4.23,PITCH=3.1*Math.PI/180,MNX=110,MNZ=64,MU0=1.35;
 const lensEl=document.getElementById('lens');let lensK=-1;
-const hphotoEl=document.getElementById('hphoto');let hphotoK=-1;   // fond photographique du premier écran (opacité 1 → 0 pendant les premiers pixels de défilement)
+const hphotoEl=document.getElementById('hphoto');let hphotoK=-1,hphotoR=-1;   // fond photographique du premier écran (opacité 1 → 0 pendant les premiers pixels de défilement)
 let gtxDay=null,gtxNight=null,sceneLt=null,stand,scenery,sceneryNear,mtnGeo,mtnMat,mtnMesh,nearGeo,nearMat,nearMesh,gndMat,rockMat,shadowMat;const farRocks=[],nearRocks=[];
 const FAR_ALT={};   // grand écran : trois rochers qui tomberaient sur le bracelet (de x centré à x décalé) passent sur le côté gauche
-function makeGroundTex(day){   // sol rocheux : dalles de pierre (cellules de Voronoï) aux joints sombres, arêtes éclairées ; day : dalles de sable clair, joints ocre
-  const N=256,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),im=x.createImageData(N,N);
-  let sd=17;const r=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
-  const K=46,px=[],py=[],tone=[];for(let i=0;i<K;i++){px.push(r()*N);py.push(r()*N);tone.push(.55+r()*.45)}
-  for(let j=0;j<N;j++)for(let i=0;i<N;i++){
-    let d1=1e9,d2=1e9,k1=0;
-    for(let k=0;k<K;k++){let dx=Math.abs(i-px[k]),dy=Math.abs(j-py[k]);if(dx>N/2)dx=N-dx;if(dy>N/2)dy=N-dy;const d=dx*dx+dy*dy;if(d<d1){d2=d1;d1=d;k1=k}else if(d<d2)d2=d}
-    const e=Math.sqrt(d2)-Math.sqrt(d1),joint=Math.min(1,e/4.5),n=.85+r()*.3;
-    const o=(j*N+i)*4;
-    if(day){const v=(76+44*tone[k1]*joint)*n*(.6+.4*joint);im.data[o]=Math.min(255,v);im.data[o+1]=Math.min(255,v*.86);im.data[o+2]=Math.min(255,v*.70)}   // sable beige craquelé : chaud mais peu saturé, joints plus sombres
-    else{const v=(48+60*tone[k1]*joint)*n*(.55+.45*joint);im.data[o]=v*.92;im.data[o+1]=v*1.02;im.data[o+2]=v*1.1}
-    im.data[o+3]=255;
-  }
-  x.putImageData(im,0,0);
-  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(90,60);t.anisotropy=4;return t;
-}
 function makeRockTex(){   // roche volcanique : basalte sombre vésiculaire (trous de gaz), fissures fines, éclats de cristaux ; teinte, relief et rugosité raccordables
   const N=512,H=new Float32Array(N*N),PT=new Float32Array(N*N);let sd=4321;const r=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
   const hs=(ix,iy,P)=>{ix=((ix%P)+P)%P;iy=((iy%P)+P)%P;let n=Math.imul(ix,374761393)+Math.imul(iy,668265263)+Math.imul(P,2246822519);n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296};
@@ -826,16 +810,8 @@ function buildNear(){   // nappe de vagues en fil de fer qui passe DEVANT la mon
 }
 function buildScenery(){
   scenery=new THREE.Group();scene3.add(scenery);sceneryNear=new THREE.Group();scene3.add(sceneryNear);
-  const gtx=gtxNight=makeGroundTex();gndMat=new THREE.MeshStandardMaterial({color:0x5A6770,map:gtx,bumpMap:gtx,bumpScale:1.2,roughness:.9,metalness:0,transparent:true});
-  const gnd=new THREE.Mesh(new THREE.PlaneGeometry(400,260),gndMat);gnd.rotation.x=-Math.PI/2;gnd.position.set(0,0,-90);scenery.add(gnd);
-  const rtx=makeRockTex();   // gros rochers : pierre cassée à normales lissées, texture de basalte, ombre de contact au sol
-  rockMat=new THREE.MeshStandardMaterial({color:0xffffff,map:rtx.map,bumpMap:rtx.bump,bumpScale:.6,roughnessMap:rtx.rough,roughness:1,metalness:0,vertexColors:true,transparent:true});
-  shadowMat=new THREE.MeshBasicMaterial({map:makeShadowTex(),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
-  const RGS=[1,2,3,4].map(s=>rockGeom(s)),shGeo=new THREE.PlaneGeometry(2,2);let ri=0;
-  const mkRock=()=>{const m=new THREE.Mesh(RGS[ri++%RGS.length],rockMat),sh=new THREE.Mesh(shGeo,shadowMat);sh.rotation.x=-Math.PI/2;sh.position.y=-.02;sh.scale.set(1.35,1.35,1);sh.renderOrder=1;m.add(sh);return m};
-  // gros rochers au premier plan (à l'échelle de l'écran), cailloux autour du bracelet (à l'échelle de la montre)
-  [[-.9,9.5,.34,.4],[-.5,11,.2,1.2],[.85,10,.3,2.1],[1.02,7,.2,.7],[-1.05,6.5,.26,2.6],[.55,10.8,.14,1.6],[-.75,12,.3,.9],[.72,11.5,.28,2.2],[-.1,13.5,.22,1.9],[.4,10.2,.12,.5],[-.3,10.6,.12,2.4],[.2,11.6,.16,1.2]].forEach(([u,dep,w,r],i)=>{const m=mkRock();m.userData={u,dep,w,alt:FAR_ALT[i]};m.rotation.y=r;scenery.add(m);farRocks.push(m)});
-  [[2.2,1.4,.5,.3,.4,.5,xs=>[1.9,3.4]],[-2.4,2.0,.4,.24,.35,1.9,xs=>[-(xs+2.4),2.0]],[3.6,-.2,.3,.2,.3,2.7,xs=>[xs+3.6,.6]],[-3.8,.4,.55,.32,.45,.2,xs=>[-(xs+3.8),.6]],[.8,2.8,.26,.16,.22,1.1]].forEach(([x,z,a,b,c,r,alt])=>{const m=mkRock();m.userData={b:[x,z],alt};nearRocks.push(m);m.position.set(x,0,z);m.scale.set(a,b,c);m.rotation.y=r;sceneryNear.add(m)});
+  // sol, rochers et ombres 3D retirés (15/11/2026) : le premier écran et « S'équiper » reposent sur la photo minérale (#hphoto). Matériau factice conservé : update() règle son opacité.
+  gndMat=rockMat=shadowMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0});
   // éclairage du décor : rasant, cyan à gauche, cuivre à droite
   const c1=new THREE.PointLight(0x6FC6FF,.8,0);c1.position.set(-16,6,10);scenery.add(c1);
   const c2=new THREE.PointLight(0xE26D3B,.8,0);c2.position.set(16,4,10);scenery.add(c2);
@@ -959,8 +935,8 @@ function updateCompass(p,dt){
   scenery.position.y=sceneryNear.position.y=sc.yD-FOOT;scenery.scale.setScalar(sc.s);
   // l'accueil se fond dans la carte : le sol et les rochers s'effacent d'abord, le massif se couche pour devenir le quadrillage de la carte (et prend sa teinte cuivre), l'aurore s'éteint en virant au cuivre
   const fG=p<.5?1-sm(.10,.24,p):sm(.96,1,p),fM=p<.5?1-sm(.20,.30,p):sm(.96,1,p),kf=p<.5?sm(.10,.28,p):0;
-  const phK=staticMode?0:(p<.5?1-sm(.045,.115,p):sm(.96,1,p)),gm=1-phK;   // photo du hero : tant qu'elle est visible, le sol 3D, ses rochers, l'ombre de la montre et les crêtes filaires sont retenus ; ils reviennent quand elle s'efface
-  const calm=p<.5?lerp(theme==='light'?.28:.18,1,sm(.05,.13,p)):(theme==='light'?1:.18),fC=fM*calm*gm;   // premier écran (jour et nuit) : lignes du relief retenues (≈ 15-25 % d'opacité) pour laisser la montre et le texte au premier plan ; intensité pleine dès « S'équiper »   // premier écran : crêtes atténuées, la montre est en vedette ; intensité pleine dès « S'équiper »
+  const phK=staticMode?0:(p<.5?1-sm(.18,.27,p):sm(.96,1,p)),gm=1-phK;   // photo minérale : visible sur le premier écran ET « S'équiper » (arrêt du menu à p = .155), elle s'efface juste avant la plongée vers la carte ; tant qu'elle est visible, les crêtes filaires restent retenues
+  const calm=p<.5?lerp(theme==='light'?.28:.18,1,sm(.05,.13,p)):(theme==='light'?1:.18),fC=fM*calm*(1-.6*phK);   // premier écran (jour et nuit) : lignes du relief retenues (≈ 15-25 % d'opacité) pour laisser la montre et le texte au premier plan ; intensité pleine dès « S'équiper »   // premier écran : crêtes atténuées, la montre est en vedette ; intensité pleine dès « S'équiper »
   mtnMesh.scale.y=lerp(1,.03,kf);
   if(nearMesh){nearMesh.scale.y=lerp(1,.03,kf);nearMat.uniforms.uFade.value=fC;nearMat.uniforms.uT.value=paused?0:tNow*.4;/* ondulation de la nappe : 2,5 fois plus lente */nearMesh.visible=QC.tier<2&&fM>.01;{const W=LAY.W||1,H=LAY.H||1,r=DIAL.r>5?DIAL.r:LAY.Rs*1.15;nearMat.uniforms.uDial.value.set(((DIAL.r>5?DIAL.cx:LAY.cx)/W)*2-1,1-((DIAL.r>5?DIAL.cy:LAY.cy)/H)*2,(W/H)/((r/H)*2)*(1/ (W/H)))}}   // la nappe du premier plan se couche elle aussi en quadrillage de cartemtnMat.uniforms.uCA.value.setHex(0x8CCFE6).lerp(MAP_LINE,Math.min(1,kf*1.25));
   auroraK=(p<.5?1-.97*sm(.14,.30,p):1)*(theme==='light'?0:1);auroraW=p<.5?sm(.12,.26,p):0;
@@ -968,12 +944,11 @@ function updateCompass(p,dt){
     sceneLt=theme==='light';const L=sceneLt;mtnMat.blending=nearMat.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;
     mtnMat.uniforms.uCA.value.set(L?0x27465C:0x8CCFE6);mtnMat.uniforms.uCB.value.set(L?0x8A3A18:0xE26D3B);mtnMat.uniforms.uK.value=nearMat.uniforms.uK.value=L?.95:1;   // jour : filaire foncé (ardoise à gauche, cuivre brûlé à droite) pour bien se détacher du ciel clair
     nearMat.uniforms.uCa.value.set(L?0x27465C:0x4FE3C1);nearMat.uniforms.uCb.value.set(L?0x8A3A18:0xE26D3B);mtnMat.needsUpdate=nearMat.needsUpdate=true;
-    // sol : dalles de sable clair le jour (pierre bleutée la nuit), brume claire à l'horizon au lieu de la nuit
-    if(L&&!gtxDay)gtxDay=makeGroundTex(true);
-    gndMat.map=gndMat.bumpMap=L?gtxDay:gtxNight;gndMat.color.setHex(L?0xFFFFFF:0x5A6770);gndMat.needsUpdate=true;scene3.fog.color.setHex(L?0xD8E0E4:0x050811)}
+    scene3.fog.color.setHex(L?0xD8E0E4:0x050811)}
   {const sk=theme==='light'?+fG.toFixed(2):0;if(sk!==skyK){skyK=sk;document.documentElement.style.setProperty('--sky',String(sk))}}   // ciel du mode jour (dégradé CSS), fondu avec le sol
   {const lk=+fG.toFixed(2);if(lk!==lensK){lensK=lk;if(lensEl)lensEl.style.opacity=String(lk)}}   // voile de profondeur (flou du premier plan + vignettage) : suit le sol, s'efface pendant la plongée vers la carte
   {const pk=+phK.toFixed(2);if(pk!==hphotoK){hphotoK=pk;if(hphotoEl)hphotoEl.style.opacity=String(pk)}}
+  if(hphotoEl){const r=+hk2.toFixed(2);if(r!==hphotoR){hphotoR=r;hphotoEl.style.setProperty('--ph-r',String(r));hphotoEl.style.setProperty('--ph-l',String(+(1-r).toFixed(2)))}}   // voile de lisibilité : à gauche pour l'accroche, à droite pour « S'équiper » (grand écran)
   mtnMat.uniforms.uT.value=tNow;mtnMat.uniforms.uFade.value=fC;gndMat.opacity=rockMat.opacity=fG*gm;shadowMat.opacity=.85*fG*gm;scenery.visible=sceneryNear.visible=Math.max(fG,fM)>.01;
   const sw=paused?0:1;
   // ressort amorti : le boîtier a du poids, il suit le curseur avec un léger retard et un petit rebond
