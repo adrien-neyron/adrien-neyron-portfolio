@@ -244,3 +244,6 @@ Fonds en courbes de niveau : toujours des isovaleurs d'un champ d'altitude (`con
 Jour / Nuit partagé accueil ↔ pages (03/11/2026) : une seule clé `localStorage['color-mode']` (@nuxtjs/color-mode). La boucle la lit/écrit (`theme` dans `loop.js`, événement `cordee-theme` relayé par `LoopHome.vue` vers `useColorMode().preference`) ; plus de clé `asc-theme`. Détails : `docs/audit-coherence.md`.
 
 Vue statique de l'accueil (`body.static`, 05/11/2026) : page éditoriale dans le flux, 3D en bandeaux décoratifs, texte jamais sur un canvas 3D, pied de page non fixe, focus déplacé par `staticGo()`. Une nouvelle scène doit y être mise en page. Détails : `docs/preferences-visiteur.md`.
+
+Fond photographique du hero (14/11/2026) : calque `#hphoto` (`.hphoto`) sous la montre à la place du sol 3D du premier écran ; images `public/loop/hero-canyon-*.webp` générées par `scripts/hero-canyon.py` (pas de licence tierce), jetons `--hero-photo*`, `--hero-scrim`, `--hero-a1/a2`, `--hero-eyebrow` dans les deux palettes ; `phK` / `gm` dans `update()` de `loop.js` (fondu avec le retour du sol avant « S'équiper ») ; masqué en vue statique. Contrastes mesurés, Lighthouse non mesuré. Détails : `docs/ecran-accueil-corde.md`.
+
