@@ -119,3 +119,15 @@ Les jetons `--hero-photo` / `--hero-photo-m` pointent sur `public/loop/hero-cord
 - **Contrastes mesurés** (même méthode que ci-dessus, voile à .80 / .66, donc plus sévère que .90 / .78 la nuit et .88 / .76 le jour) : corps de l'accroche ≥ 11,1:1 (nuit) et ≥ 6,2:1 (jour) ; surtitre ≥ 6,3:1 / ≥ 6,7:1 ; texte de « S'équiper » ≥ 12,1:1 / ≥ 9,9:1 ; mobile 390 × 844 : 8,9:1 / 6,5:1.
 - **Limites** : sur mobile, la montre masque l'alpiniste ; les crêtes filaires passent devant la photo ; Lighthouse, axe sur la page rendue, e2e et vrai téléphone non mesurés. Les images montrent des personnes identifiables (modèles Unsplash) : à valider pour un site professionnel.
 
+## Variante « gorge » (15/11/2026, branche `feat/hero-gorge`)
+
+Les jetons `--hero-photo` / `--hero-photo-m` pointent sur `public/loop/hero-gorge-{dark,light}{,-m}.webp` (jour : gorge dorée ; nuit : même gorge sous la Voie lactée). Les variantes `hero-canyon-*` (minéral généré) et `hero-cordee-*` (photo de cordée) restent dans le dépôt ; revenir en arrière = changer les quatre URL de `loop.source.css`.
+
+- **Source** : deux images générées avec Gemini (1306 × 816), fournies par Adri. Pas de photo tierce, donc pas de licence Unsplash ; vérifier les conditions d'usage de l'outil pour un usage commercial.
+- **Traitement** : `scripts/hero-gorge.py <jour.jpg> <nuit.jpg> <dossier>` (reproductible, ~5 s). Nuit : points blancs isolés sur la roche et petites lumières lointaines retirés (inpainting), éclat bleu de l'arête atténué ; ciel conservé en entier ; exposition relevée, noirs marine `#06101F`, roche éclairée cuivrée. Jour : ombres brun chaud, ciel et lointain fondus dans la crème. Les deux : débruitage du JPEG, agrandissement en 2400 × 1350, renforcement du micro-contraste, texture fine et grain argentique (l'aspect « lisse » typique d'une génération d'image est ainsi atténué).
+- **Limite** : la source ne fait que 1306 px de large, soit environ 1,5 fois moins que l'affichage plein écran sur grand moniteur. Une version 2K ou 4K générée à nouveau donnerait plus de finesse.
+- **Provenance** : ce traitement ne retire pas, et n'a pas pour but de retirer, les marqueurs de provenance invisibles que l'outil d'origine peut avoir intégrés (filigrane de type SynthID). Une image générée reste identifiable comme telle par les détecteurs ; ne pas la présenter comme une photographie.
+- **Voile** : jour renforcé (`--hero-a1` .92 / `--hero-a2` .82 ; mobile vertical .86 / .78 / .56) parce que la gorge dorée est lumineuse ; nuit inchangé (.90 / .78).
+- **Contrastes mesurés** (même méthode) : nuit, corps de l'accroche ≥ 13,4:1, surtitre ≥ 10,0:1, « S'équiper » ≥ 14,3:1 ; jour, corps ≥ 5,0:1, surtitre ≥ 6,2:1, « S'équiper » ≥ 10:1 ; mobile 390 × 844 : jour 6,9:1, nuit ≥ 11:1 (avant renforcement du voile mobile). Le poids : nuit 124 Ko, jour 165 Ko ; mobile 35 / 53 Ko.
+- **Non mesuré** : Lighthouse, axe-core sur la page rendue, e2e, vrai téléphone. Rendu vérifié en Chrome headless (SwiftShader) : nuit et jour (desktop), jour mobile.
+
