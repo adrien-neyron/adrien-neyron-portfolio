@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Performance** : 3D chargée après le contenu, DPR ≤ 1.5, pause hors écran, pas de JS bloquant. Pas de régression Lighthouse mobile (perf ≥ 90, a11y 100).
 - **Cohérence** : couleurs uniquement via les rôles (tokens) — jamais de couleur brute. Accueil (boucle) : rôles de `docs/charte-graphique.md` (`--bg`, `--fg`, `--acc`, `--brand`…). Pages Nuxt et /admin : tokens de `assets/css/main.css` (`--color-bg`, `--color-surface`, `--color-text`, `--color-muted`, `--color-accent`, `--color-secondary`, `--color-highlight` décoratif uniquement, `--color-vue`, `--color-nuxt`). Symétrie jour/nuit. Vocabulaire de l'aventure (sentier, étape, cordée, bivouac).
 - **Méthode** : un changement = une branche courte, un commit clair. Ne toucher qu'aux fichiers nécessaires.
-- **Documentation** : à chaque étape, mettre à jour la doc concernée (`docs/` dans le dépôt ; `design/` / `dev/` côté projet claude.ai) et ce CLAUDE.md. Une fonctionnalité non documentée n'est pas terminée.
+- **Documentation** : à chaque étape, mettre à jour la doc concernée (`docs/` dans le dépôt ; `design/` / `dev/` côté projet claude.ai) et ce CLAUDE.md. Une fonctionnalité non documentée n'est pas terminée. Les audits externes (état en ligne, inspirations) sont rangés dans `context/` : voir la section « Audits du 13/11/2026 » en bas de ce fichier.
 - **Fin d'étape** : lister ce qui a été vérifié (contrastes, clavier, Lighthouse) et ce qui n'a pas pu l'être.
 
 ## Commands
@@ -244,3 +244,43 @@ Fonds en courbes de niveau : toujours des isovaleurs d'un champ d'altitude (`con
 Jour / Nuit partagé accueil ↔ pages (03/11/2026) : une seule clé `localStorage['color-mode']` (@nuxtjs/color-mode). La boucle la lit/écrit (`theme` dans `loop.js`, événement `cordee-theme` relayé par `LoopHome.vue` vers `useColorMode().preference`) ; plus de clé `asc-theme`. Détails : `docs/audit-coherence.md`.
 
 Vue statique de l'accueil (`body.static`, 05/11/2026) : page éditoriale dans le flux, 3D en bandeaux décoratifs, texte jamais sur un canvas 3D, pied de page non fixe, focus déplacé par `staticGo()`. Une nouvelle scène doit y être mise en page. Détails : `docs/preferences-visiteur.md`.
+
+## Audits du 13/11/2026 (dossier `context/`)
+
+Sources : `context/audit-portfolio-awwwards-2026-11-13.md` (site en ligne, grille Awwwards) et `context/audit-inspirations-arcteryx-immersive-resn-2026-11-13.md` (Arc'teryx System 0, Immersive Garden, Resn). Mesures faites sur le site déployé, ordinateur de bureau, **une seule charge**, sans Lighthouse ni lecteur d'écran : ce sont des indications, à revérifier avant toute affirmation publique. Rien ci-dessous n'est une décision tant qu'elle n'est pas cochée dans « Décisions en attente ».
+
+### État constaté en ligne (13/11/2026)
+- **Deux domaines** : audit fait sur `adrienneyronportfolio.vercel.app`, mais canonical, `og:url`, `og:image`, JSON-LD, sitemap et `robots.txt` pointent `adrien-neyron-portfolio.vercel.app`. Un seul domaine doit rester en 200, l'autre en 301.
+- **Déjà en place** : `robots.txt`, `sitemap.xml`, JSON-LD (`WebSite` + `Person`), page 404 « Sentier introuvable », pages `/mentions-legales` et `/accessibilite`, `lang="fr"`, un seul `h1`, repères (`main`, `nav`, `header`, `footer`), 8 canvas `aria-hidden`, 5 `dialog`, lien d'évitement, honeypot sur le formulaire. Ces points de l'audit du 03/11 sont donc **résolus** (vérifier le code avant de les citer comme tels).
+- **Mesures (accueil, bureau)** : ≈ 0,55 Mo et 35 requêtes avant interaction, DOMContentLoaded ≈ 1,1 s, LCP ≈ 2,4 s, CLS ≈ 0,005. Poids après la visite guidée complète : **non mesuré**. Lighthouse : **non mesuré à ce jour**.
+- **Écarts ouverts (P0)** :
+  1. Hero mobile (émulation 375 × 812) : titre puis grand vide, ni montre ni bouton « Visite guidée » dans la première vue — à confirmer sur un vrai téléphone.
+  2. 7 cibles interactives sur 47 font moins de 44 px en mobile (la règle du projet est ≥ 44 px).
+  3. `/outils` répond 404 alors que le menu affiche « Outils » ; une entrée du sitemap commence par `/out…` : vérifier que toutes les URL du sitemap répondent 200.
+  4. Durées incohérentes : « 12 ans » (description de l'accueil), « 11 ans » (`/about`, héros et valeurs), « 10 ans » (chronologie 2010–2021), et « 5 ans de code » face à « 2023–aujourd'hui » dans la chronologie. La règle de ce fichier (section « Coherence loop ↔ pages ») dit 12 ans de formation/management + 5 ans de dev : aligner le site **ou** corriger la règle.
+  5. Chiffres affichés sans source datée : 30 → 52 % de conformité RGAA, 100+ sites corrigés, −50 % de temps de traitement, 500+ personnes formées, management jusqu'à 25 personnes. Sourcer ou retirer ; droit de citer DGFiP, Amiltone / BeTeam, Euromaster, Tyredating à confirmer par écrit.
+- **Écarts ouverts (P1)** : `/about` (Le Randonneur) et Carnet absents du menu principal ; lien « Admin » dans la navigation publique ; en-têtes de sécurité absents ou non vérifiés (`Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`) ; `twitter:card` en `summary` et `og:image` = `profile.png` (prévoir 1200 × 630 par page et par projet) ; honeypot sans `aria-hidden` sur son conteneur ; intitulés « Full-Stack » encore visibles alors que le positionnement est front-end Vue 3 / accessibilité ; fiches projet encore écrites pour des développeurs (gabarit problème → action → résultat → « pour votre projet »).
+
+### Règles issues de l'audit des inspirations
+- **Ne jamais** bloquer le zoom (`maximum-scale=1`, `user-scalable=0/no`) : Immersive Garden et Resn le font, pas ce site.
+- **Contenu 100 % HTML**, jamais dans le canvas (Resn : 63 caractères de texte, aucun repère, aucun bouton dans le DOM).
+- Une interaction « maintenir pour agir » (type « dénouer la corde ») a toujours un équivalent clavier et un bouton natif.
+- Toute animation ou vidéo de plus de 5 s a une pause visible (le bouton Pause existe déjà).
+- Aucune bannière de consentement envahissante : le site n'a aucun suivi, le garder ainsi.
+- Ne reproduire ni assets, ni textes, ni modèles 3D, ni maquettes des trois références : s'inspirer des principes (rythme, hiérarchie, interaction).
+- **Budget de performance proposé** (non validé) : ≤ 0,8 Mo avant interaction, ≤ 6 Mo après la visite guidée complète, modèle 3D le plus lourd ≤ 2 Mo, LCP mobile ≤ 2,5 s, CLS ≤ 0,05, INP ≤ 200 ms. Point de départ mesuré : ≈ 0,55 Mo et CLS ≈ 0,005 avant interaction.
+- **Tension à trancher** : l'audit recommande la compression Draco / KTX2 (pratique d'Immersive Garden), mais la section « Trail shoe on the home loop » interdit Draco / meshopt / quantization du GLB parce que r128 + `fitModel` lisent les attributs bruts. Compresser demande d'abord de passer le chargeur 3D à un décodeur compatible ; ne rien changer tant que ce n'est pas décidé.
+- **Pistes retenues pour décision** : numéroter les étapes I–V avec une progression textuelle « Étape n/5 » (l'altimètre 2 480 → 35 m comme repère) et une phrase d'étape dans le HTML ; page ou dialogue « Coulisses » (décisions techniques : 3D après le contenu, repli sans JavaScript, jetons de couleur, tests axe) ; « Dénouer la corde » comme geste signature ; chargement des assets 3D par étape ; 4 à 5 projets phares complets plutôt qu'une longue liste.
+
+### Décisions en attente (Adri)
+1. Domaine de production unique (et 301 de l'autre).
+2. Durées : 10, 11 ou 12 ans de formation/management ; début du développement 2021 ou 2023 ; mise à jour de la règle « 12 ans + 5 ans » si besoin.
+3. Sources et droit de citer pour les chiffres et les noms de clients.
+4. Hero mobile : reproductible sur un vrai téléphone ?
+5. Cible de `/outils` (redirection vers `/outils/allure-denivele` ?) et nettoyage du sitemap.
+6. Budget de performance : engagement public ou simple objectif interne ?
+7. Compression Draco / KTX2 : oui ou non, et avec quel chargeur (voir la tension ci-dessus).
+8. Numérotation I–V, page « Coulisses », nombre de projets phares sur l'accueil.
+
+### Avant toute mise en ligne
+Lighthouse mobile + bureau sur `/`, `/projects`, une fiche, `/about`, `/contact` (consigner les scores dans `docs/`) ; axe sur toutes les scènes et les deux thèmes ; parcours clavier complet de la visite guidée ; VoiceOver iOS et NVDA ; test sur iPhone Safari et un Android milieu de gamme ; toutes les URL du sitemap en 200.
