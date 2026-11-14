@@ -47,8 +47,8 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 - axe n'attrape qu'une partie des critères RGAA : l'audit manuel (clavier, lecteur d'écran, zoom 200 %) reste nécessaire (voir `docs/audit-ux-ui.md`).
 
 ## CI
-`.github/workflows/ci.yml` : sur chaque PR et push sur `main` → `npm ci`, `test:coverage`, `build`, `test:e2e`. Le rapport Playwright est conservé 7 jours en cas d'échec.
-**À faire côté GitHub** : Settings → Branches → règle sur `main` → « Require status checks to pass » avec les jobs *Tests unitaires + couverture* et *Build + e2e + accessibilité*. Sans cela, Vercel déploie même si la CI est rouge.
+`.github/workflows/ci.yml` : sur chaque PR et push sur `main` → job **lint** (`npm run lint` : ESLint + `eslint-plugin-vuejs-accessibility`, règles RGAA/WCAG sur les templates Vue), puis `npm ci`, `test:coverage`, `build`, `test:e2e`. Le rapport Playwright est conservé 7 jours en cas d'échec.
+**À faire côté GitHub** : Settings → Branches → règle sur `main` → « Require status checks to pass » avec les jobs *Lint*, *Tests unitaires + couverture* et *Build + e2e + accessibilité*. Sans cela, Vercel déploie même si la CI est rouge.
 
 ## Ajouter un test
 - Nouvelle route `server/api/admin/**` : rien à faire pour la garde (testée automatiquement) ; ajouter la route à la liste de `api.spec.ts`.
@@ -66,3 +66,6 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 - `tests/unit/imageWebp.test.ts` : dimensions, nom de fichier et formats de la conversion WebP (la conversion canvas elle-même demande un navigateur : non testée).
 
 - `tests/unit/blobTrash.test.ts` : URLs supprimables (Blob store seulement) et images encore utilisées conservées.
+
+## Lint
+`eslint.config.js` (ESLint 9, flat config) : `typescript-eslint` (recommended), `eslint-plugin-vue` (essential : vraies erreurs seulement) et `eslint-plugin-vuejs-accessibility` (recommended). `assets/loop/**` (boucle 3D compilée à la main), `public/`, `content/` sont ignorés. Installation : `npm i -D eslint typescript-eslint eslint-plugin-vue eslint-plugin-vuejs-accessibility`. Les avertissements (`no-explicit-any`, variables inutilisées) ne bloquent pas ; une erreur d'accessibilité Vue (image sans `alt`, label non associé, clic sur un élément non interactif…) fait échouer la CI.

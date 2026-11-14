@@ -154,7 +154,7 @@ Audit and step plan: `docs/audit-coherence.md` (decisions: the loop's charter is
 
 ### Known gaps (not fixed as part of the backoffice work)
 
-- `npm run lint` fails — no `eslint.config.js` in the repo (ESLint v9 expects flat config).
+- `npm run lint` : `eslint.config.js` (flat config, ESLint 9) ajouté le 05/11/2026 avec `typescript-eslint`, `eslint-plugin-vue` (essential) et `eslint-plugin-vuejs-accessibility` ; `assets/loop/**` est hors périmètre. Dépendances : `npm i -D eslint typescript-eslint eslint-plugin-vue eslint-plugin-vuejs-accessibility`. Étape `lint` dans la CI (`.github/workflows/ci.yml`), voir `docs/tests.md`.
 - ~~`pages/projects/[id].vue` read `data/projects.ts` directly~~ — fixed on `feat/ascension`: it now goes through `stores/projects.ts` (slug or `_id`), and `challenge` / `solution` / `result` were added to the store type and fallback.
 
 `job1` / `job2` / `summary` / `about` / `heroTitle` on the `Profile` model are now displayed live:
