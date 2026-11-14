@@ -67,7 +67,7 @@ Le panneau `#stopCard` est en verre sombre dans les deux thèmes ; ses rôles on
 Texte ≥ 4,5:1 ; éléments graphiques et focus ≥ 3:1 ; focus visible 3 px sur la marque et la porte, dans les deux thèmes ; la couleur ne porte jamais seule l'information.
 
 ## Reste à migrer
-Le bouton « Lancer la visite guidée » n'utilise que des rôles en mode jour (`--fg`, `--brand-halo`, `--brand-hover`, `--focus`, sans fond). Cartes, menu, autres boutons CTA et formulaire de contact portent encore des couleurs du jour en dur (`#A8401B`, `#8F2F1B`, `#4E200E`…). Prochaine étape : les remplacer par des rôles (`--cta-bg`, `--cta-fg`, `--surface-border`…).
+Le bouton « Lancer la visite guidée » n'utilise que des rôles : `--cta-bg-1`, `--cta-bg-2`, `--cta-fg`, `--cta-edge`, `--cta-sheen`, `--cta-ring`, `--cta-glow` et `--focus` (14/11/2026, même cuivre profond dans les deux thèmes, texte 5,0:1). `--vignette` sert au voile de profondeur de l'accueil. Cartes, menu, autres boutons CTA et formulaire de contact portent encore des couleurs du jour en dur (`#A8401B`, `#8F2F1B`, `#4E200E`…). Prochaine étape : les remplacer par des rôles (`--cta-bg`, `--cta-fg`, `--surface-border`…).
 
 ## Historique
 - Essai du logo en `#0066FF` : abandonné, retour à l'ardoise (le jour) et au cuivre (la nuit).

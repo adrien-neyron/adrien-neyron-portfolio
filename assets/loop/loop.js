@@ -671,6 +671,7 @@ function applyDialTheme(){   // cadran + aiguille + affichage selon le thème
 }
 /* ---------- Décor de l'accueil : sol rocheux, rochers, massif en fil de fer lumineux (cyan à gauche, cuivre à droite) ---------- */
 const FOOT=4.23,PITCH=3.1*Math.PI/180,MNX=110,MNZ=64,MU0=1.35;
+const lensEl=document.getElementById('lens');let lensK=-1;
 let gtxDay=null,gtxNight=null,sceneLt=null,stand,scenery,sceneryNear,mtnGeo,mtnMat,mtnMesh,nearGeo,nearMat,nearMesh,gndMat,rockMat,shadowMat;const farRocks=[],nearRocks=[];
 const FAR_ALT={};   // grand écran : trois rochers qui tomberaient sur le bracelet (de x centré à x décalé) passent sur le côté gauche
 function makeGroundTex(day){   // sol rocheux : dalles de pierre (cellules de Voronoï) aux joints sombres, arêtes éclairées ; day : dalles de sable clair, joints ocre
@@ -957,7 +958,7 @@ function updateCompass(p,dt){
   scenery.position.y=sceneryNear.position.y=sc.yD-FOOT;scenery.scale.setScalar(sc.s);
   // l'accueil se fond dans la carte : le sol et les rochers s'effacent d'abord, le massif se couche pour devenir le quadrillage de la carte (et prend sa teinte cuivre), l'aurore s'éteint en virant au cuivre
   const fG=p<.5?1-sm(.10,.24,p):sm(.96,1,p),fM=p<.5?1-sm(.20,.30,p):sm(.96,1,p),kf=p<.5?sm(.10,.28,p):0;
-  const calm=theme==='light'?1:(p<.5?lerp(.18,1,sm(.05,.13,p)):.18),fC=fM*calm;   // jour : les montagnes sont pleinement visibles dès le début de la boucle   // premier écran : crêtes atténuées, la montre est en vedette ; intensité pleine dès « S'équiper »
+  const calm=p<.5?lerp(theme==='light'?.28:.18,1,sm(.05,.13,p)):(theme==='light'?1:.18),fC=fM*calm;   // premier écran (jour et nuit) : lignes du relief retenues (≈ 15-25 % d'opacité) pour laisser la montre et le texte au premier plan ; intensité pleine dès « S'équiper »   // premier écran : crêtes atténuées, la montre est en vedette ; intensité pleine dès « S'équiper »
   mtnMesh.scale.y=lerp(1,.03,kf);
   if(nearMesh){nearMesh.scale.y=lerp(1,.03,kf);nearMat.uniforms.uFade.value=fC;nearMat.uniforms.uT.value=paused?0:tNow*.4;/* ondulation de la nappe : 2,5 fois plus lente */nearMesh.visible=QC.tier<2&&fM>.01;{const W=LAY.W||1,H=LAY.H||1,r=DIAL.r>5?DIAL.r:LAY.Rs*1.15;nearMat.uniforms.uDial.value.set(((DIAL.r>5?DIAL.cx:LAY.cx)/W)*2-1,1-((DIAL.r>5?DIAL.cy:LAY.cy)/H)*2,(W/H)/((r/H)*2)*(1/ (W/H)))}}   // la nappe du premier plan se couche elle aussi en quadrillage de cartemtnMat.uniforms.uCA.value.setHex(0x8CCFE6).lerp(MAP_LINE,Math.min(1,kf*1.25));
   auroraK=(p<.5?1-.97*sm(.14,.30,p):1)*(theme==='light'?0:1);auroraW=p<.5?sm(.12,.26,p):0;
@@ -969,6 +970,7 @@ function updateCompass(p,dt){
     if(L&&!gtxDay)gtxDay=makeGroundTex(true);
     gndMat.map=gndMat.bumpMap=L?gtxDay:gtxNight;gndMat.color.setHex(L?0xFFFFFF:0x5A6770);gndMat.needsUpdate=true;scene3.fog.color.setHex(L?0xD8E0E4:0x050811)}
   {const sk=theme==='light'?+fG.toFixed(2):0;if(sk!==skyK){skyK=sk;document.documentElement.style.setProperty('--sky',String(sk))}}   // ciel du mode jour (dégradé CSS), fondu avec le sol
+  {const lk=+fG.toFixed(2);if(lk!==lensK){lensK=lk;if(lensEl)lensEl.style.opacity=String(lk)}}   // voile de profondeur (flou du premier plan + vignettage) : suit le sol, s'efface pendant la plongée vers la carte
   mtnMat.uniforms.uT.value=tNow;mtnMat.uniforms.uFade.value=fC;gndMat.opacity=rockMat.opacity=fG;shadowMat.opacity=.85*fG;scenery.visible=sceneryNear.visible=Math.max(fG,fM)>.01;
   const sw=paused?0:1;
   // ressort amorti : le boîtier a du poids, il suit le curseur avec un léger retard et un petit rebond

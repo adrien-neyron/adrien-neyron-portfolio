@@ -77,7 +77,16 @@ Sur grand écran (≥ 1000 px, hors vue statique), l'accueil est dès l'arrivée
 
 « Lancer la visite guidée » suit le paragraphe d'accroche dans `#head1` : même alignement que le texte, 15 à 17 px, cible de 56 px. Il apparaît avec la 3D ; caché, il garde sa place, donc le titre ne bouge pas. Sur grand écran, il s'efface avec le texte.
 
-Il n'a pas de fond : un halo dense `--bg` le détache du maillage. Sous 1000 × 640 px, il passe sur la montre et reçoit une plaque `--bg`. `#head1` passe au-dessus des zones cliquables de la montre (`.hot`), sinon elles captent le clic.
+**Refonte du 14/11/2026** : c'est le bouton principal de l'accueil. Pilule opaque en dégradé cuivre profond (`--cta-bg-1` → `--cta-bg-2`, reflet `--cta-sheen`, bord `--cta-edge`), texte `--cta-fg`. Contrastes : texte 5,0:1 sur la partie la plus claire du dégradé (8,5:1 sur la plus foncée), bord du bouton 3,7:1 sur le fond de nuit et 3,3:1 sur le ciel pêche du jour. Opaque, il reste lisible sur le maillage et la montre à toutes les tailles (plus de halo `--bg` ni de plaque sous 1000 × 640 px). Au survol et au focus clavier : il monte de 1 px, une lueur cuivrée apparaît (`--cta-ring`, `--cta-glow`) et l'icône ▶ glisse de 3 px, le tout en 0,3 s ; rien ne bouge sous `prefers-reduced-motion`. Focus : contour 3 px `--focus` décalé de 4 px. Nom accessible : `aria-label="Lancer la visite guidée interactive du portfolio"` (il commence par le libellé visible, WCAG 2.5.3), et la description `#ctaDesc` reste en place. Le test `loopTokens` vérifie ces contrastes dans les deux thèmes. `#head1` passe au-dessus des zones cliquables de la montre (`.hot`), sinon elles captent le clic.
+
+## Profondeur de champ de l'accueil (14/11/2026)
+
+Le décor (sol rocheux, rochers, relief en fil de fer) est dessiné dans le même canvas WebGL que la montre : impossible de flouter l'image de fond seule avec `filter: blur()`. Un voile `.lens` (`aria-hidden`) est donc posé au-dessus du canvas et sous le texte :
+- `::before` floute de 3 px le premier plan avec `backdrop-filter`, masqué par un dégradé (net jusqu'à 76 % de la hauteur, flou plein à 96 %) : les rochers du bas se fondent, la montre et le texte restent nets. Réservé aux grands écrans avec souris (`min-width: 900px` et `pointer: fine`) : sur mobile, un `backdrop-filter` sur un canvas animé coûte trop cher.
+- `::after` est un vignettage radial vers `--vignette` : plus sombre la nuit, plus pâle le jour. Il va vers la couleur du fond, donc le texte gagne du contraste dans les deux thèmes.
+- `loop.js` règle l'opacité du voile sur celle du sol (`fG`) : il disparaît pendant la plongée vers la carte. Il est masqué en vue statique.
+
+Les lignes du relief en fil de fer sont plus discrètes sur le premier écran, dans les deux thèmes : facteur `calm` à 0,18 la nuit (inchangé) et 0,28 le jour (avant : 1), soit une opacité d'environ 15 à 25 %. Elles retrouvent leur pleine intensité à « S'équiper ». La nuit, elles sont en mélange additif, qui joue le rôle d'un `screen` / `soft-light` et suit la lumière du paysage. Le jour, elles sont en mélange normal, car l'additif les rend invisibles sur fond clair. Un `mix-blend-mode` CSS ne s'applique pas à une partie d'un canvas WebGL.
 
 ## « S'équiper » : montre à gauche, texte à droite, lisibilité
 
