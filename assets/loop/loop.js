@@ -6,6 +6,7 @@ import {projects as SITE_PROJECTS} from '~/data/projects';
 import {createWheelGate,wheelGate,STEP_MS,LOCK_MS} from '~/utils/wheelStep';
 import {loopStages} from '~/utils/loopMarkup';
 import {stageImageFallback as IMG_FB} from '~/data/stageImages';
+import {contourPaths} from '~/utils/trail';   // courbes de niveau du hero (vraies isovaleurs, déterministes)
 import {TRAIL_TOTAL,summaryHtml} from '~/utils/stages';   // étapes de la trace (admin, sinon data/stages.ts)   // « un cran = un projet » sur la carte des expériences (filtre pur, testé)   // repli des chiffres clés et des photos des fiches projets (mêmes données que /projects)
 export function initLoop(THREE,LOADERS={}){
   const __ac=new AbortController(),__sig=__ac.signal,__ivs=[];let DEAD=false;
@@ -223,7 +224,7 @@ function layoutTools(){
   const st=S[0]; const W=st.clientWidth,H=st.clientHeight;
   const mob=isMobile();
   const split=!mob&&W>=1000;   // grand écran : disposition asymétrique, texte à gauche, montre à droite en 3/4 (accueil seulement)
-  const cy=mob?H*.545:(split?H*.5:H*.53), cx=W/2;   // montre posée plus bas et un peu plus petite sur mobile : espace négatif entre le texte du hero et le cadran
+  const cy=mob?H*.57:(split?H*.5:H*.53), cx=W/2;   // montre posée plus bas et un peu plus petite sur mobile : espace négatif entre le texte du hero et le cadran
   const Rs=mob?.33*W:(split?.30:.265)*Math.min(W,H);
   LAY={W,H,cx,cy,Rs,sx:split?Math.round(W*.2):0};   // sx : décalage de la montre vers la droite (px) sur l'accueil
   const sp=$('#spot');sp.style.setProperty('--spx',cx+'px');sp.style.setProperty('--spy',cy+'px');sp.style.setProperty('--spr',(Rs*1.8).toFixed(0)+'px');
@@ -672,7 +673,22 @@ function applyDialTheme(){   // cadran + aiguille + affichage selon le thème
 /* ---------- Décor de l'accueil : sol rocheux, rochers, massif en fil de fer lumineux (cyan à gauche, cuivre à droite) ---------- */
 const FOOT=4.23,PITCH=3.1*Math.PI/180,MNX=110,MNZ=64,MU0=1.35;
 const lensEl=document.getElementById('lens');let lensK=-1;
-const hphotoEl=document.getElementById('hphoto');let hphotoK=-1;   // fond photographique du premier écran (opacité 1 → 0 pendant les premiers pixels de défilement)
+const hphotoEl=document.getElementById('hphoto');let hphotoK=-1;
+/* Hero : courbes de niveau en trois profondeurs (loop.html #topo3, une <svg> par profondeur, viewBox 1600 × 900).
+   Lointain : grands reliefs doux ; intermédiaire : massif derrière la montre ; proche : petit relief bas, avec le waypoint orange sur son sommet.
+   Tracé une fois au démarrage (≈ 4 000 segments) ; ensuite seule la translation des calques change (parallaxe, CSS --hp). */
+const topoEl=document.getElementById('topo3');let topoK=-1,topoHp=-1;
+(function buildTopo3(){
+  if(!topoEl)return;
+  const NS='http://www.w3.org/2000/svg',L=[
+    {peaks:[{x:1180,y:430,a:1,sx:560,sy:340},{x:260,y:860,a:.55,sx:420,sy:230}],levels:13,cell:22,w:[.6,1.9]},
+    {peaks:[{x:1150,y:470,a:1,sx:300,sy:210},{x:1480,y:120,a:.75,sx:220,sy:150}],levels:11,cell:16,w:[2.2,.4]},
+    {peaks:[{x:880,y:770,a:1,sx:210,sy:120},{x:1530,y:840,a:.8,sx:180,sy:110}],levels:8,cell:14,w:[1.1,2.7]}];
+  const svgs=topoEl.querySelectorAll('svg.tz');
+  L.forEach((l,i)=>{const sv=svgs[i];if(!sv)return;contourPaths(1600,900,l.peaks,l.levels,{cell:l.cell,wobble:l.w,from:.08,to:.92}).forEach(d=>{if(!d)return;const pa=document.createElementNS(NS,'path');pa.setAttribute('d',d);sv.appendChild(pa)})});
+  const sv=svgs[2];if(sv){const g=document.createElementNS(NS,'g');g.setAttribute('class','wp');g.setAttribute('transform','translate(880 770)');
+    g.innerHTML='<circle r="17"/><path d="M0 -8L8 0L0 8L-8 0Z"/>';sv.appendChild(g)}   // waypoint : sommet du relief proche
+})();   // fond photographique du premier écran (opacité 1 → 0 pendant les premiers pixels de défilement)
 let gtxDay=null,gtxNight=null,sceneLt=null,stand,scenery,sceneryNear,mtnGeo,mtnMat,mtnMesh,nearGeo,nearMat,nearMesh,gndMat,rockMat,shadowMat;const farRocks=[],nearRocks=[];
 const FAR_ALT={};   // grand écran : trois rochers qui tomberaient sur le bracelet (de x centré à x décalé) passent sur le côté gauche
 function makeGroundTex(day){   // sol rocheux : dalles de pierre (cellules de Voronoï) aux joints sombres, arêtes éclairées ; day : dalles de sable clair, joints ocre
@@ -952,8 +968,9 @@ function updateCompass(p,dt){
   needle.rotation.z=nRot+(loaded&&!paused?Math.sin(tNow*2.1)*.018:0);
   drawReadout(((-needle.rotation.z*180/Math.PI)%360+360)%360);
   const zi=sm(.2,.30,p),scl=p<.5?lerp(1,4.6,zi):lerp(4.6,1,sm(.95,1,p));
-  const sc=sceneryCalc();stand.scale.setScalar(scl);stand.position.y=sc.yD-FOOT*scl;
-  const hk=LAY.sx?(staticMode?1:(p<.5?1-sm(.075,.12,p):0)):0;const hk2=LAY.sx&&!staticMode&&p<.5?sm(.09,.125,p)*(1-sm(.17,.21,p)):0;stand.position.x=(hk-hk2)*LAY.sx/(LAY.W||1)*vis*cam.aspect;   // « S'équiper » (grand écran) : la montre passe de l'autre côté (à gauche), le texte est à droite ; elle revient au centre avant le zoom
+  const hk=LAY.sx?(staticMode?1:(p<.5?1-sm(.075,.12,p):0)):0;
+  const hs=1-.08*hk;   // premier écran large : montre réduite de 8 % (hiérarchie titre > texte > actions > montre), taille normale dès « S'équiper »
+  const sc=sceneryCalc();stand.scale.setScalar(scl*hs);stand.position.y=sc.yD-FOOT*scl*hs;const hk2=LAY.sx&&!staticMode&&p<.5?sm(.09,.125,p)*(1-sm(.17,.21,p)):0;stand.position.x=(hk-hk2)*LAY.sx/(LAY.W||1)*vis*cam.aspect;   // « S'équiper » (grand écran) : la montre passe de l'autre côté (à gauche), le texte est à droite ; elle revient au centre avant le zoom
      // accueil large : la montre est à droite et le texte à gauche dès l'arrivée ; elle passe à gauche pour « S'équiper », puis revient au centre avant le zoom
     // le centre du cadran reste fixe pendant le zoom
   scenery.position.y=sceneryNear.position.y=sc.yD-FOOT;scenery.scale.setScalar(sc.s);
@@ -2417,6 +2434,8 @@ function announce(i){
 }
 function draw(p,dt){
   pal=palette(p);setVars(root,pal);updateBg(p);if(loaded)prewarm(p);
+  if(topoEl){const ph=staticMode?0:(p<.5?1-sm(.045,.115,p):sm(.96,1,p)),k=+ph.toFixed(2),hp=reduce?0:+(p<.5?clamp(p/.115):1-clamp((p-.96)/.04)).toFixed(3);   // courbes du hero : même fondu que la photo ; parallaxe seulement sur le premier écran (rien sous prefers-reduced-motion)
+    if(k!==topoK){topoK=k;topoEl.style.opacity=String(k)}if(hp!==topoHp){topoHp=hp;topoEl.style.setProperty('--hp',String(hp))}}
   setVisible(S[0],crisp(Math.max(trap(p,-1,0,.24,.30),trap(p,.95,1,2,3))));
   {const mo=trap(p,.245,.29,.525,.555);setVisible(S[1],crisp(mo));document.documentElement.style.setProperty('--hudk',(1-mo).toFixed(3));railTone(mo)}   // altitude, scène et lieu en bas à gauche : masqués dans l'expérience de la trace
   setVisible(S[2],crisp(trap(p,.53,.56,.77,.81)));   // la flaque arrive en fondu pendant le zoom arrière au-dessus du dernier cairn sous la pluie

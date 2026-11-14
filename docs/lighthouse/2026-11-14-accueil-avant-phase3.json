@@ -1,0 +1,82 @@
+{
+ "desktop": {
+  "runs": 3,
+  "perf": 67,
+  "a11y": 100,
+  "bp": 100,
+  "seo": 100,
+  "FCP": 551.7079,
+  "LCP": 1316.0618499999998,
+  "TBT": 854,
+  "CLS": 0.0001414249630479273,
+  "SI": 1513.7232524420767,
+  "weightKB": 1862,
+  "perfRuns": [
+   61,
+   67,
+   81
+  ],
+  "lcpEl": "<h1 id=\"h1\" style=\"font-variation-settings: &quot;wght&quot; 800;\">",
+  "fails": [
+   "largest-contentful-paint(1.4 s)",
+   "speed-index(2.3 s)",
+   "total-blocking-time(1,500 ms)",
+   "max-potential-fid(920 ms)",
+   "interactive(3.0 s)",
+   "mainthread-work-breakdown(3.4 s)",
+   "bootup-time(2.3 s)",
+   "largest-contentful-paint-element(1,350 ms)",
+   "valid-source-maps(0)",
+   "uses-long-cache-ttl(5 resources found)",
+   "unused-css-rules(Est savings of 105 KiB)",
+   "unused-javascript(Est savings of 579 KiB)",
+   "uses-text-compression(Est savings of 979 KiB)",
+   "bf-cache(1 failure reason)",
+   "cache-insight(Est savings of 175 KiB)",
+   "document-latency-insight(Est savings of 177 KiB)",
+   "forced-reflow-insight(0)",
+   "network-dependency-tree-insight(0)"
+  ]
+ },
+ "mobile": {
+  "runs": 3,
+  "perf": 37,
+  "a11y": 95,
+  "bp": 100,
+  "seo": 100,
+  "FCP": 2883.7111999999997,
+  "LCP": 6695.963599999998,
+  "TBT": 4796.0722000000005,
+  "CLS": 0.0005909161249811959,
+  "SI": 5616.032606473827,
+  "weightKB": 1816,
+  "perfRuns": [
+   33,
+   37,
+   38
+  ],
+  "lcpEl": "<h1 id=\"h1\" style=\"font-variation-settings: &quot;wght&quot; 800;\">",
+  "fails": [
+   "first-contentful-paint(2.9 s)",
+   "largest-contentful-paint(6.6 s)",
+   "speed-index(10.6 s)",
+   "total-blocking-time(15,920 ms)",
+   "max-potential-fid(7,730 ms)",
+   "interactive(22.2 s)",
+   "mainthread-work-breakdown(26.8 s)",
+   "bootup-time(17.9 s)",
+   "largest-contentful-paint-element(6,610 ms)",
+   "valid-source-maps(0)",
+   "target-size(0)",
+   "uses-long-cache-ttl(5 resources found)",
+   "unused-css-rules(Est savings of 105 KiB)",
+   "unused-javascript(Est savings of 580 KiB)",
+   "uses-text-compression(Est savings of 979 KiB)",
+   "bf-cache(1 failure reason)",
+   "cache-insight(Est savings of 130 KiB)",
+   "document-latency-insight(Est savings of 177 KiB)",
+   "forced-reflow-insight(0)",
+   "network-dependency-tree-insight(0)"
+  ]
+ }
+}
