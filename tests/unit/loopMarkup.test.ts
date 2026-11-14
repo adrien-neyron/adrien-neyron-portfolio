@@ -33,8 +33,13 @@ describe('applyLoopContent', () => {
   it('remplace surtitre, titre et sous-texte', () => {
     const out = applyLoopContent(markup, { hero: { eyebrow: 'Eyebrow X', title: 'Titre X', lede: 'Lede X' } })
     expect(out).toContain('<p class="eyebrow who">Eyebrow X</p>')
-    expect(out).toContain('<h1 id="h1">Titre X</h1>')
+    expect(out).toContain('<h1 id="h1"><span class="ln">Titre X</span></h1>')   // titre : une phrase par ligne (titleHtml)
     expect(out).toContain('<p class="lede">Lede X</p>')
+  })
+
+  it('titre de l’admin : chaque phrase sur sa ligne, texte échappé', () => {
+    const out = applyLoopContent(markup, { hero: { title: 'Trouver le cap. <i>Concevoir</i> le chemin.' } })
+    expect(out).toContain('<h1 id="h1"><span class="ln">Trouver le cap.</span> <span class="ln">&lt;i&gt;Concevoir&lt;/i&gt; le chemin.</span></h1>')
   })
 
   it('remplace le bloc S’équiper sans toucher aux autres surtitres', () => {

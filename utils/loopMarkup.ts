@@ -17,6 +17,14 @@ export const escHtml = (v: string) =>
   v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 /** Remplace le texte entre `open` et la première occurrence suivante de `close`. */
+/**
+ * Titre du hero : une phrase par ligne (« Trouver le cap. / Concevoir le chemin. »), sans HTML saisi dans /admin.
+ * Le texte est découpé après . ! ? ou …, chaque phrase échappée dans un <span class="ln"> (affiché en bloc par loop.css).
+ * Un titre sans ponctuation finale reste une seule ligne.
+ */
+export const titleHtml = (text: string) =>
+  text.trim().split(/(?<=[.!?…])\s+/).filter(Boolean).map((t) => `<span class="ln">${escHtml(t)}</span>`).join(' ')
+
 export const swap = (html: string, open: string, close: string, text?: string) => {
   const t = (text || '').trim()
   if (!t) return html
@@ -76,7 +84,11 @@ export function applyLoopContent(markup: string, content?: LoopContentTexts | nu
   if (cv && cv !== DEFAULT_CV && /^(\/(?!\/)|https:\/\/)/.test(cv)) html = html.split(`href="${DEFAULT_CV}"`).join(`href="${escHtml(cv)}"`)
   if (h) {
     html = swap(html, '<p class="eyebrow who">', '</p>', h.eyebrow)
-    html = swap(html, '<h1 id="h1">', '</h1>', h.title)
+    const tt = (h.title || '').trim()
+    if (tt) {
+      const i = html.indexOf('<h1 id="h1">'), j = i < 0 ? -1 : html.indexOf('</h1>', i)
+      if (j >= 0) html = html.slice(0, i + '<h1 id="h1">'.length) + titleHtml(tt) + html.slice(j)
+    }
     html = swap(html, '<p class="lede">', '</p>', h.lede)
   }
   if (t) {
