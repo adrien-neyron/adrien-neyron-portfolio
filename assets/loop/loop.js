@@ -2382,6 +2382,7 @@ function railTone(k){const el=railTone.el||(railTone.el=document.querySelector('
   st.setProperty('--rd','rgb('+m(RT_A.d,RT_B.d)+')');st.setProperty('--rl','rgb('+m(RT_A.l,RT_B.l)+')');st.setProperty('--rg','rgba('+m(RT_A.g,RT_B.g)+',.6)');st.setProperty('--ra','rgb('+m(RT_A.a,RT_B.a)+')');st.setProperty('--rh','rgb('+m(RT_A.h,RT_B.h)+')')}
 /* fondu « net » entre scènes : sous 15 % rien n'est affiché et la montée est plus raide, pour qu'un texte de la scène voisine ne reste jamais à l'état de fantôme (contraste ≈ 1,1:1, bruit visuel, RGAA 3.2) quand le défilement s'arrête entre deux scènes */
 const crisp=k=>{const o=k<.15?0:Math.pow((k-.15)/.85,2);return o<.05?0:o};   // montée raide, et sous 5 % la scène voisine est retirée (le dernier 5 % d'un fondu reste invisible à l'œil mais pas aux tests de contraste)
+let hdrK=-1;
 function setVisible(el,o){el.style.opacity=o;el.style.visibility=o<.01?'hidden':'visible'}
 function announce(i){
   if(i===curName)return;curName=i;
@@ -2394,7 +2395,7 @@ function draw(p,dt){
   setVisible(S[0],crisp(Math.max(trap(p,-1,0,.24,.30),trap(p,.95,1,2,3))));
   {const mo=trap(p,.245,.29,.525,.555);setVisible(S[1],crisp(mo));document.documentElement.style.setProperty('--hudk',(1-mo).toFixed(3));railTone(mo)}   // altitude, scène et lieu en bas à gauche : masqués dans l'expérience de la trace
   setVisible(S[2],crisp(trap(p,.53,.56,.77,.81)));   // la flaque arrive en fondu pendant le zoom arrière au-dessus du dernier cairn sous la pluie
-  setVisible(S[3],crisp(trap(p,.78,.82,.97,.985)));
+  {const o4=crisp(trap(p,.78,.82,.97,.985));setVisible(S[3],o4);const hk=+o4.toFixed(2);if(hk!==hdrK){hdrK=hk;root.style.setProperty('--hdr-k',String(hk))}}   // halo du menu : se fond dans le ciel du bivouac pendant cette scène (voir --hdr-halo)
   // s1
   const split=LAY.sx>0&&!staticMode;CS=split?.17:.07;CST=split?.012:STEP;CSP=split?.12:.07;CEND=split?[.26,.29]:[.24,.28];CREV=split?[.20,.225]:[.19,.22];   // grand écran : accueil = texte à gauche, montre à droite
   document.documentElement.classList.toggle('hero-split',split);head1.style.opacity=split?(p<.5?1-sm(.075,.10,p):0):Math.max(1-sm(.04,.08,p),sm(.96,1,p));

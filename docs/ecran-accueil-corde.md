@@ -131,3 +131,6 @@ Les jetons `--hero-photo` / `--hero-photo-m` pointent sur `public/loop/hero-gorg
 - **Contrastes mesurés** (même méthode) : nuit, corps de l'accroche ≥ 13,4:1, surtitre ≥ 10,0:1, « S'équiper » ≥ 14,3:1 ; jour, corps ≥ 5,0:1, surtitre ≥ 6,2:1, « S'équiper » ≥ 10:1 ; mobile 390 × 844 : jour 6,9:1, nuit ≥ 11:1 (avant renforcement du voile mobile). Le poids : nuit 124 Ko, jour 165 Ko ; mobile 35 / 53 Ko.
 - **Non mesuré** : Lighthouse, axe-core sur la page rendue, e2e, vrai téléphone. Rendu vérifié en Chrome headless (SwiftShader) : nuit et jour (desktop), jour mobile.
 
+## Menu du haut au bivouac (14/11/2026)
+
+Le menu « Étapes | Projets | Outils » a un halo qui doit se fondre dans ce qui est derrière l'en-tête. Au bivouac en mode jour, `--bg` passe au sable (`#F1E9DC`) alors que le haut de l'écran est le ciel bleu de `#sky4` : le halo dessinait un contour beige autour des lettres. Le halo passe maintenant par `--hdr-halo` (sur `header.top`), qui est un mélange de `--bg` et du ciel du bivouac `--sky4-top`, dosé par `--hdr-k` (l'opacité de la scène du bivouac, posée par `loop.js`). Résultat : le menu a le même aspect dans toutes les étapes, en jour comme en nuit. `--sky4-top` est aussi la couleur du haut du dégradé de `#sky4`.
