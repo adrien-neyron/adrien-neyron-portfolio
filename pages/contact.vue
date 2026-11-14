@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Swal    from "sweetalert2";
 import { Mail, MapPin, Send, MessageCircle } from "lucide-vue-next";
 import { useProfileStore } from "~/stores/profile";
 
@@ -15,34 +14,48 @@ const formEl = ref<HTMLFormElement | null>(null);
 
 const sending = ref(false);
 
+// Retour d'envoi : un message persistant (pas de fenêtre qui se ferme seule, WCAG 2.2.1) et des erreurs rattachées à chaque champ
+// (WCAG 3.3.1 / 3.3.3, RGAA 11.10). `status` est annoncé par les lecteurs d'écran (role="status" / "alert").
+type Field = "name" | "email" | "message";
+const errors = reactive<Record<Field, string>>({ name: "", email: "", message: "" });
+const status = ref<{ kind: "success" | "error"; text: string } | null>(null);
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validate(f: FormData): Field | null {
+  errors.name = String(f.get("name") ?? "").trim() ? "" : "Indiquez votre nom.";
+  const email = String(f.get("email") ?? "").trim();
+  errors.email = !email ? "Indiquez votre adresse e-mail." : EMAIL_RE.test(email) ? "" : "Cette adresse e-mail n'est pas valide (exemple : vous@email.com).";
+  errors.message = String(f.get("message") ?? "").trim() ? "" : "Décrivez votre projet en quelques lignes.";
+  return (["name", "email", "message"] as Field[]).find((k) => errors[k]) ?? null;
+}
+
 // Envoi par POST /api/contact (même route que le formulaire du Bivouac)
 async function sendEmail(e: Event) {
   e.preventDefault();
   if (!formEl.value || sending.value) return;
+  status.value = null;
   const f = new FormData(formEl.value);
+  const firstInvalid = validate(f);
+  if (firstInvalid) {
+    status.value = { kind: "error", text: "Le message n'est pas parti : corrigez les champs signalés." };
+    await nextTick();
+    (formEl.value.elements.namedItem(firstInvalid) as HTMLElement | null)?.focus();
+    return;
+  }
   sending.value = true;
   try {
     await $fetch("/api/contact", {
       method: "POST",
       body: { nom: f.get("name"), email: f.get("email"), message: f.get("message"), site: f.get("site") },
     });
-    Swal.fire({
-      position: "center",
-      icon: "success",
-      title: "Message envoyé 🚀",
-      showConfirmButton: false,
-      timer: 1500,
-    });
+    status.value = { kind: "success", text: "Message envoyé. Je vous réponds sous 48 h." };
     formEl.value.reset();
   } catch (err: unknown) {
     const msg = (err as { statusMessage?: string; data?: { statusMessage?: string } })?.data?.statusMessage
       || (err as { statusMessage?: string })?.statusMessage
       || "Une erreur est survenue.";
-    Swal.fire({
-      icon: "error",
-      title: "Message non envoyé",
-      text: `${msg} Vous pouvez aussi écrire à ${profileStore.profile.email}.`,
-    });
+    status.value = { kind: "error", text: `Message non envoyé. ${msg} Vous pouvez aussi écrire à ${profileStore.profile.email}.` };
   } finally {
     sending.value = false;
   }
@@ -127,51 +140,71 @@ async function sendEmail(e: Event) {
         <!-- Formulaire -->
         <UiAnimatedSection class="flex-1 w-full">
           <div class="trail-card p-7 bg-white/50 dark:bg-white/3">
-            <form ref="formEl" class="space-y-5" @submit="sendEmail">
+            <form ref="formEl" class="space-y-5" novalidate @submit="sendEmail">
               <!-- champ piège anti-robots : invisible, hors tabulation -->
               <div style="position:absolute;left:-9999px" aria-hidden="true">
                 <input name="site" type="text" tabindex="-1" autocomplete="off" />
               </div>
               <div>
                 <label for="name" class="block text-xs font-medium mb-1.5 text-[var(--color-text)]/80">
-                  Votre nom
+                  Votre nom <span aria-hidden="true">*</span>
                 </label>
                 <input
                   id="name"
                   name="name"
                   type="text"
                   required
+                  autocomplete="name"
+                  :aria-invalid="errors.name ? 'true' : undefined"
+                  :aria-describedby="errors.name ? 'name-error' : undefined"
                   placeholder="Jean Dupont"
                   class="w-full px-4 py-3 bg-[var(--color-surface)] text-[var(--color-text)] placeholder-[var(--color-muted)] rounded-xl border border-[var(--color-accent)]/15 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/40 transition text-sm"
                 />
+                <p v-if="errors.name" id="name-error" class="mt-1.5 text-xs font-medium text-red-700 dark:text-red-300">{{ errors.name }}</p>
               </div>
 
               <div>
                 <label for="email" class="block text-xs font-medium mb-1.5 text-[var(--color-text)]/80">
-                  Votre email
+                  Votre email <span aria-hidden="true">*</span>
                 </label>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   required
+                  autocomplete="email"
+                  :aria-invalid="errors.email ? 'true' : undefined"
+                  :aria-describedby="errors.email ? 'email-error' : undefined"
                   placeholder="vous@email.com"
                   class="w-full px-4 py-3 bg-[var(--color-surface)] text-[var(--color-text)] placeholder-[var(--color-muted)] rounded-xl border border-[var(--color-accent)]/15 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/40 transition text-sm"
                 />
+                <p v-if="errors.email" id="email-error" class="mt-1.5 text-xs font-medium text-red-700 dark:text-red-300">{{ errors.email }}</p>
               </div>
 
               <div>
                 <label for="message" class="block text-xs font-medium mb-1.5 text-[var(--color-text)]/80">
-                  Votre message
+                  Votre message <span aria-hidden="true">*</span>
                 </label>
                 <textarea
                   id="message"
                   name="message"
                   :rows="5"
                   required
+                  :aria-invalid="errors.message ? 'true' : undefined"
+                  :aria-describedby="errors.message ? 'message-error' : undefined"
                   placeholder="Décrivez votre projet, votre contexte, vos objectifs..."
                   class="w-full px-4 py-3 bg-[var(--color-surface)] text-[var(--color-text)] placeholder-[var(--color-muted)] rounded-xl border border-[var(--color-accent)]/15 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/40 transition resize-none text-sm"
                 />
+                <p v-if="errors.message" id="message-error" class="mt-1.5 text-xs font-medium text-red-700 dark:text-red-300">{{ errors.message }}</p>
+              </div>
+
+              <p class="text-xs text-[var(--color-muted)]">Les champs marqués d'un astérisque (*) sont obligatoires.</p>
+
+              <!-- Retour d'envoi : les deux régions existent en permanence (une région ajoutée en même temps que son texte
+                   n'est pas toujours annoncée) ; le message reste affiché jusqu'au prochain envoi -->
+              <div class="min-h-6">
+                <div role="status" class="text-sm font-medium text-[var(--color-secondary)]">{{ status?.kind === "success" ? status.text : "" }}</div>
+                <div role="alert" class="text-sm font-medium text-red-700 dark:text-red-300">{{ status?.kind === "error" ? status.text : "" }}</div>
               </div>
 
               <button
