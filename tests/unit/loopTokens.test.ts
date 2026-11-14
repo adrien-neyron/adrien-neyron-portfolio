@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -68,6 +68,19 @@ describe('jetons jour / nuit', () => {
 
   it('anneau de focus visible (≥ 3:1) sur le fond, jour et nuit', () => {
     for (const theme of [light, dark]) expect(ratio(theme['--focus'], theme['--bg'])).toBeGreaterThanOrEqual(3)
+  })
+
+  it('fond photographique du hero : images présentes (jour, nuit, mobile) et surtitre ≥ 4,5:1 sur le voile', () => {
+    for (const [name, theme] of [['jour', light], ['nuit', dark]] as const) {
+      for (const k of ['--hero-photo', '--hero-photo-m']) {
+        const file = /url\(([^)]+)\)/.exec(theme[k])?.[1]
+        expect(file, `${k} ${name}`).toBeTruthy()
+        expect(existsSync(new URL(`../../public${file}`, import.meta.url)), `${file} manquant`).toBe(true)
+      }
+      // pire cas : le voile à 100 % de --hero-scrim (la photo n'éclaircit pas plus que le voile plein côté clair, ni ne l'assombrit côté sombre)
+      const [r, g, b] = theme['--hero-scrim'].split(',').map((n) => Number(n).toString(16).padStart(2, '0'))
+      expect(ratio(theme['--hero-eyebrow'], `#${r}${g}${b}`), `surtitre ${name}`).toBeGreaterThanOrEqual(4.5)
+    }
   })
 
   it('loop.css est bien la compilation de loop.source.css (relancer scripts/scope-loop-css.cjs sinon)', () => {

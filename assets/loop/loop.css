@@ -14,8 +14,8 @@ html.loop-on[data-theme="dark"]{--bg:#050811;--fg:#E6F4F1;--muted:#A8B9C0;--line
 html.loop-on,html.loop-on[data-theme="dark"]{--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}
 @media (prefers-color-scheme: dark){html.loop-on:not([data-theme="light"]){--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}}
 html.loop-on[data-theme="light"]{--brand:#27465C;--brand-hover:#16303F;--brand-fill:#F2EEE6;--brand-halo:rgba(252,247,238,.9);--sep:#27465C;--underline:#27465C;--focus:#1B1712;--ft:235,195,156;--needle-1:#D2672B;--needle-2:#A8401B;--needle-3:#4A4F55;--needle-4:#23272B;--needle-pivot:#1B1712;--muted:#435862}
-html.loop-on,html.loop-on[data-theme="dark"]{--sky4-top:#070A14;--cta-bg-1:#7E2F13;--cta-bg-2:#B5481F;--cta-fg:#FFF6EE;--cta-edge:rgba(255,214,186,.38);--cta-sheen:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 55%);--cta-glow:rgba(226,109,59,.55);--cta-ring:rgba(226,109,59,.28);--vignette:rgba(5,8,17,.62)}
-html.loop-on[data-theme="light"]{--sky4-top:#BCD7EA;--cta-bg-1:#7E2F13;--cta-bg-2:#B5481F;--cta-fg:#FFF6EE;--cta-edge:rgba(255,214,186,.38);--cta-sheen:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 55%);--cta-glow:rgba(138,58,24,.45);--cta-ring:rgba(168,64,27,.22);--vignette:rgba(244,236,222,.55)}
+html.loop-on,html.loop-on[data-theme="dark"]{--sky4-top:#070A14;--cta-bg-1:#7E2F13;--cta-bg-2:#B5481F;--cta-fg:#FFF6EE;--cta-edge:rgba(255,214,186,.38);--cta-sheen:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 55%);--cta-glow:rgba(226,109,59,.55);--cta-ring:rgba(226,109,59,.28);--vignette:rgba(5,8,17,.62);--hero-photo:url(/loop/hero-canyon-dark.webp);--hero-photo-m:url(/loop/hero-canyon-dark-m.webp);--hero-scrim:5,8,17;--hero-a1:.80;--hero-a2:.66;--hero-eyebrow:#F08A4B}
+html.loop-on[data-theme="light"]{--sky4-top:#BCD7EA;--cta-bg-1:#7E2F13;--cta-bg-2:#B5481F;--cta-fg:#FFF6EE;--cta-edge:rgba(255,214,186,.38);--cta-sheen:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 55%);--cta-glow:rgba(138,58,24,.45);--cta-ring:rgba(168,64,27,.22);--vignette:rgba(244,236,222,.55);--hero-photo:url(/loop/hero-canyon-light.webp);--hero-photo-m:url(/loop/hero-canyon-light-m.webp);--hero-scrim:244,236,222;--hero-a1:.88;--hero-a2:.76;--hero-eyebrow:#8F2F1B}
 /* (ci-dessus) Bouton principal (CTA) et voile de profondeur de l'accueil : rôles propres, même cuivre profond dans les deux thèmes (le bouton est opaque) */
 /* Halo du menu (Étapes | Projets | Outils) : il doit se fondre dans ce qui est derrière l'en-tête. Partout c'est --bg, sauf au bivouac où le haut de l'écran est le ciel (--sky4-top) alors que --bg y passe au sable : sans ça, le halo dessinait un contour beige autour des lettres sur le ciel bleu (jour). --hdr-k = opacité de la scène du bivouac, posée par loop.js. */
 html.loop-on header.top{--hdr-halo:color-mix(in srgb,var(--sky4-top) calc(var(--hdr-k,0) * 100%),var(--bg))}
@@ -253,6 +253,17 @@ html.loop-on .lens::after{background:radial-gradient(ellipse 78% 72% at 50% 46%,
   }
 }
 html.loop-on body.static .lens{display:none}
+
+/* Fond photographique du hero (14/11/2026) : un relief de grès (image générée par scripts/hero-canyon.py, sans licence tierce) sous la montre,
+   à la place du sol 3D du premier écran. Calque décoratif (aria-hidden) au-dessus du ciel/aurore, sous le canvas 3D.
+   ::after = voile de lisibilité (--hero-scrim) plus dense à gauche, sous le texte. Opacité pilotée par loop.js (phK) :
+   il se fond avec le retour du sol 3D quand on commence à défiler. Mobile : version 1000 px. Vue statique : masqué. */
+html.loop-on .hphoto{position:absolute;inset:0;z-index:0;pointer-events:none;background:var(--hero-photo) center/cover no-repeat}
+html.loop-on .hphoto::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(var(--hero-scrim),var(--hero-a1)) 0,rgba(var(--hero-scrim),var(--hero-a2)) 34%,rgba(var(--hero-scrim),.18) 66%,rgba(var(--hero-scrim),0) 100%),linear-gradient(0deg,rgba(var(--hero-scrim),.70) 0,rgba(var(--hero-scrim),0) 28%),linear-gradient(180deg,rgba(var(--hero-scrim),.55) 0,rgba(var(--hero-scrim),0) 22%)}
+@media (max-width:899px){html.loop-on .hphoto{background-image:var(--hero-photo-m)}html.loop-on .hphoto::after{background:linear-gradient(180deg,rgba(var(--hero-scrim),.74) 0,rgba(var(--hero-scrim),.60) 55%,rgba(var(--hero-scrim),.30) 100%)}}
+html.loop-on body.static .hphoto{display:none}
+html.loop-on #head1 .eyebrow{color:var(--hero-eyebrow)}   /* surtitre sur la photo : orange clair la nuit, rouille brun le jour (≥ 4,5:1 mesuré sur la photo + voile) */
+html.loop-on body.static #head1 .eyebrow{color:var(--acc-text)}
 
 /* Scène 2 : parcours 3D des projets (relief en lignes cuivrées, blocs de pierre, de métal et de cuir) */
 html.loop-on #s2 #mapSvg,html.loop-on #s2 .vignette,html.loop-on #s2 .mcard{display:none}
