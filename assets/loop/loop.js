@@ -58,7 +58,8 @@ const dDAWN=['#050811','#E6F4F1','#A8B9C0','#26344A','#E26D3B','#E26D3B'];
 const dDAY=['#141F1B','#E6F4F1','#A8B9C0','#34443E','#E26D3B','#E26D3B'];
 const dGOLD=['#1D1611','#E6F4F1','#B5AA98','#5A4630','#E26D3B','#E26D3B'];
 const K=(p,a)=>mk(p,...a);
-const LIGHT=[K(0,DAWN),K(.2,DAY),K(.55,DAY),K(.63,GOLD),K(.78,GOLD),K(.86,NIGHT),K(.95,NIGHT),K(1,DAWN)];
+const E_DAYC=['#F1E9DC','#1F1A14','#4D4438','#D3C6B1','#E26D3B','#A8401B','#E8DFCF'];   // bivouac de jour : sable clair, feu éteint
+const LIGHT=[K(0,DAWN),K(.2,DAY),K(.55,DAY),K(.63,GOLD),K(.78,GOLD),K(.86,E_DAYC),K(.95,E_DAYC),K(1,DAWN)];   // charte papier, mode jour : le bivouac garde une palette claire (E_DAYC, comme la charte expédition). Avant : NIGHT, donc texte blanc et cartes foncées sur le décor de jour (« Projets » blanc, boutons du pied de page foncés). Le choix Jour / Nuit du visiteur gagne toujours.
 const DARK=[K(0,dDAWN),K(.2,dDAY),K(.55,dDAY),K(.63,dGOLD),K(.78,dGOLD),K(.86,NIGHT),K(.95,NIGHT),K(1,dDAWN)];
 const E_DAWN=['#050811','#E6F4F1','#A8B9C0','#26344A','#E26D3B','#E26D3B','#121B2B'];
 const E_DAY=['#F4F8FA','#12222B','#435862','#BCD0DA','#DF6C4F','#B23F27','#E3ECF1'];
@@ -68,7 +69,6 @@ const E_NIGHT=['#070A0E','#E6F4F1','#9DB0C8','#222E42','#E26D3B','#E26D3B','#121
 const D_DAWN=['#02040A','#E6F4F1','#A8B9C0','#1E2B40','#E26D3B','#E26D3B','#0E1624'];
 const D_DAY=['#0A0E14','#EDF3F6','#A9BCD2','#26344A','#E26D3B','#E26D3B','#11171F'];
 const D_GOLD=['#4A2216','#FFEDE5','#F0C7B6','#7A4331','#FFB08E','#FFB08E','#5C2C1E'];
-const E_DAYC=['#F1E9DC','#1F1A14','#4D4438','#D3C6B1','#E26D3B','#A8401B','#E8DFCF'];   // bivouac de jour : sable clair, feu éteint
 const E_FOREST=['#060B14','#E6F4F1','#A8B9C0','#23324A','#E26D3B','#E26D3B','#121B2B'];
 const LIGHT_E=[K(0,E_DAY),K(.79,E_DAY),K(.85,E_DAYC),K(.95,E_DAYC),K(1,E_DAY)];   // mode jour : clair de bout en bout ; la carte, la flaque et le bivouac ont leur variante claire (bivouac de jour, feu éteint)
 const DARK_E=[K(0,D_DAWN),K(.50,D_DAWN),K(.56,E_FOREST),K(.78,E_FOREST),K(.86,E_CAMP),K(.95,E_CAMP),K(1,D_DAWN)];

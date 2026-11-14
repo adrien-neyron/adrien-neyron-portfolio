@@ -227,7 +227,7 @@ Plus de cercle orange sur l'eau : pluie dense et rapide (`InstancedMesh`, 130/90
 
 En fin de scène Persévérer (`l > .8`), la pluie est presque figée (`SHOE.calm`) et les cartes Le Randonneur / Le Carnet s'affichent seules (`.pcard.peek`) avant le contact. Détails : `docs/admin-boucle.md`.
 
-Menu du haut au bivouac : son halo suit `--hdr-halo` (mélange de `--bg` et du ciel `--sky4-top`, dosé par `--hdr-k` = opacité de la scène, posée par `loop.js`) ; sans ça, en jour, il dessinait un contour beige sur le ciel bleu. Ne pas remettre `var(--bg)` directement dans les halos de `.top-link` / `header.top .burger`. Détails : `docs/ecran-accueil-corde.md`.
+Menu du haut au bivouac : son halo suit `--hdr-halo` (mélange de `--bg` et du ciel `--sky4-top`, dosé par `--hdr-k` = opacité de la scène, posée par `loop.js`) ; sans ça, en jour, il dessinait un contour beige sur le ciel bleu. Ne pas remettre `var(--bg)` directement dans les halos de `.top-link` / `header.top .burger`. En mode jour, le bivouac garde une palette claire dans les deux chartes (`E_DAYC` dans `LIGHT_E` et `LIGHT`) : jamais `NIGHT` en jour, sinon texte blanc et pied de page foncé sur le décor de jour. Détails : `docs/ecran-accueil-corde.md`.
 
 Le sol du bivouac (contact, `CAMP`) est le même sable que Persévérer (`sandTex`, teinte `dayC` : boue bleutée de nuit, sable clair de jour). Détails : `docs/admin-boucle.md`.
 
