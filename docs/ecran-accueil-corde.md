@@ -193,3 +193,13 @@ Ordre de lecture voulu : **titre > texte > action > montre**. La montre reste ce
 - **Montre** : réduite de 14 % sur le premier écran large (`hs` dans `loop.js`, contre 8 % avant) et décalée de 7 % de plus vers la droite (`hk*1.07`) ; taille et position normales dès « S'équiper ». Les zones cliquables du cadran suivent.
 - Mêmes règles avant et après le démarrage de la boucle (`html:not(.loop-live)` / `html.hero-split`) : rien ne bouge à l'arrivée de la 3D.
 **Vérifié** : axe 0 violation (jour, nuit, mobile) ; captures 1920 × 1080, 1440 × 900, 1024 × 768, 375 × 812 ; 221 tests unitaires.
+
+## Indication d'accueil sur le cadran (17/11/2026)
+
+Au chargement de la montre, un **waypoint orange** (`#dpulse`, `--cta-line`) pulse sur la zone « Expérience » du cadran, et une **micro-carte** (`#dhint`) apparaît juste à côté :
+« EXPLORE THE INSTRUMENT » / « Certains éléments du cadran révèlent mon univers. » / « MOVE TO DISCOVER · CLICK TO EXPLORE » (« TAP TO EXPLORE » sur écran tactile, `hover: none` ou `pointer: coarse`).
+- **Position** : posée par `placeHot` (loop.js) sur la projection de la zone `exp`, carte à droite et en dessous, gardée dans l'écran ; elle suit la montre et s'efface avec les zones du cadran.
+- **Durée** : une fois par visite (`sessionStorage['cordee-hint']`) ; disparaît au premier clic, touche, molette, toucher ou survol d'une zone du cadran, sinon après 8 s (`HINT_MS`). Le simple mouvement de la souris ne la ferme pas : c'est ce qu'elle invite à faire.
+- **Accessibilité** : décorative (`aria-hidden`, classe `decor` pour FIELD MODE) ; les zones du cadran ont leur propre nom accessible et restent accessibles au clavier. Textes anglais en `lang="en"` (noms de système, comme WAYFINDER). Pas de pulsation sous `prefers-reduced-motion` (anneau fixe) ; absente en vue statique. Couleurs par rôles (`--card`, `--fg`, `--muted`, `--cta-line`).
+- **Mouvement de la montre** : le léger balancement existant (`stand.rotation`, sinusoïdes lentes, coupé sous mouvement réduit) suffit ; rien n'a été ajouté.
+**Vérifié** : apparition ~0,75 s après la montre, disparition au clic et après 8,0 s, pas de retour au rechargement de la même visite, axe 0 violation pendant l'affichage, captures jour / nuit 1440 et 1024, mobile tactile 375.

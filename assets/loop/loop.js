@@ -2707,6 +2707,14 @@ hotEls.forEach(b=>{
   b.addEventListener('click',()=>{pinnedKey=pinnedKey===k?null:k;refreshAim();haptic(10);tick()});
 });
 addEventListener('keydown',e=>{if(e.key==='Escape'&&pinnedKey){pinnedKey=null;refreshAim()}});
+/* Indication d'accueil sur le cadran : waypoint qui pulse sur la zone « Expérience » + micro-carte (loop.html #dpulse, #dhint).
+   Une fois par visite ; disparaît à la première interaction (clic, touche, molette, toucher, survol d'une zone du cadran) ou après 8 s.
+   Le simple mouvement de la souris ne la ferme pas : c'est justement ce qu'elle invite à faire. */
+const dHint=$('#dhint'),dPulse=$('#dpulse'),HINT_MS=8000;let hintState=0,hintT=0;   // 0 en attente, 1 affichée, 2 terminée
+try{if(sessionStorage.getItem('cordee-hint'))hintState=2}catch(e){}
+function hintGone(){if(hintState===2)return;hintState=2;clearTimeout(hintT);dHint.classList.remove('on');dPulse.classList.remove('on');dHint.style.opacity=dPulse.style.opacity='0';try{sessionStorage.setItem('cordee-hint','1')}catch(e){}}
+['pointerdown','keydown','wheel','touchstart'].forEach(t=>addEventListener(t,hintGone,{passive:true,capture:true}));
+hotEls.forEach(b=>b.addEventListener('pointerenter',hintGone));
 const _pv=THREE_OK?new THREE.Vector3():null,_pw=THREE_OK?new THREE.Vector3():null;
 function placeHot(p){
   const w=cv.clientWidth,h=cv.clientHeight,vis1=loaded?(p<.5?1-sm(CSP-.02,CSP,p):sm(.98,1,p)):0;   // les zones du cadran ne sont plus disponibles dès que les boutons du boîtier apparaissent
@@ -2720,6 +2728,13 @@ function placeHot(p){
     b.style.opacity=vis1.toFixed(2);b.style.visibility=vis1<.05?'hidden':'visible';
     if(b.dataset.k===aimKey){tip.style.left=clamp(x,130,w-130).toFixed(1)+'px';tip.style.top=(y+d/2+8).toFixed(1)+'px'}
   });
+  if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;dHint.classList.add('on');dPulse.classList.add('on');hintT=setTimeout(hintGone,HINT_MS)}
+  if(hintState===1){   // waypoint sur la zone « Expérience », carte juste à droite et en dessous (gardée dans l'écran)
+    const e=hotEls.find(b=>b.dataset.k==='exp'),x=parseFloat(e.style.left),y=parseFloat(e.style.top),hw=dHint.offsetWidth,hh=dHint.offsetHeight;
+    dPulse.style.left=x.toFixed(1)+'px';dPulse.style.top=y.toFixed(1)+'px';
+    dHint.style.left=clamp(x+26,16,w-hw-16).toFixed(1)+'px';dHint.style.top=clamp(y+20,16,h-hh-96).toFixed(1)+'px';
+    const o=vis1.toFixed(2);dHint.style.opacity=o;dPulse.style.opacity=o;
+  }
 }
 
 /* ---------- Boutons du boîtier : chacun fait apparaître une carte de l'atelier (survol ou focus), le clic ouvre sa fiche ----------
