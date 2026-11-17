@@ -19,6 +19,7 @@
 import markup from '~/assets/loop/loop.html?raw'
 import loopCss from '~/assets/loop/loop.css?inline'
 import { applyLoopContent, type LoopContentTexts } from '~/utils/loopMarkup'
+import { initHeroRelief, initHeroClean } from '~/utils/heroRelief'
 
 /**
  * Textes du premier écran saisis dans /admin (profil : surtitre, titre, sous-texte) et liste des étapes de la trace
@@ -70,6 +71,8 @@ useHead({
 })
 
 let loop: { destroy: () => void } | null = null
+let stopRelief: (() => void) | null = null
+let stopClean: (() => void) | null = null
 let gone = false
 const WAKE = ['pointermove', 'pointerdown', 'touchstart', 'wheel', 'scroll', 'keydown'] as const
 
@@ -119,6 +122,8 @@ async function start() {
   if (gone) return   // page quittée pendant le téléchargement
   document.documentElement.classList.add('loop-live')
   loop = initLoop(THREE, { GLTFLoader, content, lite: isLiteDevice() })
+  stopClean = initHeroClean()
+  stopRelief = initHeroRelief()   // après la boucle : curseur fin, écran large, sans mouvement réduit, sinon rien
 }
 
 function onWake() {
@@ -146,6 +151,9 @@ onBeforeUnmount(() => {
   WAKE.forEach((t) => removeEventListener(t, onWake))
   loop?.destroy()
   loop = null
+  stopRelief?.()
+  stopClean?.()
+  stopRelief = stopClean = null
   document.documentElement.classList.remove('loop-on', 'loop-live')
 })
 </script>
