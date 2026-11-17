@@ -296,3 +296,7 @@ Demande d'Adri : le rayon d'action des points cardinaux couvre **toute la page**
 ## Survol jour des boutons « CV » et « Contact » (18/11/2026)
 
 Demande d'Adri : un survol harmonieux en mode clair pour les deux pastilles du pied de page. Avant : remplissage rose délavé (cuivre 22 % sur `--card`). Maintenant (jour seulement, `loop.source.css`) : la pastille se remplit du cuivre de la charte `--acc-text`, bordure assortie, texte et icône en `--brand-fill` (contraste 5,0:1), élévation de 1 px et ombre teintée cuivre ; transition 0,25 s ; même état au focus clavier (plus l'anneau de focus) ; sans élévation sous `prefers-reduced-motion`. Mode nuit inchangé. Vérifié dans Chrome (couleurs calculées au survol).
+
+## Pastille « Cliquer sur les boutons de la montre » retirée (18/11/2026)
+
+Demande d'Adri : à l'étape 02 (« S'équiper »), la pastille `#eqTip` qui apparaissait sous la montre quand la souris bougeait est supprimée : élément HTML, styles `.eq-tip`, minuterie et variables de `loop.js` (`EQ_TIP_MS`, `eqMoved`, `eqOff`, `pushUsed`). Les boutons du boîtier et les cartes d'outils fonctionnent comme avant. Retour arrière possible par git (commit précédent `633058f`). Vérifié dans Chrome via `/#equiper` : plus de pastille, aucune erreur JavaScript.

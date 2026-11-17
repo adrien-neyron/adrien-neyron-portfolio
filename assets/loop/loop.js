@@ -2815,8 +2815,7 @@ function placeHot(p){
    Avec une souris, les cartes restent cachées tant qu'aucun bouton n'est survolé, puis toutes s'affichent en fin de scène. Sur écran tactile, sur mobile,
    en vue statique ou sans 3D, toutes les cartes restent visibles comme avant. */
 const hoverCards=()=>THREE_OK&&!staticMode&&!isMobile()&&matchMedia('(hover:hover) and (pointer:fine)').matches;
-const EQ_TIP_MS=2500;let pushHover=-1,cardHover=-1,pushOff=0,pushUsed=false,eqMoved=false,eqOff=0;const eqTip=$('#eqTip'),REV=TOOLS.map(()=>0);
-addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;eqMoved=true;clearTimeout(eqOff);eqOff=setTimeout(()=>{eqMoved=false;eqTip.classList.remove('on')},EQ_TIP_MS)},{passive:true});   // minuterie et non tNow : l'horloge de la scène s'arrête avec la pause
+let pushHover=-1,cardHover=-1,pushOff=0,REV=TOOLS.map(()=>0);   // pastille « Cliquer sur les boutons de la montre » (#eqTip) retirée le 18/11/2026 à la demande d'Adri
 const pushEls=TOOLS.map((t,i)=>{
   const b=document.createElement('button');b.type='button';b.className='push';
   b.setAttribute('aria-label',t.n+' : '+t.d+(TOOL_INFO[i]?' (ouvre la fiche)':''));
@@ -2825,7 +2824,7 @@ const pushEls=TOOLS.map((t,i)=>{
   b.addEventListener('pointerenter',on);b.addEventListener('focus',on);
   b.addEventListener('pointerleave',()=>{clearTimeout(pushOff);pushOff=setTimeout(()=>{if(pushHover===i){pushHover=-1;toolAim=-1}},120)});   // le temps d'aller du bouton à la carte
   b.addEventListener('blur',()=>{if(pushHover===i){pushHover=-1;toolAim=-1}});
-  b.addEventListener('click',()=>{pushUsed=true;haptic(10);tick();openTool(i,b)});
+  b.addEventListener('click',()=>{haptic(10);tick();openTool(i,b)});
   return b;
 });
 chips.forEach((c,i)=>{
@@ -2839,9 +2838,7 @@ function cardReveal(i,dt){
 }
 function placePush(p){
   const w=cv.clientWidth,h=cv.clientHeight,vis=loaded&&p>=0&&p<.5?trap(p,CSP,CSP+.03,CEND[0],CEND[1]):0;
-  eqTip.classList.toggle('on',vis>.5&&hoverCards()&&!pushUsed&&pushHover<0&&cardHover<0&&eqMoved);   // la souris bouge sur la scène : on invite à essayer les boutons ; plus rien une fois qu'elle y est ou qu'une fiche a été ouverte
   stand.updateMatrixWorld(true);
-  if(vis>=.05){_pv.set(0,0,0);group.localToWorld(_pv);_pv.project(cam);eqTip.style.left=clamp((_pv.x*.5+.5)*w,190,w-190).toFixed(1)+'px'}   // sous la montre, pas au milieu de l'écran
   pushEls.forEach((b,i)=>{
     b.style.opacity=vis.toFixed(2);b.style.visibility=vis<.05?'hidden':'visible';
     if(vis<.05)return;

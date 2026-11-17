@@ -243,8 +243,8 @@ The dial no longer shows a name: the readout plate (`drawReadout`, `roMesh` at y
 ### Dial zones and job line (17/11/2026)
 Only the four cardinal zones remain interactive (`HOT` n/e/s/o); « Adrien Neyron » and « Expérience » zones were removed. « DÉVELOPPEUR - MANAGER - FORMATEUR » is painted under the needle as an arc following the dial's curvature (letters on a radius-330 circle, ≤ 2.3 rad; fixed text in `makeDial`, not the admin `loopDialRole`). The onboarding pulse is on « E »; its card goes right of the ring if it fits, else under the dial.
 
-### Watch-button hint (S'équiper)
-When the mouse moves while the case buttons are active, `#eqTip` (« Cliquer sur les boutons de la montre ») shows under the watch; gone 2.5 s after the last move, on a button or card, and for good once a fiche was opened. Mouse only, `aria-hidden`. Details: `docs/ecran-accueil-corde.md`.
+### Watch-button hint (S'équiper) — removed
+The `#eqTip` pill « Cliquer sur les boutons de la montre » was removed on 18/11/2026 at Adri's request (HTML, CSS `.eq-tip`, JS timer `EQ_TIP_MS`/`eqMoved`/`pushUsed`). Don't reintroduce it. Details: `docs/ecran-accueil-corde.md`.
 
 ### LatheGeometry orientation
 A `LatheGeometry` profile must be listed so its faces point outwards (the watch bezel goes outer edge → top → inner edge); listed the other way, back-face culling made the bezel rim see-through at some angles. Details: `docs/ascension-boucle.md`.
