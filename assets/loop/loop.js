@@ -2696,7 +2696,7 @@ const HOT={
 const tip=$('#tip'),tipT=$('#tipT'),tipD=$('#tipD'),tipK=$('#tipK');
 /* Onde de l'aiguille : un anneau part du pivot, un trait relie l'aiguille à la carte (survol, focus, clic) ; à l'arrivée sur la montre, la carte « Expérience » s'affiche
    d'elle-même (autoKey) jusqu'au premier geste ou 9 s. Décoratif (aria-hidden) : le texte est porté par les boutons .hot (aria-label). */
-let autoKey='exp',autoT=0,tipX=0,tipY=0;
+let autoKey='exp',autoT=0,tipX=0,tipY=0,tipW=230;
 const pulse=document.createElement('div');pulse.className='pulse';pulse.setAttribute('aria-hidden','true');pulse.innerHTML='<i></i><i></i>';
 const NS='http://www.w3.org/2000/svg',pline=document.createElementNS(NS,'svg'),plLine=document.createElementNS(NS,'line');
 pline.setAttribute('class','pline');pline.setAttribute('aria-hidden','true');pline.appendChild(plLine);
@@ -2736,11 +2736,13 @@ function placeHot(p){
   });
   // onde et trait partent du pivot de l'aiguille (centre du cadran) ; carte, onde et trait ne sont affichés que montre visible
   _pv.set(0,0,.1);group.localToWorld(_pv);_pv.project(cam);_pw.set(1.5,0,.1);group.localToWorld(_pw);_pw.project(cam);
-  const nx=(_pv.x*.5+.5)*w,ny=(-_pv.y*.5+.5)*h,on=!!aimKey&&vis1>.4,u=Math.abs(_pw.x-_pv.x)*w/3,tw=tip.offsetWidth||240,th=tip.offsetHeight||110;
+  const nx=(_pv.x*.5+.5)*w,ny=(-_pv.y*.5+.5)*h,on=!!aimKey&&vis1>.4,u=Math.abs(_pw.x-_pv.x)*w/3,room=w-(nx+2.2*u)-8;
+  const cw=Math.round(clamp(room,0,230));if(cw>=165&&cw!==tipW){tipW=cw;tip.style.maxWidth=cw+'px'}   // la carte rétrécit (230 → 165 px) pour tenir à droite de la montre
+  const tw=tip.offsetWidth||240,th=tip.offsetHeight||110;
   let lx=tipX,ly=tipY;   // extrémité du trait : haut de la carte (repli)
-  if(w>=900&&nx+2.2*u+tw+20<=w){   // grand écran : la carte se pose à droite de la montre, un peu au-dessus de l'aiguille, le trait la rejoint par son bord gauche
-    tipX=nx+2.2*u+10+tw/2;tipY=Math.max(70,ny-th-u*.55);lx=tipX-tw/2;ly=tipY+th/2;
-  }
+  if(w>=900&&cw>=165){   // la carte se pose à droite de la montre, au-dessus de l'aiguille, le trait la rejoint par son bord gauche ; sinon (écran étroit) sous la zone
+    tipX=nx+2.2*u+4+tw/2;tipY=Math.max(64,ny-th-u*.55);lx=tipX-tw/2;ly=tipY+th/2;
+  }else if(tipW!==230){tipW=230;tip.style.maxWidth=''}
   tip.style.left=tipX.toFixed(1)+'px';tip.style.top=tipY.toFixed(1)+'px';
   tip.classList.toggle('on',on);pulse.classList.toggle('on',on);pline.classList.toggle('on',on);
   if(on){
