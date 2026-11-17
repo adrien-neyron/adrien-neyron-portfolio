@@ -788,6 +788,13 @@ html.loop-on #dlgProfil .lead,html.loop-on #dlgTool .lead{color:#E6F4F1}
 html.loop-on #dlgProfil :focus-visible,html.loop-on #dlgTool :focus-visible{outline-color:#FFB48A}
 /* Pastilles du pied de page (CV, Contact) : contour plein, au lieu de 55 % de transparence (≈ 2:1) */
 html.loop-on[data-theme="light"] footer.perma .ico.lbl{border:1px solid var(--acc-text);background:color-mix(in srgb,var(--card) 94%,transparent)}
+/* survol jour de « CV » et « Contact » (18/11/2026) : la pastille se remplit du cuivre de la charte, texte et icône passent en --brand-fill (5,0:1 sur --acc-text),
+   légère élévation et ombre teintée ; avant, un rose délavé (cuivre 22 % sur --card) peu lisible. Clavier : même état + anneau de focus. */
+html.loop-on[data-theme="light"] footer.perma .ico.lbl{transition:background .25s ease,color .25s ease,border-color .25s ease,box-shadow .25s ease,transform .25s ease}
+html.loop-on[data-theme="light"] footer.perma .ico.lbl:hover,html.loop-on[data-theme="light"] footer.perma .ico.lbl:focus-visible{background:var(--acc-text);border-color:var(--acc-text);color:var(--brand-fill);transform:translateY(-1px);box-shadow:0 6px 16px -6px color-mix(in srgb,var(--acc-text) 55%,transparent)}
+html.loop-on[data-theme="light"] footer.perma .ico.lbl:hover svg,html.loop-on[data-theme="light"] footer.perma .ico.lbl:focus-visible svg{color:var(--brand-fill)}
+html.loop-on[data-theme="light"] footer.perma .ico.lbl:active{transform:none;box-shadow:none}
+@media (prefers-reduced-motion:reduce){html.loop-on[data-theme="light"] footer.perma .ico.lbl,html.loop-on[data-theme="light"] footer.perma .ico.lbl:hover,html.loop-on[data-theme="light"] footer.perma .ico.lbl:focus-visible{transform:none;transition:background .2s,color .2s}}
 html.loop-on[data-theme="light"] footer.perma .ico{color:#9E3418}
 /* Puces de contact et champs du formulaire du bivouac : contours pleins */
 html.loop-on[data-theme="light"] .cnt{border-color:#A8401B;background:rgba(168,64,27,.10)}

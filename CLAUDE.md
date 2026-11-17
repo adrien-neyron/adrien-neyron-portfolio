@@ -228,6 +228,9 @@ The hero dial (`makeDial`) shows only ticks, N E S O, the name and the needle (r
 ### Dial name (17/11/2026)
 Default dial name is « Find your direction » (painted uppercase, auto-shrunk to fit; `DIAL_T.name` in `loop.js`, hint in `ProfileForm.vue`). The admin field `loopDialName` (/admin › Profil › Cadran de la montre › Nom) still wins: it must be emptied or retyped there for the new text to show.
 
+### Footer CV / Contact hover, day mode (18/11/2026)
+In light mode, hovering/focusing the footer pills « CV » and « Contact » fills them with `--acc-text`, text + icon `--brand-fill` (5.0:1), 1 px lift and copper-tinted shadow (no lift under reduced motion). Night mode unchanged. Details: `docs/ecran-accueil-corde.md`.
+
 ### Dial azimuth snapping (18/11/2026, step 1 of « Le cadran se montre », revised)
 The needle follows the mouse; when the mouse is at a cardinal point's azimuth (±12° `AZ_IN`, leave beyond ±18° `AZ_OUT`, seen from the dial centre, angles to the projected `.hot` buttons, zone = the whole page since 18/11/2026 (`AZ_REACH = Infinity`, Adri's request; only the 18 % dial centre is neutral; side effect: the left text column is at « O » azimuth); `sectorAt`/`updateSector` in `loop.js`), the needle snaps, the letter lights up on the dial (orange, +12 %, glow; `dialAimK`) and the HUD card opens; between points nothing opens. Click while aimed = pin. Cards always close when leaving the step (`placeHot`: `!sectorOn` clears pin/hover/aim and blurs the zone button). Beacons and 90° sectors were removed (Adri's choice). `.hot` buttons don't react to hover (keyboard focus ring + touch only). Steps 2 (auto-demo + micro-legend, replaces the E pulse hint) and 3 (reticle) pending. Details: `docs/ecran-accueil-corde.md`.
 
