@@ -181,3 +181,5 @@ Sur le fond de gorge, le bouton n'a plus de fond plein : il laisse voir la photo
 - opacité `--phk` = celle de la photo du hero ; le ciel du mode jour s'efface d'autant.
 Le haut de l'écran a toujours cette couleur : interstice ou non, il n'y a plus de raccord visible.
 **Vérifié** : scène décalée de 90 px à la main (pire cas de la capture) dans Chrome : saut de couleur au raccord = 0, en jour et en nuit ; tests unitaires 221/221. **Limite** : le retard de la scène collée lui-même n'est pas corrigé (il vient du défilement), il est seulement rendu invisible sur le premier écran.
+
+**Sans contour (17/11/2026, demande d'Adri)** : le bouton n'a plus de contour et l'icône plus d'anneau. Il reste le texte `--fg` (avec le halo du titre) précédé d'un triangle ▶ orange `--cta-line` (20 px, 18 px sur mobile), aligné sur la colonne de texte (marge négative égale au padding gauche). Survol / focus : voile `--cta-tint` en pilule, l'icône avance de 3 px. Focus clavier : contour `--focus` de 3 px (obligatoire, WCAG 2.4.7). La zone cliquable garde 56 px de haut. `--cta-ring` ne sert plus qu'à l'état actif (clic).

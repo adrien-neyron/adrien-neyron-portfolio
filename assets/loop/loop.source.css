@@ -228,20 +228,20 @@ body.static .bgfx{display:none}
 /* Transition : plongée dans le verre, ligne GPX qui s'échappe du cadran, perspective de chemin */
 .s2::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(var(--bg) 0%,transparent 48%);opacity:var(--fog,0)}
 /* CTA principal « Lancer la visite guidée » : bouton fantôme sur la photo (fond transparent, 17/11/2026).
-   Contour 1,5 px --cta-line (orange de signal, couleur du waypoint AN) : ≥ 3:1 sur le fond (nuit 8,1:1, jour 5,8:1, et mesuré sur la photo + voile).
-   Texte --fg avec le halo de lisibilité du titre (#head1) ; icône ▶ dans un anneau --cta-line.
-   Survol / focus : voile --cta-tint, contour 2 px, halo --cta-ring, l'icône avance de 3 px (0,3 s ; rien sous prefers-reduced-motion). */
-.cta{position:relative;display:inline-flex;align-items:center;gap:14px;min-height:56px;margin-top:22px;padding:0 26px 0 12px;border:1.5px solid var(--cta-line);border-radius:999px;background:transparent;color:var(--fg);font:600 clamp(14px,1.1vw,16px)/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;pointer-events:auto;visibility:hidden;opacity:0;transition:opacity .4s,background-color .3s ease-out,box-shadow .3s ease-out}   /* suite du paragraphe d'accroche : .head ne capte rien, le bouton si ; caché, il garde sa place pour que le titre ne bouge pas à son arrivée */
-.cta .play{flex:none;width:32px;height:32px;color:var(--cta-line);transition:transform .3s ease-out}   /* icône « lecture » : anneau et triangle orange de signal */
+   Sans contour depuis le 17/11/2026 : texte --fg (halo de lisibilité du titre) précédé d'un triangle ▶ --cta-line (orange de signal, ≥ 3:1 sur le fond).
+   Icône alignée sur la colonne de texte (marge négative = padding gauche). Survol / focus : voile --cta-tint, l'icône avance de 3 px
+   (0,3 s ; rien sous prefers-reduced-motion) ; focus clavier : contour --focus 3 px. */
+.cta{position:relative;display:inline-flex;align-items:center;gap:12px;min-height:56px;margin-top:22px;margin-left:-14px;padding:0 22px 0 14px;border:0;border-radius:999px;background:transparent;color:var(--fg);font:600 clamp(14px,1.1vw,16px)/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;pointer-events:auto;visibility:hidden;opacity:0;transition:opacity .4s,background-color .3s ease-out,box-shadow .3s ease-out}   /* suite du paragraphe d'accroche : .head ne capte rien, le bouton si ; caché, il garde sa place pour que le titre ne bouge pas à son arrivée */
+.cta .play{flex:none;width:20px;height:20px;color:var(--cta-line);transition:transform .3s ease-out}   /* icône « lecture » : triangle orange de signal seul, sans anneau (17/11/2026) */
 .cta .txt{white-space:nowrap}
-.cta:hover,.cta:focus-visible{background:var(--cta-tint);box-shadow:inset 0 0 0 .5px var(--cta-line),0 0 0 4px var(--cta-ring)}   /* contour qui passe à 2 px sans décaler la mise en page + halo orange */
+.cta:hover,.cta:focus-visible{background:var(--cta-tint)}   /* survol / focus : léger voile orange, sans contour */
 .cta:hover .play,.cta:focus-visible .play{transform:translateX(3px)}
 .cta:active{background:var(--cta-ring)}
-.cta:focus-visible{outline:3px solid var(--focus);outline-offset:5px}   /* anneau net, détaché du halo */
+.cta:focus-visible{outline:3px solid var(--focus);outline-offset:3px}   /* focus clavier : contour net, obligatoire (WCAG 2.4.7) */
 .cta .sm{display:none}
 @media (prefers-reduced-motion:reduce){.cta,.cta .play{transition:none}.cta:hover .play,.cta:focus-visible .play{transform:none}}
 body.static .cta{display:none}
-@media (max-width:899px){.cta{gap:10px;padding:0 20px 0 10px}.cta .play{width:28px;height:28px}.cta .lg{display:none}.cta .sm{display:inline}}
+@media (max-width:899px){.cta{gap:10px;margin-left:0;padding:0 18px 0 12px}.cta .play{width:18px;height:18px}.cta .lg{display:none}.cta .sm{display:inline}}
 
 /* Profondeur de champ de l'accueil : un voile au-dessus du canvas 3D, sous le texte et les boutons.
    ::before floute légèrement le premier plan rocheux (flou progressif vers le bas, la montre et le texte restent nets) ;
