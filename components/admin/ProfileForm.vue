@@ -141,11 +141,7 @@ function onSubmit() {
         </div>
         <fieldset class="space-y-4 border border-[var(--line,#ccc)] rounded p-4">
           <legend class="admin-label px-1">Cadran de la montre</legend>
-          <div>
-            <label for="pr-dial-name" class="admin-label">Nom <span class="normal-case font-normal">— vide : « FIND YOUR DIRECTION »</span></label>
-            <input id="pr-dial-name" v-model="form.loopDialName" type="text" maxlength="40" class="admin-input" />
-          </div>
-          <p class="text-xs text-[var(--color-muted)]">Le cadran est épuré depuis le 17/11/2026 : nom, aiguille et points cardinaux. Le métier, les valeurs et l'expérience sont dans le texte de la page et au survol du cadran.</p>
+          <p class="text-xs text-[var(--color-muted)]">Depuis le 17/11/2026, le cadran n'affiche plus de nom : en haut, l'azimut en direct (ex. « 342° NNO ») ; en bas, en arc, la signature « CALIBRE AN-01 · RGAA 4.1 · WCAG 2.1 AA ». Ces textes sont fixes (pas de champ ici). Le nom saisi auparavant reste en base, il n'est plus affiché. Le métier, les valeurs et l'expérience sont dans le texte de la page et au survol du cadran.</p>
         </fieldset>
         <fieldset class="space-y-4 border border-[var(--line,#ccc)] rounded p-4">
           <legend class="admin-label px-1">Étape « S'équiper »</legend>

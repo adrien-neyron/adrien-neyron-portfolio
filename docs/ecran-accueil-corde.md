@@ -248,3 +248,13 @@ Demande d'Adri : le badge porte le **titre** de la zone (« Résilience », « �
 
 - Accessibilité : le bouton de zone a pour nom le titre seul ; la phrase et l'exemple sont lus via `aria-describedby="tip"` au focus (plus de répétition).
 - Placement sur bureau : le trait part de l'anneau de la zone et **sort de la lunette** (longueur variable, `--lead` posé par `placeHot`, rayon `TIP_DIAL_R` = 2,3) pour que l'infobulle ne recouvre jamais le cadran : E à droite, O à gauche, N et S à droite (sinon à gauche). Infobulle 230 px de texte au plus. S'il n'y a pas la place (E sur un écran de 1280 px), l'infobulle passe sous la zone avec le filet vertical.
+
+## Cadran : azimut en direct et signature d'horloger (17/11/2026)
+
+Demande d'Adri (« en tant que web designer ») : remplacer le texte du cadran par de la donnée vivante ou symbolique.
+
+- **Azimut en direct** à la place du nom : « 066° ENE » (degrés sur 3 chiffres en `P.val`, point de la rose des vents en français sur 16 secteurs en `P.N`, `AZ16`). Dessiné dans la plaque de lecture `readCanvas` (512 × 256, `drawReadout`), placée en haut du cadran (`roMesh.position.y` .70) ; elle redescend au centre (−.32) pour la description d'un outil dans « S'équiper », où le nom de l'outil et « ATELIER » reviennent en haut. L'angle vient de l'aiguille sans son léger tremblement (`nRot`), donc les chiffres ne clignotent pas ; la texture n'est redessinée que quand le degré entier change. L'aiguille suit la souris (ou la boussole du téléphone) et pointe la zone visée : l'azimut affiche alors 000° N, 090° E, 180° S, 270° O.
+- Choix fait : l'azimut plutôt que le nom de l'étape (01 · CAP…), parce que c'est la donnée que l'aiguille montre réellement.
+- **Signature en arc** (remplace « DÉVELOPPEUR - MANAGER - FORMATEUR ») : `DIAL_SIG` = « CALIBRE AN-01 · RGAA 4.1 · WCAG 2.1 AA », petit corps (≤ 26 px sur 1024), interlettrage .22, couleur des lettres E/S/O (`P.card`). Pas de coordonnées GPS ni de lieu : aucune n'est vérifiée dans la trace (règle « ne pas inventer de coordonnées »). « RGAA-2.1 » proposé dans la demande n'existe pas : le RGAA en vigueur est la 4.1, qui s'appuie sur WCAG 2.1.
+- Le champ /admin « Nom » du cadran est retiré du formulaire (sans effet désormais) ; `loopDialName` reste en base et dans l'API.
+- Le cadran est décoratif (`aria-hidden`) : l'azimut n'est pas annoncé.

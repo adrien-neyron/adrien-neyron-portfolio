@@ -339,6 +339,8 @@ const NEEDLE_PIV=.06,DIAL_R=1.98,NDL={ok:false,w:0,tip:[0,0],piv:[0,0]};   // pi
 /* ---------- Montre GPS outdoor, inspirée des séries Garmin Fenix et Enduro ---------- */
 const DIAL_NIGHT={bg:'#050607',pat:'rgba(255,255,255,.05)',tickBig:'#E6F4F1',tick:'rgba(200,210,216,.6)',ring:'rgba(255,255,255,.35)',N:'#E26D3B',card:'#E6F4F1',inter:'#9AA4AB',deg:'#B8C0C6',lab:'#AEB8BF',val:'#E6F4F1',qual:'#C9D1D6',rTitle:'#E6F4F1',rDesc:'#B9C2CA'};
 const DIAL_DAY={bg:'#F2EEE6',pat:'rgba(60,40,20,.045)',tickBig:'#1B1712',tick:'rgba(27,23,18,.62)',ring:'rgba(27,23,18,.45)',N:'#A8401B',card:'#1B1712',inter:'#5F584D',deg:'#554E43',lab:'#554E43',val:'#1B1712',qual:'#3F392F',rTitle:'#1B1712',rDesc:'#3F392F'};
+const DIAL_SIG='CALIBRE AN-01 · RGAA 4.1 · WCAG 2.1 AA';   // micro-signature gravée en arc sous l'aiguille (identité AN + référentiels réellement suivis par le site)
+const AZ16=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];   // rose des vents en français (O = ouest)
 const dialPal=()=>theme==='light'?DIAL_DAY:DIAL_NIGHT;   // cadran clair en mode jour (contrastes ≥ 4,5:1 sur le papier #F2EEE6)
 function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, traits blancs ; jour : fond papier, traits encre
   const P=dialPal(),c=dialCanvas||(dialCanvas=document.createElement('canvas'));
@@ -359,16 +361,18 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
   // cadran épuré (17/11/2026, piste 1) : plus d'intercardinaux ni de degrés ; restent les graduations, N E S O, le nom et l'aiguille (la ligne de métier a été retirée aussi)
   // champs de données
   // identité : le nom en grand en haut du cadran, puis le titre (les technologies sont dans la scène « S'équiper »)
-  {const nm=(dialOver?dialOver.n:DIAL_T.name).toUpperCase();let sz=68;x.font='700 '+sz+'px "JetBrains Mono", monospace';   // survol d'un bouton du boîtier : le titre de l'outil remplace le nom
+  // nom retiré du cadran (17/11/2026, demande d'Adri) : l'azimut en direct le remplace (drawReadout) ; le champ admin loopDialName reste en base mais n'est plus affiché
+  if(dialOver){const nm=dialOver.n.toUpperCase();let sz=68;x.font='700 '+sz+'px "JetBrains Mono", monospace';   // survol d'un bouton du boîtier : le titre de l'outil remplace le nom
    while(x.measureText(nm).width>760&&sz>34){sz-=2;x.font='700 '+sz+'px "JetBrains Mono", monospace'}
    x.fillStyle=P.val;x.fillText(nm,cx,cy-188)}
   if(dialOver){const rl='ATELIER';let rs=46;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>860&&rs>26){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-118)}   // ligne de métier retirée du cadran (17/11/2026) : seul « ATELIER » s'affiche, au survol d'un outil dans « S'équiper »
   // métier sous l'aiguille (17/11/2026, demande d'Adri) : texte fixe, n'utilise plus le champ admin loopDialRole
-  {const jb='DÉVELOPPEUR - MANAGER - FORMATEUR',R=330,MAXA=2.3;   // inscription courbe sous l'aiguille : chaque lettre posée sur un cercle de rayon R (pied vers l'extérieur), lue de gauche à droite ; arc ≤ 2,3 rad (≈ 130°) : ses extrémités restent à ~160 px de O et E, et le bas à ~30 px au-dessus du S
-   let js=36;x.font='600 '+js+'px "JetBrains Mono", monospace';const ls=.08;   // léger interlettrage
+  // signature d'horloger (17/11/2026) : remplace « DÉVELOPPEUR - MANAGER - FORMATEUR » ; discrète (petite, couleur des graduations) ; pas de coordonnées : aucune n'est vérifiée dans la trace
+  {const jb=DIAL_SIG,R=330,MAXA=2.3;   // inscription courbe sous l'aiguille : chaque lettre posée sur un cercle de rayon R (pied vers l'extérieur), lue de gauche à droite ; arc ≤ 2,3 rad (≈ 130°) : ses extrémités restent à ~160 px de O et E, et le bas à ~30 px au-dessus du S
+   let js=26;x.font='600 '+js+'px "JetBrains Mono", monospace';const ls=.22;   // petit corps, interlettrage large (gravure d'horloger)
    const tw=()=>[...jb].reduce((a,ch)=>a+x.measureText(ch).width*(1+ls),0);
    while(tw()/R>MAXA&&js>20){js-=1;x.font='600 '+js+'px "JetBrains Mono", monospace'}
-   const tot=tw();let acc=0;x.fillStyle=P.N;x.textBaseline='alphabetic';
+   const tot=tw();let acc=0;x.fillStyle=P.card;x.textBaseline='alphabetic';
    [...jb].forEach(ch=>{const w=x.measureText(ch).width*(1+ls),a=Math.PI/2+tot/R/2-(acc+w/2)/R;acc+=w;
      x.save();x.translate(cx+Math.cos(a)*R,cy+Math.sin(a)*R);x.rotate(a-Math.PI/2);x.fillText(ch,0,0);x.restore()});
    x.textBaseline='middle'}
@@ -541,7 +545,7 @@ function makeStrapFade(){   // opacité : le bracelet s'efface vers le bout, sur
 /* Lecture du cap (plaque transparente au centre de l'écran) */
 function makeReadout(){readCanvas=document.createElement('canvas');readCanvas.width=512;readCanvas.height=256;readTex=new THREE.CanvasTexture(readCanvas);drawReadout(0,true);return readTex}
 function drawReadout(deg,force){
-  const info=toolAim>=0&&TOOLS[toolAim]?{t:TOOLS[toolAim].n,d:TOOLS[toolAim].d}:null,key=info?'i:t'+toolAim:'h';   // cadran épuré : les zones du cadran s'expliquent dans l'infobulle HTML, plus sur l'écran   // survol d'un bouton du boîtier : l'écran de la montre affiche le contenu de la carte (titre et description), sans faire apparaître de nouvelle carte
+  const az=(Math.round(deg)%360+360)%360,info=toolAim>=0&&TOOLS[toolAim]?{t:TOOLS[toolAim].n,d:TOOLS[toolAim].d}:null,key=info?'i:t'+toolAim:'a'+az;   // sans outil survolé : azimut en direct (« 342° NNO »), redessiné seulement quand le degré change   // cadran épuré : les zones du cadran s'expliquent dans l'infobulle HTML, plus sur l'écran   // survol d'un bouton du boîtier : l'écran de la montre affiche le contenu de la carte (titre et description), sans faire apparaître de nouvelle carte
   if(!force&&key===lastReadKey)return;lastReadKey=key;
   if(dialTool!==toolAim&&dialTex){dialTool=toolAim;dialOver=toolAim>=0&&TOOLS[toolAim]?TOOLS[toolAim]:null;makeDial();dialTex.needsUpdate=true}
   const P=dialPal(),x=readCanvas.getContext('2d');x.clearRect(0,0,512,256);x.textAlign='center';x.textBaseline='alphabetic';
@@ -559,7 +563,13 @@ function drawReadout(deg,force){
     const words=info.d.split(' ');let line='',y=176;
     words.forEach(w=>{const t=line?line+' '+w:w;if(x.measureText(t).width>470&&line){x.fillText(line,256,y);y+=38;line=w}else line=t});
     x.fillText(line,256,y);
-  }   // sans survol : rien (ni cap ni degrés), le cadran reste dégagé
+  }else{   // azimut en cours, à la place du nom : degrés sur 3 chiffres + point de la rose des vents (16 secteurs)
+    const dg=String(az).padStart(3,'0')+'°',cp=AZ16[Math.round(az/22.5)%16];
+    x.font='700 104px "JetBrains Mono", monospace';const w1=x.measureText(dg).width;x.font='700 52px "JetBrains Mono", monospace';const w2=x.measureText(cp).width,gap=22,x0=256-(w1+gap+w2)/2;
+    x.textAlign='left';x.fillStyle=P.val;x.font='700 104px "JetBrains Mono", monospace';x.fillText(dg,x0,160);
+    x.fillStyle=P.N;x.font='700 52px "JetBrains Mono", monospace';x.fillText(cp,x0+w1+gap,160);x.textAlign='center';
+  }
+  if(roMesh)roMesh.position.y=info?-.32:.70;   // azimut en haut du cadran (place de l'ancien nom), description d'outil au centre
   readTex.needsUpdate=true;
 }
 let topoDay=false;
@@ -623,7 +633,7 @@ function initThree(){
   const scr=new THREE.Mesh(new THREE.CircleGeometry(1.98,120),new THREE.MeshBasicMaterial({map:dialTex}));scr.position.z=.05;group.add(scr);
   topoTex=makeTopoTex();
   topoMesh=new THREE.Mesh(new THREE.CircleGeometry(1.98,120),new THREE.MeshBasicMaterial({map:topoTex,transparent:true,opacity:0,depthWrite:false}));topoMesh.position.z=.053;topoMesh.visible=false;group.add(topoMesh);
-  const ro=new THREE.Mesh(new THREE.PlaneGeometry(1.6,.8),new THREE.MeshBasicMaterial({map:makeReadout(),transparent:true,depthWrite:false}));ro.position.set(0,-.32,.06);group.add(ro);roMesh=ro;
+  const ro=new THREE.Mesh(new THREE.PlaneGeometry(1.6,.8),new THREE.MeshBasicMaterial({map:makeReadout(),transparent:true,depthWrite:false}));ro.position.set(0,toolAim>=0?-.32:.70,.06);group.add(ro);roMesh=ro;
   // six boutons, un par carte de l'atelier : 10 h, 9 h, 8 h à gauche ; 2 h, 3 h, 4 h à droite (voir PUSH)
   PUSH.forEach(clock=>{
     const phi=(90-clock)*Math.PI/180,ux=Math.cos(phi),uy=Math.sin(phi);
@@ -948,7 +958,7 @@ function updateCompass(p,dt){
     const k=110,c=9;nVel+=(-k*(nRot-target)-c*nVel)*dt;nRot+=nVel*dt;
   }
   needle.rotation.z=nRot+(loaded&&!paused?Math.sin(tNow*2.1)*.018:0);
-  drawReadout(((-needle.rotation.z*180/Math.PI)%360+360)%360);
+  drawReadout(((-nRot*180/Math.PI)%360+360)%360);   // lecture sans le léger tremblement de l'aiguille (sinon les chiffres clignotent)
   const zi=sm(.2,.30,p),scl=p<.5?lerp(1,4.6,zi):lerp(4.6,1,sm(.95,1,p));
   const hk=LAY.sx?(staticMode?1:(p<.5?1-sm(.075,.12,p):0)):0;
   const hs=1-.14*hk;   // premier écran large : montre réduite de 14 % (hiérarchie titre > texte > action > montre), taille normale dès « S'équiper »
