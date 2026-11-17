@@ -258,3 +258,11 @@ Demande d'Adri (« en tant que web designer ») : remplacer le texte du cadran p
 - **Signature en arc** (remplace « DÉVELOPPEUR - MANAGER - FORMATEUR ») sur **deux arcs** depuis le retour d'Adri (« illisible » sur une seule ligne, ≈ 7 px à l'écran) : `DIAL_SIG` = « CALIBRE AN-01 » (46 px sur 1024, rayon 290) puis « RGAA 4.1 · WCAG 2.1 AA » (38 px, rayon 340, le haut du « S » est à ~359), interlettrage .12, couleur des lettres E/S/O (`P.card`). À 1440 px : ≈ 12 px et 10 px à l'écran ; sur mobile (cadran ≈ 150 px), ça reste petit. Pas de coordonnées GPS ni de lieu : aucune n'est vérifiée dans la trace (règle « ne pas inventer de coordonnées »). « RGAA-2.1 » proposé dans la demande n'existe pas : le RGAA en vigueur est la 4.1, qui s'appuie sur WCAG 2.1.
 - Le champ /admin « Nom » du cadran est retiré du formulaire (sans effet désormais) ; `loopDialName` reste en base et dans l'API.
 - Le cadran est décoratif (`aria-hidden`) : l'azimut n'est pas annoncé.
+
+### Bas du cadran : l'étape en cours, en texte droit (17/11/2026)
+
+Demande d'Adri : l'écriture du bas n'est plus courbe et ne porte plus la signature « CALIBRE AN-01 · RGAA 4.1 · WCAG 2.1 AA » (retirée, `DIAL_SIG` supprimé) ; elle affiche **l'étape en cours**, droite : numéro en orange (`P.N`) + nom (`P.val`), 50 px sur 1024 (réduit au-delà de 600 px de large), à 292 px sous le centre (le haut du « S » est à ~359).
+
+- `DIAL_STEPS` (`loop.js`) reprend les noms du menu « Étapes » : 01 LA TRACE, 02 S'ÉQUIPER, 03 L'ASCENSION, 04 LE RANDONNEUR, 05 LE BIVOUAC. Si un nom change dans `data/navigation.ts`, le changer ici aussi.
+- `update()` calcule l'étape où la montre est visible (`p < CSP` → 01, jusqu'à la carte → 02, au bivouac → 05) et ne redessine le cadran (`makeDial`) que quand elle change.
+- Vérifié : « 01 LA TRACE » au premier écran, « 02 S'ÉQUIPER » via `/#equiper`. Le bivouac (05) n'a pas été vérifié.
