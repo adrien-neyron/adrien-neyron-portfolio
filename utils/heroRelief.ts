@@ -25,10 +25,10 @@ void main(){
   vec2 t=(vUv*uRes-uRes*.5)/sz+.5;                       // même cadrage que background-size:cover, centré
   t=(t-.5)/(1.+.035*uS)+.5;                              // léger zoom quand la lumière est active (évite les bords avec la parallaxe)
   float h0=H(t);
-  t+=uPar*(h0-.5)*.05*uS;                                 // parallaxe : ce qui est haut bouge plus que ce qui est bas
+  t+=uPar*(h0-.5)*.03*uS;                                 // parallaxe : ce qui est haut bouge plus que ce qui est bas
   vec3 alb=texture2D(uImg,t).rgb;
   vec2 g=grad(t,1.2)*.5+grad(t,3.5)*.35+grad(t,9.)*.25;  // relief fin, moyen, large
-  vec3 n=normalize(vec3(-g*uLight*5.5,1.));
+  vec3 n=normalize(vec3(-g*uLight*3.6,1.));
   vec2 d=(uM-vUv)*vec2(asp,1.);
   vec3 L=normalize(vec3(d,.32));
   float flat0=L.z,diff=clamp(dot(n,L),0.,1.5);
@@ -39,13 +39,13 @@ void main(){
   vec3 warm=mix(vec3(1.,.70,.44),vec3(1.,.82,.58),step(.5,uLight-1.));
   vec3 col=alb;
   if(uLight<1.5){   // nuit : l'extérieur de la lumière s'enfonce, l'intérieur s'éclaire et sculpte les arêtes
-    col*=1.-.24*uS*(1.-wide);
-    col+=alb*(.28*fall+relief*1.9*fall)*uS*warm;
-    col+=warm*spec*.34*uS*(.4+h0);
+    col*=1.-.12*uS*(1.-wide);
+    col+=alb*(.16*fall+relief*1.0*fall)*uS*warm;
+    col+=warm*spec*.16*uS*(.4+h0);
   }else{            // jour : relief par ombrage (arêtes éclairées / ombrées), halo chaud discret
-    col*=1.-.07*uS*(1.-wide);
-    col*=1.+relief*1.35*fall*uS;
-    col+=warm*(spec*.22+fall*.045)*uS;
+    col*=1.-.04*uS*(1.-wide);
+    col*=1.+relief*.7*fall*uS;
+    col+=warm*(spec*.1+fall*.03)*uS;
   }
   gl_FragColor=vec4(clamp(col,0.,1.),1.);
 }`
@@ -125,6 +125,11 @@ export function initHeroRelief(): Cleanup {
     gl!.uniform1f(uS, m.s)
     gl!.uniform1f(uLight, light)
     gl!.drawArrays(gl!.TRIANGLES, 0, 3)
+    // Brume : les voiles de lisibilité s'éclaircissent sous le curseur (masque CSS), jamais au-dessus du texte (côté gauche)
+    const side = Math.min(1, Math.max(0, (m.x - .4) / .2))
+    host!.style.setProperty('--mx', (m.x * 100).toFixed(1) + '%')
+    host!.style.setProperty('--my', ((1 - m.y) * 100).toFixed(1) + '%')
+    host!.style.setProperty('--mist', (m.s * side).toFixed(3))
   }
 
   let prev = 0
@@ -207,6 +212,7 @@ export function initHeroRelief(): Cleanup {
     reduce.removeEventListener('change', onMq)
     wide.removeEventListener('change', onMq)
     cv.remove()
+    host.style.removeProperty('--mist')
     gl.getExtension('WEBGL_lose_context')?.loseContext()
   }
 }

@@ -1158,3 +1158,9 @@ body.static .hphoto .hrelief{display:none}
 html.at-hero .hud,html.at-hero .altrail,html.at-hero .grain{opacity:0;pointer-events:none}
 @media (min-width:900px){html.at-hero footer.perma .copy{opacity:0}html.at-hero footer.perma{justify-content:center}}
 @media (prefers-reduced-motion:reduce){.hud,.altrail,footer.perma .copy,.grain,.hphoto .hrelief{transition:none}}
+
+/* Brume qui se dissipe au passage de la souris (17/11/2026) : --mx/--my/--mist posés par utils/heroRelief.ts ; les voiles perdent jusqu'à 40 % d'opacité
+   sous le curseur, et rien du tout au-dessus de la colonne de texte (à gauche). Sans la variable (tactile, mouvement réduit), masque neutre. */
+@media (min-width:900px){
+  .hphoto::after,.hphoto::before{-webkit-mask-image:radial-gradient(circle 30vmax at var(--mx,50%) var(--my,50%),rgba(0,0,0,calc(1 - .4*var(--mist,0))) 0,#000 100%);mask-image:radial-gradient(circle 30vmax at var(--mx,50%) var(--my,50%),rgba(0,0,0,calc(1 - .4*var(--mist,0))) 0,#000 100%)}
+}
