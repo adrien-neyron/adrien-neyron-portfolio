@@ -2798,6 +2798,7 @@ function placeHot(p){
       else{tip.style.removeProperty('--lead');tip.style.left=clamp(x,tw/2+16,w-tw/2-16).toFixed(1)+'px';tip.style.top=(y+d/2+14).toFixed(1)+'px'}}
   });
   sectorOn=loaded&&vis1>.5&&!staticMode;if(ptrIn||sectorKey)updateSector();
+  if(!sectorOn&&(aimKey||pinnedKey||hoverKey)){pinnedKey=hoverKey=sectorKey=null;document.body.style.cursor='';refreshAim();if(hotEls.includes(document.activeElement))document.activeElement.blur()}   // étape suivante (zones masquées) : la carte se ferme toujours, même épinglée ou ouverte au clavier
   if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;dHint.classList.add('on');hotEls.find(b=>b.dataset.k==='e').classList.add('hint');hintT=setTimeout(hintGone,HINT_MS)}
   if(hintState===1){   // carte juste à droite et en dessous du cercle « Écoute » (gardée dans l'écran)
     const e=hotEls.find(b=>b.dataset.k==='e'),x=parseFloat(e.style.left),y=parseFloat(e.style.top),hw=dHint.offsetWidth,hh=dHint.offsetHeight;
