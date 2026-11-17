@@ -266,3 +266,13 @@ Demande d'Adri : l'écriture du bas n'est plus courbe et ne porte plus la signat
 - `DIAL_STEPS` (`loop.js`) reprend les noms du menu « Étapes » : 01 LA TRACE, 02 S'ÉQUIPER, 03 L'ASCENSION, 04 LE RANDONNEUR, 05 LE BIVOUAC. Si un nom change dans `data/navigation.ts`, le changer ici aussi.
 - `update()` calcule l'étape où la montre est visible (`p < CSP` → 01, jusqu'à la carte → 02, au bivouac → 05) et ne redessine le cadran (`makeDial`) que quand elle change.
 - Vérifié : « 01 LA TRACE » au premier écran, « 02 S'ÉQUIPER » via `/#equiper`. Le bivouac (05) n'a pas été vérifié.
+
+## « Le cadran se montre » — étape 1 : balises et secteurs (17/11/2026)
+
+Brief harmonisé avec Adri (trois étapes séparées : 1. balises + secteurs, 2. amorce automatique + micro-légende, 3. viseur). Principe : on vise un point cardinal, l'aiguille s'y cale, sa carte HUD s'ouvre ; un seul signal actif à la fois.
+
+- **Secteurs** (`sectorAt` / `updateSector`, `loop.js`) : 4 quarts de 90° couvrent tout l'écran de la montre (souris et stylet). Angles mesurés vers les boutons de zone projetés (l'inclinaison de la montre est prise en compte). Zone neutre au centre (`SECT_DEAD` 18 % du rayon : on garde le secteur en cours) et tolérance de 6° aux frontières (`SECT_HYST`) : vérifié, des allers-retours de ±3° autour de la frontière N/E ne basculent qu'une fois. Réévalué à chaque image (la montre pivote sous une souris immobile). Hors du cadran : rien d'actif. Clic dans un secteur = épingle sa carte (comme le bouton), Échap désépingle. Les boutons `.hot` ne réagissent plus au survol eux-mêmes ; ils restent pour le clavier (focus = même état) et le toucher.
+- **Point actif** : la lettre du cadran passe en orange et grossit de 12 % (`dialAimK`, `makeDial` redessiné seulement au changement) ; plus d'anneau au survol ni à l'épinglage. L'anneau `--acc` reste **au focus clavier** (WCAG 2.4.7).
+- **Balises** (`.hot::after`) : point `--hud-dot` de 4 px en haut à droite de chaque lettre, lueur `--hud-glow`, respiration 3,2 s décalée de 0,8 s par point (`--bd`). Quand un point est visé, les trois autres baissent (.25) et la balise active reste allumée. Le premier secteur visé arrête la respiration pour la visite (`sessionStorage['cordee-beacon']`, classe `.beacons-still`). Fixes sous `prefers-reduced-motion`. Décoratives (pseudo-élément d'un bouton déjà nommé).
+- Clic sonore discret (`tickSoft`) à chaque changement de secteur, seulement si le son est actif et hors mouvement réduit.
+- En attente de l'étape 2 : l'ancienne indication (pulse sur « E » + carte « Explorer l'instrument ») est encore là ; l'amorce la remplacera.

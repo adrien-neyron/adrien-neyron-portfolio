@@ -195,8 +195,16 @@ dialog .tg{min-width:180px;justify-content:center}
 
 /* Points d'interaction sur le cadran de la montre */
 .hot{position:absolute;z-index:3;transform:translate(-50%,-50%);border-radius:50%;border:2px solid transparent;background:transparent;padding:0;cursor:pointer;visibility:hidden;opacity:0}
-.hot:hover,.hot:focus-visible{border-color:var(--acc);background:rgba(226,109,59,.10)}
-.hot[aria-pressed="true"]{border-color:var(--acc);background:rgba(226,109,59,.16)}
+.hot:focus-visible{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,transparent)}   /* anneau seulement au focus clavier (WCAG 2.4.7) ; au survol / épinglé, c'est la lettre du cadran qui passe en orange (secteurs, 17/11/2026) */
+/* Balises des points cardinaux : point cuivre de 4 px près de la lettre, qui respire lentement (décalé par point) tant qu'aucun secteur n'a été visé ;
+   ensuite fixes et discrètes, seule la balise du point actif reste allumée. Décoratives (pseudo-élément d'un bouton déjà nommé). */
+.hot::after{content:"";position:absolute;left:calc(50% + 13px);top:calc(50% - 13px);width:4px;height:4px;border-radius:50%;background:var(--hud-dot);box-shadow:0 0 6px 1px var(--hud-glow);pointer-events:none;opacity:.8;animation:beacon 3.2s ease-in-out infinite;animation-delay:var(--bd,0s)}
+.hot[data-k="e"]{--bd:-.8s}.hot[data-k="s"]{--bd:-1.6s}.hot[data-k="o"]{--bd:-2.4s}
+@keyframes beacon{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:.95;transform:scale(1.2)}}
+.dial-aim .hot::after{animation:none;opacity:.25;transform:none}
+.beacons-still .hot::after{animation:none;opacity:.35;transform:none}
+.hot.aim::after,.beacons-still .hot.aim::after{animation:none;opacity:1;transform:scale(1.25);box-shadow:0 0 8px 2px var(--hud-glow)}
+@media (prefers-reduced-motion:reduce){.hot::after{animation:none;opacity:.6}}
 /* boutons du boîtier de la montre : zone invisible de 44 px posée sur chaque bouton 3D (pas d'anneau) ; contour seulement au focus clavier */
 .push{position:absolute;z-index:4;width:44px;height:44px;transform:translate(-50%,-50%);border-radius:50%;border:0;background:transparent;padding:0;cursor:pointer;visibility:hidden;opacity:0}
 .push:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
