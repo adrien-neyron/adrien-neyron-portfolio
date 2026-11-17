@@ -155,3 +155,12 @@ Le menu « Étapes | Projets | Outils » a un halo qui doit se fondre dans ce qu
 - **FIELD MODE (à venir)** : tous les éléments décoratifs non essentiels de cette phase portent la classe `decor` ; une seule règle pourra les masquer.
 
 **Vérifié** : axe (avec contraste) 0 violation, jour et nuit, 1440 × 900 et 375 × 812 ; parcours clavier menu → bouton → « Voir les projets » → zones de la montre → pied de page, focus visible ; Lighthouse avant/après (`docs/performance.md`). **Non vérifié** : vrai téléphone, lecteur d'écran, 667 px de haut (le haut du bracelet passe sous le bouton, qui reste lisible car opaque et au-dessus).
+
+## Bouton « Lancer la visite guidée » : bouton fantôme (17/11/2026)
+
+Sur le fond de gorge, le bouton n'a plus de fond plein : il laisse voir la photo. C'est un **bouton fantôme**, défini par son contour.
+- **Repos** : fond transparent, contour 1,5 px `--cta-line` (orange de signal, la couleur du waypoint AN : `#F08A4B` la nuit, `#A8401B` le jour), icône ▶ dans un anneau de la même couleur (32 px, 28 px sur mobile), texte `--fg` en capitales mono avec le halo de lisibilité du titre (`#head1`).
+- **Survol / focus** : voile `--cta-tint`, contour visuellement à 2 px (ombre intérieure, sans décaler la mise en page), halo `--cta-ring`, l'icône avance de 3 px (0,3 s). Focus clavier : contour plein `--focus` de 3 px à 5 px du bouton. Rien ne bouge sous `prefers-reduced-motion`.
+- **Hiérarchie** : le bouton (contour complet + icône) reste plus fort que « Voir les projets » (simple soulignement).
+- **Contrastes mesurés sur les pixels de la photo** (lettres masquées en gardant leur halo, 2ᵉ et 98ᵉ centiles de luminance, 1440 × 900, 1024 × 768, 375 × 812) : texte ≥ 12,2:1 (jour) et ≥ 16:1 (nuit) ; contour ≥ 4,0:1 (jour) et ≥ 7,1:1 (nuit). Le test `loopTokens` vérifie `--cta-line` ≥ 3:1 et `--fg` ≥ 4,5:1 sur `--bg` dans les deux thèmes.
+- Jetons retirés : `--cta-bg-1`, `--cta-bg-2`, `--cta-fg`, `--cta-edge`, `--cta-sheen`, `--cta-glow`.

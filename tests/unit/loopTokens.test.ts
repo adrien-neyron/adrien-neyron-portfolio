@@ -59,10 +59,10 @@ describe('jetons jour / nuit', () => {
     }
   })
 
-  it('bouton « Lancer la visite guidée » : texte ≥ 4,5:1 sur tout le dégradé, bord ≥ 3:1 sur le fond (jour et nuit)', () => {
+  it('bouton « Lancer la visite guidée » (fantôme) : contour ≥ 3:1 et texte ≥ 4,5:1 sur le fond, jour et nuit', () => {
     for (const theme of [light, dark]) {
-      for (const stop of ['--cta-bg-1', '--cta-bg-2']) expect(ratio(theme['--cta-fg'], theme[stop])).toBeGreaterThanOrEqual(4.5)
-      expect(ratio(theme['--cta-bg-2'], theme['--bg'])).toBeGreaterThanOrEqual(3)
+      expect(ratio(theme['--cta-line'], theme['--bg'])).toBeGreaterThanOrEqual(3)
+      expect(ratio(theme['--fg'], theme['--bg'])).toBeGreaterThanOrEqual(4.5)
     }
   })
 

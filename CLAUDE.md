@@ -207,6 +207,9 @@ In `buildStrapRing` the buckle and the two keepers are rounded, bevelled frames 
 ### Hero phase 3 (14/11/2026)
 Hierarchy eyebrow → title → lede → actions (`.cta` + `.cta2` « Voir les projets », plain link) → watch (8 % smaller on the wide first screen, `hs`). Title: one sentence per line via `titleHtml` (`utils/loopMarkup.ts`, also for /admin titles; escaped). Default texts « Trouver le cap. Concevoir le chemin. » in `loop.html` + `data/loopTexts.ts` (/admin › Profil still wins). Waypoint `--wpt` (orange signal diamond) = recurring AN identity mark, always decorative. Coordinates `.hcoord` = highest point of the GPS trace (`DATA`), **not** the Grandes Platières (not in the trace, no verified source; never invent coordinates). `#topo3`: 3 contour `<svg>` depths drawn once by `buildTopo3` (`contourPaths`), scroll parallax via `--hp` only on the first screen, none under reduced motion. Decorative non-essential elements carry class `decor` (hook for FIELD MODE). Details: `docs/ecran-accueil-corde.md` (« Hero, phase 3 »).
 
+### Guided-tour button: ghost style (17/11/2026)
+On the gorge photo the `.cta` has a **transparent background**: 1.5 px `--cta-line` border (orange signal = waypoint colour), ▶ icon in a `--cta-line` ring, `--fg` text with the `#head1` halo; hover/focus `--cta-tint` + `--cta-ring`, icon slides 3 px. Real contrast measured on the photo pixels: text ≥ 12:1, border ≥ 4:1. The old filled-pill tokens (`--cta-bg-*`, `--cta-fg`, `--cta-edge`, `--cta-sheen`, `--cta-glow`) are gone. Details: `docs/ecran-accueil-corde.md`.
+
 ### Watch-button hint (S'équiper)
 When the mouse moves while the case buttons are active, `#eqTip` (« Cliquer sur les boutons de la montre ») shows under the watch; gone 2.5 s after the last move, on a button or card, and for good once a fiche was opened. Mouse only, `aria-hidden`. Details: `docs/ecran-accueil-corde.md`.
 
