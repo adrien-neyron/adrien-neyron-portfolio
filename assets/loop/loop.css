@@ -282,10 +282,9 @@ html.loop-on #head1 .eyebrow{color:var(--hero-eyebrow)}   /* surtitre sur la pho
 html.loop-on body.static #head1 .eyebrow{color:var(--acc-text)}
 
 /* Hero, phase 3 (14/11/2026) : hiérarchie titre > texte > action > montre (lien « Voir les projets » retiré le 17/11/2026) ; waypoint AN (courbes #topo3 retirées le 17/11/2026).
-   Waypoint (--wpt) : losange orange de signal, repère graphique récurrent de l'identité (surtitre, coordonnées, carte). Toujours décoratif.
+   Waypoint (--wpt) : losange orange de signal de l'identité AN. Retiré du surtitre le 17/11/2026 ; le jeton reste disponible (non utilisé sur l'accueil).
    .decor = élément décoratif non essentiel : FIELD MODE (à venir) pourra tous les masquer d'une seule règle. */
 html.loop-on #head1 h1 .ln{display:block}   /* une phrase par ligne (utils/loopMarkup.ts, titleHtml) */
-html.loop-on #head1 .who::before{content:"";display:inline-block;width:7px;height:7px;margin:0 12px 0 2px;vertical-align:.08em;background:var(--wpt);transform:rotate(45deg);box-shadow:0 0 0 3px color-mix(in srgb,var(--wpt) 28%,transparent)}
 
 
 /* Scène 2 : parcours 3D des projets (relief en lignes cuivrées, blocs de pierre, de métal et de cuir) */

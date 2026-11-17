@@ -146,7 +146,7 @@ Le menu « Étapes | Projets | Outils » a un halo qui doit se fondre dans ce qu
 - **Action** : « Lancer la visite guidée » seulement. Le lien secondaire « Voir les projets » (`.cta2`) a été **retiré le 17/11/2026** à la demande d'Adri (les projets restent dans le menu « Projets » de l'en-tête).
 - **Montre** : 8 % plus petite sur le premier écran large (`hs` dans `loop.js`), taille normale dès « S'équiper ». Elle reste à droite, centrale dans sa moitié. Sur mobile, elle descend un peu (`cy` = 57 % de la hauteur) pour dégager les actions.
 
-**Waypoint AN** (`--wpt`, orange de signal : `#F08A4B` la nuit, `#B5481F` le jour) : losange avec un halo, repère graphique récurrent de l'identité. Il est décoratif : devant le surtitre (`.who::before`).
+**Waypoint AN** (`--wpt`, orange de signal : `#F08A4B` la nuit, `#B5481F` le jour) : losange avec un halo, repère graphique récurrent de l'identité. Il était devant le surtitre (`.who::before`) : **retiré le 17/11/2026** à la demande d'Adri. Plus aucun losange sur l'accueil ; le jeton `--wpt` reste défini pour un usage futur.
 
 **Coordonnées** (`.hcoord`) : **retirées le 17/11/2026** à la demande d'Adri (elles étaient sous « Lancer la visite guidée » et affichaient le point le plus haut de la trace GPS, 45°56′02″ N · 6°50′16″ E · 2 521 m). Si elles reviennent : ne jamais inventer de coordonnées ; les Grandes Platières ne sont pas dans la trace.
 
