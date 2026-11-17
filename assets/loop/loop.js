@@ -2743,15 +2743,16 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&pinnedKey){pinnedKey=null;re
    l'aiguille suit la souris ; quand la souris passe à l'azimut d'un point cardinal (±12° autour de N, E, S, O, vu du centre du cadran),
    l'aiguille s'y cale, la lettre s'éclaire et la carte HUD s'ouvre ; entre deux points, rien n'est ouvert (l'azimut défile en direct).
    On ne quitte le point qu'au-delà de ±18° (pas de bascule). Angles mesurés vers les boutons de zone projetés (inclinaison prise en compte).
-   Zone utile : l'écran et la lunette, hors du centre (18 % du rayon). Souris / stylet seulement. */
-const AZ_IN=12,AZ_OUT=18,SECT_DEAD=.18;let sectorKey=null,sectorOn=false,ptrIn=false;
+   Zone utile : autour de la montre jusqu'à AZ_REACH rayons d'écran, hors du centre (18 % du rayon). Souris / stylet seulement. */
+const AZ_IN=12,AZ_OUT=18,SECT_DEAD=.18,AZ_REACH=2.6;   // AZ_REACH : portée en rayons d'écran (~300 px à 1440 px de large), sans atteindre la colonne de texte à gauche
+let sectorKey=null,sectorOn=false,ptrIn=false;
 addEventListener('pointermove',e=>{ptrIn=e.pointerType!=='touch'},{passive:true});
 document.documentElement.addEventListener('pointerleave',()=>{ptrIn=false;updateSector()});
 function sectorAt(){
   if(!ptrIn||!sectorOn)return null;
   const c=hotEls.map(b=>[parseFloat(b.style.left),parseFloat(b.style.top)]),cx=(c[1][0]+c[3][0])/2,cy=(c[0][1]+c[2][1])/2;   // centre = milieu E–O et N–S
   const dx=ptr.x-cx,dy=ptr.y-cy,dist=Math.hypot(dx,dy),R=Math.max(...c.map(([x,y])=>Math.hypot(x-cx,y-cy)))*DIAL_R/1.4;   // R : bord de l'écran (les zones sont à ~1,4 unité du centre, l'écran à 1,98)
-  if(dist>R*1.18||dist<R*SECT_DEAD)return dist<R*SECT_DEAD?sectorKey:null;   // dedans : écran + lunette ; centre : on garde le point en cours
+  if(dist>R*AZ_REACH||dist<R*SECT_DEAD)return dist<R*SECT_DEAD?sectorKey:null;   // portée : tout autour de la montre (pas seulement l'écran : en pratique la souris tourne autour du boîtier) ; centre : on garde le point en cours
   const a=Math.atan2(dy,dx),diff=i=>{let d=Math.abs(Math.atan2(c[i][1]-cy,c[i][0]-cx)-a)*57.3;return d>180?360-d:d};
   const ks=Object.keys(HOT),ds=ks.map((k,i)=>diff(i)),best=ds.indexOf(Math.min(...ds)),cur=ks.indexOf(sectorKey);
   if(cur>=0&&ds[cur]<AZ_OUT)return sectorKey;   // on reste calé tant qu'on ne s'éloigne pas de plus de 18°
