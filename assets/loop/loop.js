@@ -2704,12 +2704,12 @@ setDlg.addEventListener('close',()=>{root.style.overflow=''});
 
 /* ---------- Points d'interaction : qualités aux points cardinaux, compétences, expérience ---------- */
 const HOT={
-  n:{t:'Résilience',d:'Cap fixe face aux bugs.',b:0,p:[0,1.40],r:.42},
-  e:{t:'Écoute active',d:'Collaboration d\'équipe.',b:90,p:[1.36,0],r:.42},
-  s:{t:'Stabilité',d:'Gestion de la pression.',b:180,p:[0,-1.46],r:.40},
-  o:{t:'Ouverture d\'esprit',d:'Curiosité technique.',b:270,p:[-1.36,0],r:.42}
+  n:{c:'N · Nord',t:'Résilience',d:'Cap fixe face aux bugs.',b:0,p:[0,1.40],r:.42},
+  e:{c:'E · Est',t:'Écoute active',d:'Collaboration d\'équipe.',b:90,p:[1.36,0],r:.42},
+  s:{c:'S · Sud',t:'Stabilité',d:'Gestion de la pression.',b:180,p:[0,-1.46],r:.40},
+  o:{c:'O · Ouest',t:'Ouverture d\'esprit',d:'Curiosité technique.',b:270,p:[-1.36,0],r:.42}
 };
-const tip=$('#tip'),tipT=$('#tipT'),tipD=$('#tipD');
+const tip=$('#tip'),tipT=$('#tipT'),tipD=$('#tipD'),tipK=$('#tipK');   // tipK : badge = valeur du cadran sous la zone (N · Nord…)
 const hotEls=Object.keys(HOT).map(k=>{
   const b=document.createElement('button');b.type='button';b.className='hot';b.dataset.k=k;
   b.setAttribute('aria-label',HOT[k].t+' : '+HOT[k].d);b.setAttribute('aria-pressed','false');
@@ -2719,7 +2719,7 @@ let aimK=0;   // pivot de la montre vers l'utilisateur pendant la visée d'une z
 function refreshAim(){
   aimKey=pinnedKey||hoverKey;
   hotEls.forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.k===pinnedKey));if(b.dataset.k===aimKey)b.setAttribute('aria-describedby','tip');else b.removeAttribute('aria-describedby')});
-  if(aimKey){tipT.textContent=HOT[aimKey].t;tipD.textContent=HOT[aimKey].d;tip.classList.add('on')}else tip.classList.remove('on');
+  if(aimKey){tipK.textContent=HOT[aimKey].c;tipT.textContent=HOT[aimKey].t;tipD.textContent=HOT[aimKey].d;tip.classList.add('on')}else tip.classList.remove('on');
 }
 hotEls.forEach(b=>{
   const k=b.dataset.k;
