@@ -1144,3 +1144,17 @@ body.static #restart span{font-size:14px;color:var(--fg);text-shadow:none}
   body.static #bivtext,body.static #restart{grid-column:1}
   body.static #campCanvas,body.static #s4 .camp-fx{bottom:auto;height:calc(var(--band3) + 40px);-webkit-mask-image:linear-gradient(#000 75%,transparent);mask-image:linear-gradient(#000 75%,transparent)}
 }
+
+/* Relief au curseur (17/11/2026, utils/heroRelief.ts) : canvas WebGL sous les voiles, même cadrage que la photo CSS.
+   Invisible tant que l'image n'est pas chargée (la photo CSS reste dessous) ; absent sans curseur fin / sous 900 px / en mouvement réduit. */
+.hphoto .hrelief{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .6s ease}
+.hphoto .hrelief.on{opacity:1}
+body.static .hphoto .hrelief{display:none}
+
+/* Premier écran épuré (17/11/2026) : tant que le visiteur n'a pas quitté le haut de page (classe at-hero sur <html>, posée par initHeroClean),
+   seuls restent la marque, le menu, l'accroche, le bouton et la montre. Horloge/altitude, rail d'altitude, grain et ligne de copyright
+   reviennent dès le premier défilement. Aucune information perdue : les liens CV, contact, mentions et accessibilité restent dans le pied de page. */
+.hud,.altrail,footer.perma .copy,.grain{transition:opacity .5s ease}
+html.at-hero .hud,html.at-hero .altrail,html.at-hero .grain{opacity:0;pointer-events:none}
+@media (min-width:900px){html.at-hero footer.perma .copy{opacity:0}html.at-hero footer.perma{justify-content:center}}
+@media (prefers-reduced-motion:reduce){.hud,.altrail,footer.perma .copy,.grain,.hphoto .hrelief{transition:none}}
