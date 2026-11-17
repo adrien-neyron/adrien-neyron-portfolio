@@ -271,21 +271,14 @@ body.static .hphoto{display:none}
 #head1 .eyebrow{color:var(--hero-eyebrow)}   /* surtitre sur la photo : orange clair la nuit, rouille brun le jour (≥ 4,5:1 mesuré sur la photo + voile) */
 body.static #head1 .eyebrow{color:var(--acc-text)}
 
-/* Hero, phase 3 (14/11/2026) : hiérarchie titre > texte > actions > montre ; waypoint AN (courbes #topo3 retirées le 17/11/2026).
+/* Hero, phase 3 (14/11/2026) : hiérarchie titre > texte > action > montre (lien « Voir les projets » retiré le 17/11/2026) ; waypoint AN (courbes #topo3 retirées le 17/11/2026).
    Waypoint (--wpt) : losange orange de signal, repère graphique récurrent de l'identité (surtitre, coordonnées, carte). Toujours décoratif.
    .decor = élément décoratif non essentiel : FIELD MODE (à venir) pourra tous les masquer d'une seule règle. */
 #head1 h1 .ln{display:block}   /* une phrase par ligne (utils/loopMarkup.ts, titleHtml) */
 #head1 .who::before,.hcoord::before{content:"";display:inline-block;width:7px;height:7px;margin:0 12px 0 2px;vertical-align:.08em;background:var(--wpt);transform:rotate(45deg);box-shadow:0 0 0 3px color-mix(in srgb,var(--wpt) 28%,transparent)}
-.cta2{display:inline-flex;align-items:center;min-height:56px;margin:22px 0 0;padding:0 6px;color:var(--fg);font:600 clamp(13px,1vw,15px)/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;text-decoration:underline;text-decoration-color:var(--wpt);text-decoration-thickness:1.5px;text-underline-offset:7px;pointer-events:auto;transition:text-underline-offset .3s ease-out}   /* action secondaire : texte --fg, soulignement orange de signal ; fonctionne sans JavaScript */
-.cta2:hover{text-underline-offset:4px;text-decoration-thickness:2px}
-.cta2:focus-visible{outline:3px solid var(--focus);outline-offset:4px;border-radius:4px}
 .hcoord{margin:20px 0 0;font:500 11.5px/1.4 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.16em;color:var(--muted)}   /* coordonnées : point le plus haut de la trace GPS (DATA, loop.js) */
 .hcoord::before{width:6px;height:6px;margin-right:11px}
-#head1 .cta{margin-right:20px}   /* espace entre les deux actions posé à droite du bouton : si le lien passe à la ligne, il reste aligné sur le texte */
-.cta2 .sm{display:none}
-@media (max-width:899px){#head1 .cta{margin-right:10px}.cta2 .lg,.hcoord{display:none}.cta2 .sm{display:inline}}   /* petit écran : les deux actions sur une ligne (« Visite guidée » · « Projets → ») ; coordonnées masquées (décoratives) pour laisser la place à la montre */
-@media (prefers-reduced-motion:reduce){.cta2{transition:none}}
-body.static .cta2{margin-left:0}
+@media (max-width:899px){.hcoord{display:none}}   /* petit écran : coordonnées masquées (décoratives) pour laisser la place à la montre */
 
 
 /* Scène 2 : parcours 3D des projets (relief en lignes cuivrées, blocs de pierre, de métal et de cuir) */
