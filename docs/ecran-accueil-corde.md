@@ -196,10 +196,9 @@ Ordre de lecture voulu : **titre > texte > action > montre**. La montre reste ce
 
 ## Indication d'accueil sur le cadran (17/11/2026)
 
-Au chargement de la montre, un **waypoint orange** (`#dpulse`, `--cta-line`) pulse sur la zone « Expérience » du cadran, et une **micro-carte** (`#dhint`) apparaît juste à côté :
-« EXPLORE THE INSTRUMENT » / « Certains éléments du cadran révèlent mon univers. » / « MOVE TO DISCOVER · CLICK TO EXPLORE » (« TAP TO EXPLORE » sur écran tactile, `hover: none` ou `pointer: coarse`).
-- **Position** : posée par `placeHot` (loop.js) sur la projection de la zone `exp`, carte à droite et en dessous, gardée dans l'écran ; elle suit la montre et s'efface avec les zones du cadran.
-- **Durée** : une fois par visite (`sessionStorage['cordee-hint']`) ; disparaît au premier clic, touche, molette, toucher ou survol d'une zone du cadran, sinon après 8 s (`HINT_MS`). Le simple mouvement de la souris ne la ferme pas : c'est ce qu'elle invite à faire.
-- **Accessibilité** : décorative (`aria-hidden`, classe `decor` pour FIELD MODE) ; les zones du cadran ont leur propre nom accessible et restent accessibles au clavier. Textes anglais en `lang="en"` (noms de système, comme WAYFINDER). Pas de pulsation sous `prefers-reduced-motion` (anneau fixe) ; absente en vue statique. Couleurs par rôles (`--card`, `--fg`, `--muted`, `--cta-line`).
-- **Mouvement de la montre** : le léger balancement existant (`stand.rotation`, sinusoïdes lentes, coupé sous mouvement réduit) suffit ; rien n'a été ajouté.
-**Vérifié** : apparition ~0,75 s après la montre, disparition au clic et après 8,0 s, pas de retour au rechargement de la même visite, axe 0 violation pendant l'affichage, captures jour / nuit 1440 et 1024, mobile tactile 375.
+Au chargement de la montre, **le cercle de la zone « Expérience »** pulse (`.hot.hint`) : c'est le même cercle que celui du focus clavier et du survol (`--acc`), animé par une onde (`hotPulse`, ombre qui s'élargit). Une **micro-carte** (`#dhint`) apparaît juste à côté :
+« EXPLORER L'INSTRUMENT » / « Certains éléments du cadran révèlent mon univers. » / « BOUGEZ POUR DÉCOUVRIR · CLIQUEZ POUR EXPLORER » (« TOUCHEZ POUR EXPLORER » sur écran tactile, `hover: none` ou `pointer: coarse`). Tout est en français (le waypoint orange séparé et les textes anglais ont été retirés le 17/11/2026 à la demande d'Adri).
+- **Position** : posée par `placeHot` (loop.js), à droite et en dessous du cercle `exp`, gardée dans l'écran ; elle suit la montre et s'efface avec les zones du cadran.
+- **Durée** : une fois par visite (`sessionStorage['cordee-hint']`) ; disparaît (carte et pulsation) au premier clic, touche, molette, toucher ou survol d'une zone du cadran, sinon après 8 s (`HINT_MS`). Le simple mouvement de la souris ne la ferme pas.
+- **Accessibilité** : carte décorative (`aria-hidden`, classe `decor` pour FIELD MODE) ; les zones du cadran ont leur propre nom accessible. Sous `prefers-reduced-motion`, le cercle reste fixe (pas d'onde). Absente en vue statique.
+**Vérifié** : cercle animé et carte affichés à l'arrivée, disparition à la première interaction et après 8 s, pas de débordement du texte, axe 0 violation, captures jour / nuit 1440 et 1024, mobile tactile 375.

@@ -278,24 +278,23 @@ body.static .hphoto{display:none}
 .hback{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:var(--phk,0);background:var(--hero-top)}
 .htop{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--phk,0);background:linear-gradient(180deg,var(--hero-top) 0,var(--hero-top) 7%,color-mix(in srgb,var(--hero-top) 55%,transparent) 14%,color-mix(in srgb,var(--hero-top) 0%,transparent) 24%)}
 body.static .hback,body.static .htop{display:none}
-/* Indication d'accueil sur le cadran (17/11/2026) : un waypoint orange pulse sur la zone « Expérience » et une micro-carte invite à explorer.
-   Une fois par visite (sessionStorage), au chargement de la 3D ; disparaît à la première interaction (clic, touche, molette, toucher,
-   survol d'une zone du cadran) ou après 8 s. Décorative (aria-hidden, classe decor) : les zones du cadran ont leur propre nom accessible.
-   Textes anglais balisés lang="en". Tactile : « Tap to explore ». Mouvement réduit : pas de pulsation. Position posée par loop.js (placeHot). */
-.dpulse{position:absolute;z-index:4;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--cta-line);pointer-events:none;opacity:0;visibility:hidden}
-.dpulse::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1.5px solid var(--cta-line);animation:dpulse 1.8s ease-out infinite}
-@keyframes dpulse{0%{transform:scale(.55);opacity:.9}100%{transform:scale(2.1);opacity:0}}
-.dhint{position:absolute;z-index:5;width:max-content;max-width:min(300px,calc(100vw - 32px));padding:10px 14px 11px;border-radius:12px;background:color-mix(in srgb,var(--card) 94%,transparent);border:1px solid color-mix(in srgb,var(--cta-line) 45%,transparent);pointer-events:none;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .45s ease-out,transform .45s ease-out,visibility .45s}
-.dpulse.on,.dhint.on{visibility:visible}
+/* Indication d'accueil sur le cadran (17/11/2026) : le cercle de la zone « Expérience » (le même que celui du focus clavier, .hot) pulse
+   et une micro-carte invite à explorer. Une fois par visite (sessionStorage), au chargement de la 3D ; disparaît à la première interaction
+   (clic, touche, molette, toucher, survol d'une zone du cadran) ou après 8 s. Carte décorative (aria-hidden, classe decor) : les zones du
+   cadran ont leur propre nom accessible. Tactile : « Touchez pour explorer ». Mouvement réduit : cercle fixe. Position posée par loop.js (placeHot). */
+.hot.hint{border-color:var(--acc);animation:hotPulse 1.6s ease-out infinite}
+@keyframes hotPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent)}70%{box-shadow:0 0 0 14px color-mix(in srgb,var(--acc) 0%,transparent)}100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 0%,transparent)}}
+.dhint{position:absolute;z-index:5;width:max-content;max-width:min(360px,calc(100vw - 32px));padding:10px 14px 11px;border-radius:12px;background:color-mix(in srgb,var(--card) 94%,transparent);border:1px solid color-mix(in srgb,var(--cta-line) 45%,transparent);pointer-events:none;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .45s ease-out,transform .45s ease-out,visibility .45s}
+.dhint.on{visibility:visible}
 .dhint.on{transform:none}
 .dhint p{margin:0}
 .dhint .dh-k{font:600 11px/1.3 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--cta-line)}
 .dhint .dh-t{max-width:250px;margin-top:6px;font:400 13px/1.45 'JetBrains Mono',ui-monospace,monospace;color:var(--fg)}
-.dhint .dh-a{margin-top:8px;white-space:nowrap;font:500 10.5px/1.3 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.dhint .dh-a{margin-top:8px;white-space:nowrap;font:500 10.5px/1.3 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .dh-touch{display:none}
 @media (hover:none),(pointer:coarse){.dh-mouse{display:none}.dh-touch{display:inline}}
-@media (prefers-reduced-motion:reduce){.dpulse::after{animation:none;transform:scale(1.3);opacity:.6}.dhint{transition:none;transform:none}}
-body.static .dpulse,body.static .dhint{display:none}
+@media (prefers-reduced-motion:reduce){.hot.hint{animation:none}.dhint{transition:none;transform:none}}
+body.static .dhint{display:none}
 #head1 .eyebrow{color:var(--hero-eyebrow)}   /* surtitre sur la photo : orange clair la nuit, rouille brun le jour (≥ 4,5:1 mesuré sur la photo + voile) */
 body.static #head1 .eyebrow{color:var(--acc-text)}
 
