@@ -14,8 +14,8 @@
 :root,:root[data-theme="dark"]{--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}}
 :root[data-theme="light"]{--brand:#27465C;--brand-hover:#16303F;--brand-fill:#F2EEE6;--brand-halo:rgba(252,247,238,.9);--sep:#27465C;--underline:#27465C;--focus:#1B1712;--ft:235,195,156;--needle-1:#D2672B;--needle-2:#A8401B;--needle-3:#4A4F55;--needle-4:#23272B;--needle-pivot:#1B1712;--muted:#435862}
-:root,:root[data-theme="dark"]{--wpt:#F08A4B;--sky4-top:#070A14;--cta-line:#F08A4B;--cta-tint:rgba(240,138,75,.12);--cta-ring:rgba(240,138,75,.30);--vignette:rgba(5,8,17,.62);--hero-photo:url(/loop/hero-gorge-dark.webp);--hero-photo-m:url(/loop/hero-gorge-dark-m.webp);--hero-scrim:5,8,17;--hero-a1:.90;--hero-a2:.78;--hero-eyebrow:#FFB880}
-:root[data-theme="light"]{--wpt:#B5481F;--sky4-top:#BCD7EA;--cta-line:#A8401B;--cta-tint:rgba(168,64,27,.08);--cta-ring:rgba(168,64,27,.24);--vignette:rgba(244,236,222,.55);--hero-photo:url(/loop/hero-gorge-light.webp);--hero-photo-m:url(/loop/hero-gorge-light-m.webp);--hero-scrim:244,236,222;--hero-a1:.92;--hero-a2:.82;--hero-eyebrow:#70200F}
+:root,:root[data-theme="dark"]{--hero-top:#182C42;--wpt:#F08A4B;--sky4-top:#070A14;--cta-line:#F08A4B;--cta-tint:rgba(240,138,75,.12);--cta-ring:rgba(240,138,75,.30);--vignette:rgba(5,8,17,.62);--hero-photo:url(/loop/hero-gorge-dark.webp);--hero-photo-m:url(/loop/hero-gorge-dark-m.webp);--hero-scrim:5,8,17;--hero-a1:.90;--hero-a2:.78;--hero-eyebrow:#FFB880}
+:root[data-theme="light"]{--hero-top:#ECE0D0;--wpt:#B5481F;--sky4-top:#BCD7EA;--cta-line:#A8401B;--cta-tint:rgba(168,64,27,.08);--cta-ring:rgba(168,64,27,.24);--vignette:rgba(244,236,222,.55);--hero-photo:url(/loop/hero-gorge-light.webp);--hero-photo-m:url(/loop/hero-gorge-light-m.webp);--hero-scrim:244,236,222;--hero-a1:.92;--hero-a2:.82;--hero-eyebrow:#70200F}
 /* (ci-dessus) Bouton principal (CTA) et voile de profondeur de l'accueil : rôles propres, même cuivre profond dans les deux thèmes (le bouton est opaque) */
 /* Halo du menu (Étapes | Projets | Outils) : il doit se fondre dans ce qui est derrière l'en-tête. Partout c'est --bg, sauf au bivouac où le haut de l'écran est le ciel (--sky4-top) alors que --bg y passe au sable : sans ça, le halo dessinait un contour beige autour des lettres sur le ciel bleu (jour). --hdr-k = opacité de la scène du bivouac, posée par loop.js. */
 header.top{--hdr-halo:color-mix(in srgb,var(--sky4-top) calc(var(--hdr-k,0) * 100%),var(--bg))}
@@ -249,7 +249,7 @@ body.static .cta{display:none}
    Opacité pilotée par loop.js (elle suit le sol : le voile disparaît quand on plonge vers la carte). */
 .lens{position:absolute;inset:0;z-index:1;pointer-events:none}
 .lens::before,.lens::after{content:"";position:absolute;inset:0}
-.lens::after{background:radial-gradient(ellipse 78% 72% at 50% 46%,transparent 52%,var(--vignette) 100%)}
+.lens::after{background:radial-gradient(ellipse 78% 72% at 50% 46%,transparent 52%,var(--vignette) 100%);-webkit-mask-image:linear-gradient(180deg,transparent 0,transparent 7%,#000 24%);mask-image:linear-gradient(180deg,transparent 0,transparent 7%,#000 24%)}   /* pas de vignettage sur la bande du haut : elle garde la couleur --hero-top, comme l'aplat #hback derrière la scène (raccord invisible pendant le défilement) */
 @media (min-width:900px) and (pointer:fine){   /* flou réservé aux grands écrans : backdrop-filter sur un canvas animé coûte cher sur mobile */
   @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     .lens::before{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);-webkit-mask-image:linear-gradient(to bottom,transparent 76%,#000 96%);mask-image:linear-gradient(to bottom,transparent 76%,#000 96%)}
@@ -268,14 +268,16 @@ body.static .lens{display:none}
 .hphoto::after{z-index:1;opacity:var(--ph-l,1)}
 @media (max-width:899px){.hphoto::before{opacity:0}.hphoto::after{opacity:1}}
 body.static .hphoto{display:none}
-/* Fond de secours du hero (17/11/2026) : la même photo, fixe, derrière la scène. Pendant le défilement, la scène collée (.stage, sticky)
-   peut prendre une ou deux images de retard et laisser voir le fond sur ~16 px en haut : ce liseret montrait le ciel abricot du mode jour.
-   Avec la photo derrière (même cadrage cover + même voile du haut que .hphoto::after), l'interstice montre les mêmes pixels et ne se voit plus.
-   Opacité --phk = celle de la photo du hero (loop.js) ; le ciel du mode jour (body::after) s'efface d'autant.
-   Élément dédié #hback (loop.html, avant <main>) : body::before sert déjà aux autres pages et reste neutralisé ici. */
-.hback{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:var(--phk,0);background:linear-gradient(180deg,rgba(var(--hero-scrim),.55) 0,rgba(var(--hero-scrim),0) 22%),var(--hero-photo) center/cover no-repeat}
-@media (max-width:899px){.hback{background-image:linear-gradient(180deg,rgba(var(--hero-scrim),.74) 0,rgba(var(--hero-scrim),.60) 55%,rgba(var(--hero-scrim),.30) 100%),var(--hero-photo-m)}}
-body.static .hback{display:none}
+/* Haut du hero (17/11/2026) : pendant le défilement, la scène collée (.stage, sticky) peut prendre une ou deux images de retard et laisser
+   voir ce qui est derrière elle en haut de l'écran (jusqu'à ~90 px). Une copie de la photo derrière ne se raccorde pas (le relief au curseur
+   agrandit et décale la photo). Solution : la couleur du haut de l'image (--hero-top, mesurée : #ECE0D0 le jour, #182C42 la nuit)
+   - en aplat derrière la scène (#hback, avant <main>) ;
+   - en fondu sur le haut de la photo (.htop, au-dessus de la photo et du relief, sous la montre) : plein jusqu'à 7 %, nul à 24 %.
+   Le haut de l'écran a donc toujours cette couleur, interstice ou non. Opacité --phk = celle de la photo (loop.js) ; le ciel du mode jour
+   (body::after) s'efface d'autant. body::before n'est pas utilisé : il sert aux autres pages et reste neutralisé sur l'accueil. */
+.hback{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:var(--phk,0);background:var(--hero-top)}
+.htop{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--phk,0);background:linear-gradient(180deg,var(--hero-top) 0,var(--hero-top) 7%,color-mix(in srgb,var(--hero-top) 55%,transparent) 14%,color-mix(in srgb,var(--hero-top) 0%,transparent) 24%)}
+body.static .hback,body.static .htop{display:none}
 #head1 .eyebrow{color:var(--hero-eyebrow)}   /* surtitre sur la photo : orange clair la nuit, rouille brun le jour (≥ 4,5:1 mesuré sur la photo + voile) */
 body.static #head1 .eyebrow{color:var(--acc-text)}
 
