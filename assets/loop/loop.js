@@ -2703,23 +2703,23 @@ setDlg.addEventListener('close',()=>{root.style.overflow=''});
 
 
 /* ---------- Points d'interaction : qualités aux points cardinaux, compétences, expérience ---------- */
-const HOT={
-  n:{c:'N · Nord',t:'Résilience',d:'Cap fixe face aux bugs.',b:0,p:[0,1.40],r:.42},
-  e:{c:'E · Est',t:'Écoute active',d:'Collaboration d\'équipe.',b:90,p:[1.36,0],r:.42},
-  s:{c:'S · Sud',t:'Stabilité',d:'Gestion de la pression.',b:180,p:[0,-1.46],r:.40},
-  o:{c:'O · Ouest',t:'Ouverture d\'esprit',d:'Curiosité technique.',b:270,p:[-1.36,0],r:.42}
+const HOT={   // t : titre (badge de l'infobulle), d : phrase principale, x : exemple court (textes fixes, pas dans /admin)
+  n:{x:'Un bug bloquant en production : je le reproduis, je l\'isole, je le corrige, puis un test l\'empêche de revenir.',t:'Résilience',d:'Cap fixe face aux bugs.',b:0,p:[0,1.40],r:.42},
+  e:{x:'Avant de coder, je reformule le besoin avec l\'équipe pour vérifier qu\'on parle de la même chose.',t:'Écoute active',d:'Collaboration d\'équipe.',b:90,p:[1.36,0],r:.42},
+  s:{x:'Une livraison serrée : je découpe, je garde l\'essentiel et je tiens l\'équipe informée.',t:'Stabilité',d:'Gestion de la pression.',b:180,p:[0,-1.46],r:.40},
+  o:{x:'Ce portfolio : une montre 3D en Three.js, apprise en la construisant.',t:'Ouverture d\'esprit',d:'Curiosité technique.',b:270,p:[-1.36,0],r:.42}
 };
-const tip=$('#tip'),tipT=$('#tipT'),tipD=$('#tipD'),tipK=$('#tipK');   // tipK : badge = valeur du cadran sous la zone (N · Nord…)
+const tip=$('#tip'),tipT=$('#tipT'),tipD=$('#tipD'),tipK=$('#tipK');   // badge = titre de la zone, gras = phrase, dessous = exemple
 const hotEls=Object.keys(HOT).map(k=>{
   const b=document.createElement('button');b.type='button';b.className='hot';b.dataset.k=k;
-  b.setAttribute('aria-label',HOT[k].t+' : '+HOT[k].d);b.setAttribute('aria-pressed','false');
+  b.setAttribute('aria-label',HOT[k].t);   // phrase et exemple : lus via aria-describedby → #tip au focus (pas de répétition)b.setAttribute('aria-pressed','false');
   S[0].appendChild(b);return b;
 });
 let aimK=0;   // pivot de la montre vers l'utilisateur pendant la visée d'une zone (survol, focus, clic)
 function refreshAim(){
   aimKey=pinnedKey||hoverKey;
   hotEls.forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.k===pinnedKey));if(b.dataset.k===aimKey)b.setAttribute('aria-describedby','tip');else b.removeAttribute('aria-describedby')});
-  if(aimKey){tipK.textContent=HOT[aimKey].c;tipT.textContent=HOT[aimKey].t;tipD.textContent=HOT[aimKey].d;tip.classList.add('on')}else tip.classList.remove('on');
+  if(aimKey){const H=HOT[aimKey];tipK.textContent=H.t;tipT.textContent=H.d;tipD.textContent=H.x;tip.classList.add('on')}else tip.classList.remove('on');
 }
 hotEls.forEach(b=>{
   const k=b.dataset.k;
@@ -2738,7 +2738,7 @@ try{if(sessionStorage.getItem('cordee-hint'))hintState=2}catch(e){}
 function hintGone(){if(hintState===2)return;hintState=2;clearTimeout(hintT);dHint.classList.remove('on');dHint.style.opacity='0';hotEls.forEach(b=>b.classList.remove('hint'));try{sessionStorage.setItem('cordee-hint','1')}catch(e){}}
 ['pointerdown','keydown','wheel','touchstart'].forEach(t=>addEventListener(t,hintGone,{passive:true,capture:true}));
 hotEls.forEach(b=>b.addEventListener('pointerenter',hintGone));
-const TIP_LEAD=40;   // longueur du trait lumineux entre la zone et l'infobulle (bureau), = --lead de .tip.side-r/-l
+const TIP_LEAD=40,TIP_DIAL_R=2.3;   // TIP_DIAL_R : rayon extérieur de la lunette (unités de la montre), le trait part de la zone et sort du cadran ; TIP_LEAD : longueur minimale du trait lumineux entre la zone et l'infobulle (bureau), = --lead de .tip.side-r/-l
 const _pv=THREE_OK?new THREE.Vector3():null,_pw=THREE_OK?new THREE.Vector3():null;
 function placeHot(p){
   if(aimKey){const D=57.3,ry=clamp(stand.rotation.y*D*.6,-16,16),rx=clamp(-stand.rotation.x*D*.6,-12,12);   // infobulle holographique : elle pivote avec le cadran (orientation atténuée pour rester lisible) ; le reflet suit la souris
@@ -2752,11 +2752,15 @@ function placeHot(p){
     const x=(_pv.x*.5+.5)*w,y=(-_pv.y*.5+.5)*h,d=Math.max(44,Math.abs(_pw.x-_pv.x)*w);
     b.style.left=x.toFixed(1)+'px';b.style.top=y.toFixed(1)+'px';b.style.width=b.style.height=d.toFixed(1)+'px';
     b.style.opacity=vis1.toFixed(2);b.style.visibility=vis1<.05?'hidden':'visible';
-    if(b.dataset.k===aimKey){   // bureau : à côté de la zone, relié par un trait horizontal (à droite si la place le permet) ; mobile : dessous, filet vertical
-      const tw=tip.offsetWidth,th=tip.offsetHeight,rx=x+d/2+TIP_LEAD,lx=x-d/2-TIP_LEAD,fitR=rx+tw<=w-16,fitL=lx-tw>=16,side=w<1000?'':b.dataset.k==='o'?(fitL?'l':fitR?'r':''):(fitR?'r':fitL?'l':'');   // « O » s'ouvre vers la gauche, les autres vers la droite : l'infobulle ne recouvre pas le cadran
+    if(b.dataset.k===aimKey){   // bureau : à côté de la zone, relié par un trait horizontal qui sort du cadran ; mobile ou pas de place : dessous, filet vertical
+      const k=b.dataset.k,ex=Math.sqrt(Math.max(0,TIP_DIAL_R*TIP_DIAL_R-H.p[1]*H.p[1]));   // demi-largeur du cadran (bord de la lunette) à la hauteur de la zone
+      _pw.set(ex,H.p[1],.06);group.localToWorld(_pw);_pw.project(cam);const eR=(_pw.x*.5+.5)*w;
+      _pw.set(-ex,H.p[1],.06);group.localToWorld(_pw);_pw.project(cam);const eL=(_pw.x*.5+.5)*w;
+      const tw=tip.offsetWidth,th=tip.offsetHeight,leadR=Math.max(TIP_LEAD,eR+16-(x+d/2)),leadL=Math.max(TIP_LEAD,(x-d/2)-(eL-16)),rx=x+d/2+leadR,lx=x-d/2-leadL;
+      const fitR=rx+tw<=w-16,fitL=lx-tw>=16,side=w<1000?'':k==='e'?(fitR?'r':''):k==='o'?(fitL?'l':''):(fitR?'r':fitL?'l':'');   // E à droite, O à gauche, N/S à droite (sinon gauche) : jamais par-dessus le cadran
       tip.classList.toggle('side-r',side==='r');tip.classList.toggle('side-l',side==='l');
-      if(side){tip.style.left=(side==='r'?rx:lx).toFixed(1)+'px';tip.style.top=clamp(y,th/2+16,h-th/2-16).toFixed(1)+'px'}
-      else{tip.style.left=clamp(x,130,w-130).toFixed(1)+'px';tip.style.top=(y+d/2+14).toFixed(1)+'px'}}
+      if(side){tip.style.setProperty('--lead',(side==='r'?leadR:leadL).toFixed(1)+'px');tip.style.left=(side==='r'?rx:lx).toFixed(1)+'px';tip.style.top=clamp(y,th/2+16,h-th/2-16).toFixed(1)+'px'}
+      else{tip.style.removeProperty('--lead');tip.style.left=clamp(x,tw/2+16,w-tw/2-16).toFixed(1)+'px';tip.style.top=(y+d/2+14).toFixed(1)+'px'}}
   });
   if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;dHint.classList.add('on');hotEls.find(b=>b.dataset.k==='e').classList.add('hint');hintT=setTimeout(hintGone,HINT_MS)}
   if(hintState===1){   // carte juste à droite et en dessous du cercle « Écoute » (gardée dans l'écran)

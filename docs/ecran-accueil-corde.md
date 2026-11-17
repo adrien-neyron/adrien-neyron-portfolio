@@ -241,3 +241,10 @@ Demande d'Adri : l'infobulle `#tip` des quatre zones cardinales devient une **in
 - **Trait lumineux horizontal sur bureau** (largeur ≥ 1000 px) : `placeHot` pose `.side-r` ou `.side-l`, l'infobulle se place à 40 px (`TIP_LEAD` = `--lead`) de l'anneau, centrée verticalement, reliée par un trait cuivré lumineux. « O » s'ouvre vers la gauche, N / E / S vers la droite (repli de l'autre côté si la place manque). Sur mobile : sous la zone, filet vertical.
 - **Contrastes** : pire cas analytique (fond blanc assombri par le filtre) titre ≥ 7:1, description ≥ 5,4:1, badge ≥ 5,3:1 (test `loopTokens`) ; mesuré sur le rendu Chrome : ≥ 5,8:1 en jour, ≥ 10:1 en nuit.
 - Jetons `--hud-*` déclarés dans les deux palettes (mêmes valeurs).
+
+### Contenu de l'infobulle : titre, phrase, exemple (17/11/2026)
+
+Demande d'Adri : le badge porte le **titre** de la zone (« Résilience », « Écoute active », « Stabilité », « Ouverture d'esprit ») ; dessous, la **phrase** en serif (« Cap fixe face aux bugs. »…) ; puis, séparé par un filet cuivré, un **exemple court** préfixé « Ex. » (champ `x` de `HOT` dans `loop.js`, textes fixes, pas dans /admin). Les exemples sont des propositions à valider par Adri : aucun chiffre ni nom de client.
+
+- Accessibilité : le bouton de zone a pour nom le titre seul ; la phrase et l'exemple sont lus via `aria-describedby="tip"` au focus (plus de répétition).
+- Placement sur bureau : le trait part de l'anneau de la zone et **sort de la lunette** (longueur variable, `--lead` posé par `placeHot`, rayon `TIP_DIAL_R` = 2,3) pour que l'infobulle ne recouvre jamais le cadran : E à droite, O à gauche, N et S à droite (sinon à gauche). Infobulle 230 px de texte au plus. S'il n'y a pas la place (E sur un écran de 1280 px), l'infobulle passe sous la zone avec le filet vertical.

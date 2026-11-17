@@ -205,7 +205,7 @@ body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont t
 /* Infobulle des zones du cadran : HUD flottant en verre sombre (identique jour et nuit : un instrument, pas une carte de page).
    Fond pierre sombre à 60 % (--hud-bg / --hud-a) + flou ; le backdrop-filter assombrit aussi ce qui passe derrière (brightness .62) :
    pire cas fond blanc → titre ≥ 7:1, description ≥ 5,4:1, badge ≥ 5,3:1 (test loopTokens ; mesuré sur le rendu : ≥ 5,8:1 jour, ≥ 10:1 nuit). Sans backdrop-filter, le fond monte à 88 %. */
-.tip{position:absolute;z-index:5;max-width:260px;padding:10px 15px 13px;color:var(--hud-fg);border-radius:14px;pointer-events:none;opacity:0;visibility:hidden;
+.tip{position:absolute;z-index:5;width:max-content;max-width:230px;padding:10px 15px 13px;color:var(--hud-fg);border-radius:14px;pointer-events:none;opacity:0;visibility:hidden;
   --tx:-50%;--ty:0%;--lead:14px;transform-origin:50% calc(-1 * var(--lead));
   transform:translate(var(--tx),var(--ty)) perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(6px) scale(.97);transition:opacity .18s ease-out,visibility .18s,transform .18s ease-out,box-shadow .3s ease-out,border-color .3s ease-out;
   background:linear-gradient(115deg,transparent 30%,var(--holo-a) calc(var(--sx,50%) - 10%),transparent calc(var(--sx,50%) + 22%)),
@@ -230,8 +230,9 @@ body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont t
 .tip .tip-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--hud-dot);animation:hudPing 1.6s ease-out infinite}
 @keyframes hudPing{0%{transform:scale(1);opacity:.75}80%,100%{transform:scale(3);opacity:0}}
 @media (prefers-reduced-motion:reduce){.tip,.tip.on{transition:opacity .2s,visibility .2s}.tip .tip-dot::after{animation:none;opacity:0}}
-.tip b{display:block;font:500 19px/1.2 var(--serif);color:var(--hud-fg)}
-.tip #tipD{display:block;margin-top:4px;font-size:14px;line-height:1.45;color:var(--hud-muted)}
+.tip b{display:block;font:500 18px/1.25 var(--serif);color:var(--hud-fg)}
+.tip #tipD{display:block;margin-top:6px;padding-top:6px;border-top:1px solid color-mix(in srgb,var(--hud-edge) 50%,transparent);font-size:13px;line-height:1.45;color:var(--hud-muted)}
+.tip #tipD::before{content:"Ex. ";color:var(--hud-badge)}   /* exemple court qui illustre la phrase */
 
 /* Fond vivant : bleu nuit minéral, halos de lampe frontale et de lune, relief topographique en parallaxe */
 .bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict}
