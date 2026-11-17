@@ -970,12 +970,13 @@ function updateCompass(p,dt){
   mtnMat.uniforms.uT.value=tNow;mtnMat.uniforms.uFade.value=fC;gndMat.opacity=rockMat.opacity=fG*gm;shadowMat.opacity=.85*fG*gm;scenery.visible=sceneryNear.visible=Math.max(fG,fM)>.01;
   const sw=paused?0:1;
   // ressort amorti : le boîtier a du poids, il suit le curseur avec un léger retard et un petit rebond
+  aimK+=((aimKey&&!reduce?1:0)-aimK)*Math.min(1,dt*6);   // pivot doux vers l'utilisateur pendant la visée d'une zone du cadran
   {const k=38,c=9,mxv=reduce?0:mx,myv=reduce?0:my;tiltS.vx+=((mxv-tiltS.x)*k-tiltS.vx*c)*dt;tiltS.vy+=((myv-tiltS.y)*k-tiltS.vy*c)*dt;tiltS.x+=tiltS.vx*dt;tiltS.y+=tiltS.vy*dt}
   if(sapMat){sapMat.uniforms.uP.value.set(tiltS.x,tiltS.y);sapMat.uniforms.uK.value=theme==='light'?.55:1;sapMat.uniforms.uF.value=p<.5?1-sm(.19,.24,p):sm(.97,1,p)}   // verre saphir : suit la souris ; atténué de jour (cadran clair) ; s'efface avant la plongée dans le verre
   /* Orbite : la caméra semble tourner autour de la montre (souris, défilement, balancement lent) ; face au visiteur pendant le zoom */
   const pc=p>.5?0:p,face=p<.5?1-sm(.22,.30,p):sm(.95,1,p);   // fin de boucle = début (mêmes angles)
   stand.rotation.x=(-.1+Math.sin(tNow*.8)*.03*sw)*face+tiltS.y*.2*face;
-  stand.rotation.y=(Math.sin(tNow*.55)*.1*sw*(1-sm(.05,.2,pc)*.7)+tiltS.x*.6+Math.sin(pc*11)*.14-.42*hk+.42*hk2)*face;   // -.42 rad : vue de trois quarts, cadran tourné vers le texte
+  stand.rotation.y=(Math.sin(tNow*.55)*.1*sw*(1-sm(.05,.2,pc)*.7)+tiltS.x*.6+Math.sin(pc*11)*.14-.42*hk*(1-.35*aimK)+.42*hk2)*face;   // -.42 rad : vue de trois quarts, cadran tourné vers le texte
   {const xs=LAY.sx?LAY.sx/(LAY.W||1)*vis*cam.aspect:0;   // grand écran : les cailloux restent posés au sol, mais ceux qui gêneraient le passage de la montre sont déplacés hors de son couloir (de x = 0 à x = xs)
    nearRocks.forEach((m,k)=>{const b=m.userData.b,a=xs&&m.userData.alt?m.userData.alt(xs):b;m.position.x=a[0];m.position.z=a[1]})}
   if(strapLow){   // le bracelet repose sur le sol : on relève la montre de ce que l'inclinaison ferait entrer sous le sol
@@ -2711,8 +2712,14 @@ const hotEls=Object.keys(HOT).map(k=>{
   b.setAttribute('aria-label',HOT[k].t+' : '+HOT[k].d);b.setAttribute('aria-pressed','false');
   S[0].appendChild(b);return b;
 });
+/* Approche d'une zone du cadran (souris seulement) : le cercle de la zone s'illumine progressivement (--pk 0 → 1 sur les 90 px autour),
+   un fin cercle de ciblage se resserre, et l'annotation (#tip) s'ouvre dès que le curseur est assez près (--pk > .45) ; la montre pivote
+   légèrement vers l'utilisateur tant qu'une zone est visée (aimK). Calculé à chaque image dans placeHot : suit la montre quand elle bouge. */
+const NEAR_PX=90;let nearKey=null,ptrX=-1e4,ptrY=-1e4,aimK=0;
+addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'){ptrX=ptrY=-1e4;return}ptrX=e.clientX;ptrY=e.clientY},{passive:true});
+document.addEventListener('pointerleave',()=>{ptrX=ptrY=-1e4});
 function refreshAim(){
-  aimKey=pinnedKey||hoverKey;
+  aimKey=pinnedKey||hoverKey||nearKey;   // nearKey : zone approchée par la souris (proximité, voir placeHot)
   hotEls.forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.k===pinnedKey));if(b.dataset.k===aimKey)b.setAttribute('aria-describedby','tip');else b.removeAttribute('aria-describedby')});
   if(aimKey){tipT.textContent=HOT[aimKey].t;tipD.textContent=HOT[aimKey].d;tip.classList.add('on')}else tip.classList.remove('on');
 }
@@ -2739,6 +2746,7 @@ function placeHot(p){
     tip.style.setProperty('--ry',ry.toFixed(1)+'deg');tip.style.setProperty('--rx',rx.toFixed(1)+'deg');tip.style.setProperty('--sx',(50+tiltS.x*40).toFixed(1)+'%')}
   const w=cv.clientWidth,h=cv.clientHeight,vis1=loaded?(p<.5?1-sm(CSP-.02,CSP,p):sm(.98,1,p)):0;   // les zones du cadran ne sont plus disponibles dès que les boutons du boîtier apparaissent
   stand.updateMatrixWorld(true);
+  let best=null,bestK=0;const cvR=ptrX>-1e3?cv.getBoundingClientRect():null,cvL=cvR?cvR.left:0,cvT=cvR?cvR.top:0;   // une seule mesure par image
   hotEls.forEach(b=>{
     const H=HOT[b.dataset.k];
     _pv.set(H.p[0],H.p[1],.06);group.localToWorld(_pv);_pv.project(cam);
@@ -2746,8 +2754,11 @@ function placeHot(p){
     const x=(_pv.x*.5+.5)*w,y=(-_pv.y*.5+.5)*h,d=Math.max(44,Math.abs(_pw.x-_pv.x)*w);
     b.style.left=x.toFixed(1)+'px';b.style.top=y.toFixed(1)+'px';b.style.width=b.style.height=d.toFixed(1)+'px';
     b.style.opacity=vis1.toFixed(2);b.style.visibility=vis1<.05?'hidden':'visible';
+    {const dx=ptrX-x-cvL,dy=ptrY-y-cvT,dist=Math.hypot(dx,dy)-d/2;   // distance du curseur au bord du cercle
+     const pk=vis1<.5||reduce?0:clamp(1-dist/NEAR_PX);b.style.setProperty('--pk',pk.toFixed(2));if(pk>bestK){bestK=pk;best=b.dataset.k}}
     if(b.dataset.k===aimKey){tip.style.left=clamp(x,130,w-130).toFixed(1)+'px';tip.style.top=(y+d/2+14).toFixed(1)+'px'}
   });
+  {const nk=bestK>.45?best:null;if(nk!==nearKey){nearKey=nk;refreshAim()}}
   if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;dHint.classList.add('on');hotEls.find(b=>b.dataset.k==='exp').classList.add('hint');hintT=setTimeout(hintGone,HINT_MS)}
   if(hintState===1){   // carte juste à droite et en dessous du cercle « Expérience » (gardée dans l'écran)
     const e=hotEls.find(b=>b.dataset.k==='exp'),x=parseFloat(e.style.left),y=parseFloat(e.style.top),hw=dHint.offsetWidth,hh=dHint.offsetHeight;

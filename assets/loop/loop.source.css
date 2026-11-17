@@ -202,7 +202,7 @@ dialog .tg{min-width:180px;justify-content:center}
 .push:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
 body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont toutes affichées */
 #toolLines{display:none}   /* cartes de l'atelier : plus de trait vers la montre */
-.tip{position:absolute;z-index:5;max-width:250px;padding:12px 15px 13px;color:var(--fg);border-radius:14px;pointer-events:none;opacity:0;visibility:hidden;transform-origin:50% -14px;transform:translate(-50%,0) perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(6px) scale(.97);transition:opacity .25s ease-out,visibility .25s,transform .25s ease-out;
+.tip{position:absolute;z-index:5;max-width:250px;padding:12px 15px 13px;color:var(--fg);border-radius:14px;pointer-events:none;opacity:0;visibility:hidden;transform-origin:50% -14px;transform:translate(-50%,0) perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(6px) scale(.97);transition:opacity .16s ease-out,visibility .16s,transform .16s ease-out;
   background:linear-gradient(115deg,transparent 30%,var(--holo-a) calc(var(--sx,50%) - 10%),var(--holo-b) var(--sx,50%),transparent calc(var(--sx,50%) + 22%)) border-box,color-mix(in srgb,var(--card) 86%,transparent);
   border:1px solid var(--holo-edge);box-shadow:inset 0 1px 0 var(--holo-edge);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}
 .tip::before{content:"";position:absolute;left:50%;top:-14px;width:1px;height:14px;background:linear-gradient(to top,var(--holo-edge),transparent)}   /* filet qui relie l'infobulle à la zone du cadran */
@@ -289,6 +289,10 @@ body.static .hback,body.static .htop{display:none}
    (clic, touche, molette, toucher, survol d'une zone du cadran) ou après 8 s. Carte décorative (aria-hidden, classe decor) : les zones du
    cadran ont leur propre nom accessible. Tactile : « Touchez pour explorer ». Mouvement réduit : cercle fixe. Position posée par loop.js (placeHot). */
 .hot.hint{border-color:var(--acc);animation:hotPulse 1.6s ease-out infinite}
+/* Approche d'une zone (souris) : --pk (0 → 1, posé par loop.js) illumine le cercle de navigation et resserre un fin cercle de ciblage autour. */
+.hot:not(:hover):not(:focus-visible):not([aria-pressed="true"]):not(.hint){border-color:color-mix(in srgb,var(--acc) calc(var(--pk,0) * 100%),transparent);box-shadow:0 0 calc(var(--pk,0) * 16px) color-mix(in srgb,var(--acc) calc(var(--pk,0) * 45%),transparent)}
+.hot::before{content:"";position:absolute;inset:-9px;border-radius:50%;border:1px solid var(--acc);opacity:calc(var(--pk,0) * .9);transform:scale(calc(1.35 - .35 * var(--pk,0)));pointer-events:none}
+.hot:hover::before,.hot:focus-visible::before,.hot[aria-pressed="true"]::before{opacity:.9;transform:none}
 @keyframes hotPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent)}70%{box-shadow:0 0 0 14px color-mix(in srgb,var(--acc) 0%,transparent)}100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 0%,transparent)}}
 .dhint{position:absolute;z-index:5;width:max-content;max-width:min(360px,calc(100vw - 32px));padding:10px 14px 11px;border-radius:12px;background:color-mix(in srgb,var(--card) 94%,transparent);border:1px solid color-mix(in srgb,var(--cta-line) 45%,transparent);pointer-events:none;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .45s ease-out,transform .45s ease-out,visibility .45s}
 .dhint.on{visibility:visible}

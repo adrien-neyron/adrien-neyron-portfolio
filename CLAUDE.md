@@ -219,6 +219,9 @@ On first load the existing ring of the « Expérience » dial zone pulses (`.hot
 ### Dial tooltip and sapphire glass (17/11/2026)
 `#tip` is a frosted-glass holographic panel (`--card` 86 % night / 90 % day, blur, `--holo-a/-b/-edge` tokens, sheen `--sx` following the mouse) that tilts with the dial (`--rx/--ry` from `stand.rotation` ×0.6, clamped, set in `placeHot`); day description uses `--fg` (contrast). `sapMat` (loop.js) is an additive sapphire layer over the glass: diagonal reflection band split in R/G/B (dispersion), Fresnel rim and spot, all opposite to the cursor via `tiltS`; dimmed by day, faded before the dive. Keep it subtle (dial text must stay readable). Details: `docs/ecran-accueil-corde.md`.
 
+### Dial zone proximity (17/11/2026)
+Mouse approach to a dial zone uses the keyboard-focus ring `.hot` (no waypoint): `--pk` (0→1 within `NEAR_PX` = 90 px of the ring edge, computed per frame in `placeHot`) lights the ring and a thin targeting ring `.hot::before`; above .45 the nearest zone becomes `nearKey` and opens the holographic `#tip` (`aimKey = pinnedKey||hoverKey||nearKey`); the watch turns slightly towards the user while aiming (`aimK`). Mouse only. Details: `docs/ecran-accueil-corde.md`.
+
 ### Watch-button hint (S'équiper)
 When the mouse moves while the case buttons are active, `#eqTip` (« Cliquer sur les boutons de la montre ») shows under the watch; gone 2.5 s after the last move, on a button or card, and for good once a fiche was opened. Mouse only, `aria-hidden`. Details: `docs/ecran-accueil-corde.md`.
 

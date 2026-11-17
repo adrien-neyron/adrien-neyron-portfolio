@@ -211,3 +211,13 @@ Contraste : pire cas calculé (verre sur la zone la plus défavorable) titre ≥
 **Verre saphir** (`sapMat`, `loop.js`) : couche additive au-dessus des reflets peints du verre (`z = .165`). La lumière se reflète à l'opposé du curseur (parallaxe) : bande de reflet en diagonale décomposée en rouge / vert / bleu légèrement décalés (dispersion, effet de réfraction ; l'écart grandit quand la lumière s'éloigne du centre), reflet secondaire fin, liseré de Fresnel côté lumière, petit point lumineux. Pilotée par le ressort de la souris (`tiltS`), donc immobile sans souris ; intensité 0,55 le jour (cadran clair) ; s'efface avant la plongée dans le verre (`p` .19 → .24). Volontairement discrète : le texte du cadran reste lisible.
 
 **Mouvement réduit** : l'accueil passe en vue statique (pas de 3D) ; zones du cadran, infobulle et verre n'existent pas, leur contenu est dans le HTML. **Vérifié** : axe 0 violation (jour, nuit, focus clavier sur une zone), captures Chrome jour / nuit souris à gauche et à droite.
+
+## Cadran : approche d'une zone à la souris (17/11/2026)
+
+Repère : le **cercle de navigation clavier** des zones (`.hot`), pas de waypoint séparé. Calcul à chaque image dans `placeHot` (`loop.js`) à partir de la position projetée des zones, donc il suit la montre.
+- **Illumination progressive** : `--pk` (0 → 1 sur les 90 px autour du bord du cercle, `NEAR_PX`) colore le bord en `--acc` et ajoute un halo proportionnel.
+- **Cercle de ciblage** : `.hot::before`, fin cercle 1 px à 9 px du bord, qui se resserre (échelle 1,35 → 1) et s'allume avec `--pk` ; plein au survol, au focus et quand la zone est épinglée.
+- **Annotation** : dès que `--pk` dépasse 0,45, la zone la plus proche devient `nearKey` et l'infobulle holographique s'ouvre (filet de liaison vers le cercle), transition raccourcie à 0,16 s. `aimKey = pinnedKey || hoverKey || nearKey`.
+- **Pivot** : tant qu'une zone est visée, la montre redresse légèrement sa vue de trois quarts vers l'utilisateur (`aimK` lissé, rotation −0,42 × hk réduite de 35 %).
+- Souris seulement (`pointerType === 'mouse'`) ; rien sous mouvement réduit (qui passe d'ailleurs en vue statique). Clavier et tactile inchangés (focus / toucher sur la zone).
+**Vérifié** (Chrome, scène en pause) : `--pk` 0 à 120 px, 0,35 à 60 px, 0,63 à 30 px (annotation ouverte), 0,94 sur le bord ; aucune erreur JavaScript ; 221 tests unitaires.
