@@ -563,9 +563,11 @@ function drawReadout(deg,force){
     x.fillText(line,256,y);
   }else{   // azimut en cours, à la place du nom : degrés sur 3 chiffres + point de la rose des vents (16 secteurs)
     const dg=String(az).padStart(3,'0')+'°',cp=AZ16[Math.round(az/22.5)%16];
-    x.font='700 104px "JetBrains Mono", monospace';const w1=x.measureText(dg).width;x.font='700 52px "JetBrains Mono", monospace';const w2=x.measureText(cp).width,gap=22,x0=256-(w1+gap+w2)/2;
-    x.textAlign='left';x.fillStyle=P.val;x.font='700 104px "JetBrains Mono", monospace';x.fillText(dg,x0,160);
-    x.fillStyle=P.N;x.font='700 52px "JetBrains Mono", monospace';x.fillText(cp,x0+w1+gap,160);x.textAlign='center';
+    let f1=104,f2=80;const F=n=>'700 '+n+'px "JetBrains Mono", monospace',gap=24;   // point cardinal à 80 px (52 avant : peu lisible, 18/11/2026) ; l'ensemble est réduit s'il dépasse 490 px (« NNO »)
+    const W=()=>{x.font=F(f1);const a=x.measureText(dg).width;x.font=F(f2);return [a,x.measureText(cp).width]};let [w1,w2]=W();
+    while(w1+gap+w2>490){f1-=4;f2-=3;[w1,w2]=W()}const x0=256-(w1+gap+w2)/2;
+    x.textAlign='left';x.fillStyle=P.val;x.font=F(f1);x.fillText(dg,x0,160);
+    x.fillStyle=P.N;x.font=F(f2);x.fillText(cp,x0+w1+gap,160);x.textAlign='center';
   }
   if(roMesh)roMesh.position.y=info?-.32:.70;   // azimut en haut du cadran (place de l'ancien nom), description d'outil au centre
   readTex.needsUpdate=true;
