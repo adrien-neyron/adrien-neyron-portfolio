@@ -149,16 +149,7 @@ function onSubmit() {
             <label for="pr-dial-role" class="admin-label">Ligne de titre <span class="normal-case font-normal">— vide : « DÉVELOPPEUR × TRAILEUR × FORMATEUR »</span></label>
             <input id="pr-dial-role" v-model="form.loopDialRole" type="text" maxlength="60" class="admin-input" />
           </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label for="pr-dial-xpl" class="admin-label">Libellé d'expérience <span class="normal-case font-normal">— vide : « Expérience: »</span></label>
-              <input id="pr-dial-xpl" v-model="form.loopDialXpLabel" type="text" maxlength="24" class="admin-input" />
-            </div>
-            <div>
-              <label for="pr-dial-xpv" class="admin-label">Valeur <span class="normal-case font-normal">— vide : « Terrain 12 ans »</span></label>
-              <input id="pr-dial-xpv" v-model="form.loopDialXpValue" type="text" maxlength="16" class="admin-input" />
-            </div>
-          </div>
+          <p class="text-xs text-[var(--color-muted)]">Le cadran est épuré depuis le 17/11/2026 : nom, ligne de métier, aiguille et points cardinaux. Les valeurs et l'expérience s'affichent au survol du cadran.</p>
         </fieldset>
         <fieldset class="space-y-4 border border-[var(--line,#ccc)] rounded p-4">
           <legend class="admin-label px-1">Étape « S'équiper »</legend>

@@ -356,19 +356,15 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
   x.textAlign='center';x.textBaseline='middle';
   const at=(d,r)=>{const a=d*Math.PI/180-Math.PI/2;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r]};
   [['N',0],['E',90],['S',180],['O',270]].forEach(([l,d])=>{x.font='700 66px "JetBrains Mono", monospace';x.fillStyle=d===0?P.N:P.card;const p=at(d,392);x.fillText(l,p[0],p[1])});
-  [['NE',45],['SE',135],['SO',225],['NO',315]].forEach(([l,d])=>{x.font='500 34px "JetBrains Mono", monospace';x.fillStyle=P.inter;const p=at(d,392);x.fillText(l,p[0],p[1])});
-  [30,60,120,150,210,240,300,330].forEach(d=>{x.font='500 26px "JetBrains Mono", monospace';x.fillStyle=P.deg;const p=at(d,392);x.fillText(String(d),p[0],p[1])});
+  // cadran épuré (17/11/2026, piste 1) : plus d'intercardinaux ni de degrés ; restent les graduations, N E S O, le nom, le métier et l'aiguille
   // champs de données
   // identité : le nom en grand en haut du cadran, puis le titre (les technologies sont dans la scène « S'équiper »)
   {const nm=(dialOver?dialOver.n:DIAL_T.name).toUpperCase();let sz=68;x.font='700 '+sz+'px "JetBrains Mono", monospace';   // survol d'un bouton du boîtier : le titre de l'outil remplace le nom
    while(x.measureText(nm).width>760&&sz>34){sz-=2;x.font='700 '+sz+'px "JetBrains Mono", monospace'}
-   x.fillStyle=P.val;x.fillText(nm,cx,cy-196)}
-  {const rl=dialOver?'ATELIER':DIAL_T.role.toUpperCase();let rs=31;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>800&&rs>18){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-140)}
-  x.font='500 30px "JetBrains Mono", monospace';x.fillStyle=P.lab;x.fillText(DIAL_T.xpLabel.toUpperCase(),cx,cy+214);
-  x.font='700 40px "JetBrains Mono", monospace';x.fillStyle=P.val;x.fillText(DIAL_T.xpValue.toUpperCase(),cx,cy+268);
-  // qualités de savoir-être associées aux quatre points cardinaux
-  x.font='500 28px "JetBrains Mono", monospace';
-  [['Résilience',0,326,P.N],['Écoute',90,300,P.qual],['Stabilité',180,326,P.qual],['Curiosité',270,300,P.qual]].forEach(([l,d,r,col])=>{x.fillStyle=col;const p=at(d,r);x.fillText(l,p[0],p[1])});
+   x.fillStyle=P.val;x.fillText(nm,cx,cy-188)}
+  {const rl=dialOver?'ATELIER':DIAL_T.role.toUpperCase();let rs=46;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>860&&rs>26){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-118)}   // ligne de métier plus grande (jusqu'à 46 px, 860 px de large, au lieu de 31 px / 800)
+  // expérience (xpLabel / xpValue) et qualités (Résilience, Écoute, Stabilité, Curiosité) ne sont plus peintes sur le cadran :
+  // elles sont dans le HTML (zones du cadran : nom accessible + infobulle au survol / focus, texte sr-only, visite guidée)
 }
 function makeBezel(){   // lunette acier brossé : graduations et points cardinaux gravés
   const c=bezelCanvas||(bezelCanvas=document.createElement('canvas'));c.width=c.height=1024;
@@ -536,7 +532,7 @@ function makeStrapFade(){   // opacité : le bracelet s'efface vers le bout, sur
 /* Lecture du cap (plaque transparente au centre de l'écran) */
 function makeReadout(){readCanvas=document.createElement('canvas');readCanvas.width=512;readCanvas.height=256;readTex=new THREE.CanvasTexture(readCanvas);drawReadout(0,true);return readTex}
 function drawReadout(deg,force){
-  const info=aimKey&&HOT[aimKey]||(toolAim>=0&&TOOLS[toolAim]?{t:TOOLS[toolAim].n,d:TOOLS[toolAim].d}:null),key=info?'i:'+(aimKey||'t'+toolAim):'h';   // survol d'un bouton du boîtier : l'écran de la montre affiche le contenu de la carte (titre et description), sans faire apparaître de nouvelle carte
+  const info=toolAim>=0&&TOOLS[toolAim]?{t:TOOLS[toolAim].n,d:TOOLS[toolAim].d}:null,key=info?'i:t'+toolAim:'h';   // cadran épuré : les zones du cadran s'expliquent dans l'infobulle HTML, plus sur l'écran   // survol d'un bouton du boîtier : l'écran de la montre affiche le contenu de la carte (titre et description), sans faire apparaître de nouvelle carte
   if(!force&&key===lastReadKey)return;lastReadKey=key;
   if(dialTool!==toolAim&&dialTex){dialTool=toolAim;dialOver=toolAim>=0&&TOOLS[toolAim]?TOOLS[toolAim]:null;makeDial();dialTex.needsUpdate=true}
   const P=dialPal(),x=readCanvas.getContext('2d');x.clearRect(0,0,512,256);x.textAlign='center';x.textBaseline='alphabetic';

@@ -222,6 +222,9 @@ On first load the existing ring of the « Expérience » dial zone pulses (`.hot
 ### Dial zone proximity (17/11/2026)
 Mouse approach to a dial zone uses the keyboard-focus ring `.hot` (no waypoint): `--pk` (0→1 within `NEAR_PX` = 90 px of the ring edge, computed per frame in `placeHot`) lights the ring and a thin targeting ring `.hot::before`; above .45 the nearest zone becomes `nearKey` and opens the holographic `#tip` (`aimKey = pinnedKey||hoverKey||nearKey`); the watch turns slightly towards the user while aiming (`aimK`). Mouse only. Details: `docs/ecran-accueil-corde.md`.
 
+### Clean dial (17/11/2026, option 1 of 3)
+The hero dial (`makeDial`) shows only ticks, N E S O, the name, a larger role line (up to 46 px / 860 px) and the needle. Intercardinals, degrees, experience (`xpLabel`/`xpValue`) and the qualities are no longer painted: they live in HTML (dial zones' `aria-label`, holographic `#tip`, `sr-only` paragraph, guided tour). `drawReadout` no longer repeats dial-zone text (tools preview in « S'équiper » kept). Admin › Profil no longer shows the two experience inputs (data kept in DB/API). Options 2 (altimeter) and 3 (changing screen) were not chosen: see `docs/ecran-accueil-corde.md`.
+
 ### Watch-button hint (S'équiper)
 When the mouse moves while the case buttons are active, `#eqTip` (« Cliquer sur les boutons de la montre ») shows under the watch; gone 2.5 s after the last move, on a button or card, and for good once a fiche was opened. Mouse only, `aria-hidden`. Details: `docs/ecran-accueil-corde.md`.
 

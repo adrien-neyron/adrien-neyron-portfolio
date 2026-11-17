@@ -221,3 +221,11 @@ Repère : le **cercle de navigation clavier** des zones (`.hot`), pas de waypoin
 - **Pivot** : tant qu'une zone est visée, la montre redresse légèrement sa vue de trois quarts vers l'utilisateur (`aimK` lissé, rotation −0,42 × hk réduite de 35 %).
 - Souris seulement (`pointerType === 'mouse'`) ; rien sous mouvement réduit (qui passe d'ailleurs en vue statique). Clavier et tactile inchangés (focus / toucher sur la zone).
 **Vérifié** (Chrome, scène en pause) : `--pk` 0 à 120 px, 0,35 à 60 px, 0,63 à 30 px (annotation ouverte), 0,94 sur le bord ; aucune erreur JavaScript ; 221 tests unitaires.
+
+## Cadran épuré (17/11/2026, piste 1 retenue)
+
+Trois pistes ont été étudiées : (1) cadran épuré, (2) cadran altimètre lié au défilement, (3) écran qui change (identité → altimètre → boussole au bivouac). **Piste 1 retenue** par Adri. Raisons : la plus lisible et la plus rapide ; la montre du hero n'est visible qu'au premier écran et sur « S'équiper » (elle disparaît dans la plongée vers la carte vers p = .30), ce qui limitait l'intérêt d'un altimètre ; le site a déjà un altimètre (rail à droite, « ALT … m » en bas à gauche) ; la montre du bivouac est un autre objet 3D.
+- **Sur le cadran** (`makeDial`) : graduations, N E S O, le nom, la ligne de métier (jusqu'à 46 px sur 860 px de large, contre 31 px / 800 avant) et l'aiguille. Retirés : intercardinaux (NE, SE, SO, NO), degrés (30, 60…), expérience (`xpLabel` / `xpValue`) et qualités (Résilience, Écoute, Stabilité, Curiosité).
+- **Où sont passées les valeurs** : dans le HTML. Chaque zone du cadran garde son nom accessible (`aria-label`), l'infobulle holographique les affiche au survol, à l'approche et au focus, le paragraphe `sr-only` du hero les liste, et la visite guidée les parcourt.
+- **Zone de lecture** (`drawReadout`) : elle ne répète plus le texte des zones du cadran (doublon de l'infobulle) ; elle garde l'aperçu des outils au survol des boutons du boîtier dans « S'équiper ».
+- **Admin › Profil › Cadran de la montre** : les champs « Libellé d'expérience » et « Valeur » sont retirés du formulaire (sans effet désormais) ; les données restent en base et dans `/api/loop-content` (`dial.xpLabel`, `dial.xpValue`), rien n'est perdu. Nom et ligne de titre restent modifiables.
