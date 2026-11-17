@@ -216,6 +216,9 @@ While scrolling, the sticky `.stage` can lag a frame and reveal up to ~90 px of 
 ### Dial onboarding hint (17/11/2026)
 On first load the existing ring of the « Expérience » dial zone pulses (`.hot.hint`, `hotPulse`, same `--acc` ring as keyboard focus) and a French micro-card `#dhint` (« Explorer l'instrument » … « Bougez pour découvrir · Cliquez pour explorer », touch: « Touchez pour explorer ») sits next to it; positioned in `placeHot`. No separate waypoint, no English. Once per visit (`sessionStorage['cordee-hint']`), gone on first click/key/wheel/touch/dial-zone hover or after 8 s; mouse movement alone keeps it. Card decorative (`aria-hidden`, `decor`); ring static under reduced motion. Details: `docs/ecran-accueil-corde.md`.
 
+### Dial tooltip and sapphire glass (17/11/2026)
+`#tip` is a frosted-glass holographic panel (`--card` 86 % night / 90 % day, blur, `--holo-a/-b/-edge` tokens, sheen `--sx` following the mouse) that tilts with the dial (`--rx/--ry` from `stand.rotation` ×0.6, clamped, set in `placeHot`); day description uses `--fg` (contrast). `sapMat` (loop.js) is an additive sapphire layer over the glass: diagonal reflection band split in R/G/B (dispersion), Fresnel rim and spot, all opposite to the cursor via `tiltS`; dimmed by day, faded before the dive. Keep it subtle (dial text must stay readable). Details: `docs/ecran-accueil-corde.md`.
+
 ### Watch-button hint (S'équiper)
 When the mouse moves while the case buttons are active, `#eqTip` (« Cliquer sur les boutons de la montre ») shows under the watch; gone 2.5 s after the last move, on a button or card, and for good once a fiche was opened. Mouse only, `aria-hidden`. Details: `docs/ecran-accueil-corde.md`.
 

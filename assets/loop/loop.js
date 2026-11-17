@@ -45,7 +45,7 @@ let staticMode=reduce||!!(LOADERS&&LOADERS.lite)||prefStatic, paused=false, load
 let tNow=0, pS=0, last=performance.now(), loadT0=performance.now();
 let seen=false;try{seen=localStorage.getItem('asc-seen')==='1'}catch(e){}
 const LOAD_MS=reduce||seen?450:1000;   // l'aiguille tourne puis se cale sur le nord ; le défilement reste libre et la cale aussitôt
-let mx=0,my=0;
+let mx=0,my=0,sapMat=null;
 
 /* ---------- Palettes par moment de la journée ---------- */
 const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
@@ -651,6 +651,23 @@ function initThree(){
   // aiguille de cap : losange braise (nord) et argent (sud), au centre du cadran
   needle=makeNeedle();needle.position.set(0,.06,.075);group.add(needle);applyDialTheme();
   const gl=new THREE.Mesh(new THREE.CircleGeometry(1.98,64),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(makeGlass()),transparent:true,depthWrite:false}));gl.position.z=.16;group.add(gl);
+  /* Verre saphir (17/11/2026) : couche additive au-dessus des reflets peints. La lumière se reflète à l'opposé du curseur (parallaxe) :
+     une bande de reflet en diagonale, décomposée en rouge / vert / bleu légèrement décalés (dispersion = réfraction du saphir),
+     un liseré de Fresnel sur le bord et un point de lumière. Pilotée par le ressort de la souris (tiltS), donc figée sous mouvement réduit. */
+  sapMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+    uniforms:{uP:{value:new THREE.Vector2()},uK:{value:1},uF:{value:1}},
+    vertexShader:'varying vec2 vU;void main(){vU=position.xy/1.98;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+    fragmentShader:'varying vec2 vU;uniform vec2 uP;uniform float uK;uniform float uF;'+
+      'float band(float d,float w){return exp(-d*d/w);}'+
+      'void main(){float r=length(vU);vec2 c=vec2(-uP.x,uP.y)*.55;vec2 dir=normalize(vec2(.62,.78));'+
+      'float d=dot(vU-c,dir);float o=.022+.02*length(uP);'+   // la dispersion s'élargit quand la lumière s'écarte du centre
+      'vec3 b=vec3(band(d+o,.005),band(d,.004),band(d-o,.005))*.20;'+
+      'b+=vec3(band(d+.42+o,.0018),band(d+.42,.0018),band(d+.42-o,.0018))*.08;'+   // reflet secondaire, plus fin
+      'float rim=smoothstep(.80,1.0,r)*(.08+.16*max(0.,dot(normalize(vU+1e-4),normalize(-c+1e-4))));'+   // Fresnel : bord éclairé côté lumière
+      'float spot=exp(-dot(vU-c*.9,vU-c*.9)/.006)*.16;'+
+      'vec3 col=(b+vec3(rim)+vec3(1.,.93,.84)*spot)*smoothstep(1.0,.97,r);'+
+      'gl_FragColor=vec4(col*uK*uF,1.0);}'});
+  {const sp=new THREE.Mesh(new THREE.CircleGeometry(1.98,96),sapMat);sp.position.z=.165;sp.renderOrder=5;group.add(sp)}
   buildScenery();
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{applyDialTheme();makeBezel();bezelTex.needsUpdate=true;if(staticMode)drawStatic()});
 }
@@ -954,6 +971,7 @@ function updateCompass(p,dt){
   const sw=paused?0:1;
   // ressort amorti : le boîtier a du poids, il suit le curseur avec un léger retard et un petit rebond
   {const k=38,c=9,mxv=reduce?0:mx,myv=reduce?0:my;tiltS.vx+=((mxv-tiltS.x)*k-tiltS.vx*c)*dt;tiltS.vy+=((myv-tiltS.y)*k-tiltS.vy*c)*dt;tiltS.x+=tiltS.vx*dt;tiltS.y+=tiltS.vy*dt}
+  if(sapMat){sapMat.uniforms.uP.value.set(tiltS.x,tiltS.y);sapMat.uniforms.uK.value=theme==='light'?.55:1;sapMat.uniforms.uF.value=p<.5?1-sm(.19,.24,p):sm(.97,1,p)}   // verre saphir : suit la souris ; atténué de jour (cadran clair) ; s'efface avant la plongée dans le verre
   /* Orbite : la caméra semble tourner autour de la montre (souris, défilement, balancement lent) ; face au visiteur pendant le zoom */
   const pc=p>.5?0:p,face=p<.5?1-sm(.22,.30,p):sm(.95,1,p);   // fin de boucle = début (mêmes angles)
   stand.rotation.x=(-.1+Math.sin(tNow*.8)*.03*sw)*face+tiltS.y*.2*face;
@@ -2717,6 +2735,8 @@ function hintGone(){if(hintState===2)return;hintState=2;clearTimeout(hintT);dHin
 hotEls.forEach(b=>b.addEventListener('pointerenter',hintGone));
 const _pv=THREE_OK?new THREE.Vector3():null,_pw=THREE_OK?new THREE.Vector3():null;
 function placeHot(p){
+  if(aimKey){const D=57.3,ry=clamp(stand.rotation.y*D*.6,-16,16),rx=clamp(-stand.rotation.x*D*.6,-12,12);   // infobulle holographique : elle pivote avec le cadran (orientation atténuée pour rester lisible) ; le reflet suit la souris
+    tip.style.setProperty('--ry',ry.toFixed(1)+'deg');tip.style.setProperty('--rx',rx.toFixed(1)+'deg');tip.style.setProperty('--sx',(50+tiltS.x*40).toFixed(1)+'%')}
   const w=cv.clientWidth,h=cv.clientHeight,vis1=loaded?(p<.5?1-sm(CSP-.02,CSP,p):sm(.98,1,p)):0;   // les zones du cadran ne sont plus disponibles dès que les boutons du boîtier apparaissent
   stand.updateMatrixWorld(true);
   hotEls.forEach(b=>{
@@ -2726,7 +2746,7 @@ function placeHot(p){
     const x=(_pv.x*.5+.5)*w,y=(-_pv.y*.5+.5)*h,d=Math.max(44,Math.abs(_pw.x-_pv.x)*w);
     b.style.left=x.toFixed(1)+'px';b.style.top=y.toFixed(1)+'px';b.style.width=b.style.height=d.toFixed(1)+'px';
     b.style.opacity=vis1.toFixed(2);b.style.visibility=vis1<.05?'hidden':'visible';
-    if(b.dataset.k===aimKey){tip.style.left=clamp(x,130,w-130).toFixed(1)+'px';tip.style.top=(y+d/2+8).toFixed(1)+'px'}
+    if(b.dataset.k===aimKey){tip.style.left=clamp(x,130,w-130).toFixed(1)+'px';tip.style.top=(y+d/2+14).toFixed(1)+'px'}
   });
   if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;dHint.classList.add('on');hotEls.find(b=>b.dataset.k==='exp').classList.add('hint');hintT=setTimeout(hintGone,HINT_MS)}
   if(hintState===1){   // carte juste à droite et en dessous du cercle « Expérience » (gardée dans l'écran)
