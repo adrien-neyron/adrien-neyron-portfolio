@@ -228,5 +228,5 @@ Trois pistes ont été étudiées : (1) cadran épuré, (2) cadran altimètre li
 
 **Zones et métier (17/11/2026, demande d'Adri)** :
 - Le cadran ne garde que **quatre zones interactives**, les points cardinaux (`HOT` : N Résilience, E Écoute active, S Stabilité, O Ouverture d'esprit). Les zones « Adrien Neyron » (centre) et « Expérience » sont retirées, avec leurs infobulles.
-- **« DÉVELOPPEUR - MANAGER - FORMATEUR »** est peint sous l'aiguille (`makeDial`, `cy + 168`, jusqu'à 40 px, orange `P.N`). Texte fixe dans le code (le champ admin `loopDialRole`, qui contenait « MANAGEUR », n'est plus utilisé).
+- **« DÉVELOPPEUR - MANAGER - FORMATEUR »** est peint sous l'aiguille en **arc qui suit la courbure du cadran** (`makeDial` : chaque lettre posée sur un cercle de rayon 330 autour du centre, haut des lettres vers le centre, lecture de gauche à droite ; arc ≤ 2,3 rad ≈ 130°, police jusqu'à 36 px réduite pour tenir dans l'arc, interlettrage 8 %, orange `P.N`). Ses extrémités restent à ~160 px de O et E, et le bas à ~30 px au-dessus du S. Texte fixe dans le code (le champ admin `loopDialRole`, qui contenait « MANAGEUR », n'est plus utilisé).
 - **Indication d'accueil** : le cercle qui pulse est celui de « Écoute » (E). La carte se place à droite du cercle s'il y a la place, sinon sous le cadran (sous le cercle « S ») : elle ne masque jamais le cadran.

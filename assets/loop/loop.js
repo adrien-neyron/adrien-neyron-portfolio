@@ -364,7 +364,14 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
    x.fillStyle=P.val;x.fillText(nm,cx,cy-188)}
   if(dialOver){const rl='ATELIER';let rs=46;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>860&&rs>26){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-118)}   // ligne de métier retirée du cadran (17/11/2026) : seul « ATELIER » s'affiche, au survol d'un outil dans « S'équiper »
   // métier sous l'aiguille (17/11/2026, demande d'Adri) : texte fixe, n'utilise plus le champ admin loopDialRole
-  {const jb='DÉVELOPPEUR - MANAGER - FORMATEUR';let js=40;x.font='600 '+js+'px "JetBrains Mono", monospace';while(x.measureText(jb).width>760&&js>22){js-=1;x.font='600 '+js+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(jb,cx,cy+168)}
+  {const jb='DÉVELOPPEUR - MANAGER - FORMATEUR',R=330,MAXA=2.3;   // inscription courbe sous l'aiguille : chaque lettre posée sur un cercle de rayon R (pied vers l'extérieur), lue de gauche à droite ; arc ≤ 2,3 rad (≈ 130°) : ses extrémités restent à ~160 px de O et E, et le bas à ~30 px au-dessus du S
+   let js=36;x.font='600 '+js+'px "JetBrains Mono", monospace';const ls=.08;   // léger interlettrage
+   const tw=()=>[...jb].reduce((a,ch)=>a+x.measureText(ch).width*(1+ls),0);
+   while(tw()/R>MAXA&&js>20){js-=1;x.font='600 '+js+'px "JetBrains Mono", monospace'}
+   const tot=tw();let acc=0;x.fillStyle=P.N;x.textBaseline='alphabetic';
+   [...jb].forEach(ch=>{const w=x.measureText(ch).width*(1+ls),a=Math.PI/2+tot/R/2-(acc+w/2)/R;acc+=w;
+     x.save();x.translate(cx+Math.cos(a)*R,cy+Math.sin(a)*R);x.rotate(a-Math.PI/2);x.fillText(ch,0,0);x.restore()});
+   x.textBaseline='middle'}
   // expérience (xpLabel / xpValue) et qualités (Résilience, Écoute, Stabilité, Curiosité) ne sont plus peintes sur le cadran :
   // elles sont dans le HTML (zones du cadran : nom accessible + infobulle au survol / focus, texte sr-only, visite guidée)
 }
