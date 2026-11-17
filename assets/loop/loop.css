@@ -202,10 +202,12 @@ html.loop-on .push{position:absolute;z-index:4;width:44px;height:44px;transform:
 html.loop-on .push:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
 html.loop-on body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont toutes affichées */
 html.loop-on #toolLines{display:none}   /* cartes de l'atelier : plus de trait vers la montre */
-html.loop-on .tip{position:absolute;z-index:5;max-width:240px;padding:10px 13px;background:rgba(10,12,16,.94);color:#E6F4F1;border:1px solid rgba(255,255,255,.25);border-radius:12px;pointer-events:none;opacity:0;visibility:hidden;transform:translate(-50%,0);transition:opacity .2s,visibility .2s}
-html.loop-on .tip.on{opacity:1;visibility:visible}
-html.loop-on .tip b{display:block;font:500 18px/1.2 var(--serif)}
-html.loop-on .tip span{display:block;margin-top:2px;font-size:14px;color:#B9C2CA}
+html.loop-on .tip{position:absolute;z-index:5;max-width:230px;padding:16px 16px 14px;background:color-mix(in srgb,var(--bg) 84%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);color:var(--fg);border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.22);pointer-events:none;opacity:0;visibility:hidden;transform:translate(-50%,10px);transition:opacity .28s,visibility .28s,transform .28s}
+html.loop-on .tip.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
+html.loop-on .tip .tipk{position:absolute;left:14px;top:0;transform:translateY(-50%);padding:3px 10px;border-radius:999px;background:var(--cta-bg-1);color:var(--cta-fg);font:700 11px/1.4 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;font-style:normal}
+html.loop-on .tip .tipk:empty{display:none}
+html.loop-on .tip b{display:block;font:500 19px/1.2 var(--serif)}
+html.loop-on .tip span{display:block;margin-top:4px;font-size:15px;line-height:1.4;color:var(--fg)}
 
 /* Fond vivant : bleu nuit minéral, halos de lampe frontale et de lune, relief topographique en parallaxe */
 html.loop-on .bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict}
@@ -1081,7 +1083,7 @@ html.loop-on body.static :is(.cnt,.route){gap:.4em}   /* inline-flex avale l'esp
 
 /* Scène 1 : accroche, puis l'équipement */
 html.loop-on body.static #s1{display:flex;flex-direction:column;gap:clamp(24px,4vw,36px);padding:calc(var(--hh,64px) + clamp(32px,6vw,72px)) var(--gut) var(--pad)}
-html.loop-on body.static #s1 #compassCanvas,html.loop-on body.static #s1 #toolLines,html.loop-on body.static #s1 #spot,html.loop-on body.static #s1 .tip{display:none!important}
+html.loop-on body.static #s1 #compassCanvas,html.loop-on body.static #s1 #toolLines,html.loop-on body.static #s1 #spot,html.loop-on body.static #s1 .tip,html.loop-on body.static .pulse,html.loop-on body.static .pline{display:none!important}
 html.loop-on body.static #s1 #head1 h1{font-size:clamp(36px,6vw,64px);line-height:1.08}
 html.loop-on body.static #s1 #head1 .lede{font-size:clamp(16px,1.6vw,18px)}
 html.loop-on body.static #s1 #head2{margin-top:clamp(8px,2vw,16px);padding-top:clamp(28px,4vw,40px);border-top:1px solid var(--line)}
@@ -1164,3 +1166,15 @@ html.loop-on.at-hero .hud,html.loop-on.at-hero .altrail,html.loop-on.at-hero .gr
 @media (min-width:900px){
   html.loop-on .hphoto::after,html.loop-on .hphoto::before{-webkit-mask-image:radial-gradient(circle 30vmax at var(--mx,50%) var(--my,50%),rgba(0,0,0,calc(1 - .4*var(--mist,0))) 0,#000 100%);mask-image:radial-gradient(circle 30vmax at var(--mx,50%) var(--my,50%),rgba(0,0,0,calc(1 - .4*var(--mist,0))) 0,#000 100%)}
 }
+
+/* Onde de l'aiguille (17/11/2026) : deux anneaux partent du pivot, un trait relie l'aiguille à la carte affichée (.tip). Couleurs : --acc. Sous prefers-reduced-motion : un anneau fixe, pas d'animation. */
+html.loop-on .pulse{position:absolute;z-index:4;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .3s}
+html.loop-on .pulse.on{opacity:1}
+html.loop-on .pulse i{position:absolute;left:0;top:0;width:var(--pr,240px);height:var(--pr,240px);margin:calc(var(--pr,240px)/-2) 0 0 calc(var(--pr,240px)/-2);border:2px solid var(--acc);border-radius:50%;opacity:0;transform:scale(.08)}
+html.loop-on .pulse.on i{animation:needlePulse 2.6s cubic-bezier(.2,.6,.3,1) infinite}
+html.loop-on .pulse.on i+i{animation-delay:1.3s}
+@keyframes needlePulse{0%{opacity:.85;transform:scale(.08)}100%{opacity:0;transform:scale(1)}}
+html.loop-on .pline{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;opacity:0;transition:opacity .3s;overflow:visible}
+html.loop-on .pline.on{opacity:1}
+html.loop-on .pline line{stroke:var(--acc);stroke-width:1.5;stroke-dasharray:3 5;stroke-linecap:round}
+@media (prefers-reduced-motion:reduce){html.loop-on .tip{transition:none;transform:translate(-50%,0)}html.loop-on .pulse.on i{animation:none;opacity:.5;transform:scale(.55)}html.loop-on .pulse.on i+i{display:none}}

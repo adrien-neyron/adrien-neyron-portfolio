@@ -202,10 +202,12 @@ dialog .tg{min-width:180px;justify-content:center}
 .push:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
 body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont toutes affichées */
 #toolLines{display:none}   /* cartes de l'atelier : plus de trait vers la montre */
-.tip{position:absolute;z-index:5;max-width:240px;padding:10px 13px;background:rgba(10,12,16,.94);color:#E6F4F1;border:1px solid rgba(255,255,255,.25);border-radius:12px;pointer-events:none;opacity:0;visibility:hidden;transform:translate(-50%,0);transition:opacity .2s,visibility .2s}
-.tip.on{opacity:1;visibility:visible}
-.tip b{display:block;font:500 18px/1.2 var(--serif)}
-.tip span{display:block;margin-top:2px;font-size:14px;color:#B9C2CA}
+.tip{position:absolute;z-index:5;max-width:230px;padding:16px 16px 14px;background:color-mix(in srgb,var(--bg) 84%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);color:var(--fg);border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.22);pointer-events:none;opacity:0;visibility:hidden;transform:translate(-50%,10px);transition:opacity .28s,visibility .28s,transform .28s}
+.tip.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.tip .tipk{position:absolute;left:14px;top:0;transform:translateY(-50%);padding:3px 10px;border-radius:999px;background:var(--cta-bg-1);color:var(--cta-fg);font:700 11px/1.4 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;font-style:normal}
+.tip .tipk:empty{display:none}
+.tip b{display:block;font:500 19px/1.2 var(--serif)}
+.tip span{display:block;margin-top:4px;font-size:15px;line-height:1.4;color:var(--fg)}
 
 /* Fond vivant : bleu nuit minéral, halos de lampe frontale et de lune, relief topographique en parallaxe */
 .bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict}
@@ -1081,7 +1083,7 @@ body.static :is(.cnt,.route){gap:.4em}   /* inline-flex avale l'espace avant la 
 
 /* Scène 1 : accroche, puis l'équipement */
 body.static #s1{display:flex;flex-direction:column;gap:clamp(24px,4vw,36px);padding:calc(var(--hh,64px) + clamp(32px,6vw,72px)) var(--gut) var(--pad)}
-body.static #s1 #compassCanvas,body.static #s1 #toolLines,body.static #s1 #spot,body.static #s1 .tip{display:none!important}
+body.static #s1 #compassCanvas,body.static #s1 #toolLines,body.static #s1 #spot,body.static #s1 .tip,body.static .pulse,body.static .pline{display:none!important}
 body.static #s1 #head1 h1{font-size:clamp(36px,6vw,64px);line-height:1.08}
 body.static #s1 #head1 .lede{font-size:clamp(16px,1.6vw,18px)}
 body.static #s1 #head2{margin-top:clamp(8px,2vw,16px);padding-top:clamp(28px,4vw,40px);border-top:1px solid var(--line)}
@@ -1164,3 +1166,15 @@ html.at-hero .hud,html.at-hero .altrail,html.at-hero .grain{opacity:0;pointer-ev
 @media (min-width:900px){
   .hphoto::after,.hphoto::before{-webkit-mask-image:radial-gradient(circle 30vmax at var(--mx,50%) var(--my,50%),rgba(0,0,0,calc(1 - .4*var(--mist,0))) 0,#000 100%);mask-image:radial-gradient(circle 30vmax at var(--mx,50%) var(--my,50%),rgba(0,0,0,calc(1 - .4*var(--mist,0))) 0,#000 100%)}
 }
+
+/* Onde de l'aiguille (17/11/2026) : deux anneaux partent du pivot, un trait relie l'aiguille à la carte affichée (.tip). Couleurs : --acc. Sous prefers-reduced-motion : un anneau fixe, pas d'animation. */
+.pulse{position:absolute;z-index:4;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .3s}
+.pulse.on{opacity:1}
+.pulse i{position:absolute;left:0;top:0;width:var(--pr,240px);height:var(--pr,240px);margin:calc(var(--pr,240px)/-2) 0 0 calc(var(--pr,240px)/-2);border:2px solid var(--acc);border-radius:50%;opacity:0;transform:scale(.08)}
+.pulse.on i{animation:needlePulse 2.6s cubic-bezier(.2,.6,.3,1) infinite}
+.pulse.on i+i{animation-delay:1.3s}
+@keyframes needlePulse{0%{opacity:.85;transform:scale(.08)}100%{opacity:0;transform:scale(1)}}
+.pline{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;opacity:0;transition:opacity .3s;overflow:visible}
+.pline.on{opacity:1}
+.pline line{stroke:var(--acc);stroke-width:1.5;stroke-dasharray:3 5;stroke-linecap:round}
+@media (prefers-reduced-motion:reduce){.tip{transition:none;transform:translate(-50%,0)}.pulse.on i{animation:none;opacity:.5;transform:scale(.55)}.pulse.on i+i{display:none}}

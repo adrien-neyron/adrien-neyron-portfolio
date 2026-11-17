@@ -169,6 +169,7 @@ let CS=.07,CST=STEP,CSP=.07,CEND=[.24,.28],CREV=[.19,.22];   // CSP : début des
    en échec laisse donc l'accueil exactement comme avant. Les chaînes venues de l'admin passent par esc() avant tout innerHTML. */
 const CMS=(LOADERS&&LOADERS.content)||{};
 const DIAL_T=Object.assign({name:'ADRIEN NEYRON',role:'DÉVELOPPEUR × TRAILEUR × FORMATEUR',xpLabel:'DÉV. 5 ANS',xpValue:'TERRAIN '+(new Date().getFullYear()-2006)+' ANS'},Object.fromEntries(Object.entries((CMS&&CMS.dial)||{}).filter(([k,v])=>typeof v==='string'&&v.trim()).map(([k,v])=>[k,v.trim()])));   // texte du cadran : admin (Accueil), sinon repli
+const DIAL_RING=['DÉVELOPPEUR','FRONT-END','VUE.JS','ACCESSIBILITÉ'];   // inscription du contour du cadran, dans le sens des aiguilles d'une montre depuis le haut gauche
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const okUrl=u=>{if(!u)return '';try{const x=new URL(u,location.href);return /^(https?:|mailto:)$/.test(x.protocol)?x.href:''}catch(e){return ''}};
 const shortT=t=>String(t).split(/\s[—–-]\s/)[0];   // titre court pour les blocs 3D : « Click2SellSite — Sprint… » → « Click2SellSite »
@@ -356,19 +357,25 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
   x.textAlign='center';x.textBaseline='middle';
   const at=(d,r)=>{const a=d*Math.PI/180-Math.PI/2;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r]};
   [['N',0],['E',90],['S',180],['O',270]].forEach(([l,d])=>{x.font='700 66px "JetBrains Mono", monospace';x.fillStyle=d===0?P.N:P.card;const p=at(d,392);x.fillText(l,p[0],p[1])});
-  [['NE',45],['SE',135],['SO',225],['NO',315]].forEach(([l,d])=>{x.font='500 34px "JetBrains Mono", monospace';x.fillStyle=P.inter;const p=at(d,392);x.fillText(l,p[0],p[1])});
-  [30,60,120,150,210,240,300,330].forEach(d=>{x.font='500 26px "JetBrains Mono", monospace';x.fillStyle=P.deg;const p=at(d,392);x.fillText(String(d),p[0],p[1])});
+  // inscription sur le contour (17/11/2026) : un mot par quart, courbé le long du cercle, centré sur les diagonales ; en bas le texte est retourné pour rester lisible
+  // (haut des lettres vers le centre, lecture de gauche à droite), et chaque mot ne couvre que ~50° : pas d'arc en « sourire ». Remplace NE/SE/SO/NO et les degrés.
+  const arc=(txt,d,r)=>{
+    x.font='700 46px "JetBrains Mono", monospace';x.fillStyle=P.card;
+    const up=Math.cos(d*Math.PI/180)>=0,adv=x.measureText('M').width*1.12,n=txt.length;
+    for(let i=0;i<n;i++){
+      const a=d*Math.PI/180+(i-(n-1)/2)*adv/r*(up?1:-1);
+      x.save();x.translate(cx+Math.sin(a)*r,cy-Math.cos(a)*r);x.rotate(up?a:a+Math.PI);x.fillText(txt[i],0,0);x.restore();
+    }
+  };
+  DIAL_RING.forEach((w,i)=>arc(w,[315,45,135,225][i],392));
   // champs de données
   // identité : le nom en grand en haut du cadran, puis le titre (les technologies sont dans la scène « S'équiper »)
   {const nm=(dialOver?dialOver.n:DIAL_T.name).toUpperCase();let sz=68;x.font='700 '+sz+'px "JetBrains Mono", monospace';   // survol d'un bouton du boîtier : le titre de l'outil remplace le nom
    while(x.measureText(nm).width>760&&sz>34){sz-=2;x.font='700 '+sz+'px "JetBrains Mono", monospace'}
    x.fillStyle=P.val;x.fillText(nm,cx,cy-196)}
-  {const rl=dialOver?'ATELIER':DIAL_T.role.toUpperCase();let rs=31;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>800&&rs>18){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-140)}
-  x.font='500 30px "JetBrains Mono", monospace';x.fillStyle=P.lab;x.fillText(DIAL_T.xpLabel.toUpperCase(),cx,cy+214);
-  x.font='700 40px "JetBrains Mono", monospace';x.fillStyle=P.val;x.fillText(DIAL_T.xpValue.toUpperCase(),cx,cy+268);
-  // qualités de savoir-être associées aux quatre points cardinaux
-  x.font='500 28px "JetBrains Mono", monospace';
-  [['Résilience',0,326,P.N],['Écoute',90,300,P.qual],['Stabilité',180,326,P.qual],['Curiosité',270,300,P.qual]].forEach(([l,d,r,col])=>{x.fillStyle=col;const p=at(d,r);x.fillText(l,p[0],p[1])});
+  // 17/11/2026 : cadran épuré. Plus de ligne de métier, de durées ni de qualités dessinées ici (illisibles à cette taille) : les qualités et l'expérience
+  // sont des cartes HTML (HOT, ci-dessous) que l'aiguille appelle d'une onde ; le métier est l'inscription du contour (DIAL_RING).
+  if(dialOver){x.font='700 31px "JetBrains Mono", monospace';x.fillStyle=P.N;x.fillText('ATELIER',cx,cy-140)}
 }
 function makeBezel(){   // lunette acier brossé : graduations et points cardinaux gravés
   const c=bezelCanvas||(bezelCanvas=document.createElement('canvas'));c.width=c.height=1024;
@@ -536,7 +543,7 @@ function makeStrapFade(){   // opacité : le bracelet s'efface vers le bout, sur
 /* Lecture du cap (plaque transparente au centre de l'écran) */
 function makeReadout(){readCanvas=document.createElement('canvas');readCanvas.width=512;readCanvas.height=256;readTex=new THREE.CanvasTexture(readCanvas);drawReadout(0,true);return readTex}
 function drawReadout(deg,force){
-  const info=aimKey&&HOT[aimKey]||(toolAim>=0&&TOOLS[toolAim]?{t:TOOLS[toolAim].n,d:TOOLS[toolAim].d}:null),key=info?'i:'+(aimKey||'t'+toolAim):'h';   // survol d'un bouton du boîtier : l'écran de la montre affiche le contenu de la carte (titre et description), sans faire apparaître de nouvelle carte
+  const info=(toolAim>=0&&TOOLS[toolAim]?{t:TOOLS[toolAim].n,d:TOOLS[toolAim].d}:null),key=info?'i:t'+toolAim:'h';   // 17/11/2026 : les zones du cadran (qualités, expérience) ont leur carte HTML reliée à l'aiguille, plus de doublon sur l'écran de la montre   // survol d'un bouton du boîtier : l'écran de la montre affiche le contenu de la carte (titre et description), sans faire apparaître de nouvelle carte
   if(!force&&key===lastReadKey)return;lastReadKey=key;
   if(dialTool!==toolAim&&dialTex){dialTool=toolAim;dialOver=toolAim>=0&&TOOLS[toolAim]?TOOLS[toolAim]:null;makeDial();dialTex.needsUpdate=true}
   const P=dialPal(),x=readCanvas.getContext('2d');x.clearRect(0,0,512,256);x.textAlign='center';x.textBaseline='alphabetic';
@@ -2679,33 +2686,41 @@ setDlg.addEventListener('close',()=>{root.style.overflow=''});
 
 /* ---------- Points d'interaction : qualités aux points cardinaux, compétences, expérience ---------- */
 const HOT={
-  n:{t:'Résilience',d:'Cap fixe face aux bugs.',b:0,p:[0,1.40],r:.42},
-  e:{t:'Écoute active',d:'Collaboration d\'équipe.',b:90,p:[1.36,0],r:.42},
-  s:{t:'Stabilité',d:'Gestion de la pression.',b:180,p:[0,-1.46],r:.40},
-  o:{t:'Ouverture d\'esprit',d:'Curiosité technique.',b:270,p:[-1.36,0],r:.42},
-  stack:{t:'Adrien Neyron',d:'Développeur, traileur, formateur.',b:0,p:[0,.62],r:.34},
-  exp:{t:'Expérience',d:'11 ans de formation et de management, puis 5 ans de code.',b:180,p:[0,-.95],r:.34}
+  n:{t:'Résilience',d:'Cap fixe face aux bugs.',k:'Qualité',b:0,p:[0,1.40],r:.42},
+  e:{t:'Écoute active',d:'Collaboration d\'équipe.',k:'Qualité',b:90,p:[1.36,0],r:.42},
+  s:{t:'Stabilité',d:'Gestion de la pression.',k:'Qualité',b:180,p:[0,-1.46],r:.40},
+  o:{t:'Ouverture d\'esprit',d:'Curiosité technique.',k:'Qualité',b:270,p:[-1.36,0],r:.42},
+  stack:{t:'Adrien Neyron',d:'Développeur, traileur, formateur.',k:'Profil',b:0,p:[0,.62],r:.34},
+  exp:{t:'Expérience',d:'11 ans de formation et de management, puis 5 ans de code.',k:'Expérience',b:180,p:[0,-.95],r:.34}
 };
-const tip=$('#tip'),tipT=$('#tipT'),tipD=$('#tipD');
+const tip=$('#tip'),tipT=$('#tipT'),tipD=$('#tipD'),tipK=$('#tipK');
+/* Onde de l'aiguille : un anneau part du pivot, un trait relie l'aiguille à la carte (survol, focus, clic) ; à l'arrivée sur la montre, la carte « Expérience » s'affiche
+   d'elle-même (autoKey) jusqu'au premier geste ou 9 s. Décoratif (aria-hidden) : le texte est porté par les boutons .hot (aria-label). */
+let autoKey='exp',autoT=0,tipX=0,tipY=0;
+const pulse=document.createElement('div');pulse.className='pulse';pulse.setAttribute('aria-hidden','true');pulse.innerHTML='<i></i><i></i>';
+const NS='http://www.w3.org/2000/svg',pline=document.createElementNS(NS,'svg'),plLine=document.createElementNS(NS,'line');
+pline.setAttribute('class','pline');pline.setAttribute('aria-hidden','true');pline.appendChild(plLine);
+tip.parentNode.append(pulse,pline);
 const hotEls=Object.keys(HOT).map(k=>{
   const b=document.createElement('button');b.type='button';b.className='hot';b.dataset.k=k;
   b.setAttribute('aria-label',HOT[k].t+' : '+HOT[k].d);b.setAttribute('aria-pressed','false');
   S[0].appendChild(b);return b;
 });
 function refreshAim(){
-  aimKey=pinnedKey||hoverKey;
+  aimKey=pinnedKey||hoverKey||autoKey;
   hotEls.forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.k===pinnedKey));if(b.dataset.k===aimKey)b.setAttribute('aria-describedby','tip');else b.removeAttribute('aria-describedby')});
-  if(aimKey){tipT.textContent=HOT[aimKey].t;tipD.textContent=HOT[aimKey].d;tip.classList.add('on')}else tip.classList.remove('on');
+  if(aimKey){tipK.textContent=HOT[aimKey].k||'';tipT.textContent=HOT[aimKey].t;tipD.textContent=HOT[aimKey].d}   // l'affichage (.on) suit placeHot : carte et onde n'existent que montre visible
 }
 hotEls.forEach(b=>{
   const k=b.dataset.k;
-  b.addEventListener('pointerenter',()=>{hoverKey=k;refreshAim();tickSoft()});
+  b.addEventListener('pointerenter',()=>{autoKey=null;hoverKey=k;refreshAim();tickSoft()});
   b.addEventListener('pointerleave',()=>{hoverKey=null;refreshAim()});
-  b.addEventListener('focus',()=>{hoverKey=k;refreshAim();tickSoft()});
+  b.addEventListener('focus',()=>{autoKey=null;hoverKey=k;refreshAim();tickSoft()});
   b.addEventListener('blur',()=>{if(hoverKey===k)hoverKey=null;refreshAim()});
-  b.addEventListener('click',()=>{pinnedKey=pinnedKey===k?null:k;refreshAim();haptic(10);tick()});
+  b.addEventListener('click',()=>{autoKey=null;pinnedKey=pinnedKey===k?null:k;refreshAim();haptic(10);tick()});
 });
-addEventListener('keydown',e=>{if(e.key==='Escape'&&pinnedKey){pinnedKey=null;refreshAim()}});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&(pinnedKey||autoKey)){pinnedKey=null;autoKey=null;refreshAim()}});
+refreshAim();
 const _pv=THREE_OK?new THREE.Vector3():null,_pw=THREE_OK?new THREE.Vector3():null;
 function placeHot(p){
   const w=cv.clientWidth,h=cv.clientHeight,vis1=loaded?(p<.5?1-sm(CSP-.02,CSP,p):sm(.98,1,p)):0;   // les zones du cadran ne sont plus disponibles dès que les boutons du boîtier apparaissent
@@ -2717,8 +2732,22 @@ function placeHot(p){
     const x=(_pv.x*.5+.5)*w,y=(-_pv.y*.5+.5)*h,d=Math.max(44,Math.abs(_pw.x-_pv.x)*w);
     b.style.left=x.toFixed(1)+'px';b.style.top=y.toFixed(1)+'px';b.style.width=b.style.height=d.toFixed(1)+'px';
     b.style.opacity=vis1.toFixed(2);b.style.visibility=vis1<.05?'hidden':'visible';
-    if(b.dataset.k===aimKey){tip.style.left=clamp(x,130,w-130).toFixed(1)+'px';tip.style.top=(y+d/2+8).toFixed(1)+'px'}
+    if(b.dataset.k===aimKey){tipX=clamp(x,130,w-130);tipY=y+d/2+8}   // repli (écran étroit) : sous la zone
   });
+  // onde et trait partent du pivot de l'aiguille (centre du cadran) ; carte, onde et trait ne sont affichés que montre visible
+  _pv.set(0,0,.1);group.localToWorld(_pv);_pv.project(cam);_pw.set(1.5,0,.1);group.localToWorld(_pw);_pw.project(cam);
+  const nx=(_pv.x*.5+.5)*w,ny=(-_pv.y*.5+.5)*h,on=!!aimKey&&vis1>.4,u=Math.abs(_pw.x-_pv.x)*w/3,tw=tip.offsetWidth||240,th=tip.offsetHeight||110;
+  let lx=tipX,ly=tipY;   // extrémité du trait : haut de la carte (repli)
+  if(w>=900&&nx+2.2*u+tw+20<=w){   // grand écran : la carte se pose à droite de la montre, un peu au-dessus de l'aiguille, le trait la rejoint par son bord gauche
+    tipX=nx+2.2*u+10+tw/2;tipY=Math.max(70,ny-th-u*.55);lx=tipX-tw/2;ly=tipY+th/2;
+  }
+  tip.style.left=tipX.toFixed(1)+'px';tip.style.top=tipY.toFixed(1)+'px';
+  tip.classList.toggle('on',on);pulse.classList.toggle('on',on);pline.classList.toggle('on',on);
+  if(on){
+    pulse.style.left=nx.toFixed(1)+'px';pulse.style.top=ny.toFixed(1)+'px';pulse.style.setProperty('--pr',(Math.abs(_pw.x-_pv.x)*w*1.32).toFixed(0)+'px');
+    plLine.setAttribute('x1',nx.toFixed(1));plLine.setAttribute('y1',ny.toFixed(1));plLine.setAttribute('x2',lx.toFixed(1));plLine.setAttribute('y2',ly.toFixed(1));
+    if(autoKey&&!autoT)autoT=setTimeout(()=>{autoKey=null;refreshAim()},9000);
+  }
 }
 
 /* ---------- Boutons du boîtier : chacun fait apparaître une carte de l'atelier (survol ou focus), le clic ouvre sa fiche ----------
