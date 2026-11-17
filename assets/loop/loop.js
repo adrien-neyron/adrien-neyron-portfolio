@@ -356,13 +356,13 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
   x.textAlign='center';x.textBaseline='middle';
   const at=(d,r)=>{const a=d*Math.PI/180-Math.PI/2;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r]};
   [['N',0],['E',90],['S',180],['O',270]].forEach(([l,d])=>{x.font='700 66px "JetBrains Mono", monospace';x.fillStyle=d===0?P.N:P.card;const p=at(d,392);x.fillText(l,p[0],p[1])});
-  // cadran épuré (17/11/2026, piste 1) : plus d'intercardinaux ni de degrés ; restent les graduations, N E S O, le nom, le métier et l'aiguille
+  // cadran épuré (17/11/2026, piste 1) : plus d'intercardinaux ni de degrés ; restent les graduations, N E S O, le nom et l'aiguille (la ligne de métier a été retirée aussi)
   // champs de données
   // identité : le nom en grand en haut du cadran, puis le titre (les technologies sont dans la scène « S'équiper »)
   {const nm=(dialOver?dialOver.n:DIAL_T.name).toUpperCase();let sz=68;x.font='700 '+sz+'px "JetBrains Mono", monospace';   // survol d'un bouton du boîtier : le titre de l'outil remplace le nom
    while(x.measureText(nm).width>760&&sz>34){sz-=2;x.font='700 '+sz+'px "JetBrains Mono", monospace'}
    x.fillStyle=P.val;x.fillText(nm,cx,cy-188)}
-  {const rl=dialOver?'ATELIER':DIAL_T.role.toUpperCase();let rs=46;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>860&&rs>26){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-118)}   // ligne de métier plus grande (jusqu'à 46 px, 860 px de large, au lieu de 31 px / 800)
+  if(dialOver){const rl='ATELIER';let rs=46;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>860&&rs>26){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-118)}   // ligne de métier retirée du cadran (17/11/2026) : seul « ATELIER » s'affiche, au survol d'un outil dans « S'équiper »
   // expérience (xpLabel / xpValue) et qualités (Résilience, Écoute, Stabilité, Curiosité) ne sont plus peintes sur le cadran :
   // elles sont dans le HTML (zones du cadran : nom accessible + infobulle au survol / focus, texte sr-only, visite guidée)
 }

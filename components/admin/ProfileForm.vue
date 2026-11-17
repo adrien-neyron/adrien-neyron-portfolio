@@ -145,11 +145,7 @@ function onSubmit() {
             <label for="pr-dial-name" class="admin-label">Nom <span class="normal-case font-normal">— vide : « ADRIEN NEYRON »</span></label>
             <input id="pr-dial-name" v-model="form.loopDialName" type="text" maxlength="40" class="admin-input" />
           </div>
-          <div>
-            <label for="pr-dial-role" class="admin-label">Ligne de titre <span class="normal-case font-normal">— vide : « DÉVELOPPEUR × TRAILEUR × FORMATEUR »</span></label>
-            <input id="pr-dial-role" v-model="form.loopDialRole" type="text" maxlength="60" class="admin-input" />
-          </div>
-          <p class="text-xs text-[var(--color-muted)]">Le cadran est épuré depuis le 17/11/2026 : nom, ligne de métier, aiguille et points cardinaux. Les valeurs et l'expérience s'affichent au survol du cadran.</p>
+          <p class="text-xs text-[var(--color-muted)]">Le cadran est épuré depuis le 17/11/2026 : nom, aiguille et points cardinaux. Le métier, les valeurs et l'expérience sont dans le texte de la page et au survol du cadran.</p>
         </fieldset>
         <fieldset class="space-y-4 border border-[var(--line,#ccc)] rounded p-4">
           <legend class="admin-label px-1">Étape « S'équiper »</legend>
