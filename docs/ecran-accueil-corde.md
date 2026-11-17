@@ -276,3 +276,11 @@ Brief harmonisé avec Adri (trois étapes séparées : 1. balises + secteurs, 2.
 - **Balises** (`.hot::after`) : point `--hud-dot` de 4 px en haut à droite de chaque lettre, lueur `--hud-glow`, respiration 3,2 s décalée de 0,8 s par point (`--bd`). Quand un point est visé, les trois autres baissent (.25) et la balise active reste allumée. Le premier secteur visé arrête la respiration pour la visite (`sessionStorage['cordee-beacon']`, classe `.beacons-still`). Fixes sous `prefers-reduced-motion`. Décoratives (pseudo-élément d'un bouton déjà nommé).
 - Clic sonore discret (`tickSoft`) à chaque changement de secteur, seulement si le son est actif et hors mouvement réduit.
 - En attente de l'étape 2 : l'ancienne indication (pulse sur « E » + carte « Explorer l'instrument ») est encore là ; l'amorce la remplacera.
+
+### Révision du 18/11/2026 : lettres qui s'éclairent, cartes à l'azimut des points
+
+Proposition d'Adri, appliquée : **plus de balises** (points cuivrés retirés, CSS `.hot::after` et `sessionStorage['cordee-beacon']` supprimés) et **plus de secteurs de 90°**.
+
+- L'aiguille suit la souris et l'azimut défile en direct. Quand la souris passe **à l'azimut d'un point cardinal** (±12° autour de N, E, S, O, vu du centre du cadran : `AZ_IN`), l'aiguille s'y cale, **la lettre s'éclaire** (orange, +12 %, halo `shadowBlur` sur le cadran) et la carte HUD s'ouvre. On ne quitte le point qu'au-delà de ±18° (`AZ_OUT`) : pas de bascule. Entre deux points, aucune carte.
+- Zone utile : écran + lunette (jusqu'à 1,18 × le rayon de l'écran), hors du centre (18 %). Clic quand un point est visé = épingle. Clavier et toucher inchangés (boutons `.hot`, anneau au focus clavier).
+- Vérifié (nuit et jour) : 45° rien, 80–100° Écoute active, 112–135° rien, 180° Stabilité, 200° rien, 270° Ouverture d'esprit, 355–0° Résilience.

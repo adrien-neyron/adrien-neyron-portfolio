@@ -358,7 +358,8 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
   x.strokeStyle=P.ring;x.lineWidth=2;x.beginPath();x.arc(cx,cy,490,0,TAU);x.stroke();
   x.textAlign='center';x.textBaseline='middle';
   const at=(d,r)=>{const a=d*Math.PI/180-Math.PI/2;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r]};
-  [['N',0,'n'],['E',90,'e'],['S',180,'s'],['O',270,'o']].forEach(([l,d,k])=>{const on=k===dialAimK;x.font='700 '+(on?74:66)+'px "JetBrains Mono", monospace';x.fillStyle=d===0||on?P.N:P.card;const p=at(d,392);x.fillText(l,p[0],p[1])});   // point actif (secteur visé, focus, épinglé) : lettre orange, +12 %, sans anneau
+  [['N',0,'n'],['E',90,'e'],['S',180,'s'],['O',270,'o']].forEach(([l,d,k])=>{const on=k===dialAimK;x.font='700 '+(on?74:66)+'px "JetBrains Mono", monospace';x.fillStyle=d===0||on?P.N:P.card;const p=at(d,392);
+    if(on){x.save();x.shadowColor=P.N;x.shadowBlur=28;x.fillText(l,p[0],p[1]);x.shadowBlur=12;x.fillText(l,p[0],p[1]);x.restore()}else x.fillText(l,p[0],p[1])});   // point actif (souris à son azimut, focus, épinglé) : la lettre s'éclaire (orange, +12 %, halo), sans anneau ni balise
   // cadran épuré (17/11/2026, piste 1) : plus d'intercardinaux ni de degrés ; restent les graduations, N E S O, le nom et l'aiguille (la ligne de métier a été retirée aussi)
   // champs de données
   // identité : le nom en grand en haut du cadran, puis le titre (les technologies sont dans la scène « S'équiper »)
@@ -2728,8 +2729,7 @@ function refreshAim(){
   aimKey=pinnedKey||hoverKey;
   hotEls.forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.k===pinnedKey));if(b.dataset.k===aimKey)b.setAttribute('aria-describedby','tip');else b.removeAttribute('aria-describedby')});
   if(dialAimK!==aimKey&&dialTex){dialAimK=aimKey;makeDial();dialTex.needsUpdate=true}
-  hotEls.forEach(b=>b.classList.toggle('aim',b.dataset.k===aimKey));S[0].classList.toggle('dial-aim',!!aimKey);
-  if(aimKey){const H=HOT[aimKey];tipK.textContent=H.t;tipT.textContent=H.d;tipD.textContent=H.x;tip.classList.add('on')}else tip.classList.remove('on');
+    if(aimKey){const H=HOT[aimKey];tipK.textContent=H.t;tipT.textContent=H.d;tipD.textContent=H.x;tip.classList.add('on')}else tip.classList.remove('on');
 }
 hotEls.forEach(b=>{
   const k=b.dataset.k;
@@ -2739,32 +2739,31 @@ hotEls.forEach(b=>{
   b.addEventListener('click',()=>{pinnedKey=pinnedKey===k?null:k;refreshAim();haptic(10);tick()});
 });
 addEventListener('keydown',e=>{if(e.key==='Escape'&&pinnedKey){pinnedKey=null;refreshAim()}});
-/* Secteurs du cadran (17/11/2026, étape 1 du brief « Le cadran se montre ») : 4 quarts de 90° couvrent tout l'écran de la montre.
-   La souris dans un quart = ce point cardinal est visé (aiguille aimantée, lettre orange, carte HUD). Zone neutre au centre (18 % du rayon)
-   et tolérance de 6° aux frontières : on ne bascule pas sans cesse d'un secteur à l'autre (le clignotement des anciens effets de proximité).
-   Les angles sont mesurés vers les boutons de zone projetés, donc l'inclinaison de la montre est prise en compte. Souris / stylet seulement. */
-const SECT_DEAD=.18,SECT_HYST=6;let sectorKey=null,sectorOn=false,beaconDone=false,ptrIn=false;
-try{beaconDone=!!sessionStorage.getItem('cordee-beacon')}catch(e){}
-if(beaconDone)S[0].classList.add('beacons-still');
+/* Azimuts du cadran (18/11/2026, demande d'Adri, remplace les secteurs de 90° et les balises de la veille) :
+   l'aiguille suit la souris ; quand la souris passe à l'azimut d'un point cardinal (±12° autour de N, E, S, O, vu du centre du cadran),
+   l'aiguille s'y cale, la lettre s'éclaire et la carte HUD s'ouvre ; entre deux points, rien n'est ouvert (l'azimut défile en direct).
+   On ne quitte le point qu'au-delà de ±18° (pas de bascule). Angles mesurés vers les boutons de zone projetés (inclinaison prise en compte).
+   Zone utile : l'écran et la lunette, hors du centre (18 % du rayon). Souris / stylet seulement. */
+const AZ_IN=12,AZ_OUT=18,SECT_DEAD=.18;let sectorKey=null,sectorOn=false,ptrIn=false;
 addEventListener('pointermove',e=>{ptrIn=e.pointerType!=='touch'},{passive:true});
 document.documentElement.addEventListener('pointerleave',()=>{ptrIn=false;updateSector()});
 function sectorAt(){
   if(!ptrIn||!sectorOn)return null;
   const c=hotEls.map(b=>[parseFloat(b.style.left),parseFloat(b.style.top)]),cx=(c[1][0]+c[3][0])/2,cy=(c[0][1]+c[2][1])/2;   // centre = milieu E–O et N–S
   const dx=ptr.x-cx,dy=ptr.y-cy,dist=Math.hypot(dx,dy),R=Math.max(...c.map(([x,y])=>Math.hypot(x-cx,y-cy)))*DIAL_R/1.4;   // R : bord de l'écran (les zones sont à ~1,4 unité du centre, l'écran à 1,98)
-  if(dist>R||dist<R*SECT_DEAD)return dist<R*SECT_DEAD?sectorKey:null;   // zone neutre : on garde le secteur en cours
+  if(dist>R*1.18||dist<R*SECT_DEAD)return dist<R*SECT_DEAD?sectorKey:null;   // dedans : écran + lunette ; centre : on garde le point en cours
   const a=Math.atan2(dy,dx),diff=i=>{let d=Math.abs(Math.atan2(c[i][1]-cy,c[i][0]-cx)-a)*57.3;return d>180?360-d:d};
   const ks=Object.keys(HOT),ds=ks.map((k,i)=>diff(i)),best=ds.indexOf(Math.min(...ds)),cur=ks.indexOf(sectorKey);
-  return cur>=0&&ds[cur]-ds[best]<SECT_HYST*2?sectorKey:ks[best];
+  if(cur>=0&&ds[cur]<AZ_OUT)return sectorKey;   // on reste calé tant qu'on ne s'éloigne pas de plus de 18°
+  return ds[best]<AZ_IN?ks[best]:null;
 }
 function updateSector(){
   const k=sectorAt();if(k===sectorKey)return;sectorKey=k;
   hoverKey=k;refreshAim();document.body.style.cursor=k?'pointer':'';
-  if(k){if(!paused&&!reduce)tickSoft();hintGone&&hintGone();
-    if(!beaconDone){beaconDone=true;S[0].classList.add('beacons-still');try{sessionStorage.setItem('cordee-beacon','1')}catch(e){}}}   // le premier secteur visé arrête la respiration des balises
+  if(k){if(!paused&&!reduce)tickSoft();hintGone()}
 }
 addEventListener('pointermove',e=>{if(e.pointerType!=='touch')updateSector()},{passive:true});
-addEventListener('click',e=>{if(sectorKey&&!e.target.closest('a,button,input,textarea,select,label,dialog,.tip')){pinnedKey=pinnedKey===sectorKey?null:sectorKey;refreshAim();haptic(10);tick()}});   // clic dans un secteur : épingle sa carte (comme le bouton)
+addEventListener('click',e=>{if(sectorKey&&!e.target.closest('a,button,input,textarea,select,label,dialog,.tip')){pinnedKey=pinnedKey===sectorKey?null:sectorKey;refreshAim();haptic(10);tick()}});   // clic quand un point est visé : épingle sa carte (comme le bouton)
 /* Indication d'accueil sur le cadran : le cercle de la zone « Écoute » (E) pulse (.hot.hint) + micro-carte (loop.html #dhint).
    Une fois par visite ; disparaît à la première interaction (clic, touche, molette, toucher, survol d'une zone du cadran) ou après 8 s.
    Le simple mouvement de la souris ne la ferme pas : c'est justement ce qu'elle invite à faire. */
