@@ -212,15 +212,9 @@ Contraste : pire cas calculé (verre sur la zone la plus défavorable) titre ≥
 
 **Mouvement réduit** : l'accueil passe en vue statique (pas de 3D) ; zones du cadran, infobulle et verre n'existent pas, leur contenu est dans le HTML. **Vérifié** : axe 0 violation (jour, nuit, focus clavier sur une zone), captures Chrome jour / nuit souris à gauche et à droite.
 
-## Cadran : approche d'une zone à la souris (17/11/2026)
+## Cadran : approche d'une zone à la souris (17/11/2026) — retirée
 
-Repère : le **cercle de navigation clavier** des zones (`.hot`), pas de waypoint séparé. Calcul à chaque image dans `placeHot` (`loop.js`) à partir de la position projetée des zones, donc il suit la montre.
-- **Illumination progressive** : `--pk` (0 → 1 sur les 90 px autour du bord du cercle, `NEAR_PX`) colore le bord en `--acc` et ajoute un halo proportionnel.
-- **Cercle de ciblage** : `.hot::before`, fin cercle 1 px à 9 px du bord, qui se resserre (échelle 1,35 → 1) et s'allume avec `--pk` ; plein au survol, au focus et quand la zone est épinglée.
-- **Annotation** : dès que `--pk` dépasse 0,45, la zone la plus proche devient `nearKey` et l'infobulle holographique s'ouvre (filet de liaison vers le cercle), transition raccourcie à 0,16 s. `aimKey = pinnedKey || hoverKey || nearKey`.
-- **Pivot** : tant qu'une zone est visée, la montre redresse légèrement sa vue de trois quarts vers l'utilisateur (`aimK` lissé, rotation −0,42 × hk réduite de 35 %).
-- Souris seulement (`pointerType === 'mouse'`) ; rien sous mouvement réduit (qui passe d'ailleurs en vue statique). Clavier et tactile inchangés (focus / toucher sur la zone).
-**Vérifié** (Chrome, scène en pause) : `--pk` 0 à 120 px, 0,35 à 60 px, 0,63 à 30 px (annotation ouverte), 0,94 sur le bord ; aucune erreur JavaScript ; 221 tests unitaires.
+Essayée puis **retirée le même jour** à la demande d'Adri : les zones du cadran sont trop proches les unes des autres, l'illumination à l'approche (`--pk`, rayon 90 px), le cercle de ciblage (`.hot::before`) et l'ouverture de l'annotation à distance (`nearKey`) faisaient clignoter plusieurs cercles à la fois. Les cercles ne réagissent plus qu'au survol direct, au clic et au focus clavier. Le léger pivot de la montre vers l'utilisateur pendant la visée d'une zone (`aimK`) est conservé : il ne se déclenche qu'au survol, au focus ou au clic.
 
 ## Cadran épuré (17/11/2026, piste 1 retenue)
 
