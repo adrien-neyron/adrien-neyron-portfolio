@@ -146,11 +146,11 @@ Le menu « Étapes | Projets | Outils » a un halo qui doit se fondre dans ce qu
 - **Action** : « Lancer la visite guidée » seulement. Le lien secondaire « Voir les projets » (`.cta2`) a été **retiré le 17/11/2026** à la demande d'Adri (les projets restent dans le menu « Projets » de l'en-tête).
 - **Montre** : 8 % plus petite sur le premier écran large (`hs` dans `loop.js`), taille normale dès « S'équiper ». Elle reste à droite, centrale dans sa moitié. Sur mobile, elle descend un peu (`cy` = 57 % de la hauteur) pour dégager les actions.
 
-**Waypoint AN** (`--wpt`, orange de signal : `#F08A4B` la nuit, `#B5481F` le jour) : losange avec un halo, repère graphique récurrent de l'identité. Il est décoratif partout : devant le surtitre (`.who::before`) et devant les coordonnées (`.hcoord::before`).
+**Waypoint AN** (`--wpt`, orange de signal : `#F08A4B` la nuit, `#B5481F` le jour) : losange avec un halo, repère graphique récurrent de l'identité. Il est décoratif : devant le surtitre (`.who::before`).
 
-**Coordonnées** (`.hcoord`, `aria-hidden`, masquées sous 900 px) : `45°56′02″ N · 6°50′16″ E · 2 521 m` = **point le plus haut de la trace GPS** (`DATA` dans `loop.js` : 45,9338 / 6,8377 / 2 521 m). Les Grandes Platières (2 480 m) ne figurent pas dans la trace et aucune source fiable n'a été trouvée pour leurs coordonnées exactes : rien d'inventé. **À décider** : garder ce point ou le remplacer par des coordonnées vérifiées des Grandes Platières (une seule ligne à changer dans `loop.html`).
+**Coordonnées** (`.hcoord`) : **retirées le 17/11/2026** à la demande d'Adri (elles étaient sous « Lancer la visite guidée » et affichaient le point le plus haut de la trace GPS, 45°56′02″ N · 6°50′16″ E · 2 521 m). Si elles reviennent : ne jamais inventer de coordonnées ; les Grandes Platières ne sont pas dans la trace.
 
-**Courbes de niveau en trois profondeurs** (`#topo3`) : **retirées le 17/11/2026** à la demande d'Adri. Le fond de gorge se suffit (le massif filaire 3D avait déjà été retiré le même jour). Le waypoint posé au sommet du relief proche est parti avec elles ; il reste devant le surtitre et devant les coordonnées. La classe `decor` (repère pour FIELD MODE) reste sur `.hcoord`.
+**Courbes de niveau en trois profondeurs** (`#topo3`) : **retirées le 17/11/2026** à la demande d'Adri. Le fond de gorge se suffit (le massif filaire 3D avait déjà été retiré le même jour). Le waypoint posé au sommet du relief proche est parti avec elles ; il reste devant le surtitre. 
 
 **Vérifié** : axe (avec contraste) 0 violation, jour et nuit, 1440 × 900 et 375 × 812 ; parcours clavier menu → bouton → « Voir les projets » → zones de la montre → pied de page, focus visible ; Lighthouse avant/après (`docs/performance.md`). **Non vérifié** : vrai téléphone, lecteur d'écran, 667 px de haut (le haut du bracelet passe sous le bouton, qui reste lisible car opaque et au-dessus).
 
