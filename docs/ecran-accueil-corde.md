@@ -2,6 +2,8 @@
 
 > **Retiré le 06/11/2026** : l'écran d'accroche, sa transition en éclats et GSAP n'existent plus. L'accueil arrive directement sur la montre : le titre s'affiche dès le premier rendu, l'aiguille de préchargement tourne pendant que la 3D charge. Document gardé pour l'historique ; les parties « aiguille » et « relais » restent valables.
 
+> **Courbes filaires retirées le 17/11/2026** (`feat/hero-sans-courbes`) : sur le fond de gorge, le massif en fil de fer (`mtnMesh`) et la nappe de vagues du premier plan (`nearMesh`, `buildScenery` dans `assets/loop/loop.js`) ne sont plus ajoutés à la scène ; le fond photographique `#hphoto` porte seul le décor derrière la montre, dans les deux thèmes, au hero et à « S'équiper ». Les objets restent créés, sans effet. La carte des étapes (`PARC`) garde ses courbes de niveau : ce sont des données, pas un décor. Pour les rétablir, remettre `scenery.add(...)` sur les deux maillages. Vérifié : rendu Chrome headless, nuit et jour. Non mesuré : Lighthouse, e2e, vrai téléphone.
+
 Écran d'attente affiché avant la montre : la phrase d'accroche (« Beaucoup ont le cap. Peu connaissent le sentier. ») en grandes capitales serif sur fond uni nuit ou jour, le lien « Passer l'intro » (aucun bouton central : l'écran s'ouvre seul, ou au clic n'importe où). Il se fissure et tombe en éclats pour révéler la montre 3D (voir `docs/intro-craquelure.md`).
 
 Modèle visuel : capture fournie par Adri (accroche en capitales, éclats, montre au centre). La corde en C d'origine a été retirée en octobre 2026.

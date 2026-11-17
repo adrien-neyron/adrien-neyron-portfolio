@@ -832,7 +832,7 @@ function buildScenery(){
       'float a=(max(gu,gz)*1.0+cont*0.7)*slope+hn*0.11*smoothstep(0.0,0.2,hn);a*=0.8+0.2*sin(vZ*0.55-uT*1.3);a*=smoothstep(3.0,9.0,vZ)*(1.0-smoothstep(62.0,71.0,vZ));a*=1.0-smoothstep(1.15,1.35,abs(vUv.x));'+
       'col*=0.6+0.8*hn;gl_FragColor=vec4(col,a*uFade*0.62*uK);}'
   });
-  const mtn=new THREE.Mesh(mtnGeo,mtnMat);mtn.frustumCulled=false;mtn.renderOrder=2;scenery.add(mtn);mtnMesh=mtn;
+  const mtn=new THREE.Mesh(mtnGeo,mtnMat);mtn.frustumCulled=false;mtn.renderOrder=2;mtn.visible=false;mtnMesh=mtn;   // massif filaire retiré de la scène (17/11/2026) : le fond de gorge (#hphoto) suffit, plus de courbes par-dessus
   // nappe de vagues du premier plan : elle revient devant la montre, en lignes teal qui virent au cuivre sur la droite
   nearGeo=new THREE.BufferGeometry();
   {const n=(NNX+1)*(NNZ+1),ud=new Float32Array(n*2),idx=[];let k=0;
@@ -856,7 +856,7 @@ function buildScenery(){
       'a*=smoothstep(-0.97,-0.68,vS.y);vec2 dq=(vS-uDial.xy)*vec2(uDial.z>0.0?1.0:1.0,1.0);a*=1.0-0.78*(1.0-smoothstep(0.82,1.08,length(vec2(dq.x*uDial.z,dq.y))));'+   // pas de lignes sur le pied de page
       'vec3 col=mix(uCa,uCb,smoothstep(0.55,0.95,vUD.x))*(0.65+0.7*hn);gl_FragColor=vec4(col,a*uFade*0.95*uK);}'
   });
-  nearMesh=new THREE.Mesh(nearGeo,nearMat);nearMesh.frustumCulled=false;nearMesh.renderOrder=3;scenery.add(nearMesh);
+  nearMesh=new THREE.Mesh(nearGeo,nearMat);nearMesh.frustumCulled=false;nearMesh.renderOrder=3;nearMesh.visible=false;   // nappe filaire du premier plan retirée (17/11/2026), voir mtn
 }
 function sizeThree(){
   sizeAurora();buildTopoBg();sizeWarp();PARC.resize();SHOE.resize();CAMP.resize();
