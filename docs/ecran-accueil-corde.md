@@ -225,3 +225,8 @@ Trois pistes ont été étudiées : (1) cadran épuré, (2) cadran altimètre li
 - **Admin › Profil › Cadran de la montre** : les champs « Libellé d'expérience » et « Valeur » sont retirés du formulaire (sans effet désormais) ; les données restent en base et dans `/api/loop-content` (`dial.xpLabel`, `dial.xpValue`), rien n'est perdu. Nom et ligne de titre restent modifiables.
 
 **Ligne de métier retirée (17/11/2026, demande d'Adri)** : le cadran ne porte plus « DÉVELOPPEUR × MANAGEUR × FORMATEUR ». Restent graduations, N E S O, le nom et l'aiguille. Le repère « ATELIER » s'affiche encore à cette place au survol d'un bouton du boîtier dans « S'équiper » (avec le nom de l'outil). Le champ « Ligne de titre » est retiré d'Admin › Profil › Cadran (la donnée `loopDialRole` reste en base et dans l'API). Le métier est dit par le surtitre et le texte du hero.
+
+**Zones et métier (17/11/2026, demande d'Adri)** :
+- Le cadran ne garde que **quatre zones interactives**, les points cardinaux (`HOT` : N Résilience, E Écoute active, S Stabilité, O Ouverture d'esprit). Les zones « Adrien Neyron » (centre) et « Expérience » sont retirées, avec leurs infobulles.
+- **« DÉVELOPPEUR - MANAGER - FORMATEUR »** est peint sous l'aiguille (`makeDial`, `cy + 168`, jusqu'à 40 px, orange `P.N`). Texte fixe dans le code (le champ admin `loopDialRole`, qui contenait « MANAGEUR », n'est plus utilisé).
+- **Indication d'accueil** : le cercle qui pulse est celui de « Écoute » (E). La carte se place à droite du cercle s'il y a la place, sinon sous le cadran (sous le cercle « S ») : elle ne masque jamais le cadran.

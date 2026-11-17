@@ -225,6 +225,9 @@ The mouse-proximity effects on dial zones (`--pk` glow, targeting ring `.hot::be
 ### Clean dial (17/11/2026, option 1 of 3)
 The hero dial (`makeDial`) shows only ticks, N E S O, the name and the needle (role line removed too on 17/11/2026; « ATELIER » still appears there when a case button is hovered in « S'équiper »; admin role input removed, `loopDialRole` kept in DB/API). Intercardinals, degrees, experience (`xpLabel`/`xpValue`) and the qualities are no longer painted: they live in HTML (dial zones' `aria-label`, holographic `#tip`, `sr-only` paragraph, guided tour). `drawReadout` no longer repeats dial-zone text (tools preview in « S'équiper » kept). Admin › Profil no longer shows the two experience inputs (data kept in DB/API). Options 2 (altimeter) and 3 (changing screen) were not chosen: see `docs/ecran-accueil-corde.md`.
 
+### Dial zones and job line (17/11/2026)
+Only the four cardinal zones remain interactive (`HOT` n/e/s/o); « Adrien Neyron » and « Expérience » zones were removed. « DÉVELOPPEUR - MANAGER - FORMATEUR » is painted under the needle (fixed text in `makeDial`, not the admin `loopDialRole`). The onboarding pulse is on « E »; its card goes right of the ring if it fits, else under the dial.
+
 ### Watch-button hint (S'équiper)
 When the mouse moves while the case buttons are active, `#eqTip` (« Cliquer sur les boutons de la montre ») shows under the watch; gone 2.5 s after the last move, on a button or card, and for good once a fiche was opened. Mouse only, `aria-hidden`. Details: `docs/ecran-accueil-corde.md`.
 

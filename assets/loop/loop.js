@@ -363,6 +363,8 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
    while(x.measureText(nm).width>760&&sz>34){sz-=2;x.font='700 '+sz+'px "JetBrains Mono", monospace'}
    x.fillStyle=P.val;x.fillText(nm,cx,cy-188)}
   if(dialOver){const rl='ATELIER';let rs=46;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>860&&rs>26){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-118)}   // ligne de métier retirée du cadran (17/11/2026) : seul « ATELIER » s'affiche, au survol d'un outil dans « S'équiper »
+  // métier sous l'aiguille (17/11/2026, demande d'Adri) : texte fixe, n'utilise plus le champ admin loopDialRole
+  {const jb='DÉVELOPPEUR - MANAGER - FORMATEUR';let js=40;x.font='600 '+js+'px "JetBrains Mono", monospace';while(x.measureText(jb).width>760&&js>22){js-=1;x.font='600 '+js+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(jb,cx,cy+168)}
   // expérience (xpLabel / xpValue) et qualités (Résilience, Écoute, Stabilité, Curiosité) ne sont plus peintes sur le cadran :
   // elles sont dans le HTML (zones du cadran : nom accessible + infobulle au survol / focus, texte sr-only, visite guidée)
 }
@@ -2698,9 +2700,7 @@ const HOT={
   n:{t:'Résilience',d:'Cap fixe face aux bugs.',b:0,p:[0,1.40],r:.42},
   e:{t:'Écoute active',d:'Collaboration d\'équipe.',b:90,p:[1.36,0],r:.42},
   s:{t:'Stabilité',d:'Gestion de la pression.',b:180,p:[0,-1.46],r:.40},
-  o:{t:'Ouverture d\'esprit',d:'Curiosité technique.',b:270,p:[-1.36,0],r:.42},
-  stack:{t:'Adrien Neyron',d:'Développeur, traileur, formateur.',b:0,p:[0,.62],r:.34},
-  exp:{t:'Expérience',d:'11 ans de formation et de management, puis 5 ans de code.',b:180,p:[0,-.95],r:.34}
+  o:{t:'Ouverture d\'esprit',d:'Curiosité technique.',b:270,p:[-1.36,0],r:.42}
 };
 const tip=$('#tip'),tipT=$('#tipT'),tipD=$('#tipD');
 const hotEls=Object.keys(HOT).map(k=>{
@@ -2723,7 +2723,7 @@ hotEls.forEach(b=>{
   b.addEventListener('click',()=>{pinnedKey=pinnedKey===k?null:k;refreshAim();haptic(10);tick()});
 });
 addEventListener('keydown',e=>{if(e.key==='Escape'&&pinnedKey){pinnedKey=null;refreshAim()}});
-/* Indication d'accueil sur le cadran : le cercle de la zone « Expérience » pulse (.hot.hint) + micro-carte (loop.html #dhint).
+/* Indication d'accueil sur le cadran : le cercle de la zone « Écoute » (E) pulse (.hot.hint) + micro-carte (loop.html #dhint).
    Une fois par visite ; disparaît à la première interaction (clic, touche, molette, toucher, survol d'une zone du cadran) ou après 8 s.
    Le simple mouvement de la souris ne la ferme pas : c'est justement ce qu'elle invite à faire. */
 const dHint=$('#dhint'),HINT_MS=8000;let hintState=0,hintT=0;   // 0 en attente, 1 affichée, 2 terminée
@@ -2746,10 +2746,12 @@ function placeHot(p){
     b.style.opacity=vis1.toFixed(2);b.style.visibility=vis1<.05?'hidden':'visible';
     if(b.dataset.k===aimKey){tip.style.left=clamp(x,130,w-130).toFixed(1)+'px';tip.style.top=(y+d/2+14).toFixed(1)+'px'}
   });
-  if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;dHint.classList.add('on');hotEls.find(b=>b.dataset.k==='exp').classList.add('hint');hintT=setTimeout(hintGone,HINT_MS)}
-  if(hintState===1){   // carte juste à droite et en dessous du cercle « Expérience » (gardée dans l'écran)
-    const e=hotEls.find(b=>b.dataset.k==='exp'),x=parseFloat(e.style.left),y=parseFloat(e.style.top),hw=dHint.offsetWidth,hh=dHint.offsetHeight;
-    dHint.style.left=clamp(x+26,16,w-hw-16).toFixed(1)+'px';dHint.style.top=clamp(y+20,16,h-hh-96).toFixed(1)+'px';
+  if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;dHint.classList.add('on');hotEls.find(b=>b.dataset.k==='e').classList.add('hint');hintT=setTimeout(hintGone,HINT_MS)}
+  if(hintState===1){   // carte juste à droite et en dessous du cercle « Écoute » (gardée dans l'écran)
+    const e=hotEls.find(b=>b.dataset.k==='e'),x=parseFloat(e.style.left),y=parseFloat(e.style.top),hw=dHint.offsetWidth,hh=dHint.offsetHeight;
+    const lx=x+parseFloat(e.style.width)/2+14;
+    if(lx+hw<=w-16){dHint.style.left=lx.toFixed(1)+'px';dHint.style.top=clamp(y+20,16,h-hh-96).toFixed(1)+'px'}   // place à droite du cercle « E » : la carte ne masque pas le cadran
+    else{const sz=hotEls.find(b=>b.dataset.k==='s'),sx=parseFloat(sz.style.left),sy=parseFloat(sz.style.top)+parseFloat(sz.style.height)/2;dHint.style.left=clamp(sx-hw/2,16,w-hw-16).toFixed(1)+'px';dHint.style.top=clamp(sy+18,16,h-hh-96).toFixed(1)+'px'}   // sinon sous le cadran
     dHint.style.opacity=vis1.toFixed(2);
   }
 }
