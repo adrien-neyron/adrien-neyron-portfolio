@@ -339,7 +339,7 @@ const NEEDLE_PIV=.06,DIAL_R=1.98,NDL={ok:false,w:0,tip:[0,0],piv:[0,0]};   // pi
 /* ---------- Montre GPS outdoor, inspirée des séries Garmin Fenix et Enduro ---------- */
 const DIAL_NIGHT={bg:'#050607',pat:'rgba(255,255,255,.05)',tickBig:'#E6F4F1',tick:'rgba(200,210,216,.6)',ring:'rgba(255,255,255,.35)',N:'#E26D3B',card:'#E6F4F1',inter:'#9AA4AB',deg:'#B8C0C6',lab:'#AEB8BF',val:'#E6F4F1',qual:'#C9D1D6',rTitle:'#E6F4F1',rDesc:'#B9C2CA'};
 const DIAL_DAY={bg:'#F2EEE6',pat:'rgba(60,40,20,.045)',tickBig:'#1B1712',tick:'rgba(27,23,18,.62)',ring:'rgba(27,23,18,.45)',N:'#A8401B',card:'#1B1712',inter:'#5F584D',deg:'#554E43',lab:'#554E43',val:'#1B1712',qual:'#3F392F',rTitle:'#1B1712',rDesc:'#3F392F'};
-const DIAL_SIG='CALIBRE AN-01 · RGAA 4.1 · WCAG 2.1 AA';   // micro-signature gravée en arc sous l'aiguille (identité AN + référentiels réellement suivis par le site)
+const DIAL_SIG=['CALIBRE AN-01','RGAA 4.1 · WCAG 2.1 AA'];   // signature gravée sur deux arcs sous l'aiguille (identité AN + référentiels réellement suivis par le site) ; deux lignes pour rester lisible (une seule ligne tombait à ~7 px à l'écran)
 const AZ16=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];   // rose des vents en français (O = ouest)
 const dialPal=()=>theme==='light'?DIAL_DAY:DIAL_NIGHT;   // cadran clair en mode jour (contrastes ≥ 4,5:1 sur le papier #F2EEE6)
 function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, traits blancs ; jour : fond papier, traits encre
@@ -368,13 +368,16 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
   if(dialOver){const rl='ATELIER';let rs=46;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>860&&rs>26){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-118)}   // ligne de métier retirée du cadran (17/11/2026) : seul « ATELIER » s'affiche, au survol d'un outil dans « S'équiper »
   // métier sous l'aiguille (17/11/2026, demande d'Adri) : texte fixe, n'utilise plus le champ admin loopDialRole
   // signature d'horloger (17/11/2026) : remplace « DÉVELOPPEUR - MANAGER - FORMATEUR » ; discrète (petite, couleur des graduations) ; pas de coordonnées : aucune n'est vérifiée dans la trace
-  {const jb=DIAL_SIG,R=330,MAXA=2.3;   // inscription courbe sous l'aiguille : chaque lettre posée sur un cercle de rayon R (pied vers l'extérieur), lue de gauche à droite ; arc ≤ 2,3 rad (≈ 130°) : ses extrémités restent à ~160 px de O et E, et le bas à ~30 px au-dessus du S
-   let js=26;x.font='600 '+js+'px "JetBrains Mono", monospace';const ls=.22;   // petit corps, interlettrage large (gravure d'horloger)
-   const tw=()=>[...jb].reduce((a,ch)=>a+x.measureText(ch).width*(1+ls),0);
-   while(tw()/R>MAXA&&js>20){js-=1;x.font='600 '+js+'px "JetBrains Mono", monospace'}
-   const tot=tw();let acc=0;x.fillStyle=P.card;x.textBaseline='alphabetic';
-   [...jb].forEach(ch=>{const w=x.measureText(ch).width*(1+ls),a=Math.PI/2+tot/R/2-(acc+w/2)/R;acc+=w;
-     x.save();x.translate(cx+Math.cos(a)*R,cy+Math.sin(a)*R);x.rotate(a-Math.PI/2);x.fillText(ch,0,0);x.restore()});
+  {const arc=(txt,R,sz,wt,MAXA)=>{   // texte en arc sous l'aiguille : lettres posées sur un cercle de rayon R (pied vers l'extérieur), lues de gauche à droite ; réduit seulement s'il dépasse MAXA radians
+     const ls=.12;let js=sz;x.font=wt+' '+js+'px "JetBrains Mono", monospace';
+     const tw=()=>[...txt].reduce((a,ch)=>a+x.measureText(ch).width*(1+ls),0);
+     while(tw()/R>MAXA&&js>24){js-=1;x.font=wt+' '+js+'px "JetBrains Mono", monospace'}
+     const tot=tw();let acc=0;
+     [...txt].forEach(ch=>{const w=x.measureText(ch).width*(1+ls),a=Math.PI/2+tot/R/2-(acc+w/2)/R;acc+=w;
+       x.save();x.translate(cx+Math.cos(a)*R,cy+Math.sin(a)*R);x.rotate(a-Math.PI/2);x.fillText(ch,0,0);x.restore()})};
+   x.fillStyle=P.card;x.textBaseline='alphabetic';
+   arc(DIAL_SIG[0],290,46,'700',1.6);   // 1re ligne (plus près du centre) : « CALIBRE AN-01 »
+   arc(DIAL_SIG[1],340,38,'600',2.3);   // 2e ligne : référentiels ; pied à 340, le haut du « S » est à ~359
    x.textBaseline='middle'}
   // expérience (xpLabel / xpValue) et qualités (Résilience, Écoute, Stabilité, Curiosité) ne sont plus peintes sur le cadran :
   // elles sont dans le HTML (zones du cadran : nom accessible + infobulle au survol / focus, texte sr-only, visite guidée)
