@@ -929,8 +929,8 @@ function updateCompass(p,dt){
   drawReadout(((-needle.rotation.z*180/Math.PI)%360+360)%360);
   const zi=sm(.2,.30,p),scl=p<.5?lerp(1,4.6,zi):lerp(4.6,1,sm(.95,1,p));
   const hk=LAY.sx?(staticMode?1:(p<.5?1-sm(.075,.12,p):0)):0;
-  const hs=1-.08*hk;   // premier écran large : montre réduite de 8 % (hiérarchie titre > texte > actions > montre), taille normale dès « S'équiper »
-  const sc=sceneryCalc();stand.scale.setScalar(scl*hs);stand.position.y=sc.yD-FOOT*scl*hs;const hk2=LAY.sx&&!staticMode&&p<.5?sm(.09,.125,p)*(1-sm(.17,.21,p)):0;stand.position.x=(hk-hk2)*LAY.sx/(LAY.W||1)*vis*cam.aspect;   // « S'équiper » (grand écran) : la montre passe de l'autre côté (à gauche), le texte est à droite ; elle revient au centre avant le zoom
+  const hs=1-.14*hk;   // premier écran large : montre réduite de 14 % (hiérarchie titre > texte > action > montre), taille normale dès « S'équiper »
+  const sc=sceneryCalc();stand.scale.setScalar(scl*hs);stand.position.y=sc.yD-FOOT*scl*hs;const hk2=LAY.sx&&!staticMode&&p<.5?sm(.09,.125,p)*(1-sm(.17,.21,p)):0;stand.position.x=(hk*1.07-hk2)*LAY.sx/(LAY.W||1)*vis*cam.aspect;   // « S'équiper » (grand écran) : la montre passe de l'autre côté (à gauche), le texte est à droite ; elle revient au centre avant le zoom
      // accueil large : la montre est à droite et le texte à gauche dès l'arrivée ; elle passe à gauche pour « S'équiper », puis revient au centre avant le zoom
     // le centre du cadran reste fixe pendant le zoom
   scenery.position.y=sceneryNear.position.y=sc.yD-FOOT;scenery.scale.setScalar(sc.s);

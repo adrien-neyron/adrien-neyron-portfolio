@@ -1177,3 +1177,20 @@ body.static .hphoto .hrelief{display:none}
 html.at-hero .hud,html.at-hero .altrail,html.at-hero .grain{opacity:0;pointer-events:none}
 @media (min-width:900px){html.at-hero footer.perma .copy{opacity:0}html.at-hero footer.perma{justify-content:center}}
 @media (prefers-reduced-motion:reduce){.hud,.altrail,footer.perma .copy,.grain,.hphoto .hrelief{transition:none}}
+
+/* Hiérarchie du hero (17/11/2026) : titre > texte > action > montre.
+   Trois groupes séparés par le rythme vertical : [surtitre + titre] — texte — action. Le titre grandit et se resserre ; le texte passe en
+   retrait (opacité, contraste mesuré sur la photo) ; l'action garde son espace. La montre est réduite de 14 % et décalée vers la droite (loop.js, hs).
+   Mêmes règles avant et après le démarrage de la boucle (html:not(.loop-live) / html.hero-split) : rien ne bouge à l'arrivée de la 3D. */
+#head1 .who{margin-bottom:18px}
+#head1 h1{line-height:1.04;letter-spacing:-.01em}
+#head1 .lede{margin-top:22px;opacity:.84;text-wrap:pretty}   /* pretty : pas de mot seul en dernière ligne */
+#head1 .cta{margin-top:30px}
+:root[data-theme="light"] #head1 .lede{opacity:.8}
+@media (min-width:1000px){
+  html.hero-split #head1,html:not(.loop-live) #head1{width:min(46vw,680px)}
+  html.hero-split #head1 h1,html:not(.loop-live) #head1 h1{font-size:clamp(40px,5vw,76px)}
+  html.hero-split #head1 .lede,html:not(.loop-live) #head1 .lede{margin-top:28px;max-width:min(470px,100%)}
+  html.hero-split #head1 .cta,html:not(.loop-live) #head1 .cta{margin-top:40px}
+}
+body.static #head1 .lede{opacity:1}

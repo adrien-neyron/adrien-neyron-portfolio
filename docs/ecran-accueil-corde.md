@@ -183,3 +183,13 @@ Le haut de l'écran a toujours cette couleur : interstice ou non, il n'y a plus 
 **Vérifié** : scène décalée de 90 px à la main (pire cas de la capture) dans Chrome : saut de couleur au raccord = 0, en jour et en nuit ; tests unitaires 221/221. **Limite** : le retard de la scène collée lui-même n'est pas corrigé (il vient du défilement), il est seulement rendu invisible sur le premier écran.
 
 **Sans contour (17/11/2026, demande d'Adri)** : le bouton n'a plus de contour et l'icône plus d'anneau. Il reste le texte `--fg` (avec le halo du titre) précédé d'un triangle ▶ orange `--cta-line` (20 px, 18 px sur mobile), aligné sur la colonne de texte (marge négative égale au padding gauche). Survol / focus : voile `--cta-tint` en pilule, l'icône avance de 3 px. Focus clavier : contour `--focus` de 3 px (obligatoire, WCAG 2.4.7). La zone cliquable garde 56 px de haut. `--cta-ring` ne sert plus qu'à l'état actif (clic).
+
+## Hiérarchie du hero (17/11/2026)
+
+Ordre de lecture voulu : **titre > texte > action > montre**. La montre reste centrale dans sa moitié, mais ne domine plus le message.
+- **Trois groupes** séparés par le rythme vertical : [surtitre + titre] (18 px), puis le texte (28 px au-dessus sur grand écran, 22 px ailleurs), puis l'action (40 px / 30 px). Avant : 14 / 12 / 22 px, tout semblait collé.
+- **Titre** : `clamp(40px, 5vw, 76px)` sur grand écran (72 px à 1440 px, contre 60 px avant), interligne 1,04, interlettrage −0,01 em ; colonne élargie à `min(46vw, 680px)`.
+- **Texte** : en retrait (opacité 0,84 la nuit, 0,8 le jour), 470 px de large au plus, `text-wrap: pretty` (pas de mot seul en dernière ligne). Contraste mesuré sur les pixels de la photo : jour 6,3:1 (5,1:1 sur mobile), nuit 11,5:1 (9,6:1 sur mobile).
+- **Montre** : réduite de 14 % sur le premier écran large (`hs` dans `loop.js`, contre 8 % avant) et décalée de 7 % de plus vers la droite (`hk*1.07`) ; taille et position normales dès « S'équiper ». Les zones cliquables du cadran suivent.
+- Mêmes règles avant et après le démarrage de la boucle (`html:not(.loop-live)` / `html.hero-split`) : rien ne bouge à l'arrivée de la 3D.
+**Vérifié** : axe 0 violation (jour, nuit, mobile) ; captures 1920 × 1080, 1440 × 900, 1024 × 768, 375 × 812 ; 221 tests unitaires.
