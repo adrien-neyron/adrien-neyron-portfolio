@@ -2743,8 +2743,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&pinnedKey){pinnedKey=null;re
    l'aiguille suit la souris ; quand la souris passe à l'azimut d'un point cardinal (±12° autour de N, E, S, O, vu du centre du cadran),
    l'aiguille s'y cale, la lettre s'éclaire et la carte HUD s'ouvre ; entre deux points, rien n'est ouvert (l'azimut défile en direct).
    On ne quitte le point qu'au-delà de ±18° (pas de bascule). Angles mesurés vers les boutons de zone projetés (inclinaison prise en compte).
-   Zone utile : autour de la montre jusqu'à AZ_REACH rayons d'écran, hors du centre (18 % du rayon). Souris / stylet seulement. */
-const AZ_IN=12,AZ_OUT=18,SECT_DEAD=.18,AZ_REACH=2.6;   // AZ_REACH : portée en rayons d'écran (~300 px à 1440 px de large), sans atteindre la colonne de texte à gauche
+   Zone utile : toute la page (AZ_REACH), hors du centre du cadran (18 % du rayon). Souris / stylet seulement. */
+const AZ_IN=12,AZ_OUT=18,SECT_DEAD=.18,AZ_REACH=Infinity;   // AZ_REACH : portée en rayons d'écran ; toute la page depuis le 18/11/2026 (demande d'Adri ; avant : 2,6)
 let sectorKey=null,sectorOn=false,ptrIn=false;
 addEventListener('pointermove',e=>{ptrIn=e.pointerType!=='touch'},{passive:true});
 document.documentElement.addEventListener('pointerleave',()=>{ptrIn=false;updateSector()});

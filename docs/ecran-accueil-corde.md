@@ -288,3 +288,7 @@ Proposition d'Adri, appliquée : **plus de balises** (points cuivrés retirés, 
 ### Fermeture des cartes à l'étape suivante (18/11/2026)
 
 Règle d'Adri : les cartes HUD du cadran se ferment **obligatoirement** quand on passe à l'étape suivante. Dans `placeHot`, dès que les zones du cadran ne sont plus disponibles (`sectorOn` faux : « S'équiper », carte, vue statique), l'épinglage, le survol et le point visé sont effacés, la carte se ferme et le focus quitte le bouton de zone. Vérifié dans Chrome : carte épinglée au clic, ouverte à l'azimut avec la souris immobile, ouverte au clavier → fermée après défilement dans les trois cas.
+
+### Portée sur toute la page (18/11/2026)
+
+Demande d'Adri : le rayon d'action des points cardinaux couvre **toute la page** (`AZ_REACH = Infinity`, avant 2,6 rayons d'écran). Seule reste la zone neutre au centre du cadran (18 %). Conséquence assumée : la souris sur la colonne de texte à gauche est à l'azimut d'« O » (≈ 270°), donc la carte « Ouverture d'esprit » s'ouvre quand on lit le titre ; en haut à gauche ou sur le bouton « Lancer la visite guidée », on est entre deux points, rien ne s'ouvre. Vérifié dans Chrome (1440 × 900) : haut de page → Résilience, bord droit → Écoute active, bas → Stabilité, titre à gauche → Ouverture d'esprit, coin haut-gauche et bouton → rien.
