@@ -370,7 +370,7 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
   // bas du cadran (17/11/2026, demande d'Adri) : texte droit avec l'étape en cours (« 01 · LA TRACE »…), au lieu de la signature en arc ; mis à jour quand l'étape change (update → dialStep)
   {const [n,t]=DIAL_STEPS[dialStep]||DIAL_STEPS[0];let fs=50;const f=()=>x.font='700 '+fs+'px "JetBrains Mono", monospace';f();
    const gap=24,W=()=>x.measureText(n).width+gap+x.measureText(t).width;while(W()>600&&fs>30){fs-=2;f()}
-   const x0=cx-W()/2,y=cy+292;x.textAlign='left';   // le haut du « S » est à ~359 px du centre
+   const x0=cx-W()/2,y=cy+222;x.textAlign='left';   // remonté (17/11/2026) : à mi-chemin entre le centre et le « S » (haut du S à ~359 px), sous la queue de l'aiguille
    x.fillStyle=P.N;x.fillText(n,x0,y);x.fillStyle=P.val;x.fillText(t,x0+x.measureText(n).width+gap,y);x.textAlign='center'}
   // expérience (xpLabel / xpValue) et qualités (Résilience, Écoute, Stabilité, Curiosité) ne sont plus peintes sur le cadran :
   // elles sont dans le HTML (zones du cadran : nom accessible + infobulle au survol / focus, texte sr-only, visite guidée)

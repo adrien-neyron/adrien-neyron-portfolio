@@ -261,7 +261,7 @@ Demande d'Adri (« en tant que web designer ») : remplacer le texte du cadran p
 
 ### Bas du cadran : l'étape en cours, en texte droit (17/11/2026)
 
-Demande d'Adri : l'écriture du bas n'est plus courbe et ne porte plus la signature « CALIBRE AN-01 · RGAA 4.1 · WCAG 2.1 AA » (retirée, `DIAL_SIG` supprimé) ; elle affiche **l'étape en cours**, droite : numéro en orange (`P.N`) + nom (`P.val`), 50 px sur 1024 (réduit au-delà de 600 px de large), à 292 px sous le centre (le haut du « S » est à ~359).
+Demande d'Adri : l'écriture du bas n'est plus courbe et ne porte plus la signature « CALIBRE AN-01 · RGAA 4.1 · WCAG 2.1 AA » (retirée, `DIAL_SIG` supprimé) ; elle affiche **l'étape en cours**, droite : numéro en orange (`P.N`) + nom (`P.val`), 50 px sur 1024 (réduit au-delà de 600 px de large), à 222 px sous le centre depuis le 17/11/2026 au soir (« remonte l'indicatif » : il était à 292, collé au « S ») ; il répond à l'azimut placé au-dessus du centre, et la queue de l'aiguille pointée au sud ne le touche pas.
 
 - `DIAL_STEPS` (`loop.js`) reprend les noms du menu « Étapes » : 01 LA TRACE, 02 S'ÉQUIPER, 03 L'ASCENSION, 04 LE RANDONNEUR, 05 LE BIVOUAC. Si un nom change dans `data/navigation.ts`, le changer ici aussi.
 - `update()` calcule l'étape où la montre est visible (`p < CSP` → 01, jusqu'à la carte → 02, au bivouac → 05) et ne redessine le cadran (`makeDial`) que quand elle change.
