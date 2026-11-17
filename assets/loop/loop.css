@@ -14,8 +14,8 @@ html.loop-on[data-theme="dark"]{--bg:#050811;--fg:#E6F4F1;--muted:#A8B9C0;--line
 html.loop-on,html.loop-on[data-theme="dark"]{--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}
 @media (prefers-color-scheme: dark){html.loop-on:not([data-theme="light"]){--brand:#EE9468;--brand-hover:#F5B08C;--brand-fill:#1A0E08;--brand-halo:rgba(5,8,17,.0);--sep:rgba(226,140,100,.5);--underline:#E26D3B;--focus:#E26D3B;--ft:5,8,17;--needle-1:#F59A5C;--needle-2:#D4581F;--needle-3:#DDE3E7;--needle-4:#9AA3AA;--needle-pivot:#0B0D10}}
 html.loop-on[data-theme="light"]{--brand:#27465C;--brand-hover:#16303F;--brand-fill:#F2EEE6;--brand-halo:rgba(252,247,238,.9);--sep:#27465C;--underline:#27465C;--focus:#1B1712;--ft:235,195,156;--needle-1:#D2672B;--needle-2:#A8401B;--needle-3:#4A4F55;--needle-4:#23272B;--needle-pivot:#1B1712;--muted:#435862}
-html.loop-on,html.loop-on[data-theme="dark"]{--holo-a:rgba(240,138,75,.16);--holo-b:rgba(120,200,230,.14);--holo-edge:rgba(230,244,241,.28);--hero-top:#182C42;--wpt:#F08A4B;--sky4-top:#070A14;--cta-line:#F08A4B;--cta-tint:rgba(240,138,75,.12);--cta-ring:rgba(240,138,75,.30);--vignette:rgba(5,8,17,.62);--hero-photo:url(/loop/hero-gorge-dark.webp);--hero-photo-m:url(/loop/hero-gorge-dark-m.webp);--hero-scrim:5,8,17;--hero-a1:.90;--hero-a2:.78;--hero-eyebrow:#FFB880}
-html.loop-on[data-theme="light"]{--holo-a:rgba(168,64,27,.10);--holo-b:rgba(39,70,92,.10);--holo-edge:rgba(39,70,92,.30);--hero-top:#ECE0D0;--wpt:#B5481F;--sky4-top:#BCD7EA;--cta-line:#A8401B;--cta-tint:rgba(168,64,27,.08);--cta-ring:rgba(168,64,27,.24);--vignette:rgba(244,236,222,.55);--hero-photo:url(/loop/hero-gorge-light.webp);--hero-photo-m:url(/loop/hero-gorge-light-m.webp);--hero-scrim:244,236,222;--hero-a1:.92;--hero-a2:.82;--hero-eyebrow:#70200F}
+html.loop-on,html.loop-on[data-theme="dark"]{--holo-a:rgba(240,138,75,.16);--holo-b:rgba(120,200,230,.14);--holo-edge:rgba(230,244,241,.28);--hero-top:#182C42;--wpt:#F08A4B;--sky4-top:#070A14;--cta-line:#F08A4B;--cta-tint:rgba(240,138,75,.12);--cta-ring:rgba(240,138,75,.30);--vignette:rgba(5,8,17,.62);--hero-photo:url(/loop/hero-gorge-dark.webp);--hero-photo-m:url(/loop/hero-gorge-dark-m.webp);--hero-scrim:5,8,17;--hero-a1:.90;--hero-a2:.78;--hero-eyebrow:#FFB880;--hud-bg:28,25,23;--hud-a:.6;--hud-fg:#F5F5F4;--hud-muted:#D6D3D1;--hud-badge:#FFC89A;--hud-dot:#F08A4B;--hud-edge:rgba(240,138,75,.30);--hud-glow:rgba(240,138,75,.42);--hud-shadow:rgba(0,0,0,.55)}
+html.loop-on[data-theme="light"]{--holo-a:rgba(168,64,27,.10);--holo-b:rgba(39,70,92,.10);--holo-edge:rgba(39,70,92,.30);--hero-top:#ECE0D0;--wpt:#B5481F;--sky4-top:#BCD7EA;--cta-line:#A8401B;--cta-tint:rgba(168,64,27,.08);--cta-ring:rgba(168,64,27,.24);--vignette:rgba(244,236,222,.55);--hero-photo:url(/loop/hero-gorge-light.webp);--hero-photo-m:url(/loop/hero-gorge-light-m.webp);--hero-scrim:244,236,222;--hero-a1:.92;--hero-a2:.82;--hero-eyebrow:#70200F;--hud-bg:28,25,23;--hud-a:.6;--hud-fg:#F5F5F4;--hud-muted:#D6D3D1;--hud-badge:#FFC89A;--hud-dot:#F08A4B;--hud-edge:rgba(240,138,75,.30);--hud-glow:rgba(240,138,75,.42);--hud-shadow:rgba(0,0,0,.55)}
 /* (ci-dessus) Bouton principal (CTA) et voile de profondeur de l'accueil : rôles propres, même cuivre profond dans les deux thèmes (le bouton est opaque) */
 /* Halo du menu (Étapes | Projets | Outils) : il doit se fondre dans ce qui est derrière l'en-tête. Partout c'est --bg, sauf au bivouac où le haut de l'écran est le ciel (--sky4-top) alors que --bg y passe au sable : sans ça, le halo dessinait un contour beige autour des lettres sur le ciel bleu (jour). --hdr-k = opacité de la scène du bivouac, posée par loop.js. */
 html.loop-on header.top{--hdr-halo:color-mix(in srgb,var(--sky4-top) calc(var(--hdr-k,0) * 100%),var(--bg))}
@@ -202,16 +202,36 @@ html.loop-on .push{position:absolute;z-index:4;width:44px;height:44px;transform:
 html.loop-on .push:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
 html.loop-on body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont toutes affichées */
 html.loop-on #toolLines{display:none}   /* cartes de l'atelier : plus de trait vers la montre */
-html.loop-on .tip{position:absolute;z-index:5;max-width:250px;padding:12px 15px 13px;color:var(--fg);border-radius:14px;pointer-events:none;opacity:0;visibility:hidden;transform-origin:50% -14px;transform:translate(-50%,0) perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(6px) scale(.97);transition:opacity .16s ease-out,visibility .16s,transform .16s ease-out;
-  background:linear-gradient(115deg,transparent 30%,var(--holo-a) calc(var(--sx,50%) - 10%),var(--holo-b) var(--sx,50%),transparent calc(var(--sx,50%) + 22%)) border-box,color-mix(in srgb,var(--card) 86%,transparent);
-  border:1px solid var(--holo-edge);box-shadow:inset 0 1px 0 var(--holo-edge);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}
-html.loop-on .tip::before{content:"";position:absolute;left:50%;top:-14px;width:1px;height:14px;background:linear-gradient(to top,var(--holo-edge),transparent)}   /* filet qui relie l'infobulle à la zone du cadran */
-html.loop-on .tip.on{opacity:1;visibility:visible;transform:translate(-50%,0) perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
-@media (prefers-reduced-motion:reduce){html.loop-on .tip,html.loop-on .tip.on{transition:opacity .2s,visibility .2s}}
-html.loop-on .tip b{display:block;font:500 19px/1.2 var(--serif)}
-html.loop-on .tip span{display:block;margin-top:4px;font-size:14px;line-height:1.45;color:var(--muted)}
-html.loop-on[data-theme="light"] .tip{background:linear-gradient(115deg,transparent 30%,var(--holo-a) calc(var(--sx,50%) - 10%),var(--holo-b) var(--sx,50%),transparent calc(var(--sx,50%) + 22%)) border-box,color-mix(in srgb,var(--card) 90%,transparent)}
-html.loop-on[data-theme="light"] .tip span{color:var(--fg)}   /* jour : --muted descendait à 4,1:1 sur le verre clair au-dessus du cadran blanc ; hiérarchie gardée par la taille et la police */
+/* Infobulle des zones du cadran : HUD flottant en verre sombre (identique jour et nuit : un instrument, pas une carte de page).
+   Fond pierre sombre à 60 % (--hud-bg / --hud-a) + flou ; le backdrop-filter assombrit aussi ce qui passe derrière (brightness .62) :
+   pire cas fond blanc → titre ≥ 7:1, description ≥ 5,4:1, badge ≥ 5,3:1 (test loopTokens ; mesuré sur le rendu : ≥ 5,8:1 jour, ≥ 10:1 nuit). Sans backdrop-filter, le fond monte à 88 %. */
+html.loop-on .tip{position:absolute;z-index:5;max-width:260px;padding:10px 15px 13px;color:var(--hud-fg);border-radius:14px;pointer-events:none;opacity:0;visibility:hidden;
+  --tx:-50%;--ty:0%;--lead:14px;transform-origin:50% calc(-1 * var(--lead));
+  transform:translate(var(--tx),var(--ty)) perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(6px) scale(.97);transition:opacity .18s ease-out,visibility .18s,transform .18s ease-out,box-shadow .3s ease-out,border-color .3s ease-out;
+  background:linear-gradient(115deg,transparent 30%,var(--holo-a) calc(var(--sx,50%) - 10%),transparent calc(var(--sx,50%) + 22%)),
+    repeating-linear-gradient(0deg,color-mix(in srgb,var(--hud-fg) 4%,transparent) 0 1px,transparent 1px 3px),
+    rgba(var(--hud-bg),var(--hud-a));
+  border:1px solid color-mix(in srgb,var(--hud-edge) 60%,transparent);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--hud-fg) 10%,transparent),0 24px 48px -12px var(--hud-shadow),0 8px 18px -6px var(--hud-shadow);
+  -webkit-backdrop-filter:blur(24px) saturate(1.3) brightness(.62);backdrop-filter:blur(24px) saturate(1.3) brightness(.62)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){html.loop-on .tip{--hud-a:.88}}
+html.loop-on .tip::before{content:"";position:absolute;left:50%;top:calc(-1 * var(--lead));width:1px;height:var(--lead);background:linear-gradient(to top,var(--hud-dot),transparent)}   /* filet vertical (mobile) qui relie l'infobulle à la zone */
+html.loop-on .tip.on{opacity:1;visibility:visible;transform:translate(var(--tx),var(--ty)) perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  border-color:var(--hud-edge);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--hud-fg) 10%,transparent),0 24px 48px -12px var(--hud-shadow),0 8px 18px -6px var(--hud-shadow),0 0 22px -4px var(--hud-glow)}   /* lueur cuivrée quand la zone est survolée / a le focus */
+/* bureau : l'infobulle se pose à côté de la zone, reliée par un trait lumineux horizontal (classe posée par placeHot) */
+html.loop-on .tip.side-r,html.loop-on .tip.side-l{--ty:-50%;--lead:40px}
+html.loop-on .tip.side-r{--tx:0%;transform-origin:calc(-1 * var(--lead)) 50%}
+html.loop-on .tip.side-l{--tx:-100%;transform-origin:calc(100% + var(--lead)) 50%}
+html.loop-on .tip.side-r::before,html.loop-on .tip.side-l::before{top:50%;width:var(--lead);height:1px;box-shadow:0 0 6px 1px var(--hud-glow)}
+html.loop-on .tip.side-r::before{left:calc(-1 * var(--lead));background:linear-gradient(to right,transparent,var(--hud-dot))}
+html.loop-on .tip.side-l::before{left:auto;right:calc(-1 * var(--lead));background:linear-gradient(to left,transparent,var(--hud-dot))}
+html.loop-on .tip .tip-badge{display:inline-flex;align-items:center;gap:7px;margin:0 0 7px;padding:3px 9px 3px 7px;border-radius:999px;border:1px solid var(--hud-edge);background:color-mix(in srgb,var(--hud-dot) 12%,transparent);color:var(--hud-badge);font:600 10.5px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}
+html.loop-on .tip .tip-dot{position:relative;width:6px;height:6px;border-radius:50%;background:var(--hud-dot);box-shadow:0 0 6px var(--hud-dot)}
+html.loop-on .tip .tip-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--hud-dot);animation:hudPing 1.6s ease-out infinite}
+@keyframes hudPing{0%{transform:scale(1);opacity:.75}80%,100%{transform:scale(3);opacity:0}}
+@media (prefers-reduced-motion:reduce){html.loop-on .tip,html.loop-on .tip.on{transition:opacity .2s,visibility .2s}html.loop-on .tip .tip-dot::after{animation:none;opacity:0}}
+html.loop-on .tip b{display:block;font:500 19px/1.2 var(--serif);color:var(--hud-fg)}
+html.loop-on .tip #tipD{display:block;margin-top:4px;font-size:14px;line-height:1.45;color:var(--hud-muted)}
 
 /* Fond vivant : bleu nuit minéral, halos de lampe frontale et de lune, relief topographique en parallaxe */
 html.loop-on .bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict}

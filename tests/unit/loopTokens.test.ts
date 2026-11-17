@@ -66,6 +66,17 @@ describe('jetons jour / nuit', () => {
     }
   })
 
+  it('infobulle HUD du cadran : texte ≥ 4,5:1 dans le pire cas (fond blanc assombri par le backdrop-filter, voile pierre à --hud-a)', () => {
+    const css2 = css.replace(/\s+/g, '')
+    const bright = Number(/\.tip\{[^}]*brightness\(([\d.]+)\)/.exec(css2)?.[1])
+    expect(bright).toBeGreaterThan(0)
+    for (const theme of [light, dark]) {
+      const a = Number(theme['--hud-a']), rgb = theme['--hud-bg'].split(',').map(Number)
+      const hex = '#' + rgb.map((c) => Math.round(a * c + (1 - a) * 255 * bright).toString(16).padStart(2, '0')).join('')
+      for (const k of ['--hud-fg', '--hud-muted', '--hud-badge']) expect(ratio(theme[k], hex), k).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
   it('anneau de focus visible (≥ 3:1) sur le fond, jour et nuit', () => {
     for (const theme of [light, dark]) expect(ratio(theme['--focus'], theme['--bg'])).toBeGreaterThanOrEqual(3)
   })

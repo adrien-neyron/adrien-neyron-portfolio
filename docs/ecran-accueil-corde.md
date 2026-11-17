@@ -230,3 +230,14 @@ Trois pistes ont été étudiées : (1) cadran épuré, (2) cadran altimètre li
 - Le cadran ne garde que **quatre zones interactives**, les points cardinaux (`HOT` : N Résilience, E Écoute active, S Stabilité, O Ouverture d'esprit). Les zones « Adrien Neyron » (centre) et « Expérience » sont retirées, avec leurs infobulles.
 - **« DÉVELOPPEUR - MANAGER - FORMATEUR »** est peint sous l'aiguille en **arc qui suit la courbure du cadran** (`makeDial` : chaque lettre posée sur un cercle de rayon 330 autour du centre, haut des lettres vers le centre, lecture de gauche à droite ; arc ≤ 2,3 rad ≈ 130°, police jusqu'à 36 px réduite pour tenir dans l'arc, interlettrage 8 %, orange `P.N`). Ses extrémités restent à ~160 px de O et E, et le bas à ~30 px au-dessus du S. Texte fixe dans le code (le champ admin `loopDialRole`, qui contenait « MANAGEUR », n'est plus utilisé).
 - **Indication d'accueil** : le cercle qui pulse est celui de « Écoute » (E). La carte se place à droite du cercle s'il y a la place, sinon sous le cadran (sous le cercle « S ») : elle ne masque jamais le cadran.
+
+## Infobulle HUD des zones du cadran (17/11/2026)
+
+Demande d'Adri : l'infobulle `#tip` des quatre zones cardinales devient une **infobulle HUD flottante**.
+
+- **Verre sombre identique jour et nuit** (c'est un instrument, pas une carte de page) : voile pierre `rgba(var(--hud-bg), var(--hud-a))` = stone-900 à 60 %, fines lignes de balayage (`--hud-fg` à 4 %) pour la texture, reflet holographique `--holo-a` qui suit la souris, flou `backdrop-filter: blur(24px) saturate(1.3) brightness(.62)`. Sans `backdrop-filter`, le voile monte à 88 %.
+- **Bordure cuivre subtile** `--hud-edge` (cuivre à 30 %), **ombre portée profonde** `--hud-shadow` (deux couches), **lueur cuivrée** `--hud-glow` quand la zone est survolée, a le focus ou est épinglée (l'infobulle elle-même reste `pointer-events: none` pour ne pas voler le survol de la zone).
+- **Badge « Expérience »** en haut (mono, majuscules, `--hud-badge`) avec un **voyant pulsé** `--hud-dot` (`hudPing`, 1,6 s ; fixe sous `prefers-reduced-motion`). Le badge est `aria-hidden` : la zone annonce déjà son nom.
+- **Trait lumineux horizontal sur bureau** (largeur ≥ 1000 px) : `placeHot` pose `.side-r` ou `.side-l`, l'infobulle se place à 40 px (`TIP_LEAD` = `--lead`) de l'anneau, centrée verticalement, reliée par un trait cuivré lumineux. « O » s'ouvre vers la gauche, N / E / S vers la droite (repli de l'autre côté si la place manque). Sur mobile : sous la zone, filet vertical.
+- **Contrastes** : pire cas analytique (fond blanc assombri par le filtre) titre ≥ 7:1, description ≥ 5,4:1, badge ≥ 5,3:1 (test `loopTokens`) ; mesuré sur le rendu Chrome : ≥ 5,8:1 en jour, ≥ 10:1 en nuit.
+- Jetons `--hud-*` déclarés dans les deux palettes (mêmes valeurs).

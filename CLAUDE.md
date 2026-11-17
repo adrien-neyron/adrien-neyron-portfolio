@@ -225,6 +225,9 @@ The mouse-proximity effects on dial zones (`--pk` glow, targeting ring `.hot::be
 ### Clean dial (17/11/2026, option 1 of 3)
 The hero dial (`makeDial`) shows only ticks, N E S O, the name and the needle (role line removed too on 17/11/2026; « ATELIER » still appears there when a case button is hovered in « S'équiper »; admin role input removed, `loopDialRole` kept in DB/API). Intercardinals, degrees, experience (`xpLabel`/`xpValue`) and the qualities are no longer painted: they live in HTML (dial zones' `aria-label`, holographic `#tip`, `sr-only` paragraph, guided tour). `drawReadout` no longer repeats dial-zone text (tools preview in « S'équiper » kept). Admin › Profil no longer shows the two experience inputs (data kept in DB/API). Options 2 (altimeter) and 3 (changing screen) were not chosen: see `docs/ecran-accueil-corde.md`.
 
+### Dial HUD tooltip (17/11/2026)
+`#tip` is a floating HUD: same dark glass in both themes (`--hud-bg` stone at `--hud-a` .6, scanline texture, `backdrop-filter … brightness(.62)` so text stays ≥ 5:1 even over white), copper edge `--hud-edge`, deep shadow `--hud-shadow`, copper glow `--hud-glow` when shown, « Expérience » badge with pulsing dot (`hudPing`, static under reduced motion, badge `aria-hidden`). Desktop (≥ 1000 px): beside the zone with a glowing horizontal line (`.side-r` / `.side-l`, `TIP_LEAD` 40 px; « O » opens left); mobile: below with a vertical line. Contrast tested in `loopTokens.test.ts`. Details: `docs/ecran-accueil-corde.md`.
+
 ### Dial zones and job line (17/11/2026)
 Only the four cardinal zones remain interactive (`HOT` n/e/s/o); « Adrien Neyron » and « Expérience » zones were removed. « DÉVELOPPEUR - MANAGER - FORMATEUR » is painted under the needle as an arc following the dial's curvature (letters on a radius-330 circle, ≤ 2.3 rad; fixed text in `makeDial`, not the admin `loopDialRole`). The onboarding pulse is on « E »; its card goes right of the ring if it fits, else under the dial.
 

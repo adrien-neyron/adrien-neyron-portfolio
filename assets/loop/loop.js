@@ -2738,6 +2738,7 @@ try{if(sessionStorage.getItem('cordee-hint'))hintState=2}catch(e){}
 function hintGone(){if(hintState===2)return;hintState=2;clearTimeout(hintT);dHint.classList.remove('on');dHint.style.opacity='0';hotEls.forEach(b=>b.classList.remove('hint'));try{sessionStorage.setItem('cordee-hint','1')}catch(e){}}
 ['pointerdown','keydown','wheel','touchstart'].forEach(t=>addEventListener(t,hintGone,{passive:true,capture:true}));
 hotEls.forEach(b=>b.addEventListener('pointerenter',hintGone));
+const TIP_LEAD=40;   // longueur du trait lumineux entre la zone et l'infobulle (bureau), = --lead de .tip.side-r/-l
 const _pv=THREE_OK?new THREE.Vector3():null,_pw=THREE_OK?new THREE.Vector3():null;
 function placeHot(p){
   if(aimKey){const D=57.3,ry=clamp(stand.rotation.y*D*.6,-16,16),rx=clamp(-stand.rotation.x*D*.6,-12,12);   // infobulle holographique : elle pivote avec le cadran (orientation atténuée pour rester lisible) ; le reflet suit la souris
@@ -2751,7 +2752,11 @@ function placeHot(p){
     const x=(_pv.x*.5+.5)*w,y=(-_pv.y*.5+.5)*h,d=Math.max(44,Math.abs(_pw.x-_pv.x)*w);
     b.style.left=x.toFixed(1)+'px';b.style.top=y.toFixed(1)+'px';b.style.width=b.style.height=d.toFixed(1)+'px';
     b.style.opacity=vis1.toFixed(2);b.style.visibility=vis1<.05?'hidden':'visible';
-    if(b.dataset.k===aimKey){tip.style.left=clamp(x,130,w-130).toFixed(1)+'px';tip.style.top=(y+d/2+14).toFixed(1)+'px'}
+    if(b.dataset.k===aimKey){   // bureau : à côté de la zone, relié par un trait horizontal (à droite si la place le permet) ; mobile : dessous, filet vertical
+      const tw=tip.offsetWidth,th=tip.offsetHeight,rx=x+d/2+TIP_LEAD,lx=x-d/2-TIP_LEAD,fitR=rx+tw<=w-16,fitL=lx-tw>=16,side=w<1000?'':b.dataset.k==='o'?(fitL?'l':fitR?'r':''):(fitR?'r':fitL?'l':'');   // « O » s'ouvre vers la gauche, les autres vers la droite : l'infobulle ne recouvre pas le cadran
+      tip.classList.toggle('side-r',side==='r');tip.classList.toggle('side-l',side==='l');
+      if(side){tip.style.left=(side==='r'?rx:lx).toFixed(1)+'px';tip.style.top=clamp(y,th/2+16,h-th/2-16).toFixed(1)+'px'}
+      else{tip.style.left=clamp(x,130,w-130).toFixed(1)+'px';tip.style.top=(y+d/2+14).toFixed(1)+'px'}}
   });
   if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;dHint.classList.add('on');hotEls.find(b=>b.dataset.k==='e').classList.add('hint');hintT=setTimeout(hintGone,HINT_MS)}
   if(hintState===1){   // carte juste à droite et en dessous du cercle « Écoute » (gardée dans l'écran)
