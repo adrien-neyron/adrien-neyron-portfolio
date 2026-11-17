@@ -210,6 +210,9 @@ Hierarchy eyebrow → title → lede → action (`.cta` only; the « Voir les pr
 ### Guided-tour button: ghost style (17/11/2026)
 On the gorge photo the `.cta` has a **transparent background**: 1.5 px `--cta-line` border (orange signal = waypoint colour), ▶ icon in a `--cta-line` ring, `--fg` text with the `#head1` halo; hover/focus `--cta-tint` + `--cta-ring`, icon slides 3 px. Real contrast measured on the photo pixels: text ≥ 12:1, border ≥ 4:1. The old filled-pill tokens (`--cta-bg-*`, `--cta-fg`, `--cta-edge`, `--cta-sheen`, `--cta-glow`) are gone. Details: `docs/ecran-accueil-corde.md`.
 
+### Hero backdrop `#hback` (17/11/2026)
+While scrolling, the sticky `.stage` can lag a frame and reveal ~16 px of what is behind it (in light mode the apricot sky `body::after` → a beige line at the top). `#hback` (fixed, before `<main>`) repeats the hero photo + top scrim with opacity `--phk` (= hero photo opacity, set in `loop.js`), and the light sky fades by the same amount. Don't use `body::before` for this (used by other pages, disabled on the home). Details: `docs/ecran-accueil-corde.md`.
+
 ### Watch-button hint (S'équiper)
 When the mouse moves while the case buttons are active, `#eqTip` (« Cliquer sur les boutons de la montre ») shows under the watch; gone 2.5 s after the last move, on a button or card, and for good once a fiche was opened. Mouse only, `aria-hidden`. Details: `docs/ecran-accueil-corde.md`.
 

@@ -948,7 +948,7 @@ function updateCompass(p,dt){
     scene3.fog.color.setHex(L?0xD8E0E4:0x050811)}
   {const sk=theme==='light'?+fG.toFixed(2):0;if(sk!==skyK){skyK=sk;document.documentElement.style.setProperty('--sky',String(sk))}}   // ciel du mode jour (dégradé CSS), fondu avec le sol
   {const lk=+fG.toFixed(2);if(lk!==lensK){lensK=lk;if(lensEl)lensEl.style.opacity=String(lk)}}   // voile de profondeur (flou du premier plan + vignettage) : suit le sol, s'efface pendant la plongée vers la carte
-  {const pk=+phK.toFixed(2);if(pk!==hphotoK){hphotoK=pk;if(hphotoEl)hphotoEl.style.opacity=String(pk)}}
+  {const pk=+phK.toFixed(2);if(pk!==hphotoK){hphotoK=pk;if(hphotoEl)hphotoEl.style.opacity=String(pk);root.style.setProperty('--phk',String(pk))}}   // --phk : fond de secours derrière la scène (body::before), même opacité que la photo
   if(hphotoEl){const r=+hk2.toFixed(2);if(r!==hphotoR){hphotoR=r;hphotoEl.style.setProperty('--ph-r',String(r));hphotoEl.style.setProperty('--ph-l',String(+(1-r).toFixed(2)))}}   // voile de lisibilité : à gauche pour l'accroche, à droite pour « S'équiper » (grand écran)
   mtnMat.uniforms.uT.value=tNow;mtnMat.uniforms.uFade.value=fC;gndMat.opacity=rockMat.opacity=fG*gm;shadowMat.opacity=.85*fG*gm;scenery.visible=sceneryNear.visible=Math.max(fG,fM)>.01;
   const sw=paused?0:1;
