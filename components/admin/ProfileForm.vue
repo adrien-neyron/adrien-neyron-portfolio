@@ -142,7 +142,7 @@ function onSubmit() {
         <fieldset class="space-y-4 border border-[var(--line,#ccc)] rounded p-4">
           <legend class="admin-label px-1">Cadran de la montre</legend>
           <div>
-            <label for="pr-dial-name" class="admin-label">Nom <span class="normal-case font-normal">— vide : « ADRIEN NEYRON »</span></label>
+            <label for="pr-dial-name" class="admin-label">Nom <span class="normal-case font-normal">— vide : « FIND YOUR DIRECTION »</span></label>
             <input id="pr-dial-name" v-model="form.loopDialName" type="text" maxlength="40" class="admin-input" />
           </div>
           <p class="text-xs text-[var(--color-muted)]">Le cadran est épuré depuis le 17/11/2026 : nom, aiguille et points cardinaux. Le métier, les valeurs et l'expérience sont dans le texte de la page et au survol du cadran.</p>

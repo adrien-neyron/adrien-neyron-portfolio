@@ -16,7 +16,7 @@ L'accueil (boucle 3D, `components/loop/LoopHome.vue` + `assets/loop/loop.js`) li
 | Profil | `loopEyebrow` | surtitre du premier écran |
 | Profil | `loopTitle` | titre (h1) du premier écran |
 | Profil | `loopLede` | sous-texte du premier écran |
-| Profil | `loopDialName`, `loopDialRole` | cadran de la montre : nom (vide → « ADRIEN NEYRON ») et ligne de titre (vide → « DÉVELOPPEUR × TRAILEUR × FORMATEUR »), réduits automatiquement s'ils sont trop longs |
+| Profil | `loopDialName`, `loopDialRole` | cadran de la montre : nom (vide → « FIND YOUR DIRECTION », depuis le 17/11/2026) et ligne de titre (vide → « DÉVELOPPEUR × TRAILEUR × FORMATEUR »), réduits automatiquement s'ils sont trop longs |
 | Profil | `loopDialXpLabel`, `loopDialXpValue` | cadran : libellé et valeur d'expérience (vides → « DÉV. 5 ANS » / « TERRAIN 20 ANS » ; la seconde valeur se calcule : année en cours − 2006, début dans le sport) |
 | Profil | `loopToolsEyebrow`, `loopToolsTitle`, `loopToolsLede` | texte de l'étape « S'équiper » (vides → texte de `loop.html`) ; injecté côté serveur dans `#head2` |
 | Profil | (formulaire) | `loopEyebrow`, `loopTitle`, `loopLede` et `loopTools*` : un champ jamais saisi affiche le texte en ligne (`data/loopTexts.ts`, copie de `loop.html` vérifiée par `tests/unit/loopTexts.test.ts`) ; à l'enregistrement il est écrit en base, et un champ vidé reprend le texte par défaut |
