@@ -45,7 +45,8 @@ export default defineNuxtConfig({
 
   // main.css (Tailwind + jetons du site) est importé par layouts/default.vue, layouts/admin.vue et
   // pages/admin/login.vue : l'accueil (layout « loop ») ne l'embarque pas dans son premier affichage.
-  css: ["~/assets/css/fonts.css"],
+  // wayfinder.css : viseur et trace de la navigation clavier (utils/wayfinder.ts), sur toutes les pages, accueil compris
+  css: ["~/assets/css/fonts.css", "~/assets/css/wayfinder.css"],
 
   typescript: {
     strict: true,

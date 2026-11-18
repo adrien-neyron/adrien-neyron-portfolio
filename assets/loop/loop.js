@@ -2428,6 +2428,7 @@ function announce(i){
   live.textContent=`Scène ${i+1} sur 5 : ${NAMES[i]}`;sceneSay=i===2?live.textContent:'';
   $$('#railNav button').forEach((b,j)=>b.setAttribute('aria-current',j===i?'true':'false'));
   $('#burgerSteps').parentNode.style.setProperty('--i',i);   // le repère de la rose des vents suit l'étape courante
+  railMark(i);
 }
 function draw(p,dt){
   pal=palette(p);setVars(root,pal);updateBg(p);if(loaded)prewarm(p);
@@ -2659,12 +2660,33 @@ updateWeather();__ivs.push(setInterval(updateWeather,15*60000));
 updateLive();__ivs.push(setInterval(updateLive,30000));
 
 /* ---------- Grands mots, altimètre latéral, son ---------- */
+/* WAYFINDER, C. Altitude (18/11/2026) : la barre de droite devient l'indicateur de navigation. Repère actif = l'étape
+   réellement affichée (announce ← sceneIndex(p)), numéro « 02 / 05 » (5 étapes, total connu), étapes passées marquées.
+   Au clavier (html.wf-kb, posé par utils/wayfinder.ts) le repère actif s'affiche à côté du curseur ; au survol de la barre,
+   le nom de chaque repère, le suivant signalé. Décoratif (aria-hidden) : le menu « Étapes » porte la même information
+   (aria-current). Échap masque les noms affichés au survol (WCAG 1.4.13). Voir docs/wayfinder.md. */
+let railLbl=null,railI=-1;
+function railMark(i){
+  const rail=document.querySelector('.altrail');if(!rail)return;
+  if(!railLbl){
+    const names=$$('#railNav button .m').map(b=>b.textContent.trim()),ticks=[...rail.querySelectorAll('.tk')];
+    railLbl=ticks.map((t,j)=>{const l=document.createElement('span');l.className='wl';l.style.top=t.style.top;
+      l.innerHTML='<b>'+String(j+1).padStart(2,'0')+'</b> '+esc(names[j]||'')+'<em> · suivant</em>';rail.appendChild(l);return l});
+    rail.addEventListener('mouseleave',()=>rail.classList.remove('hush'));
+    addEventListener('keydown',e=>{if(e.key==='Escape')rail.classList.add('hush')});   // pas d'arrêt de propagation : Échap garde son rôle ailleurs
+  }
+  if(i===railI)return;railI=i;
+  const n=railLbl.length,nm=$$('#railNav button .m')[i];
+  $('#railNum').textContent=String(i+1).padStart(2,'0')+' / '+String(n).padStart(2,'0');
+  $('#railName').textContent=nm?nm.textContent.trim():'';
+  railLbl.forEach((l,j)=>{l.classList.toggle('on',j===i);l.classList.toggle('past',j<i);l.classList.toggle('next',j===i+1)});
+}
 const railDot=$('#railDot'),railDone=$('#railDone');let mapRail=null;
 const HW=[$('#h1'),$('#head2 h2'),$('#h-map'),$('#h-flaque'),$('#h-biv')];
 function updateExtras(p,pr){
   const skew=(reduce||paused)?0:clamp((pr-p)*500,-8,8);
   {const r=mapRail?mapRail(p):null;   // zone de la carte : la barre devient la frise des étapes (calculée avec les étapes, plus bas)
-   {const tp=(r?r.top:p*100).toFixed(2)+'%';railDot.style.top=tp;railDone.style.height=tp}railDot.parentNode.style.setProperty('--tk',(r?1-r.zk:1).toFixed(3));}
+   {const tv=r?r.top:p*100,tp=tv.toFixed(2)+'%';railDot.style.top=tp;railDone.style.height=tp;railDot.classList.toggle('up',tv>55)}railDot.parentNode.style.setProperty('--tk',(r?1-r.zk:1).toFixed(3));}
   if(!reduce){
     const W=[[HW[0],p<.5?lerp(800,350,sm(0,.05,p)):lerp(350,800,sm(.95,1,p))],[HW[1],lerp(800,350,sm(.06,.14,p))],[HW[2],lerp(800,350,sm(.27,.36,p))],[HW[3],lerp(800,350,sm(.51,.6,p))],[HW[4],lerp(800,350,sm(.79,.86,p))]];
     W.forEach(([el,w])=>{el.style.fontVariationSettings=`'wght' ${Math.round(w)}`});

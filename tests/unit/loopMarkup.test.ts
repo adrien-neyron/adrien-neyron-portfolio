@@ -93,6 +93,16 @@ describe('HUD connecté de « S’équiper »', () => {
   })
 })
 
+describe('WAYFINDER : rail d’altitude', () => {
+  it('repère actif dans le curseur de la barre (décorative), 5 repères = 5 étapes du menu', () => {
+    const i = markup.indexOf('class="altrail"'), rail = markup.slice(i, markup.indexOf('</div>', i))
+    expect(rail).toContain('aria-hidden="true"')
+    expect(rail).toMatch(/<span class="wcur" id="railCur"><b id="railNum">01 \/ 05<\/b> <span id="railName">La trace<\/span><\/span>/)
+    expect(rail.match(/class="tk"/g)).toHaveLength(5)
+    expect(markup.match(/<li><button type="button" data-h=/g)).toHaveLength(5)
+  })
+})
+
 describe('swap / escHtml', () => {
   it('swap ignore une balise absente', () => {
     expect(swap('<b>a</b>', '<i>', '</i>', 'x')).toBe('<b>a</b>')

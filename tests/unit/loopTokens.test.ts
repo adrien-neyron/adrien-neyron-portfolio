@@ -77,6 +77,11 @@ describe('jetons jour / nuit', () => {
     }
   })
 
+  it('WAYFINDER : orange de repérage --wpt ≥ 3:1 sur le fond, jour et nuit (viseur, trace, rail)', () => {
+    for (const theme of [light, dark]) expect(ratio(theme['--wpt'], theme['--bg'])).toBeGreaterThanOrEqual(3)
+    expect(css).toMatch(/html\{--wf-c:var\(--wpt\);--wf-halo:var\(--bg\);--wf-bg:var\(--card\);--wf-fg:var\(--fg\)\}/)
+  })
+
   it('anneau de focus visible (≥ 3:1) sur le fond, jour et nuit', () => {
     for (const theme of [light, dark]) expect(ratio(theme['--focus'], theme['--bg'])).toBeGreaterThanOrEqual(3)
   })

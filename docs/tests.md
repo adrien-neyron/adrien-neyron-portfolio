@@ -29,6 +29,7 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 - `requireAuth` + **`apiGuards`** : chaque fichier de `server/api/admin/**` doit appeler `await requireAdminWrite(event)` **avant** tout accès base/corps ; les routes d'écriture hors admin sont dans une liste blanche (seulement `visitors.post.ts`). Une nouvelle route admin non protégée fait échouer le test.
 - `projectCover`, `stores` : stores Pinia (repli sur données statiques en cas d'erreur API) et utilitaires serveur.
 - `loopTokens` : symétrie jour/nuit des variables CSS de la boucle, contrastes AA des tokens, `loop.css` = résultat du script `scripts/scope-loop-css.cjs`.
+- `wayfinder` : WAYFINDER (`utils/wayfinder.ts`) — nom de la destination, cadre du viseur, tronçon de trace, placement du nom ; aucune touche interceptée ni `tabindex` dans le code, calque `aria-hidden` sans clic, trace coupée en mouvement réduit, aucun `tabindex` positif dans `loop.html`.
 
 ### E2E (`tests/e2e/`)
 - `smoke` : 8 pages publiques (titre, `lang=fr`, un seul `h1`, aucune erreur JS/console, aucune ressource du site en 4xx), 404, slug de carnet inconnu, polices et glb servis. Aussi lancé en mobile (Pixel 7).
@@ -40,6 +41,7 @@ Variables utiles : `CHROMIUM_PATH` (navigateur Chromium déjà installé), `E2E_
 - `admin` : `/admin*` redirige vers la connexion.
 - `stages` : lien « Projets » de l'en-tête visible avant la 3D ; en mouvement réduit, toutes les étapes dans l'ordre avec dates et liens (aucun lien mort) ; filtre « Missions / Projets perso » et bandeau de chiffres de `/projects`.
 - `a11y` : axe-core (WCAG 2.1 A/AA) sur 8 pages × thème clair/sombre.
+- `wayfinder` : au clavier le viseur entoure l'élément actif (±2 px) avec son nom et le contour natif reste ; la souris seule ne l'allume jamais et un clic l'éteint ; pas de trace en mouvement réduit ; aucun `tabindex` positif sur `/projects`, `/about`, `/contact`.
 
 ## Accessibilité : politique « cliquet »
 - Toute règle axe **autre que `color-contrast`** doit être à **0** violation.
