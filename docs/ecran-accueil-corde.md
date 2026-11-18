@@ -155,3 +155,12 @@ Le menu « Étapes | Projets | Outils » a un halo qui doit se fondre dans ce qu
 - **Accessibilité** : carte, onde et trait sont `aria-hidden` ; le texte reste dans les `aria-label` des boutons `.hot` (clavier). `prefers-reduced-motion` : un anneau fixe, pas de transition. Vue statique : masqués.
 - **À trancher** : la carte dit « 11 ans de formation et de management, puis 5 ans de code » alors que la règle du projet est 12 + 5 ans (`CLAUDE.md`). Les qualités (Résilience, Curiosité, Écoute, Stabilité) ne sont plus que dans les cartes au survol/focus ; la ligne de valeurs dans le hero n'est pas faite.
 - Vérifié : tests unitaires, captures jour/nuit 1440 × 810. **Non vérifié** : mobile, tactile, clavier, Lighthouse, lecteur d'écran.
+
+## Étape 3 (carte des étapes) : premier passage design (18/11/2026)
+
+- **Courbes de niveau ton sur ton** : le shader du sol (`initScene`, `assets/loop/loop.js`) a un uniforme `uBase` (.8 la nuit, .4 le jour) qui atténue les courbes hors de l'étape affichée ; seule la zone de l'étape active s'allume (`fz`, cuivre). Jour : teintes cuivre-beige désaturées (`parcTheme`).
+- **Cairn plus net** : texture de gravure ×3 la mise en page (1536 × 1152) sur ordinateur hors mode éco, ×1,5 sur mobile / éco ; anisotropie jusqu'à 16.
+- **Fiche d'étape** (`#stopCard`) : ordre titre → chiffre-preuve en grand (serif italique, `#scP`) → aperçus → résumé replié à 5 lignes avec bouton « Lire la suite » (`#scRead`, `aria-expanded`, texte complet toujours dans le DOM) → liens. Le panneau reste en verre sombre dans les deux thèmes (décision antérieure inchangée).
+- **Bloc en haut à gauche** (`#s2 .head`) : titre en serif italique, Km / D+ en mono à chiffres tabulaires, halo `--bg` pour que les courbes ne gênent pas la lecture.
+- Vérifié : tests unitaires, captures jour 1440 × 810 (Bivouac, Départ). **Non vérifié** : mode nuit, mobile, clavier, Lighthouse, poids mémoire des textures ×3 (5 cairns ≈ 35 Mo de textures), fiche avec texte long (bouton « Lire la suite »).
+- **Pas encore fait** : compteur Km / D+ animé, trace qui se remplit avec marqueur, aperçu du cairn suivant, chorégraphie d'entrée des étapes, transition étape 2 → 3 déclenchée plutôt que liée au scroll.

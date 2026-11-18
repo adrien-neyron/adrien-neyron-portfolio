@@ -3168,10 +3168,10 @@ function initScene(){
   for(let j=0;j<=NZ;j++)for(let i=0;i<=NX;i++){const k=j*(NX+1)+i;pos.setY(k,H[k]);pos.setX(k,bx0+i*cell);pos.setZ(k,bz0+j*cell)}
   mat=new THREE.ShaderMaterial({
     extensions:{derivatives:true},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
-    uniforms:{cLo:{value:new THREE.Vector3(.78,.44,.18)},cHi:{value:new THREE.Vector3(1,.70,.42)},cGrid:{value:new THREE.Vector3(.35,.55,.75)},cstep:{value:20*SC*EX},uMin:{value:hmin},uMax:{value:hmax},uGlow:{value:1},uC:{value:new THREE.Vector2((bx0+bx1)/2,(bz0+bz1)/2)},uR0:{value:Math.round(.8*RFAR)},uR1:{value:RFAR},uF:{value:new THREE.Vector2()},uFk:{value:0},uFR:{value:90},cF:{value:new THREE.Vector3(1,.28,.08)}},
+    uniforms:{cLo:{value:new THREE.Vector3(.78,.44,.18)},cHi:{value:new THREE.Vector3(1,.70,.42)},cGrid:{value:new THREE.Vector3(.35,.55,.75)},cstep:{value:20*SC*EX},uMin:{value:hmin},uMax:{value:hmax},uGlow:{value:1},uC:{value:new THREE.Vector2((bx0+bx1)/2,(bz0+bz1)/2)},uR0:{value:Math.round(.8*RFAR)},uR1:{value:RFAR},uF:{value:new THREE.Vector2()},uFk:{value:0},uFR:{value:90},uBase:{value:.8},cF:{value:new THREE.Vector3(1,.28,.08)}},
     vertexShader:'varying float vH;varying vec3 vW;varying vec3 vView;void main(){vH=position.y;vW=position;vec4 mv=modelViewMatrix*vec4(position,1.);vView=mv.xyz;gl_Position=projectionMatrix*mv;}',
     fragmentShader:`precision highp float;
-      uniform vec3 cLo,cHi,cGrid,cF;uniform float cstep,uMin,uMax,uGlow,uR0,uR1,uFk,uFR;uniform vec2 uC,uF;
+      uniform vec3 cLo,cHi,cGrid,cF;uniform float cstep,uMin,uMax,uGlow,uR0,uR1,uFk,uFR,uBase;uniform vec2 uC,uF;
       varying float vH;varying vec3 vW;varying vec3 vView;
       void main(){
         float t=smoothstep(uMin,uMax,vH);
@@ -3184,7 +3184,7 @@ function initScene(){
         col=mix(col,cGrid,grid*(1.-line)*.6);
         float fz=uFk*(1.-smoothstep(uFR*.25,uFR,length(vW.xz-uF)));   // étape du projet affiché : son relief s'allume en cuivre
         col=mix(col,cF*(1.1+.6*master),fz);
-        float a=clamp((line*.55+master*.85+grid*.13)*(1.+fz*1.4)+line*fz*.25,0.,1.)*edge*depthFade;
+        float a=clamp((line*.55+master*.85+grid*.13)*uBase*(1.+fz*1.4)+(line*.3+master*.45)*fz,0.,1.)*edge*depthFade;   // uBase : courbes ton sur ton hors de l'étape affichée, qui seule s'allume (fz)
         gl_FragColor=vec4(col,a);}`
   });
   const tm=new THREE.Mesh(g,mat);tm.renderOrder=2;scene.add(tm);
@@ -3225,8 +3225,8 @@ function buildBlocks(){
   STOPS.forEach((st,si)=>{
     const pr=st.proj;   // chaque étape a son cairn (Départ et cairn final compris), gravé avec ses données d'étape
     if(!pr)return;
-    const cnv=document.createElement('canvas');cnv.width=768;cnv.height=576;   // 1,5 × la mise en page (512 × 384) : la gravure fine (km, technos) reste nette
-    const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=8;tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
+    const HQ=!isMobile()&&QC.tier<1,cnv=document.createElement('canvas');cnv.width=HQ?1536:768;cnv.height=HQ?1152:576;   // 3 × la mise en page (512 × 384) sur ordinateur, 1,5 × sur mobile / mode éco : la gravure fine (km, technos) reste nette
+    const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=HQ?Math.min(16,renderer.capabilities.getMaxAnisotropy()):8;tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
     const geo=new THREE.ExtrudeGeometry(stoneShape(si*1.9),{depth:1.4,bevelEnabled:true,bevelThickness:1.1,bevelSize:1,bevelSegments:4,curveSegments:6});
     const top=new THREE.MeshStandardMaterial({map:tex,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
     const side=new THREE.MeshStandardMaterial({color:STONE,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
@@ -3427,7 +3427,7 @@ let parcLt=null;
 function parcTheme(L){   // carte de jour : relief en teintes cuivre foncé en mélange normal (l'additif s'efface sur fond clair), trace encre
   if(!mat)return;parcLt=L;
   mat.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;mat.needsUpdate=true;
-  mat.uniforms.cLo.value.set(...(L?[.55,.22,.07]:[.78,.44,.18]));mat.uniforms.cHi.value.set(...(L?[.80,.38,.13]:[1,.70,.42]));mat.uniforms.cGrid.value.set(...(L?[.20,.34,.48]:[.35,.55,.75]));mat.uniforms.cF.value.set(...(L?[.62,.12,.03]:[1,.28,.08]));
+  mat.uniforms.uBase.value=L?.4:.8;mat.uniforms.cLo.value.set(...(L?[.60,.36,.22]:[.78,.44,.18]));mat.uniforms.cHi.value.set(...(L?[.74,.46,.30]:[1,.70,.42]));mat.uniforms.cGrid.value.set(...(L?[.20,.34,.48]:[.35,.55,.75]));mat.uniforms.cF.value.set(...(L?[.62,.12,.03]:[1,.28,.08]));
   FATS.forEach(m=>{const o=m.userData.o;if(!o)return;
     m.blending=(o.add&&!L)?THREE.AdditiveBlending:THREE.NormalBlending;m.needsUpdate=true;   // l'additif s'efface sur fond clair
     m.uniforms.uColor.value.set(L?o.cl:o.c);m.uniforms.uC2.value.set(L?(o.c2l||o.cl):(o.c2||o.c));m.uniforms.uAlpha.value=L?o.al:o.a;m.uniforms.uBoost.value=L?(o.boostl||1):(o.boost||1)});
@@ -3505,7 +3505,8 @@ function fillCard(pr){const sg=pr.sg,t=pr.t||0;
   $('#scM').textContent=[sg.label,sg.period].filter(Boolean).join(' · ');
   $('#scT').textContent=sg.title;
   $('#scSr').textContent=[(sg.steleTitle&&sg.steleTitle!==sg.title?'Gravé sur la stèle : '+sg.steleTitle:''),(sg.stelePeriod&&sg.stelePeriod!==sg.period?'Période gravée : '+sg.stelePeriod:''),sg.place,'Altitude '+fmtN(altOf(sg,t))+' mètres',stageKmSpeech(sg)].filter(Boolean).join('. ')+'.';   // ce que seule la stèle (décorative) montre
-  const l=$('#scL');l.innerHTML=summaryHtml(sg.summary,esc);l.hidden=!l.children.length;   // paragraphes et retours à la ligne saisis dans l'admin conservés
+  const l=$('#scL');l.innerHTML=summaryHtml(sg.summary,esc);l.hidden=!l.children.length;
+  {const rd=$('#scRead');l.classList.add('clamp');rd.setAttribute('aria-expanded','false');rd.textContent='Lire la suite';rd.hidden=!(!l.hidden&&l.scrollHeight>l.clientHeight+2)}   // résumé replié à 5 lignes (texte complet toujours dans le DOM), bouton « Lire la suite »   // paragraphes et retours à la ligne saisis dans l'admin conservés
   const pl=$('#scP');pl.setAttribute('aria-label','Chiffre clé');pl.innerHTML=sg.figure?`<li><strong>${esc(sg.figure)}</strong>${sg.figureLabel?' '+esc(sg.figureLabel):''}</li>`:'';pl.hidden=!pl.children.length;   // sans chiffre : rien (jamais de valeur inventée)
   const kl=$('#scK');kl.innerHTML='';kl.hidden=true;
   const L=sg.kind==='final'?[{href:'/contact',title:sg.cta||'Écrire la suite ensemble',txt:sg.cta||'Écrire la suite ensemble'}]:sg.links.map((x,k)=>({href:x.href,title:x.title,txt:k===0&&sg.cta?sg.cta:'Fiche '+x.title})),acts=$('#scActs');   // texte du lien principal : saisi dans l'admin (sg.cta), sinon « Fiche … »
@@ -3526,6 +3527,7 @@ function updateCard(){
   cardIdx=want;if(want>=0)fillCard(pr);sCard.classList.toggle('on',want>=0);s2el.classList.toggle('card-on',want>=0)}
 function shutCard(){if(cardIdx<0)return;cardShut=activeStop;const inside=sCard.contains(document.activeElement);updateCard();if(inside)plMore.focus({preventScroll:true});live.textContent='Panneau fermé. Le lien Voir la fiche reste disponible.'}
 $('#scX').addEventListener('click',shutCard);
+$('#scRead').addEventListener('click',()=>{const l=$('#scL'),rd=$('#scRead'),open=l.classList.toggle('clamp')===false;rd.setAttribute('aria-expanded',String(open));rd.textContent=open?'Réduire':'Lire la suite'});
 addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented||TOUR.on||cardIdx<0||document.querySelector('dialog[open]')||document.querySelector('.burger[aria-expanded="true"]'))return;shutCard()},true);   // capture : passe avant l'écouteur de la visite guidée (qui l'arrête). Échap ferme le panneau d'étape (jamais pendant la visite guidée, une fenêtre ou un menu ouvert)
 let lastShown=-2;
 function updateUi(p){
