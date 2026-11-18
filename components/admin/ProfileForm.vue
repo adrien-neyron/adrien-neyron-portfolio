@@ -158,6 +158,17 @@ function onSubmit() {
             <textarea id="pr-tools-lede" v-model="form.loopToolsLede" rows="4" maxlength="320" class="admin-input resize-none" />
           </div>
         </fieldset>
+        <fieldset class="space-y-4 border border-[var(--line,#ccc)] rounded p-4">
+          <legend class="admin-label px-1">Étape « L'ascension » (carte des étapes)</legend>
+          <div>
+            <label for="pr-map-eyebrow" class="admin-label">Surtitre</label>
+            <input id="pr-map-eyebrow" v-model="form.loopMapEyebrow" type="text" maxlength="60" class="admin-input" />
+          </div>
+          <div>
+            <label for="pr-map-title" class="admin-label">Titre</label>
+            <input id="pr-map-title" v-model="form.loopMapTitle" type="text" maxlength="80" class="admin-input" />
+          </div>
+        </fieldset>
         <div>
           <label for="pr-loop-lead" class="admin-label">Accroche de la fiche « Le Randonneur »</label>
           <textarea id="pr-loop-lead" v-model="form.loopLead" rows="2" class="admin-input resize-none" />

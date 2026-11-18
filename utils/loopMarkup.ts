@@ -9,7 +9,7 @@ import { projects as staticProjects } from '../data/projects'
 import { aiTools as staticAiTools } from '../data/ai-tools'
 
 export interface LoopTexts { eyebrow?: string; title?: string; lede?: string }
-export interface LoopContentTexts { hero?: LoopTexts | null; toolsHead?: LoopTexts | null; stages?: StageView[] | null; profile?: { cvUrl?: string } | null; aiToolCount?: number | null }
+export interface LoopContentTexts { hero?: LoopTexts | null; toolsHead?: LoopTexts | null; mapHead?: LoopTexts | null; stages?: StageView[] | null; profile?: { cvUrl?: string } | null; aiToolCount?: number | null }
 
 /** Lien CV par défaut de loop.html (fichier présent dans public/) ; remplacé par celui de l'admin s'il est valide. */
 export const DEFAULT_CV = '/CV_Adrien_Neyron.pdf'
@@ -84,6 +84,7 @@ export const toolCount = (content?: LoopContentTexts | null) => {
 export function applyLoopContent(markup: string, content?: LoopContentTexts | null): string {
   const h = content?.hero
   const t = content?.toolsHead
+  const mh = content?.mapHead
   // liste des étapes : HTML déjà échappé par renderStageList (remplacement par fonction : pas d'interprétation de « $ »)
   let html = markup.replace(PLIST_OPEN + '</ol>', () => PLIST_OPEN + renderStageList(loopStages(content)) + '</ol>')
   // lien CV de l'admin (chemin du site ou https) : posé dans le HTML serveur, valable sans JavaScript
@@ -111,6 +112,11 @@ export function applyLoopContent(markup: string, content?: LoopContentTexts | nu
       tail = swap(tail, '<p class="sub">', '</p>', t.lede)
       html = html.slice(0, i) + tail
     }
+  }
+  if (mh) {
+    // Étape « L'ascension » (carte des étapes) : surtitre et titre, balises repérées par leur id (18/11/2026)
+    html = swap(html, '<p class="eyebrow" id="mapEyebrow">', '</p>', mh.eyebrow)
+    html = swap(html, '<h2 id="h-map">', '</h2>', mh.title)
   }
   return html
 }

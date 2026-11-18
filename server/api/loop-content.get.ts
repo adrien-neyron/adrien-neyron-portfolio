@@ -61,6 +61,9 @@ export default defineEventHandler(async (event) => {
       toolsHead: profile
         ? { eyebrow: str(profile.loopToolsEyebrow), title: str(profile.loopToolsTitle), lede: str(profile.loopToolsLede) }
         : null,
+      mapHead: profile
+        ? { eyebrow: str(profile.loopMapEyebrow), title: str(profile.loopMapTitle) }
+        : null,
       contact: profile
         ? {
             email: str(profile.email),

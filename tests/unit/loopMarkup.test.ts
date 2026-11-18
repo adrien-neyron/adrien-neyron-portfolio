@@ -52,6 +52,14 @@ describe('applyLoopContent', () => {
     expect(out.slice(0, i)).toBe(markup.slice(0, i)) // rien avant #head2 n’a bougé
   })
 
+  it('remplace le surtitre et le titre de « L’ascension » (carte des étapes), texte échappé, sans toucher à « S’équiper »', () => {
+    const out = applyLoopContent(markup, { mapHead: { eyebrow: 'Carte X', title: 'Un <b>parcours</b>' } })
+    expect(out).toContain('<p class="eyebrow" id="mapEyebrow">Carte X</p>')
+    expect(out).toContain('<h2 id="h-map">Un &lt;b&gt;parcours&lt;/b&gt;</h2>')
+    expect(out).toContain('<h2>Des outils construits pour le terrain</h2>')
+    expect(applyLoopContent(markup, { mapHead: { eyebrow: ' ', title: '' } })).toBe(applyLoopContent(markup, null))   // vide : textes par défaut
+  })
+
   it('un champ vide garde le texte par défaut du champ voisin', () => {
     const out = applyLoopContent(markup, { toolsHead: { title: 'Seul le titre' } })
     expect(out).toContain('<h2>Seul le titre</h2>')

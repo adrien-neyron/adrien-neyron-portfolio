@@ -402,3 +402,13 @@ Revue d'Adri : le cairn était petit, crème sur crème, avec peu d'ombre et une
 - **Estompées sous le texte** : masque calculé à l'écran à chaque image (`textMask`) : rectangle des lignes réelles du surtitre, du titre et des km de la scène (`#s2 .head`, étendue des lignes de texte, + 10 px), et bande du menu (`header.top`) ; les courbes y tombent à 10 % avec un fondu de 48 px.
 
 Vérifié (Chrome, captures) : 1440 jour et nuit, 390 jour. Non vérifié : vrai téléphone, GPU modeste (coût du canvas 2,5 ×), Lighthouse.
+
+## Étape 3 : même écriture que les étapes 1 et 2, titre modifiable (18/11/2026)
+
+À la demande d'Adri, le titre de la carte des étapes (`#s2 .head`, en haut à gauche) n'est plus un sur-titre en petites capitales mono : il reprend l'écriture des étapes 1 et 2 (surtitre en JetBrains Mono 13 px, titre en « Cordée Serif » italique, 44 px sur grand écran, 26 px sur téléphone, 40 px en vue statique — mesuré identique à « S'équiper »), avec le même halo de fond derrière le texte. La ligne « Km … · D+ … m » reste en dessous.
+
+- **Texte** : le titre devient « Un parcours, des projets » (au lieu de « Chaque projet, une étape avec sa preuve ») ; surtitre « L'ascension · Les projets ».
+- **Modifiable dans /admin › Profil**, rubrique « Étape « L'ascension » (carte des étapes) » : Surtitre (60 car.) et Titre (80 car.). Champs `loopMapEyebrow` / `loopMapTitle` (modèle `Profile`, store), servis par `/api/loop-content` (`mapHead`), injectés côté serveur par `applyLoopContent` (balises `<p class="eyebrow" id="mapEyebrow">` et `<h2 id="h-map">`, texte échappé) ; champ vide = texte par défaut de `loop.html`, recopié dans `data/loopTexts.ts` (le formulaire le pré-remplit ; `loopTexts.test.ts` échoue si les deux divergent).
+- Aucune donnée n'a été écrite en base : tant que les champs n'ont pas été enregistrés dans /admin, c'est le texte par défaut qui s'affiche.
+
+Vérifié (Chrome) : 1440 jour et nuit, 390, vue statique ; typographie mesurée identique à « S'équiper ». À noter : le cairn suivant, au loin, peut passer derrière le titre (le halo garde le texte lisible).

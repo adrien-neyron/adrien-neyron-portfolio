@@ -44,6 +44,8 @@ export interface Profile {
   loopToolsEyebrow?: string;
   loopToolsTitle?: string;
   loopToolsLede?: string;
+  loopMapEyebrow?: string;
+  loopMapTitle?: string;
   trailStats?: { value: string; label: string }[];   // bandeau de chiffres de /projects
   url?: string;
   keywords?: string;

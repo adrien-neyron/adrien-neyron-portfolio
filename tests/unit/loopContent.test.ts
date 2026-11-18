@@ -18,6 +18,7 @@ beforeEach(() => {
     loopEyebrow: '  Eyebrow ', loopTitle: 'Titre', loopLede: 'Lede', loopLead: 'Lead', loopFacts: 'Facts', cvUrl: '/cv.pdf',
     loopDialName: 'ADRI N', loopDialRole: 'DEV', loopDialXpLabel: 'XP:', loopDialXpValue: '18 ANS',
     loopToolsEyebrow: 'Atelier', loopToolsTitle: 'Outils', loopToolsLede: 'Paragraphe',
+    loopMapEyebrow: 'Carte', loopMapTitle: 'Un parcours',
     email: 'a@b.fr', bookingUrl: 'https://rdv.example',
     profiles: [{ network: 'LinkedIn', url: 'https://linkedin.com/in/x' }, { network: 'GitHub', url: 'https://github.com/x' }],
   }
@@ -34,6 +35,7 @@ describe('GET /api/loop-content', () => {
     expect(out.hero).toEqual({ eyebrow: 'Eyebrow', title: 'Titre', lede: 'Lede' })      // rogné
     expect(out.dial).toEqual({ name: 'ADRI N', role: 'DEV', xpLabel: 'XP:', xpValue: '18 ANS' })
     expect(out.toolsHead).toEqual({ eyebrow: 'Atelier', title: 'Outils', lede: 'Paragraphe' })
+    expect(out.mapHead).toEqual({ eyebrow: 'Carte', title: 'Un parcours' })
     expect(out.profile).toEqual({ lead: 'Lead', facts: 'Facts', cvUrl: '/cv.pdf' })
     expect(out.contact).toEqual({ email: 'a@b.fr', linkedin: 'https://linkedin.com/in/x', github: 'https://github.com/x', rdv: 'https://rdv.example' })
     expect(out.projects[0].technologies).toEqual(['Vue'])                                // valeurs non textuelles / vides écartées
@@ -57,7 +59,7 @@ describe('GET /api/loop-content', () => {
   it('aucun profil en base → blocs profil à null, pas d’erreur', async () => {
     state.profile = null
     const out: any = await (handler as any)(makeEvent())
-    expect(out.hero).toBeNull(); expect(out.dial).toBeNull(); expect(out.toolsHead).toBeNull(); expect(out.contact).toBeNull()
+    expect(out.hero).toBeNull(); expect(out.dial).toBeNull(); expect(out.toolsHead).toBeNull(); expect(out.mapHead).toBeNull(); expect(out.contact).toBeNull()
     expect(out.projects).toHaveLength(1)
   })
 

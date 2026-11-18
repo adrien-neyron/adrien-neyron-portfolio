@@ -9,5 +9,7 @@ export const LOOP_TEXT_DEFAULTS = {
   loopLede: "Je conçois des expériences numériques où design, ingénierie et accessibilité avancent dans la même direction.",
   loopToolsEyebrow: "S'équiper · Outils développés",
   loopToolsTitle: "Des outils construits pour le terrain",
+  loopMapEyebrow: "L'ascension · Les projets",
+  loopMapTitle: "Un parcours, des projets",
   loopToolsLede: "Architecte de données et de l'interface, je donne vie à des applications web Vue et TypeScript accessibles, propulsées par des classes Java robustes et administrables en temps réel.",
 };

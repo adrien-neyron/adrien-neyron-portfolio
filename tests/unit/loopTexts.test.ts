@@ -13,6 +13,8 @@ describe('textes de l’accueil affichés dans /admin', () => {
     ['<p class="eyebrow">', d.loopToolsEyebrow, '</p>'],
     ['<h2>', d.loopToolsTitle, '</h2>'],
     ['<p class="sub">', d.loopToolsLede, '</p>'],
+    ['<p class="eyebrow" id="mapEyebrow">', d.loopMapEyebrow, '</p>'],
+    ['<h2 id="h-map">', d.loopMapTitle, '</h2>'],
   ])('loop.html contient %s avec le même texte', (open, text, close) => {
     expect(markup).toContain(open + text + close)
   })
