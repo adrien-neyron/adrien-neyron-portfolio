@@ -243,6 +243,9 @@ The dial no longer shows a name: the readout plate (`drawReadout`, `roMesh` at y
 ### Dial zones and job line (17/11/2026)
 Only the four cardinal zones remain interactive (`HOT` n/e/s/o); « Adrien Neyron » and « Expérience » zones were removed. « DÉVELOPPEUR - MANAGER - FORMATEUR » is painted under the needle as an arc following the dial's curvature (letters on a radius-330 circle, ≤ 2.3 rad; fixed text in `makeDial`, not the admin `loopDialRole`). The onboarding pulse is on « E »; its card goes right of the ring if it fits, else under the dial.
 
+### Footer slide (18/11/2026)
+On the first screen (`html.at-hero`, set by `initHeroClean` while `scrollY < 0.6 × innerHeight`) the footer links (CV, Contact, icons) are centred; leaving the top slides them smoothly to the right (0.8 s). The layout stays `space-between` and `translateX(calc(50% - 50cqw))` (footer = `container-type: inline-size`) centres them, because `justify-content` can't be animated. ≥ 900 px only, no transition under reduced motion, none in static view. Details: `docs/ecran-accueil-corde.md`.
+
 ### Needle blink timing (18/11/2026)
 The needle blink + halo of the dive (`transW` in `loop.js`) starts with the zoom toward the dial (p .20 → .235, full until .285, out at .32), no longer during « S'équiper » (was .10 → .15). Details: `docs/ecran-accueil-corde.md`.
 

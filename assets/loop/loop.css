@@ -1264,8 +1264,17 @@ html.loop-on body.static .hphoto .hrelief{display:none}
    reviennent dès le premier défilement. Aucune information perdue : les liens CV, contact, mentions et accessibilité restent dans le pied de page. */
 html.loop-on .hud,html.loop-on .altrail,html.loop-on footer.perma .copy,html.loop-on .grain{transition:opacity .5s ease}
 html.loop-on.at-hero .hud,html.loop-on.at-hero .altrail,html.loop-on.at-hero .grain{opacity:0;pointer-events:none}
-@media (min-width:900px){html.loop-on.at-hero footer.perma .copy{opacity:0}html.loop-on.at-hero footer.perma{justify-content:center}}
-@media (prefers-reduced-motion:reduce){html.loop-on .hud,html.loop-on .altrail,html.loop-on footer.perma .copy,html.loop-on .grain,html.loop-on .hphoto .hrelief{transition:none}}
+/* Glissement du pied de page (18/11/2026, demande d'Adri) : au premier écran, les liens (CV, Contact, icônes) sont centrés ; en quittant le haut
+   de page, ils glissent en douceur vers la droite. justify-content ne s'anime pas : la mise en page reste « à droite » et un translateX ramène
+   le groupe au centre (50 % de sa largeur − 50cqw, le pied de page étant conteneur de taille). Sans animation sous mouvement réduit. */
+@media (min-width:900px){
+  html.loop-on.at-hero footer.perma .copy{opacity:0}
+  html.loop-on footer.perma{container-type:inline-size}
+  html.loop-on footer.perma nav{transition:transform .8s cubic-bezier(.22,.8,.24,1)}
+  html.loop-on.at-hero footer.perma nav{transform:translateX(calc(50% - 50cqw))}
+  html.loop-on body.static footer.perma nav{transform:none}
+}
+@media (prefers-reduced-motion:reduce){html.loop-on .hud,html.loop-on .altrail,html.loop-on footer.perma .copy,html.loop-on footer.perma nav,html.loop-on .grain,html.loop-on .hphoto .hrelief{transition:none}}
 
 /* Hiérarchie du hero (17/11/2026) : titre > texte > action > montre.
    Trois groupes séparés par le rythme vertical : [surtitre + titre] — texte — action. Le titre grandit et se resserre ; le texte passe en

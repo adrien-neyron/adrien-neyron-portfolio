@@ -348,3 +348,12 @@ Validée par Adri après l'étape 1, avec une consigne : que les repères s'harm
 ### Plus de numéros autour des poussoirs (18/11/2026)
 
 À la demande d'Adri, les petites plaques 01 à 06 posées autour des poussoirs de la montre (`.pb-n`) sont retirées (HTML injecté par `loop.js`, règles CSS, calcul `--ox` / `--oy` dans `placePush`). Chaque poussoir garde sa LED cuivrée 3D, sa zone cliquable de 44 px (`.push`, `aria-hidden`, hors tabulation) et le fil cuivré vers la carte. Les numéros restent dans les onglets de la carte HUD (`#eqTabs`), qui sont l'accès clavier et lecteur d'écran. Les mentions de `.pb-n` plus haut dans ce document décrivent l'état antérieur.
+
+### Le pied de page glisse vers la droite (18/11/2026)
+
+À la demande d'Adri, entre l'étape 1 et l'étape 2, les liens du pied de page (CV, Contact, mentions, accessibilité, admin) ne sautent plus du centre vers la droite : ils glissent en 0,8 s (`cubic-bezier(.22,.8,.24,1)`).
+
+- **Déclencheur** : la classe `at-hero` sur `<html>` (posée par `initHeroClean`, `utils/heroRelief.ts`, tant que le défilement est sous 60 % de la hauteur d'écran). Inchangé.
+- **Technique** : `justify-content` ne s'anime pas. Le pied de page garde donc toujours sa mise en page « copyright à gauche, liens à droite » (`space-between`) et, au premier écran, `translateX(calc(50% - 50cqw))` ramène le groupe de liens au centre (`50%` = sa demi-largeur, `50cqw` = la demi-largeur du pied de page, déclaré `container-type: inline-size`). En quittant le haut, la translation revient à 0 avec une transition.
+- **Limites** : écrans ≥ 900 px seulement (en dessous, les liens restent centrés comme avant) ; pas d'animation sous `prefers-reduced-motion` ; aucun décalage en vue statique.
+- **Mesuré (Chrome, 1440 px)** : centre du groupe à 720 px au premier écran, 1126 px à 200 ms, 1250 px à 900 ms (bord droit à 1420 px, comme avant) ; retour au centre en remontant. À 1024 px, le groupe est centré au premier écran.
