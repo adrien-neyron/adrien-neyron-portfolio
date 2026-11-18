@@ -961,7 +961,7 @@ function updateCompass(p,dt){
   }
   needle.rotation.z=nRot+(loaded&&!paused?Math.sin(tNow*2.1)*.018:0);
   drawReadout(((-nRot*180/Math.PI)%360+360)%360);   // lecture sans le léger tremblement de l'aiguille (sinon les chiffres clignotent)
-  {const st=p>.5?4:p<CSP?0:1;if(st!==dialStep&&dialTex){dialStep=st;makeDial();dialTex.needsUpdate=true}}   // la montre n'est visible qu'à la trace, à « S'équiper » et au bivouac
+  {const st=p>.5?4:p<CSP?0:(p>CSP+.03&&+head2.style.opacity<.05)?2:1;if(st!==dialStep&&dialTex){dialStep=st;makeDial();dialTex.needsUpdate=true}}   // la montre n'est visible qu'à la trace, à « S'équiper » et au bivouac ; dès que le paragraphe « S'équiper » a disparu, le cadran annonce « 03 L'ASCENSION » avant la plongée (18/11/2026)
   const zi=sm(.2,.30,p),scl=p<.5?lerp(1,4.6,zi):lerp(4.6,1,sm(.95,1,p));
   const hk=LAY.sx?(staticMode?1:(p<.5?1-sm(.075,.12,p):0)):0;
   const hs=1-.14*hk;   // premier écran large : montre réduite de 14 % (hiérarchie titre > texte > action > montre), taille normale dès « S'équiper »

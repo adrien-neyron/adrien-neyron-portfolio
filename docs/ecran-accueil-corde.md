@@ -378,3 +378,7 @@ Reste inchangé : le cercle de la zone « E » pulse une fois par visite au char
 ### « Explorer l'inventaire complet » part avec le paragraphe (18/11/2026)
 
 À la demande d'Adri, le lien `#eqMore` ne disparaît plus d'un coup à mi-fondu : il est dans `#head2` et suit donc déjà son opacité, mais `loop.js` le passait en `visibility:hidden` dès que `#head2` descendait sous 0,5 (pour qu'il ne reste pas atteignable au clavier quand il est presque invisible). Le seuil est maintenant de 5 %, celui des textes de scène (`crisp`) : le lien s'efface dans la continuité du paragraphe et n'est retiré (plus de focus possible) qu'une fois invisible. Mesuré (Chrome 1440) : visible à 0,71, 0,44 et 0,17 d'opacité, retiré à 0, comme le paragraphe.
+
+### Le cadran annonce l'étape 3 avant la plongée (18/11/2026)
+
+À la demande d'Adri, quand le paragraphe « S'équiper » (`#head2`) a disparu au défilement, le bas du cadran passe de « 02 S'ÉQUIPER » à « 03 L'ASCENSION », avant la plongée dans le cadran vers la carte des étapes. `dialStep` (`loop.js`, à côté du calcul de l'aiguille) vaut 2 dès que `p > CSP + .03` et que l'opacité de `#head2` est sous 5 % ; en remontant, le paragraphe revient et le cadran repasse à « 02 ». Le cadran n'est redessiné qu'au changement d'étape. Vérifié en capture à 1440 px (02 pendant le fondu, 03 juste après) ; à 768 px le paragraphe part plus tard (p ≈ .28), le changement suit.
