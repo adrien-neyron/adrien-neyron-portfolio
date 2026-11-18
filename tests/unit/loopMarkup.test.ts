@@ -186,6 +186,20 @@ describe('navigation latérale de la carte (points des cairns)', () => {
   })
 })
 
+describe('finitions de la carte des étapes', () => {
+  const js = readFileSync(new URL('../../assets/loop/loop.js', import.meta.url), 'utf8')
+  const css = readFileSync(new URL('../../assets/loop/loop.source.css', import.meta.url), 'utf8')
+  it('copyright retiré de l’expérience animée, gardé en vue statique', () => {
+    expect(css).toContain('body:not(.static) footer.perma .copy{visibility:hidden}')
+    expect(css).toContain('body.static footer.perma .copy{display:block;margin:0}')
+  })
+  it('chorégraphie : fiche relancée à chaque étape, rien en mouvement réduit ; le cairn se pose', () => {
+    expect(js).toContain("sCard.classList.remove('rev');void sCard.offsetWidth;sCard.classList.add('rev')")
+    expect(css).toMatch(/@media \(prefers-reduced-motion:reduce\)\{#stopCard\.rev :is\(\.sc-m,\.sc-t,\.sc-fig,\.sc-imgs li,\.sc-read,\.sc-acts\)\{animation:none\}\}/)
+    expect(js).toContain('goal=(reduce||staticMode)?0:dd===1?1:0')
+  })
+})
+
 describe('swap / escHtml', () => {
   it('swap ignore une balise absente', () => {
     expect(swap('<b>a</b>', '<i>', '</i>', 'x')).toBe('<b>a</b>')

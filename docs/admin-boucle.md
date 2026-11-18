@@ -464,3 +464,13 @@ Vérifié (Chrome) : 1440 jour et nuit, 390 ; survol et focus clavier (viseur WA
 ## « Écrire la suite » ne disparaît plus au clavier (18/11/2026)
 
 Signalé par Adri. Le lien du bas de la carte (`#plMore`, « Voir la fiche : … » / « Écrire la suite : Contact ») suit l'étape survolée ou qui a le focus dans la barre latérale. Au clavier, en partant de « ∞ Cairn final » (fiche fermée), Tab effaçait la sélection au moment où le focus quittait le bouton : le lien redevenait « Voir la fiche » de l'étape en cours avant d'avoir pu le valider. Maintenant, quand le focus passe d'un bouton d'étape au lien du bas (`.pl-dock`), la sélection reste ; elle n'est effacée que lorsque le focus quitte le lien vers autre chose que la liste des étapes. Vérifié (Chrome 1440) : Tab → « Écrire la suite : Contact », aller-retour Maj+Tab / Tab stable, Entrée → `/contact`.
+
+## Étape 3 : finitions, copyright et chorégraphie (18/11/2026)
+
+- **Copyright** : retiré de l'expérience animée (`body:not(.static) footer.perma .copy{visibility:hidden}` : il ajoutait du bruit sous chaque scène ; `visibility` garde la place, les liens restent à droite). Il reste dans la vue statique ; l'éditeur figure dans les mentions légales.
+- **Le cairn se pose** (`rig`, `bk.air` / `bk.landT`) : la pierre gravée du cairn suivant attend soulevée de 5 unités au-dessus de ses pierres (l'étape reste à atteindre) ; à l'arrivée, caméra posée (`stopW > .95`), elle descend en 0,75 s (lissé puis petit rebond de 7 %) ; en repartant, elle reste posée. L'ombre s'élargit et pâlit tant qu'elle est en l'air.
+- **La fiche se compose** (`#stopCard.rev`, reposée par `fillCard` à chaque étape) : période (0 s), titre révélé par le bas (0,06 s), chiffre-preuve (0,18 s), images ouvertes depuis le centre une à une (0,26 / 0,36 / 0,46 s), puis « Lire le parcours » et les liens (0,42 s) ; courbe `cubic-bezier(.2,.8,.2,1)`.
+- **Mouvement réduit et vue statique** : ni soulèvement, ni descente, ni cascade.
+- Corrigé en passant : l'opacité de l'ombre du cairn était réécrite à .6 à chaque image ; l'« ombre plus dense » (.85) du même jour n'avait donc pas d'effet. C'est maintenant cette ligne qui la fixe.
+
+Vérifié (Chrome 1440, images toutes les 110 ms) : pierre en l'air à l'arrivée, posée en ≈ 0,8 s, fiche composée en ≈ 1 s. Non vérifié : vrai téléphone, GPU modeste.

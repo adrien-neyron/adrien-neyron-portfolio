@@ -264,6 +264,9 @@ Travelled path = solid 4 px core under the glow; remaining path = dashed cable (
 ### Stage map side navigation (18/11/2026)
 During the map, the cairn dots (`.pl-stages`) are the navigation: 14 px dots in WAYFINDER roles, 44 px targets everywhere, a readable plate on hover/focus with number, **bold years** (from the stage period) and name (read as « Départ · Le camp de base, 2010–2021 »); the rail's « 03 / 05 » marker and hover list hide on the map (`.altrail.map`). Details: `docs/admin-boucle.md`.
 
+### Stage map finishing touches (18/11/2026)
+The footer copyright is hidden in the animated home (kept in static view). Arrival choreography: the next cairn's stele waits lifted, then lands on its stones with a small bounce once the camera has settled (`bk.air`/`bk.landT`); the stop card composes in cascade (`#stopCard.rev`, title reveal, proof figure, images opening one by one, then links). None under reduced motion. Details: `docs/admin-boucle.md`.
+
 ### Footer slide (18/11/2026)
 On the first screen (`html.at-hero`, set by `initHeroClean` while `scrollY < 0.6 × innerHeight`) the footer links (CV, Contact, icons) are centred; leaving the top slides them smoothly to the right (0.8 s). The layout stays `space-between` and `translateX(calc(50% - 50cqw))` (footer = `container-type: inline-size`) centres them, because `justify-content` can't be animated. ≥ 900 px only, no transition under reduced motion, none in static view. Details: `docs/ecran-accueil-corde.md`.
 

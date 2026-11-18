@@ -1360,3 +1360,22 @@ html.loop-on .pl-stages .stip .lb,html.loop-on[data-theme="light"] .pl-stages .s
 @media (prefers-reduced-motion:reduce){html.loop-on .pl-stages .stip,html.loop-on .pl-stages .dot{transition:none}}
 html.loop-on .altrail.map .wcur,html.loop-on .altrail.map .wl{display:none}
 html.loop-on .altrail.map{pointer-events:none}
+
+/* Copyright (18/11/2026, revue d'Adri) : retiré de l'expérience animée, où il ajoutait du bruit sous chaque scène ; il reste dans la vue
+   statique (body.static) et l'éditeur figure dans les mentions légales. visibility (et non display) : le groupe de liens garde sa place à droite. */
+html.loop-on body:not(.static) footer.perma .copy{visibility:hidden}
+
+/* Chorégraphie d'arrivée sur une étape (18/11/2026) : le cairn se pose (loop.js, landT), puis la fiche se compose en cascade :
+   le titre se révèle par le bas, le chiffre-preuve monte, les images s'ouvrent depuis le centre, une à une, puis le récit et les liens.
+   Relancée à chaque étape (classe .rev reposée par fillCard). Mouvement réduit : rien. */
+@keyframes scRise{from{opacity:0;transform:translateY(12px)}}
+@keyframes scReveal{from{opacity:0;transform:translateY(.45em);clip-path:inset(0 0 100% 0)}to{clip-path:inset(-20% -6% -20% -6%)}}
+@keyframes scOpen{from{opacity:.2;clip-path:inset(0 50% 0 50% round 8px)}to{clip-path:inset(0 0 0 0 round 8px)}}
+html.loop-on #stopCard.rev .sc-m{animation:scRise .45s cubic-bezier(.2,.8,.2,1) both}
+html.loop-on #stopCard.rev .sc-t{animation:scReveal .6s cubic-bezier(.2,.8,.2,1) .06s both}
+html.loop-on #stopCard.rev .sc-fig{animation:scRise .5s cubic-bezier(.2,.8,.2,1) .18s both}
+html.loop-on #stopCard.rev .sc-imgs li{animation:scOpen .6s cubic-bezier(.2,.8,.2,1) .26s both}
+html.loop-on #stopCard.rev .sc-imgs li:nth-child(2){animation-delay:.36s}
+html.loop-on #stopCard.rev .sc-imgs li:nth-child(3){animation-delay:.46s}
+html.loop-on #stopCard.rev :is(.sc-read,.sc-acts){animation:scRise .45s cubic-bezier(.2,.8,.2,1) .42s both}
+@media (prefers-reduced-motion:reduce){html.loop-on #stopCard.rev :is(.sc-m,.sc-t,.sc-fig,.sc-imgs li,.sc-read,.sc-acts){animation:none}}

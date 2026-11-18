@@ -3599,8 +3599,16 @@ function rig(p,dt,snap,intro=0){
     const sel=(hoverIdx===bk.stopIdx||pinnedIdx===bk.stopIdx)?1:0,act=(aw===bk.stopIdx)?mw*.5:0;
     bk.lift+=(Math.max(sel,act)-bk.lift)*(1-Math.exp(-dt*7));
     const l=ease(bk.lift);
-    bk.holder.position.y=bk.base+l*2.6;   // la pierre gravée se soulève un peu du cairn
-    bk.shadow.scale.setScalar(1+.25*l);bk.shadow.material.opacity=.6-.3*l;
+    // le cairn se pose (18/11/2026) : la pierre gravée du cairn suivant attend un peu soulevée au-dessus de ses pierres (l'étape reste à atteindre) ;
+    // à l'arrivée, caméra posée, elle descend sur ses pierres en 0,75 s avec un petit rebond. Rien en mouvement réduit ni en vue statique.
+    {const dd=bk.stopIdx-aw,arr=dd===0&&mw>.95,goal=(reduce||staticMode)?0:dd===1?1:0;
+     if(bk.air==null)bk.air=0;
+     if(dd===0&&arr&&bk.air>.02&&bk.landT==null&&!reduce&&!staticMode){bk.landT=0;bk.air0=bk.air}
+     if(bk.landT!=null){bk.landT+=dt;const u=Math.min(1,bk.landT/.75),e=u<.72?sm(0,1,u/.72):1+.07*Math.sin(Math.PI*(u-.72)/.28);bk.air=bk.air0*(1-e);if(u>=1){bk.landT=null;bk.air=0}}
+     else if(dd!==0)bk.air+=(goal-bk.air)*(snap?1:1-Math.exp(-dt*3));}   // cairn en cours : on garde sa hauteur (soulevé en approche, posé en repartant)
+    const drop=bk.air*5;
+    bk.holder.position.y=bk.base+l*2.6+drop;   // la pierre gravée se soulève un peu du cairn
+    bk.shadow.scale.setScalar(1+.25*l+drop*.05);bk.shadow.material.opacity=(.85-.35*l)*(1-Math.min(.6,drop*.08));   // ombre dense (.85, réglée ici : c'est cette ligne qui fixe l'opacité à chaque image) ; en l'air, elle s'élargit et pâlit
     bk.holder.rotation.y=bk.faceYaw+clamp((curT-bk.t)*8,-.55,.55)*.5;
     bk.mesh.rotation.x=-Math.PI/2+.42-.12*l;
     // état : cairn actif à 100 % (l'aiguille arrêtée devant lui le désigne), le suivant en discret (la destination), le précédent seulement le temps de le quitter ; tous les autres sont masqués : un seul repère à lire à la fois
@@ -3730,7 +3738,8 @@ function fillCard(pr){const sg=pr.sg,t=pr.t||0;
   const il=$('#scI'),ims=stageImgs(sg);il.className='sc-imgs n'+ims.length;il.hidden=!ims.length;
   il.innerHTML=ims.map(x=>`<li><figure><img src="${esc(x.src)}" alt="" loading="lazy" decoding="async" width="320" height="200"><figcaption>${esc(x.title)}</figcaption></figure></li>`).join('');
   il.querySelectorAll('img').forEach(im=>im.addEventListener('error',()=>{const li=im.closest('li');if(li)li.remove();il.hidden=!il.children.length},{once:true}));   // image introuvable : l'aperçu disparaît, le reste du panneau ne bouge pas
-  preloadStageImgs(STOPS.findIndex(x=>x.sg===sg))}
+  preloadStageImgs(STOPS.findIndex(x=>x.sg===sg));
+  sCard.classList.remove('rev');void sCard.offsetWidth;sCard.classList.add('rev')}   // chorégraphie de la fiche relancée à chaque étape (CSS #stopCard.rev)
 function updateCard(){
   const as=STOPS[activeStop],pr=as&&(as.proj||(activeStop===0?(blocks.find(b=>b.stopIdx===0)||{}).proj:null)),ok=!staticMode&&cardShut!==activeStop&&pr&&pr.sg;   // chaque étape a son panneau (Départ, bivouac et cairn final compris)
   const cand=!ok?-1:stopW>.9?activeStop:(stopW>.55&&cardIdx===activeStop?activeStop:-1);   // hystérésis : apparaît caméra posée, reste jusqu'au vrai départ
