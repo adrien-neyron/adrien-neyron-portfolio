@@ -353,6 +353,9 @@ export function initWayfinder(doc: Document = document): Cleanup {
     if (e.metaKey || e.ctrlKey || e.altKey) return
     if (!isNavKey(e.key)) return
     keyAt = win!.performance.now()
+    // navigation au clavier (Tab, flèches, Espace, Page haut/bas…) : la barre de progression de l'accueil reste affichée pour le
+    // reste de la visite, même après un clic (html.wf-nav, jamais retirée) ; le viseur, lui, garde sa règle (wf-kb)
+    root.classList.add('wf-nav')
     if (e.key === 'Tab') setKb(true)
   }
   const onFocus = (e: FocusEvent) => {
@@ -386,6 +389,6 @@ export function initWayfinder(doc: Document = document): Cleanup {
     win.removeEventListener('scroll', onScroll)
     win.removeEventListener('resize', fadeTrail)
     cancelAnimationFrame(raf); win.clearTimeout(moveT); win.clearTimeout(labelT)
-    root.classList.remove('wf-kb', 'wf-on', 'wf-probe'); wf.remove()
+    root.classList.remove('wf-kb', 'wf-on', 'wf-probe', 'wf-nav'); wf.remove()
   }
 }

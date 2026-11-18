@@ -1304,8 +1304,8 @@ html.loop-on .altrail:hover .wl{opacity:1;visibility:visible;pointer-events:auto
 html.loop-on .altrail.hush .wl{opacity:0;visibility:hidden}
 html.loop-on .altrail .wcur{top:calc(100% + 4px);right:auto;left:50%;transform:translateX(-50%);writing-mode:vertical-rl;padding:7px 2px}   /* posé sur le trait, à la verticale : ne recouvre jamais le contenu */
 html.loop-on .altrail .dot.up .wcur{top:auto;bottom:calc(100% + 4px)}   /* curseur bas sur la barre : le repère passe au-dessus */
-html.loop-on.wf-kb .altrail .wcur{opacity:1;visibility:visible}
+html.loop-on.wf-nav .altrail .wcur{opacity:1;visibility:visible}   /* barre de progression permanente dès la première touche de navigation (18/11/2026) */
 html.loop-on .altrail:hover .wcur{opacity:0;visibility:hidden}   /* au survol, la liste des repères le remplace : pas de doublon */
-html.loop-on.wf-kb.at-hero .altrail{opacity:1}   /* au clavier, le repère reste visible dès le premier écran */
+html.loop-on.wf-nav.at-hero .altrail{opacity:1}   /* navigation au clavier : la barre reste visible dès le premier écran, pour toute la visite */
 @media (prefers-reduced-motion:reduce){html.loop-on .altrail .wl,html.loop-on .altrail .wcur{transition:none}}
 @media (hover:none){html.loop-on .altrail{pointer-events:none}}

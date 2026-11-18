@@ -46,7 +46,8 @@ Revue du 18/11/2026 (demande d'Adri) : « harmonieuse, ne coupe pas d'informatio
 ## C. Altitude (barre de droite de l'accueil)
 
 - La barre `.altrail` reste la progression de défilement ; son curseur suit la scène **réellement affichée** (`announce` ← `sceneIndex(p)`).
-- Au clavier (`html.wf-kb`), un repère vertical posé sur le trait, sous le curseur (au-dessus quand le curseur est bas) : « 02 / 05 S'ÉQUIPER ». Numéro et total viennent des 5 étapes du menu « Étapes » (total connu, pas de pourcentage inventé). Au clavier, la barre reste visible dès le premier écran.
+- **Permanente dès la navigation au clavier** (18/11/2026, demande d'Adri) : à la première touche de navigation (Tab, flèches, Espace, Page haut/bas, Début/Fin), `html.wf-nav` est posée et n'est plus retirée de la visite, même après un clic ; sur l'accueil on navigue surtout en faisant défiler au clavier, sans que le focus bouge, et le mode viseur (`wf-kb`, Tab seulement, éteint au clic) ne suffisait donc pas. Avec la souris seule, rien ne change (barre masquée au premier écran).
+- Avec `wf-nav`, un repère vertical posé sur le trait, sous le curseur (au-dessus quand le curseur est bas) : « 02 / 05 S'ÉQUIPER ». Numéro et total viennent des 5 étapes du menu « Étapes » (total connu, pas de pourcentage inventé). Avec `wf-nav`, la barre reste visible dès le premier écran.
 - Au survol de la barre (le repère vertical s'efface alors : pas de doublon) : le nom de chaque repère (« 01 La trace » … « 05 Le bivouac »), l'actif encadré, les passés atténués, le **suivant** signalé « · suivant ». Échap masque ces noms jusqu'à ce que la souris quitte la barre (WCAG 1.4.13) ; ils restent affichés tant que la souris est dessus.
 - Décoratif (`aria-hidden`) : la même information est dans le menu « Étapes » (`aria-current`) et annoncée dans `#live`. Masquée en vue statique et sans survol (`hover: none`).
 

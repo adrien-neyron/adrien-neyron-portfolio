@@ -145,6 +145,13 @@ describe('WAYFINDER : règles du code', () => {
     expect(css).toMatch(/@media \(forced-colors: none\) \{\s*html\.wf-on :focus-visible \{ outline-color: transparent !important; \}/)
     expect(src).toContain("root.classList.toggle('wf-on', on)")
   })
+  it('barre de progression permanente : posée à la première touche de navigation, jamais retirée pendant la visite', () => {
+    expect(code).toMatch(/root\.classList\.add\('wf-nav'\)/)
+    expect(code.match(/'wf-nav'/g)).toHaveLength(2)   // ajout + nettoyage à l'arrêt seulement (pas au clic)
+    const loopCss = readFileSync(new URL('../../assets/loop/loop.source.css', import.meta.url), 'utf8')
+    expect(loopCss).toContain('html.wf-nav .altrail .wcur{opacity:1;visibility:visible}')
+    expect(loopCss).toContain('html.wf-nav.at-hero .altrail{opacity:1}')
+  })
   it('aucun tabindex positif dans le balisage de l’accueil', () => {
     const html = readFileSync(new URL('../../assets/loop/loop.html', import.meta.url), 'utf8')
     expect(html).not.toMatch(/tabindex="[1-9]/)
