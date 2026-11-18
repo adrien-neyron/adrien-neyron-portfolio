@@ -367,3 +367,10 @@ Reste inchangé : le cercle de la zone « E » pulse une fois par visite au char
 ### Plus de sous-titre « ATELIER » au cadran (18/11/2026)
 
 À la demande d'Adri, le sous-titre « ATELIER » peint sous le nom de l'outil sur l'écran de la montre (`makeDial`, branche `dialOver`, `loop.js`) est retiré. En « S'équiper », le cadran n'affiche plus que le nom de l'outil sélectionné (en haut), N E S O, l'aiguille et « 02 S'ÉQUIPER ». Le nom, la phrase et le lien vers la fiche restent dans la carte HUD (`#eqHud`). Rien ne change pour le lecteur d'écran : le cadran est un canvas décoratif.
+
+### La carte HUD part avec le bloc « S'équiper » (18/11/2026)
+
+À la demande d'Adri, en défilant vers la suite, la carte `#eqHud`, le fil cuivré `#eqWire` et les zones cliquables des poussoirs s'effacent **en même temps** que le bloc « S'équiper » (`#head2` : surtitre, titre, paragraphe, lien inventaire). Avant, ils restaient jusqu'à `CEND` (p .26 → .29 en grand écran), alors que le titre était déjà parti à .17 → .20.
+
+- **Technique** : `eqVis(p)` dans `loop.js`, utilisé par `placeHud` et `placePush` : le minimum entre leur propre apparition (`trap(p, CSP, CSP+.03, CEND…)`) et l'opacité de `#head2`, une fois l'apparition terminée (l'arrivée de la carte ne change pas). La carte redevient visible en remontant.
+- **Mesuré (Chrome)** : à 1440 px et à 768 px, opacités de `#head2`, de la carte et du fil identiques à chaque pas de défilement (1 → .9 → .69 → .14 → 0 en grand écran), carte en `visibility:hidden` dès 0.

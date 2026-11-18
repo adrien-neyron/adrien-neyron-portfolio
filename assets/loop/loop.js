@@ -2868,8 +2868,11 @@ function eqAnim(dt){
     q.glow.material.opacity=on?(act?.55*br+.35*Math.min(1,PRESS[i]*2):0):0;q.glow.visible=q.glow.material.opacity>.01;
   });
 }
+// visibilité de la carte HUD, du fil et des poussoirs : arrivée avec les boutons du boîtier (CSP), départ EN MÊME TEMPS que le bloc
+// « S'équiper » (#head2) quand on défile vers la suite (18/11/2026, demande d'Adri) : avant, la carte restait jusqu'à CEND, après le titre
+const eqVis=p=>p<0||p>=.5?0:Math.min(trap(p,CSP,CSP+.03,CEND[0],CEND[1]),p>CSP+.03?+head2.style.opacity||0:1);
 function placeHud(p){   // visibilité et place de la carte (sans la 3D aussi) ; le fil et les repères sont posés par placePush
-  const vis=staticMode||p<0||p>=.5?0:trap(p,CSP,CSP+.03,CEND[0],CEND[1]),on=vis>=.05;
+  const vis=staticMode?0:eqVis(p),on=vis>=.05;
   eqHud.style.opacity=vis.toFixed(2);eqHud.style.visibility=on?'visible':'hidden';
   if(on&&!eqShown&&!eqHud.contains(document.activeElement))eqSelect(0);   // arrivée sur l'étape : 01 par défaut
   if(!on&&eqHud.contains(document.activeElement))document.activeElement.blur();
@@ -2893,7 +2896,7 @@ function cardReveal(i,dt){
   return REV[i];
 }
 function placePush(p){
-  const w=cv.clientWidth,h=cv.clientHeight,vis=loaded&&p>=0&&p<.5?trap(p,CSP,CSP+.03,CEND[0],CEND[1]):0;
+  const w=cv.clientWidth,h=cv.clientHeight,vis=loaded?eqVis(p):0;
   stand.updateMatrixWorld(true);
   const pts=[];
   pushEls.forEach((b,i)=>{
