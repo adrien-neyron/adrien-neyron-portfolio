@@ -1341,3 +1341,22 @@ html.loop-on .altrail:hover .wcur{opacity:0;visibility:hidden}   /* au survol, l
 html.loop-on.wf-nav.at-hero .altrail{opacity:1}   /* navigation au clavier : la barre reste visible dès le premier écran, pour toute la visite */
 @media (prefers-reduced-motion:reduce){html.loop-on .altrail .wl,html.loop-on .altrail .wcur{transition:none}}
 @media (hover:none){html.loop-on .altrail{pointer-events:none}}
+
+/* Navigation latérale de la carte (18/11/2026, revue d'Adri) : les points des cairns (.pl-stages) deviennent la vraie navigation.
+   Points de 14 px (anneau orange de repérage), passés remplis, en cours plus grand avec halo ; cible de 44 px partout ;
+   au survol et au focus, une plaque lisible (même style que les repères du rail et le nom du viseur) : numéro, années en gras, nom. */
+html.loop-on .pl-stages .dot{width:14px;height:14px;border:2px solid var(--wf-c);background:var(--wf-halo);box-shadow:0 0 0 3px color-mix(in srgb,var(--wf-halo) 80%,transparent)}
+html.loop-on .pl-stages button.past .dot{background:color-mix(in srgb,var(--wf-c) 55%,var(--wf-halo))}
+html.loop-on .pl-stages button[aria-current="true"] .dot{background:var(--wf-c);box-shadow:0 0 0 3px color-mix(in srgb,var(--wf-halo) 80%,transparent),0 0 14px color-mix(in srgb,var(--wf-c) 70%,transparent);transform:scale(1.3)}
+html.loop-on .pl-stages button:hover .dot,html.loop-on .pl-stages button:focus-visible .dot{background:color-mix(in srgb,var(--wf-c) 75%,var(--wf-halo));transform:scale(1.15)}
+html.loop-on .pl-stages li.biv .dot{transform:scale(.75)}
+html.loop-on .pl-stages .stip{right:40px;gap:10px;align-items:baseline;padding:6px 10px;border:1px solid transparent;border-radius:6px;background:color-mix(in srgb,var(--wf-bg) 94%,transparent);box-shadow:0 6px 18px rgba(0,0,0,.16);text-shadow:none;transition:opacity var(--wf-t,.18s) ease,transform var(--wf-t,.18s) ease}
+html.loop-on .pl-stages button[aria-current="true"] .stip{border-color:var(--wf-c)}
+html.loop-on .pl-stages .stip i{font:600 12px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;color:var(--wf-c)}
+html.loop-on .pl-stages .stip i{order:0}html.loop-on .pl-stages .stip .yr{order:1}html.loop-on .pl-stages .stip .lb{order:2}
+html.loop-on .pl-stages .stip .yr{font:700 15px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:0;color:var(--wf-fg);font-variant-numeric:tabular-nums}
+html.loop-on .pl-stages .stip .lb,html.loop-on[data-theme="light"] .pl-stages .stip .lb{font:500 12px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--wf-fg)}
+@media (max-width:899px){html.loop-on .pl-stages button{margin:-22px 0 0 -22px;height:44px;min-height:44px}}
+@media (prefers-reduced-motion:reduce){html.loop-on .pl-stages .stip,html.loop-on .pl-stages .dot{transition:none}}
+html.loop-on .altrail.map .wcur,html.loop-on .altrail.map .wl{display:none}
+html.loop-on .altrail.map{pointer-events:none}

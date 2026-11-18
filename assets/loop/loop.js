@@ -2705,6 +2705,7 @@ function railMark(i){
   $('#railNum').textContent=String(i+1).padStart(2,'0')+' / '+String(n).padStart(2,'0');
   $('#railName').textContent=nm?nm.textContent.trim():'';
   railLbl.forEach((l,j)=>{l.classList.toggle('on',j===i);l.classList.toggle('past',j<i);l.classList.toggle('next',j===i+1)});
+  rail.classList.toggle('map',i===2);   // carte des étapes : les points des cairns sont la navigation, le repère « 03 / 05 » et la liste du survol s'effacent (pas de doublon)
 }
 const railDot=$('#railDot'),railDone=$('#railDone');let mapRail=null;
 const HW=[$('#h1'),$('#head2 h2'),$('#h-map'),$('#h-flaque'),$('#h-biv')];
@@ -3253,7 +3254,7 @@ const FAT_F='precision highp float;uniform vec3 uColor,uC2;uniform float uAlpha,
   'if(uGlow>.5){float d=abs(vSide),dh=max(0.,uT*uLen-vS);float core=exp(-d*d*70.),glow=exp(-d*d*9.)*.5,bloom=exp(-d*d*2.2)*.22;'+
   'float wave=.6+.4*smoothstep(.35,1.,sin(vS*.16-uTime*5.));'+
   'col=mix(uC2,uColor,smoothstep(0.,90.,dh))*uBoost;col=mix(min(col,vec3(1.)),vec3(1.),core*.3);a*=clamp((core+glow+bloom)*(.55*wave+.45),0.,1.);}'+
-  'else{if(uDash>0.&&vT>uT&&fract(vS/uDash)>.45)discard;a*=clamp(uW*.5+.5-abs(vSide)*(uW+1.)*.5,0.,1.);}'+   // uDash : le chemin qui reste à parcourir est en pointillé (18/11/2026)
+  'else{if(uDash>0.&&vT>uT&&fract(vS/uDash)>.22)discard;a*=clamp(uW*.5+.5-abs(vSide)*(uW+1.)*.5,0.,1.);}'+   // uDash : le chemin qui reste à parcourir est en pointillé (18/11/2026)
   'if(a<=.003)discard;gl_FragColor=vec4(col,a);}';
 const FATS=[];
 function fatGeo(pts){const m=pts.length-1,S=new Float32Array(m*12),E=new Float32Array(m*12),sel=new Float32Array(m*4),sd=new Float32Array(m*4),tt=new Float32Array(m*4),idx=[];   // un quadrilatère par segment, découpé au plan proche de la caméra dans le shader
@@ -3375,7 +3376,7 @@ function initScene(){
   // émissif ×2,5 et halo large dans le shader (« fil chaud / fibre optique sous tension »), à la place d'un Bloom en post-traitement (voir docs/admin-boucle.md)
   // 18/11/2026 (« la trace racontée ») : le chemin qui reste est en pointillé (encre le jour, ardoise claire la nuit : on le voit sur le fond sombre) ;
   // le chemin parcouru est plein (noyau de 4 px) sous la lueur
-  fatLine(fgeo,{w:3,c:0x94A3B8,cl:0x1E293B,a:.85,al:.9,mode:0,order:2,dash:1.4});
+  fatLine(fgeo,{w:3,c:0x94A3B8,cl:0x1E293B,a:.85,al:.9,mode:0,order:2,dash:6});   // pointillé aéré : tiret de ≈ 1,3 unité tous les 6 (22 % plein) ; la trace vers le cairn suivant est loin, la perspective resserre les tirets
   fatLine(fgeo,{w:4,c:0xBAE6FD,cl:0x0369A1,a:1,al:1,mode:1,order:3});
   tube=fatLine(fgeo,{w:18,c:0x38BDF8,c2:0x00F2FE,cl:0x0369A1,c2l:0x0891B2,a:1,al:1,boost:2.5,boostl:1,mode:1,glow:true,add:true,cap:0,order:3});
   /* aiguille de la carte : le triangle nord (braise, deux facettes) de l'aiguille du cadran, à l'échelle du sol (RFIN / DIAL_R) ; sa base est le pivot.
@@ -3647,7 +3648,8 @@ function bearingAt(t){const a=curve.getPointAt(clamp(t-.02)),b=curve.getPointAt(
 const fmt=n=>Math.round(n).toLocaleString('fr-FR');
 STOPS.forEach((st,i)=>{
   const li=document.createElement('li'),b=document.createElement('button'),sg=st.sg,num=sg.kind==='depart'?'00':sg.num?String(sg.num).padStart(2,'0'):sg.kind==='bivouac'?'BV':'∞';b.type='button';b.dataset.i=i;
-  b.innerHTML=`<span class="dot" aria-hidden="true"></span><span class="stip"><i aria-hidden="true">${num}</i><span class="lb">${esc(sg.label)} · ${esc(sg.title)}</span></span>`;
+  const yrs=[...new Set((sg.period||'').match(/\d{4}/g)||[])].join('–');   // années de l'étape, affichées au survol et au focus (18/11/2026) ; aucune si la période n'en a pas (cairn final)
+  b.innerHTML=`<span class="dot" aria-hidden="true"></span><span class="stip"><i aria-hidden="true">${num}</i><span class="lb">${esc(sg.label)} · ${esc(sg.title)}</span>${yrs?`<span class="sr-only">, </span><b class="yr">${esc(yrs)}</b>`:''}</span>`;   // nom lu : « Départ · Le camp de base, 2010–2021 » ; à l'écran, les années suivent le numéro (ordre CSS)
   if(sg.kind==='bivouac')li.classList.add('biv');   // bivouac : petit marqueur, pas une étape
   b.addEventListener('click',()=>{pinnedIdx=pinnedIdx===i?-1:i;gotoStop(i)});
   b.addEventListener('pointerenter',()=>{focusIdx=i});b.addEventListener('pointerleave',()=>{focusIdx=-1});

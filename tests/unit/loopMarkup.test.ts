@@ -167,6 +167,21 @@ describe('compteur Km · D+ à rouleaux (étape 3)', () => {
   })
 })
 
+describe('navigation latérale de la carte (points des cairns)', () => {
+  const js = readFileSync(new URL('../../assets/loop/loop.js', import.meta.url), 'utf8')
+  const css = readFileSync(new URL('../../assets/loop/loop.source.css', import.meta.url), 'utf8')
+  it('vraie liste de boutons, années au survol / focus, nom lu « étape · titre, années »', () => {
+    expect(markup).toContain('<nav class="pl-stages plate" aria-label="Cairns du sentier"><ol id="pStageList"></ol></nav>')
+    expect(js).toContain("const yrs=[...new Set((sg.period||'').match(/\\d{4}/g)||[])].join('–')")
+    expect(js).toContain('<span class="sr-only">, </span><b class="yr">')
+  })
+  it('cible de 44 px partout (téléphone compris) et pas de doublon avec le repère « 03 / 05 » sur la carte', () => {
+    expect(css).toContain('@media (max-width:899px){.pl-stages button{margin:-22px 0 0 -22px;height:44px;min-height:44px}}')
+    expect(css).toContain('.altrail.map .wcur,.altrail.map .wl{display:none}')
+    expect(js).toContain("rail.classList.toggle('map',i===2)")
+  })
+})
+
 describe('swap / escHtml', () => {
   it('swap ignore une balise absente', () => {
     expect(swap('<b>a</b>', '<i>', '</i>', 'x')).toBe('<b>a</b>')

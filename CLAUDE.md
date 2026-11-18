@@ -261,6 +261,9 @@ Stop camera 1.2 × closer, same angle (`STOP_ZOOM`; the stele looks ≈ 1.5 × b
 ### Stage map: the trail tells the story (18/11/2026)
 Travelled path = solid 4 px core under the glow; remaining path = dashed cable (`uDash` in `FAT_F`, light slate by night); the head triangle stays solid (`NEEDLE_SUB` 1) with two pulsing ground rings (`pulse`, one static ring under reduced motion); the next cairn is more present (`CAIRN_NEXT` .5) with a breathing halo (`nextHalo`). Beware inline `//` comments in `loop.js` one-liners: one silently commented out the end of a `parcTheme` line (fixed). Details: `docs/admin-boucle.md`.
 
+### Stage map side navigation (18/11/2026)
+During the map, the cairn dots (`.pl-stages`) are the navigation: 14 px dots in WAYFINDER roles, 44 px targets everywhere, a readable plate on hover/focus with number, **bold years** (from the stage period) and name (read as « Départ · Le camp de base, 2010–2021 »); the rail's « 03 / 05 » marker and hover list hide on the map (`.altrail.map`). Details: `docs/admin-boucle.md`.
+
 ### Footer slide (18/11/2026)
 On the first screen (`html.at-hero`, set by `initHeroClean` while `scrollY < 0.6 × innerHeight`) the footer links (CV, Contact, icons) are centred; leaving the top slides them smoothly to the right (0.8 s). The layout stays `space-between` and `translateX(calc(50% - 50cqw))` (footer = `container-type: inline-size`) centres them, because `justify-content` can't be animated. ≥ 900 px only, no transition under reduced motion, none in static view. Details: `docs/ecran-accueil-corde.md`.
 

@@ -442,10 +442,21 @@ Avant : la vue de dessus (alignée sur le verre du cadran pour la plongée) dura
 Revue d'Adri : le triangle et le fil sombre étaient timides et déconnectés. La trace devient un tracé qui se remplit :
 
 - **Chemin parcouru plein et lumineux** : un noyau continu de 4 px (`fatLine` mode 1 sans lueur : `#BAE6FD` la nuit, `#0369A1` le jour) sous la lueur existante (cyan, additive la nuit).
-- **Chemin à parcourir en pointillé** : le câble (mode 0) est découpé en tirets devant la tête (`uDash` = 1,4 unité de trace, 45 % plein, dans `FAT_F`) ; ardoise claire `#94A3B8` la nuit (le câble `#1E293B` disparaissait sur le fond sombre), encre `#1E293B` le jour.
+- **Chemin à parcourir en pointillé** : le câble (mode 0) est découpé en tirets devant la tête (`uDash` = 6 unités de trace, 22 % plein, dans `FAT_F` : pointillé aéré, élargi le même jour à la demande d'Adri ; au départ 1,4 / 45 %) ; ardoise claire `#94A3B8` la nuit (le câble `#1E293B` disparaissait sur le fond sombre), encre `#1E293B` le jour.
 - **Marqueur qui pulse** : le triangle reste plein (`NEEDLE_SUB` 1 au lieu de .8) et plus présent (échelle .75 au lieu de .45 une fois parti) ; deux anneaux au sol pulsent autour de lui (1,6 s, `pulse`, cuivre `#B23F27` le jour / `#F59A5C` la nuit, comme l'aiguille). Mouvement réduit : un seul anneau fixe. Masqués pendant la vue de dessus de la plongée.
 - **Indice de la prochaine étape** : le cairn suivant est un peu plus présent (`CAIRN_NEXT` .5 au lieu de .35) et un halo doux respire au-dessus de lui (`nextHalo`, sprite radial, additif la nuit, normal le jour), à l'arrêt seulement.
 
 Corrigé en passant : dans `parcTheme`, un commentaire ajouté plus tôt le même jour avait mis en commentaire la fin de la ligne : les couleurs jour / nuit du quadrillage (`cGrid`) et de l'étape en vue (`cF`) n'étaient plus appliquées. Le compteur Km · D+ a aussi des bords de rouleau en fondu (on ne lit plus deux demi-chiffres secs pendant la rotation).
 
 Vérifié (Chrome) : 1440 jour et nuit, 390, à l'arrêt et pendant un trajet. Non vérifié : vrai téléphone, GPU modeste.
+
+## Étape 3 : la barre latérale devient la navigation (18/11/2026)
+
+Revue d'Adri : les points de la barre de droite étaient petits et le libellé « 03 / 05 L'ASCENSION » minuscule. Pendant la carte, les points des cairns (`.pl-stages`, vraie `<nav aria-label="Cairns du sentier">` de boutons, construite dans `loop.js`) sont la navigation :
+
+- **Points** de 14 px (anneau `--wf-c`, cœur `--wf-halo`), passés remplis à 55 %, étape en cours pleine, ×1,3, avec halo ; bivouac plus petit. Couleurs par les rôles du WAYFINDER : elles suivent jour et nuit.
+- **Cibles** de 44 × 44 px partout (le téléphone était à 40 px de haut).
+- **Au survol et au focus** : une plaque lisible (même style que les repères du rail et le nom du viseur : fond `--wf-bg`, texte `--wf-fg`, liseré orange pour l'étape en cours) avec le numéro, **les années en gras** (tirées de la période de l'étape, ex. « 2023–2025 » ; aucune si la période n'en a pas, comme le cairn final) et le nom. Nom lu par le lecteur d'écran : « Départ · Le camp de base, 2010–2021 » (années après le nom, à l'écran elles suivent le numéro par l'ordre CSS).
+- **Pas de doublon** : sur la carte, le repère vertical « 03 / 05 L'ASCENSION » et la liste des repères au survol de la barre s'effacent (`.altrail.map`) ; le titre de la scène dit déjà « L'ascension ».
+
+Vérifié (Chrome) : 1440 jour et nuit, 390 ; survol et focus clavier (viseur WAYFINDER autour du point).
