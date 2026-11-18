@@ -436,3 +436,16 @@ Revue d'Adri : la typographie manquait de hiérarchie (trois lignes mono). Le ti
 ## Départ : plus de vue de dessus à l'arrêt (18/11/2026)
 
 Avant : la vue de dessus (alignée sur le verre du cadran pour la plongée) durait tout l'arrêt du Départ (`iL = 1 − sm(STOPS[0].b, STOPS[1].a, l)`) : la caméra ne cadrait pas le cairn et il passait à moitié sous la fiche. Maintenant `iL = 1 − sm(STOPS[0].a, milieu du Départ, l)` : la vue de dessus ne dure que l'instant de la plongée, la caméra s'incline en arrivant et cadre le cairn du Départ comme les autres étapes (cairn à gauche, fiche à droite ; téléphone : cairn au-dessus de la fiche). L'aiguille ne passe devant la pierre gravée que pendant la vue de dessus (`intro > .5`) ; ensuite la pierre et sa gravure repassent devant (sur téléphone, le cairn est juste derrière l'aiguille). Vérifié (Chrome) : 1440 jour et nuit, 390, en revenant au Départ cran par cran. Non vérifié image par image : le raccord exact de la plongée (verre → carte), dont le début n'a pas changé (`iL` vaut toujours 1 au tout début de la carte).
+
+## Étape 3 : la trace racontée (18/11/2026)
+
+Revue d'Adri : le triangle et le fil sombre étaient timides et déconnectés. La trace devient un tracé qui se remplit :
+
+- **Chemin parcouru plein et lumineux** : un noyau continu de 4 px (`fatLine` mode 1 sans lueur : `#BAE6FD` la nuit, `#0369A1` le jour) sous la lueur existante (cyan, additive la nuit).
+- **Chemin à parcourir en pointillé** : le câble (mode 0) est découpé en tirets devant la tête (`uDash` = 1,4 unité de trace, 45 % plein, dans `FAT_F`) ; ardoise claire `#94A3B8` la nuit (le câble `#1E293B` disparaissait sur le fond sombre), encre `#1E293B` le jour.
+- **Marqueur qui pulse** : le triangle reste plein (`NEEDLE_SUB` 1 au lieu de .8) et plus présent (échelle .75 au lieu de .45 une fois parti) ; deux anneaux au sol pulsent autour de lui (1,6 s, `pulse`, cuivre `#B23F27` le jour / `#F59A5C` la nuit, comme l'aiguille). Mouvement réduit : un seul anneau fixe. Masqués pendant la vue de dessus de la plongée.
+- **Indice de la prochaine étape** : le cairn suivant est un peu plus présent (`CAIRN_NEXT` .5 au lieu de .35) et un halo doux respire au-dessus de lui (`nextHalo`, sprite radial, additif la nuit, normal le jour), à l'arrêt seulement.
+
+Corrigé en passant : dans `parcTheme`, un commentaire ajouté plus tôt le même jour avait mis en commentaire la fin de la ligne : les couleurs jour / nuit du quadrillage (`cGrid`) et de l'étape en vue (`cF`) n'étaient plus appliquées. Le compteur Km · D+ a aussi des bords de rouleau en fondu (on ne lit plus deux demi-chiffres secs pendant la rotation).
+
+Vérifié (Chrome) : 1440 jour et nuit, 390, à l'arrêt et pendant un trajet. Non vérifié : vrai téléphone, GPU modeste.

@@ -1008,7 +1008,7 @@ html.loop-on #s2 .head p.tot{margin:8px 0 0;font-size:11.5px;letter-spacing:.1em
 html.loop-on #mapTot .lab{font:500 11px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 html.loop-on #mapTot .num{display:inline-flex;font:700 15px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:0;color:var(--fg);font-variant-numeric:tabular-nums}
 html.loop-on #mapTot .sep{color:var(--muted)}
-html.loop-on #mapTot .od{display:inline-block;height:1em;overflow:hidden;vertical-align:top}
+html.loop-on #mapTot .od{display:inline-block;height:1em;overflow:hidden;vertical-align:top;-webkit-mask-image:linear-gradient(transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(transparent,#000 22%,#000 78%,transparent)}   /* bords du rouleau en fondu : pendant la rotation, on ne lit pas deux demi-chiffres secs */
 html.loop-on #mapTot .od-c{display:flex;flex-direction:column;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
 html.loop-on #mapTot .od-c>span,html.loop-on #mapTot .od-s{display:block;height:1em;line-height:1em}
 html.loop-on #mapTot .od-s{white-space:pre}

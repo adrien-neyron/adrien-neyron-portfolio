@@ -3248,12 +3248,12 @@ const FAT_V='attribute vec3 aStart,aEnd;attribute float aSel,aSide,aT;uniform ve
   'vec2 sa=a.xy/a.w*uRes*.5,sb=b.xy/b.w*uRes*.5,d=sb-sa;float l=length(d);d=l>1e-4?d/l:vec2(1.,0.);bool e=aSel>.5;vec4 c=e?b:a;vec2 sc=e?sb:sa;float W=uW+1.;sc+=d*(e?1.:-1.)*uCap*W*.5;vec2 o=vec2(-d.y,d.x)*aSide*W*.5;gl_Position=vec4((sc+o)/(uRes*.5)*c.w,c.z,c.w);}';
 /* uH0..uH1 : portion de la trace recouverte par l'aiguille (de sa base à sa pointe), jamais dessinée : ni le câble ni la lueur ne dépassent de l'aiguille, même dans un virage ; au départ (uH0 = 0), le bout arrondi du câble avant la trace est masqué aussi */
 /* uV0..uV1 : tronçon visible de la trace, d'un cairn au suivant (fondu de uVF au-delà de chaque bout) ; le reste du tracé n'est pas dessiné */
-const FAT_F='precision highp float;uniform vec3 uColor,uC2;uniform float uAlpha,uT,uMode,uW,uGlow,uTime,uLen,uBoost,uH0,uH1,uV0,uV1,uVF;varying float vT,vSide,vS;'+
+const FAT_F='precision highp float;uniform vec3 uColor,uC2;uniform float uAlpha,uT,uMode,uW,uGlow,uTime,uLen,uBoost,uH0,uH1,uV0,uV1,uVF,uDash;varying float vT,vSide,vS;'+
   'void main(){if(uMode>.5&&vT>uT)discard;if(vT<uH1&&(vT>uH0||uH0<=0.))discard;float vis=smoothstep(uV0-uVF,uV0,vT)*(1.-smoothstep(uV1,uV1+uVF,vT));if(vis<=.001)discard;float a=uAlpha*vis;vec3 col=uColor;'+
   'if(uGlow>.5){float d=abs(vSide),dh=max(0.,uT*uLen-vS);float core=exp(-d*d*70.),glow=exp(-d*d*9.)*.5,bloom=exp(-d*d*2.2)*.22;'+
   'float wave=.6+.4*smoothstep(.35,1.,sin(vS*.16-uTime*5.));'+
   'col=mix(uC2,uColor,smoothstep(0.,90.,dh))*uBoost;col=mix(min(col,vec3(1.)),vec3(1.),core*.3);a*=clamp((core+glow+bloom)*(.55*wave+.45),0.,1.);}'+
-  'else{a*=clamp(uW*.5+.5-abs(vSide)*(uW+1.)*.5,0.,1.);}'+
+  'else{if(uDash>0.&&vT>uT&&fract(vS/uDash)>.45)discard;a*=clamp(uW*.5+.5-abs(vSide)*(uW+1.)*.5,0.,1.);}'+   // uDash : le chemin qui reste à parcourir est en pointillé (18/11/2026)
   'if(a<=.003)discard;gl_FragColor=vec4(col,a);}';
 const FATS=[];
 function fatGeo(pts){const m=pts.length-1,S=new Float32Array(m*12),E=new Float32Array(m*12),sel=new Float32Array(m*4),sd=new Float32Array(m*4),tt=new Float32Array(m*4),idx=[];   // un quadrilatère par segment, découpé au plan proche de la caméra dans le shader
@@ -3262,10 +3262,10 @@ function fatGeo(pts){const m=pts.length-1,S=new Float32Array(m*12),E=new Float32
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(S,3));g.setAttribute('aStart',new THREE.BufferAttribute(S,3));g.setAttribute('aEnd',new THREE.BufferAttribute(E,3));g.setAttribute('aSel',new THREE.BufferAttribute(sel,1));g.setAttribute('aSide',new THREE.BufferAttribute(sd,1));g.setAttribute('aT',new THREE.BufferAttribute(tt,1));g.setIndex(idx);g.userData.m=m;return g}
 function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:o.add?THREE.AdditiveBlending:THREE.NormalBlending,vertexShader:FAT_V,fragmentShader:FAT_F,
     uniforms:{uRes:{value:new THREE.Vector2(1,1)},uW:{value:o.w},uCap:{value:o.cap==null?1:o.cap},uColor:{value:new THREE.Color(o.c)},uC2:{value:new THREE.Color(o.c2||o.c)},uAlpha:{value:o.a},uT:{value:0},uMode:{value:o.mode},
-      uLen:{value:geo.userData.len},uH0:{value:0},uH1:{value:0},uV0:{value:0},uV1:{value:1},uVF:{value:.004},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
+      uLen:{value:geo.userData.len},uDash:{value:o.dash||0},uH0:{value:0},uH1:{value:0},uV0:{value:0},uV1:{value:1},uVF:{value:.004},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
   m.userData.cw=o.w;m.userData.o=o;FATS.push(m);const mesh=new THREE.Mesh(geo,m);mesh.frustumCulled=false;mesh.renderOrder=o.order||2;scene.add(mesh);return mesh}
-const CLEAR=8.6,GAP=.28,SMALL_K=.62,NEEDLE_OUT=[.004,.03],NEEDLE_SUB=.8;   // NEEDLE_OUT : entre ces abscisses le triangle de l'aiguille passe de l'opacité pleine à NEEDLE_SUB, puis reste, discret, en tête du faisceau jusqu'au dernier cairn   // SMALL_K : échelle du marqueur de bivouac (pierre gravée et cairn)   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
-const blocks=[];let rake=null;   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
+const CLEAR=8.6,GAP=.28,SMALL_K=.62,NEEDLE_OUT=[.004,.03],NEEDLE_SUB=1;   // NEEDLE_OUT : entre ces abscisses le triangle de l'aiguille passe de l'opacité pleine à NEEDLE_SUB, puis reste, discret, en tête du faisceau jusqu'au dernier cairn   // SMALL_K : échelle du marqueur de bivouac (pierre gravée et cairn)   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
+const blocks=[];let rake=null,pulse=null,nextHalo=null;   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 /* année gravée : période du projet, sinon un statut daté de la fiche (« 2026 – en cours »), sinon rien */
 function yearOf(pr){const f=PROJECT_INFO[pr.id],st=f&&f.st||'';return pr.when||(/\d{4}/.test(st)?st:'')}
 function paintBlock(b){
@@ -3373,7 +3373,10 @@ function initScene(){
   fgeo.userData.len=curve.getLength();
   // câble inactif : bleu ardoise mat #1E293B sur toute la trace (3 px) ; pulse actif sur la partie parcourue : cyan électrique #00F2FE à la tête vers bleu glacier #38BDF8 derrière,
   // émissif ×2,5 et halo large dans le shader (« fil chaud / fibre optique sous tension »), à la place d'un Bloom en post-traitement (voir docs/admin-boucle.md)
-  fatLine(fgeo,{w:3,c:0x1E293B,cl:0x1E293B,a:1,al:1,mode:0,order:2});
+  // 18/11/2026 (« la trace racontée ») : le chemin qui reste est en pointillé (encre le jour, ardoise claire la nuit : on le voit sur le fond sombre) ;
+  // le chemin parcouru est plein (noyau de 4 px) sous la lueur
+  fatLine(fgeo,{w:3,c:0x94A3B8,cl:0x1E293B,a:.85,al:.9,mode:0,order:2,dash:1.4});
+  fatLine(fgeo,{w:4,c:0xBAE6FD,cl:0x0369A1,a:1,al:1,mode:1,order:3});
   tube=fatLine(fgeo,{w:18,c:0x38BDF8,c2:0x00F2FE,cl:0x0369A1,c2l:0x0891B2,a:1,al:1,boost:2.5,boostl:1,mode:1,glow:true,add:true,cap:0,order:3});
   /* aiguille de la carte : le triangle nord (braise, deux facettes) de l'aiguille du cadran, à l'échelle du sol (RFIN / DIAL_R) ; sa base est le pivot.
      Couché sur la trace, pointe vers l'avant, avec une arête centrale légèrement relevée. Pendant la plongée, il recouvre exactement celui du cadran (voir NDL dans rig). */
@@ -3383,6 +3386,11 @@ function initScene(){
     const tip=[0,0,N],l=[-W,0,0],r=[W,0,0],c=[0,R,0];   // +z : direction de la trace (lookAt), +y : vers le ciel
     [face(tip,l,c,0xF59A5C),face(tip,c,r,0xD4581F)].forEach(m=>ball.add(m));
     scene.add(ball)}
+  /* tête de trace : deux anneaux qui pulsent au sol autour du triangle (un seul, fixe, en mouvement réduit) ;
+     cairn suivant : un halo doux qui respire au-dessus de lui, l'indice de la prochaine étape (18/11/2026) */
+  {const rg=new THREE.RingGeometry(.82,1,56);pulse=[0,1].map(()=>{const m=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({color:0xF59A5C,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.renderOrder=4;scene.add(m);return m});
+   const hc=document.createElement('canvas');hc.width=hc.height=128;{const x=hc.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.35,'rgba(255,255,255,.45)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
+   nextHalo=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(hc),color:0xF59A5C,transparent:true,opacity:0,depthWrite:false,depthTest:false}));nextHalo.renderOrder=1;scene.add(nextHalo)}
   buildBlocks();
 }
 const DEP_SIDE=17,DEP_BACK=20;   // cairn du Départ, en unités de sol : à gauche de la trace sur écran large (la pierre gravée fait ≈ 12 de demi-largeur), derrière l'aiguille sur écran étroit (sinon il sortirait de l'image)
@@ -3497,7 +3505,7 @@ function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
 const nT=OK?new THREE.Vector3():null,nP=OK?new THREE.Vector3():null,nQ=OK?new THREE.Quaternion():null,v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
 const trWin=[0,1];   // tronçon de trace affiché [début, fin], en abscisse t
-const CAIRN_NEXT=.35;   // opacité du cairn suivant (et du précédent, le temps de le quitter) ; les autres cairns sont masqués
+const CAIRN_NEXT=.5;   // opacité du cairn suivant (et du précédent, le temps de le quitter) ; les autres cairns sont masqués
 const STOP_ZOOM=[1.2,1.2],STOP_D=[70/STOP_ZOOM[0],80/STOP_ZOOM[1]],STOP_H=[26/STOP_ZOOM[0],26/STOP_ZOOM[1]],STOP_SIDE=.35,STOP_LOW=-9/STOP_ZOOM[1];   // 18/11/2026 : caméra 1,2 × plus proche (même angle) : avec la perspective, la stèle paraît ≈ 1,5 × plus grande (mesuré) et devient le seul point focal ; à 1,5 × elle sortait de l'écran sur grand écran   // cadrage aux arrêts : recul [grand écran, téléphone], hauteur, décalage latéral (part du recul) pour la carte de droite, visée plus basse sur téléphone (carte en bas)
 let stopW=0,curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
 function onPlane(q,o,y){   // point de l'écran (px) -> point du plan horizontal de hauteur y, vu par la caméra de la carte
@@ -3560,7 +3568,7 @@ function rig(p,dt,snap,intro=0){
   // Au Départ, son pivot est sur le départ de la trace et elle recouvre le début de la trace, comme l'aiguille du cadran pendant la plongée
   const tb=clamp(t-(blk&&aw>0&&STOPS[aw].t<1?mw*11/curve.getLength():0));   // aux deux bouts de la trace (Départ, dernière étape), la pointe va exactement jusqu'au bout : leurs cairns sont posés à côté
   // base et pointe du triangle sont toutes deux SUR la trace (corde entre deux points de la courbe) : il la recouvre, même dans les virages ; jamais avant le départ
-  const sc=lerp(1,.45,sm(0,.03,t)),nL=ball.userData.n*sc/curve.getLength(),tt=clamp(Math.max(tb,nL)),tB=clamp(tt-nL);
+  const sc=lerp(1,.75,sm(0,.03,t)),nL=ball.userData.n*sc/curve.getLength(),tt=clamp(Math.max(tb,nL)),tB=clamp(tt-nL);
   {const pT=curve.getPointAt(tt);ball.position.copy(curve.getPointAt(tB));ball.scale.setScalar(Math.max(.01,ball.position.distanceTo(pT)/ball.userData.n));ball.lookAt(pT);
    if(intro>.001&&NDL.ok&&t<.006){   // vue de dessus : on reprend à l'écran la pointe et le pivot de l'aiguille du cadran (ramenés au plan de la trace), puis on glisse vers la trace en quittant le Départ
      const y=curve.getPointAt(0).y,e=ease(intro)*(1-sm(0,.006,t))*NDL.w;   // dès que la trace avance, l'aiguille la rejoint (la caméra, elle, reste en vue de dessus un peu plus longtemps)
@@ -3578,6 +3586,13 @@ function rig(p,dt,snap,intro=0){
    trWin[0]+=(v0-trWin[0])*kk;trWin[1]+=(v1-trWin[1])*kk;}
   FATS.forEach(m=>{const glow=m.uniforms.uMode.value>.5;m.uniforms.uT.value=tg0;m.uniforms.uH0.value=hB;m.uniforms.uH1.value=hT;m.uniforms.uTime.value=reduce?0:tNow;m.uniforms.uV0.value=glow?0:trWin[0];m.uniforms.uV1.value=trWin[1];m.uniforms.uVF.value=6/curve.getLength()});   // le fil parcouru reste dessiné depuis le départ (uV0 = 0) ; le câble mat ne montre que le tronçon jusqu'au prochain cairn   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
+  if(pulse){const L=theme==='light',col=L?0xB23F27:0xF59A5C,show=intro<.1&&!staticMode,mid=curve.getPointAt(clamp((tB+tt)/2)),R=ball.userData.n*.42;
+    pulse.forEach((m,i)=>{m.material.color.setHex(col);m.visible=show;if(!show)return;m.position.set(mid.x,mid.y-.6,mid.z);
+      if(reduce){m.scale.setScalar(R*(i?0:1.6)||.001);m.material.opacity=i?0:.5}
+      else{const ph=((tNow/1.6)+i*.5)%1;m.scale.setScalar(R*(1+1.1*ph));m.material.opacity=.6*(1-ph)*(1-ph)}});
+    const nb=blocks.find(b=>b.stopIdx===aw+1);   // indice de la prochaine étape : halo au-dessus du cairn suivant, à l'arrêt seulement
+    nextHalo.visible=!!nb&&show;if(nextHalo.visible){const br=reduce?1:.75+.25*Math.sin(tNow*1.8);nextHalo.position.set(nb.pos.x,nb.base+4,nb.pos.z);nextHalo.scale.setScalar(30);
+      nextHalo.material.color.setHex(L?0xF0B080:0xF59A5C);nextHalo.material.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;nextHalo.material.opacity=(L?.6:.42)*br*mw*Math.min(1,nb.vis/CAIRN_NEXT)}}
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
   blocks.forEach((bk,i)=>{
     const sel=(hoverIdx===bk.stopIdx||pinnedIdx===bk.stopIdx)?1:0,act=(aw===bk.stopIdx)?mw*.5:0;
@@ -3608,7 +3623,7 @@ let parcLt=null;
 function parcTheme(L){   // carte de jour : relief en teintes cuivre foncé en mélange normal (l'additif s'efface sur fond clair), trace encre
   if(!mat)return;parcLt=L;
   mat.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;mat.needsUpdate=true;
-  mat.uniforms.cLo.value.set(...(L?[.50,.43,.36]:[.30,.37,.48]));mat.uniforms.cHi.value.set(...(L?[.42,.36,.30]:[.40,.48,.60]));mat.uniforms.uMk.value=L?0:1;   // ton sur ton (18/11/2026) : jour brun-gris du papier, nuit bleu ardoise du ciel ; plus d'orange vifmat.uniforms.cGrid.value.set(...(L?[.20,.34,.48]:[.35,.55,.75]));mat.uniforms.cF.value.set(...(L?[.62,.12,.03]:[1,.28,.08]));
+  mat.uniforms.cLo.value.set(...(L?[.50,.43,.36]:[.30,.37,.48]));mat.uniforms.cHi.value.set(...(L?[.42,.36,.30]:[.40,.48,.60]));mat.uniforms.uMk.value=L?0:1;mat.uniforms.cGrid.value.set(...(L?[.20,.34,.48]:[.35,.55,.75]));mat.uniforms.cF.value.set(...(L?[.62,.12,.03]:[1,.28,.08]));   // ton sur ton (18/11/2026) : jour brun-gris du papier, nuit bleu ardoise du ciel ; plus d'orange vif
   FATS.forEach(m=>{const o=m.userData.o;if(!o)return;
     m.blending=(o.add&&!L)?THREE.AdditiveBlending:THREE.NormalBlending;m.needsUpdate=true;   // l'additif s'efface sur fond clair
     m.uniforms.uColor.value.set(L?o.cl:o.c);m.uniforms.uC2.value.set(L?(o.c2l||o.cl):(o.c2||o.c));m.uniforms.uAlpha.value=L?o.al:o.a;m.uniforms.uBoost.value=L?(o.boostl||1):(o.boost||1)});
