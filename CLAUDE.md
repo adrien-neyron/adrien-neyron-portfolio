@@ -291,6 +291,8 @@ Vue statique de l'accueil (`body.static`, 05/11/2026) : page éditoriale dans le
 
 Fond minéral du hero et de « S'équiper » (15/11/2026) : calque `#hphoto` (`.hphoto`) sous la montre à la place du sol 3D (sol, rochers et ombres retirés de `loop.js`) ; images `public/loop/hero-canyon-*.webp` générées par `scripts/hero-canyon.py` (dalles fracturées, strates, veines ; pas de licence tierce) ; jetons `--hero-photo*`, `--hero-scrim`, `--hero-a1/a2`, `--hero-eyebrow` dans les deux palettes ; `phK` dans `update()` de `loop.js` (visible jusqu'à « S'équiper », fondu p .18–.27) ; voile à gauche pour l'accroche, à droite pour « S'équiper » (`--ph-l` / `--ph-r`) ; masqué en vue statique. Contrastes mesurés, Lighthouse non mesuré. Détails : `docs/ecran-accueil-corde.md`.
 
+Voiles du fond photo (18/11/2026) : `.hphoto::before` (droite, « S'équiper ») et `::after` (gauche, accueil) sont à `z-index: 2`, au-dessus du canvas du relief `.hrelief` ; à z 1, `::before` passait sous le relief et « S'équiper » n'avait presque pas de brume. Détails : `docs/ecran-accueil-corde.md`.
+
 Variante photo « cordée » du fond du hero (15/11/2026, `feat/hero-cordee`) : jetons `--hero-photo*` sur `public/loop/hero-cordee-*.webp` (photo Unsplash de Sylvain Mauroux, étalonnée par `scripts/hero-photo.py`, licence Unsplash) ; le fond minéral `hero-canyon-*` reste disponible. Détails : `docs/ecran-accueil-corde.md`.
 
 Variante « gorge » du fond du hero (15/11/2026, `feat/hero-gorge`) : jetons `--hero-photo*` sur `public/loop/hero-gorge-*.webp` (deux images Gemini nettoyées, agrandies et étalonnées par `scripts/hero-gorge.py` ; image générée, provenance non retirée) ; voile jour renforcé. Détails : `docs/ecran-accueil-corde.md`.

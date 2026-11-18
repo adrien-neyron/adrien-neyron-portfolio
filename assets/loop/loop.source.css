@@ -291,7 +291,8 @@ body.static .lens{display:none}
 .hphoto::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(var(--hero-scrim),var(--hero-a1)) 0,rgba(var(--hero-scrim),var(--hero-a2)) 34%,rgba(var(--hero-scrim),.18) 66%,rgba(var(--hero-scrim),0) 100%),linear-gradient(0deg,rgba(var(--hero-scrim),.70) 0,rgba(var(--hero-scrim),0) 28%),linear-gradient(180deg,rgba(var(--hero-scrim),.55) 0,rgba(var(--hero-scrim),0) 22%)}
 @media (max-width:899px){.hphoto{background-image:var(--hero-photo-m)}.hphoto::after{background:linear-gradient(180deg,rgba(var(--hero-scrim),.86) 0,rgba(var(--hero-scrim),.78) 55%,rgba(var(--hero-scrim),.56) 100%)}}
 .hphoto::before{content:"";position:absolute;inset:0;z-index:1;opacity:var(--ph-r,0);background:linear-gradient(270deg,rgba(var(--hero-scrim),var(--hero-a1)) 0,rgba(var(--hero-scrim),var(--hero-a2)) 34%,rgba(var(--hero-scrim),.18) 66%,rgba(var(--hero-scrim),0) 100%),linear-gradient(0deg,rgba(var(--hero-scrim),.70) 0,rgba(var(--hero-scrim),0) 28%),linear-gradient(180deg,rgba(var(--hero-scrim),.55) 0,rgba(var(--hero-scrim),0) 22%)}   /* « S'équiper » : le texte passe à droite, le voile aussi (--ph-r / --ph-l posés par loop.js) */
-.hphoto::after{z-index:1;opacity:var(--ph-l,1)}
+.hphoto::before,.hphoto::after{z-index:2}   /* les deux voiles au-dessus du canvas du relief (.hrelief, z 1) : ::before est peint avant les enfants, donc à z 1 le relief opaque le recouvrait et « S'équiper » n'avait presque pas de brume à droite (18/11/2026) */
+.hphoto::after{opacity:var(--ph-l,1)}
 @media (max-width:899px){.hphoto::before{opacity:0}.hphoto::after{opacity:1}}
 body.static .hphoto{display:none}
 /* Haut du hero (17/11/2026) : pendant le défilement, la scène collée (.stage, sticky) peut prendre une ou deux images de retard et laisser

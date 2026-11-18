@@ -300,3 +300,7 @@ Demande d'Adri : un survol harmonieux en mode clair pour les deux pastilles du p
 ## Pastille « Cliquer sur les boutons de la montre » retirée (18/11/2026)
 
 Demande d'Adri : à l'étape 02 (« S'équiper »), la pastille `#eqTip` qui apparaissait sous la montre quand la souris bougeait est supprimée : élément HTML, styles `.eq-tip`, minuterie et variables de `loop.js` (`EQ_TIP_MS`, `eqMoved`, `eqOff`, `pushUsed`). Les boutons du boîtier et les cartes d'outils fonctionnent comme avant. Retour arrière possible par git (commit précédent `633058f`). Vérifié dans Chrome via `/#equiper` : plus de pastille, aucune erreur JavaScript.
+
+## Brouillard de « S'équiper » identique à celui de l'accueil (18/11/2026)
+
+Demande d'Adri : à l'étape 02, un effet brouillard sur la moitié droite, comme celui de la moitié gauche à l'étape 01. Le voile existait déjà (`.hphoto::before`, `--ph-r`, même dégradé que `::after` en miroir), mais il était **invisible en pratique** : un pseudo-élément `::before` est peint avant les enfants, et à `z-index: 1` le canvas du relief au curseur (`.hrelief`, z 1, opaque) le recouvrait ; `::after`, peint après, restait au-dessus (d'où le brouillard à gauche seulement). Correctif : les deux voiles à `z-index: 2`. Vérifié dans Chrome (1440 × 900, jour et nuit) : la moitié droite de « S'équiper » est maintenant voilée comme la gauche de l'accueil ; l'accueil est inchangé.
