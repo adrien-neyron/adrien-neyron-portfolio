@@ -12,10 +12,12 @@
   --wf-ease: cubic-bezier(.2, .8, .2, 1);
 }
 
-/* Un seul indicateur : tant que le viseur entoure l'élément, son contour natif s'efface (il garde sa place : rien ne bouge).
-   Pas en contraste élevé : le viseur y est masqué, le contour système reste. */
+/* Un seul indicateur : tant que le viseur entoure l'élément, son contour natif est retiré (un contour ne prend pas de place :
+   rien ne bouge). outline-style et non outline-color : une couleur s'anime (transition-colors de Tailwind l'inclut) et le contour
+   restait visible ~150 ms, deux indicateurs à la fois ; un style ne s'anime pas. Pas en contraste élevé : le viseur y est masqué,
+   le contour système reste. */
 @media (forced-colors: none) {
-  html.wf-on :focus-visible { outline-color: transparent !important; }
+  html.wf-on :focus-visible { outline-style: none !important; }
 }
 
 .wf {

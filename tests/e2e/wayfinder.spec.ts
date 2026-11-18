@@ -18,7 +18,10 @@ const state = (page: import('@playwright/test').Page) => page.evaluate(() => {
     gap: vr ? Math.round(Math.abs(vr.left - (r.left - 6)) + Math.abs(vr.top - (r.top - 6))) : -1,
     label: document.querySelector('.wf-l')?.textContent ?? '',
     hidden: document.getElementById('wayfinder')?.getAttribute('aria-hidden'),
-    outlineColor: getComputedStyle(a).outlineColor,
+    outlineStyle: getComputedStyle(a).outlineStyle,
+    wfOn: document.documentElement.classList.contains('wf-on'),
+    fv: a.matches(':focus-visible'),
+    desc: (a.tagName + '.' + (typeof a.className === 'string' ? a.className : '')).slice(0, 60) + ' « ' + (a.textContent || '').trim().slice(0, 30) + ' »',
     labelOn: !!document.querySelector('.wf-l')?.classList.contains('on'),
     visibleText: (a.innerText || '').trim().length > 0 && !a.querySelector('svg:only-child'),
   }
@@ -37,7 +40,7 @@ test.describe('WAYFINDER', () => {
       expect(s.kb).toBe(true)
       expect(s.gap).toBeLessThanOrEqual(2)
       expect(s.hidden).toBe('true')
-      expect(s.outlineColor).toBe('rgba(0, 0, 0, 0)')   // le contour natif s'efface derrière le viseur
+      expect(s.outlineStyle, `${s.desc} wf-on=${s.wfOn} focus-visible=${s.fv}`).toBe('none')   // le contour natif se retire derrière le viseur, sans fondu
       if (s.visibleText) { expect(s.labelOn).toBe(false); textSeen = true }   // texte déjà visible : pas de doublon
       else if (s.labelOn) { expect(s.label.length).toBeGreaterThan(0); iconSeen = true }
     }

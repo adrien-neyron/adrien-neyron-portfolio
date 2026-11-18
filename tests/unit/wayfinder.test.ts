@@ -142,7 +142,7 @@ describe('WAYFINDER : règles du code', () => {
   })
   it('un seul indicateur : le contour natif s’efface derrière le viseur, sauf en contraste élevé', () => {
     const css = readFileSync(new URL('../../assets/css/wayfinder.css', import.meta.url), 'utf8')
-    expect(css).toMatch(/@media \(forced-colors: none\) \{\s*html\.wf-on :focus-visible \{ outline-color: transparent !important; \}/)
+    expect(css).toMatch(/@media \(forced-colors: none\) \{\s*html\.wf-on :focus-visible \{ outline-style: none !important; \}/)   // un style ne s'anime pas (une couleur, si)
     expect(src).toContain("root.classList.toggle('wf-on', on)")
   })
   it('barre de progression permanente : posée au premier déplacement (touche de navigation, molette, doigt, défilement), jamais retirée pendant la visite', () => {
