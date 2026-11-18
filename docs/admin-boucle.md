@@ -424,3 +424,15 @@ Revue d'Adri : « la fiche est un mur de texte ». Dans une scène claire, la ca
 - **Téléphone** : chiffre et libellé sur une ligne.
 
 Mesuré (Chrome, fiche fermée, sans défilement interne) : 1440 px ≈ 405-455 px de haut ; 390 px ≈ 308-387 px (sous la limite de 46 svh). Récit ouvert : la fiche défile, comme avant.
+
+## Étape 3 : compteur à rouleaux pour Km et D+ (18/11/2026)
+
+Revue d'Adri : la typographie manquait de hiérarchie (trois lignes mono). Le titre est en serif italique depuis le même jour ; la ligne de données devient un **compteur à rouleaux** : chaque chiffre de « Km » et « D+ » est un rouleau 0-9 qui tourne jusqu'à sa nouvelle valeur d'une étape à l'autre (0,45 s, `cubic-bezier(.2,.8,.2,1)`, la courbe de glissement du site), comme un compteur kilométrique. Libellés « KM », « D+ », « M » en 11 px gris (`--muted`), chiffres en JetBrains Mono 700 15 px (`--fg`), chiffres alignés. Cohérent avec le reste : mono pour les données (azimut du cadran, fiche), serif pour les titres.
+
+- Code : `odoSet` / `odoNum` dans `loop.js` (le gabarit n'est reconstruit que si le nombre de chiffres change, sinon seuls les rouleaux bougent), styles `#mapTot .od*` dans `loop.source.css`.
+- Accessibilité : `#mapTot` reste `aria-hidden` ; le total est dans le `.sr-only` voisin et chaque étape est annoncée dans `#live`. Mouvement réduit : pas de rotation, le chiffre change d'un coup.
+- Mesuré (Chrome 1440) : 6 120 → 7 140 en ≈ 0,5 s, chiffre par chiffre. Limite : un rouleau qui descend (6 → 1) recule au lieu d'avancer comme un vrai compteur.
+
+## Départ : plus de vue de dessus à l'arrêt (18/11/2026)
+
+Avant : la vue de dessus (alignée sur le verre du cadran pour la plongée) durait tout l'arrêt du Départ (`iL = 1 − sm(STOPS[0].b, STOPS[1].a, l)`) : la caméra ne cadrait pas le cairn et il passait à moitié sous la fiche. Maintenant `iL = 1 − sm(STOPS[0].a, milieu du Départ, l)` : la vue de dessus ne dure que l'instant de la plongée, la caméra s'incline en arrivant et cadre le cairn du Départ comme les autres étapes (cairn à gauche, fiche à droite ; téléphone : cairn au-dessus de la fiche). L'aiguille ne passe devant la pierre gravée que pendant la vue de dessus (`intro > .5`) ; ensuite la pierre et sa gravure repassent devant (sur téléphone, le cairn est juste derrière l'aiguille). Vérifié (Chrome) : 1440 jour et nuit, 390, en revenant au Départ cran par cran. Non vérifié image par image : le raccord exact de la plongée (verre → carte), dont le début n'a pas changé (`iL` vaut toujours 1 au tout début de la carte).

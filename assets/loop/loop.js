@@ -3567,7 +3567,7 @@ function rig(p,dt,snap,intro=0){
      const s0=ball.scale.x;onPlane(NDL.tip,nT,y);onPlane(NDL.piv,nP,y);const so=nT.distanceTo(nP)/ball.userData.n;
      nQ.copy(ball.quaternion);v3.copy(ball.position);ball.position.copy(nP);ball.lookAt(nT);
      nQ.slerp(ball.quaternion,e);ball.quaternion.copy(nQ);ball.position.copy(v3).lerp(nP,e);ball.scale.setScalar(lerp(s0,so,e))}
-   const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
+   const top=aw===0&&intro>.5;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // pendant la vue de dessus du Départ (plongée), l'aiguille passe devant la pierre gravée, comme sur le cadran ; une fois la caméra inclinée (18/11/2026), la pierre et sa gravure repassent devant
   /* Le fil se dessine au fil de l'avancée, sans point qui se déplace : le triangle n'existe qu'au Départ (relais de l'aiguille du cadran pendant la plongée),
      il s'atténue (NEEDLE_OUT → NEEDLE_SUB) dès que la trace avance mais reste en tête du faisceau jusqu'au dernier cairn ; la lueur part alors du départ et s'arrête à l'abscisse atteinte (tt), sans trou sous l'aiguille. */
   const nv=lerp(1,NEEDLE_SUB,sm(NEEDLE_OUT[0],NEEDLE_OUT[1],t));ball.visible=true;ball.children.forEach(m=>{m.material.opacity=nv});
@@ -3651,6 +3651,21 @@ mapRail=p=>{
 };
 function gotoStop(i){const s=STOPS[i];cinematicTo(PC0+PCW*(s.a+s.b)/2)}
 const mapTot=$('#mapTot');let totK=-1,totG=-1;
+/* Compteur « Km · D+ » à rouleaux (18/11/2026, demande d'Adri) : chaque chiffre est un rouleau 0-9 qui tourne jusqu'à sa nouvelle valeur,
+   comme un compteur kilométrique ; libellés petits et gris, chiffres en gras. Décoratif (#mapTot aria-hidden : le total est dans le
+   .sr-only voisin, chaque étape est annoncée dans #live). Mouvement réduit : pas de rotation (CSS). Le gabarit (nombre de chiffres,
+   espaces) n'est reconstruit que s'il change ; sinon seuls les rouleaux bougent. */
+const ODO_DIG=Array.from({length:10},(_,i)=>'<span>'+i+'</span>').join('');
+function odoNum(el,txt){
+  const mask=txt.replace(/\d/g,'#');
+  if(el.dataset.mask!==mask){el.dataset.mask=mask;el.innerHTML=[...txt].map(c=>/\d/.test(c)?'<span class="od"><span class="od-c">'+ODO_DIG+'</span></span>':'<span class="od-s">'+c+'</span>').join('')}
+  const cells=el.querySelectorAll('.od-c');let i=0;
+  for(const c of txt)if(/\d/.test(c)){cells[i].style.transform='translateY('+(-+c*10)+'%)';i++}
+}
+function odoSet(km,dp){
+  if(!mapTot.querySelector('.num')){mapTot.innerHTML='<span class="lab">Km</span> <span class="num" id="odoK"></span><span class="sep"> · </span><span class="lab">D+</span> <span class="num" id="odoD"></span> <span class="lab">m</span>'}
+  odoNum($('#odoK'),fmtN(km));odoNum($('#odoD'),fmtN(dp));
+}
 const plMore=$('#plMore');   // la plaque de métriques sous la carte (.pl-metrics) a été retirée : stèle, panneau d'étape et annonces portent ces informations
 const plDock=plMore.parentElement;
 // « Voir la fiche » (#plMore) est un vrai lien : son href suit l'étape affichée (première fiche liée, /contact au cairn final), voir updateUi
@@ -3777,9 +3792,9 @@ function update(l,dt,intro,rain=0){
   if(!inited)return;
   textMask();
   rainR=staticMode?0:rain;
-  const iL=1-sm(STOPS[0].b,STOPS[1].a,l);   // la vue de dessus (alignée sur le verre) ne dure que le temps du Départ, puis la caméra s'incline en rejoignant la première étape
+  const iL=1-sm(STOPS[0].a,(STOPS[0].a+STOPS[0].b)/2,l);   // la vue de dessus (alignée sur le verre) ne dure que l'instant de la plongée : en arrivant au Départ, la caméra s'incline et cadre son cairn comme aux autres étapes (18/11/2026 : avant, elle restait de dessus tout le Départ et le cairn passait sous la fiche)
   updateSky(l);rig(l,dt,first||iL>0,iL);first=false;
-  {const tt=param(l),k=Math.round(kmAt(tt)),g=Math.round(gainAtT(tt)/10);if(k!==totK||g!==totG){totK=k;totG=g;mapTot.textContent=kmLine(tt)}}   /* sous le titre : kilomètre et dénivelé cumulés évoluent avec l'avancée sur la trace */
+  {const tt=param(l),k=Math.round(kmAt(tt)),g=Math.round(gainAtT(tt)/10);if(k!==totK||g!==totG){totK=k;totG=g;odoSet(kmAt(tt),Math.round(gainAtT(tt)/10)*10)}}   /* sous le titre : kilomètre et dénivelé cumulés évoluent avec l'avancée sur la trace */
   pick();updateUi(l);
   {const end=blocks.find(x=>x.t>=1);if(end)rainStep(rainR,dt,end);if(rainR<=0)rainHide()}
   warmAhead();renderer.render(scene,cam);placeHolos();

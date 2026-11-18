@@ -255,6 +255,9 @@ On the home, « Aller au contenu » (`.skip`) focuses the **current scene's head
 ### Stage map: the cairn as the single focal point (18/11/2026)
 Stop camera 1.2 × closer, same angle (`STOP_ZOOM`; the stele looks ≈ 1.5 × bigger; 1.5 × camera pushed it off screen); engraved canvas 2.5 × / 2 × / 1.5 × the 512 × 384 layout by quality tier, max anisotropy; engraving reused as `bumpMap` (.22) + a raking `DirectionalLight` (`rake`) that follows the shown stele; denser, offset ground shadow. Contour lines tone-on-tone (day paper grey-brown, night slate), 30 % / index 40 %, thinner (≈ .75 px) with a thicker index line every five, faded under the scene overline/title and the header (`textMask` → `uMask`/`uHdr`); the dial glass topo (`makeTopoTex`) uses the same style so the dive stays seamless. Details: `docs/admin-boucle.md`.
 
+### Stage map: odometer counter and Départ framing (18/11/2026)
+`#mapTot` (Km · D+) is a rolling-digit odometer (`odoSet`/`odoNum`, .45 s, no roll under reduced motion; grey 11 px labels, bold mono figures; still `aria-hidden`). The top view at the start of the map now lasts only the dive instant (`iL` eases out between `STOPS[0].a` and the Départ's middle): at rest on the Départ the camera frames its cairn like any stop; the needle is drawn over the stele only while `intro > .5`. Details: `docs/admin-boucle.md`.
+
 ### Footer slide (18/11/2026)
 On the first screen (`html.at-hero`, set by `initHeroClean` while `scrollY < 0.6 × innerHeight`) the footer links (CV, Contact, icons) are centred; leaving the top slides them smoothly to the right (0.8 s). The layout stays `space-between` and `translateX(calc(50% - 50cqw))` (footer = `container-type: inline-size`) centres them, because `justify-content` can't be animated. ≥ 900 px only, no transition under reduced motion, none in static view. Details: `docs/ecran-accueil-corde.md`.
 

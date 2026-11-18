@@ -156,6 +156,17 @@ describe('fiche d’étape en trois niveaux (titre, chiffre-preuve, images ; ré
   })
 })
 
+describe('compteur Km · D+ à rouleaux (étape 3)', () => {
+  const js = readFileSync(new URL('../../assets/loop/loop.js', import.meta.url), 'utf8')
+  it('décoratif (le total est dans le texte pour lecteur d’écran), chiffres en rouleaux 0-9, sans rotation en mouvement réduit', () => {
+    expect(markup).toContain('<p class="tot" id="mapTot" aria-hidden="true">')
+    expect(markup).toMatch(/<p class="sr-only">Parcours complet : [^<]+<\/p>/)
+    expect(js).toContain("odoSet(kmAt(tt),Math.round(gainAtT(tt)/10)*10)")
+    const css = readFileSync(new URL('../../assets/loop/loop.source.css', import.meta.url), 'utf8')
+    expect(css).toContain('@media (prefers-reduced-motion:reduce){#mapTot .od-c{transition:none}}')
+  })
+})
+
 describe('swap / escHtml', () => {
   it('swap ignore une balise absente', () => {
     expect(swap('<b>a</b>', '<i>', '</i>', 'x')).toBe('<b>a</b>')
