@@ -121,6 +121,16 @@ describe('garde « fantôme » : pas d’élément invisible dans l’ordre de t
   })
 })
 
+describe('« Aller au contenu » ≠ logo', () => {
+  const js = readFileSync(new URL('../../assets/loop/loop.js', import.meta.url), 'utf8')
+  it('le lien d’évitement saute l’en-tête vers le titre de la scène affichée ; le logo ramène au début', () => {
+    expect(markup).toContain('<a class="skip" href="#main">')   // sans JavaScript : #main reste une cible valable
+    expect(js).toMatch(/\$\('\.skip'\)\.addEventListener\('click',e=>\{\s*e\.preventDefault\(\);/)
+    expect(js).toContain('HW[Math.max(0,curName)]')
+    expect(js).toMatch(/\$\('#brand'\)\.addEventListener\('click',e=>\{e\.preventDefault\(\);staticMode\?scrollTo\(0,0\):jumpTo\(\.0004\)/)
+  })
+})
+
 describe('swap / escHtml', () => {
   it('swap ignore une balise absente', () => {
     expect(swap('<b>a</b>', '<i>', '</i>', 'x')).toBe('<b>a</b>')

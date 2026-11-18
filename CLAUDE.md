@@ -249,6 +249,9 @@ Site-wide (home + pages), keyboard only (first Tab, or a focus move < 0.4 s afte
 ### No invisible element in the Tab order (18/11/2026)
 `ghostGuard` in `loop.js` (called from `draw`, every 100 ms at most): each interactive block of `GHOST_SEL` (`#head1`, `#head2`, `#eqHud`, `.pl-stages`, `.pl-dock`, `#plMore`, `#stopCard`, `#s3`, `#bivtext`, `#restart`, `.hot`) becomes `inert` while its real opacity (product of ancestors) is under 35 %; never in static view. Audit found nothing obsolete (nothing deleted). **A new interactive block that fades by opacity must be added to `GHOST_SEL`** (tested: each selector exists). Menu underline: « Étapes » / « Outils » use the same solid 1 px underline as « Projets » (hover, keyboard focus, open menu), home and pages. Details: `docs/ecran-accueil-corde.md`.
 
+### Skip link vs logo (18/11/2026)
+On the home, « Aller au contenu » (`.skip`) focuses the **current scene's heading** (`HW[curName]`, no scroll, no scene change; static view: first scene heading below the header; `#main` without JS), so it no longer duplicates the « Cordée » logo, which still returns to the start. Details: `docs/ecran-accueil-corde.md`.
+
 ### Footer slide (18/11/2026)
 On the first screen (`html.at-hero`, set by `initHeroClean` while `scrollY < 0.6 × innerHeight`) the footer links (CV, Contact, icons) are centred; leaving the top slides them smoothly to the right (0.8 s). The layout stays `space-between` and `translateX(calc(50% - 50cqw))` (footer = `container-type: inline-size`) centres them, because `justify-content` can't be animated. ≥ 900 px only, no transition under reduced motion, none in static view. Details: `docs/ecran-accueil-corde.md`.
 

@@ -2559,6 +2559,17 @@ $('#railNav').addEventListener('click',()=>{if(TOUR.on)tourEnd(false)},true);   
 $('#railNav').addEventListener('click',()=>closeMenus(null));
 $('#openSet').addEventListener('click',()=>closeMenus(null));
 $('#brand').addEventListener('click',e=>{e.preventDefault();staticMode?scrollTo(0,0):jumpTo(.0004);$('#main').focus({preventScroll:true})});
+/* « Aller au contenu » (18/11/2026, demande d'Adri : il menait au même endroit que le logo, #main = haut de l'accueil) : il saute
+   l'en-tête et va au contenu de la scène affichée, sur son titre, sans changer de scène ; le Tab suivant atterrit sur la première
+   commande de la scène. Le logo, lui, ramène au début de l'accueil. Vue statique : le premier titre de scène encore à l'écran. */
+$('.skip').addEventListener('click',e=>{
+  e.preventDefault();
+  const hdr=document.querySelector('header.top'),hb=hdr?hdr.getBoundingClientRect().bottom:0;
+  let t=staticMode?HW.find(h=>h&&h.getBoundingClientRect().bottom>hb):HW[Math.max(0,curName)];
+  if(!t||t.closest('[inert]'))t=$('#main');
+  if(t.tabIndex<0&&!t.hasAttribute('tabindex'))t.tabIndex=-1;
+  t.focus({preventScroll:!staticMode});
+});
 $('#tgPause').addEventListener('click',e=>{paused=!paused;document.body.classList.toggle('paused',paused);e.currentTarget.setAttribute('aria-pressed',String(paused))});
 $('#tgStatic').addEventListener('click',()=>{setStatic(!staticMode);try{localStorage.setItem('asc-static',staticMode?'1':'0')}catch(e){}});
 $('#tgNight').addEventListener('click',e=>{

@@ -408,3 +408,7 @@ Reste inchangé : le cercle de la zone « E » pulse une fois par visite au char
 ### Soulignage du menu harmonisé (18/11/2026)
 
 À la demande d'Adri, « Étapes » et « Outils » ont le même soulignage que « Projets ». Accueil (`loop.source.css`) : trait plein `--underline` de 1 px (avant : dégradé effacé aux bouts, 2 px le jour), aligné sur le texte, affiché au survol, **au focus clavier** (manquait) et menu ouvert. Pages (`TrailNav.vue`) : les trois avaient déjà le même style ; ajout du focus clavier et du trait aligné sur le texte à partir de 640 px (il dépassait de 4 px de chaque côté). Mesuré (Chrome) : mêmes hauteur, couleur et alignement pour les trois, jour et nuit.
+
+### « Aller au contenu » ne double plus le logo (18/11/2026)
+
+À la demande d'Adri : au clavier, le lien d'évitement et le logo « Cordée » menaient au même endroit (`href="#main"`, le haut de l'accueil). Le lien d'évitement saute maintenant l'en-tête et met le focus sur le **titre de la scène affichée** (`HW[curName]` : « Trouver le cap… », « Des outils construits… », « Chaque projet… », « Une foulée… », « Posons le sac. »), sans changer de scène ; le Tab suivant atterrit sur la première commande de la scène. Le logo ramène toujours au début de l'accueil. Vue statique : le premier titre de scène encore à l'écran sous l'en-tête. Sans JavaScript, `#main` reste la cible. Vérifié (Chrome 1440) : accueil → titre puis « Lancer la visite guidée » ; S'équiper → titre puis « Explorer l'inventaire » ; L'ascension → titre puis « Départ » ; Bivouac → titre puis « E-mail » ; sans défilement.
