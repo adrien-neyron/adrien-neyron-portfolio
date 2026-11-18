@@ -308,3 +308,14 @@ Demande d'Adri : à l'étape 02, un effet brouillard sur la moitié droite, comm
 ## Clignotement de l'aiguille : au moment du zoom (18/11/2026)
 
 À la demande d'Adri, l'aiguille du cadran ne clignote plus dès l'arrivée sur « S'équiper » : le clignotement (et le halo qu'il dessine, `transW` / `needleBlink` / `drawNeedleHalo` dans `loop.js`) commence quand le défilement se tourne vers le cadran, c'est-à-dire avec le zoom (`zi = sm(.20,.30,p)`) et le retour de la montre au centre. Fenêtre : apparition de p = .20 à .235 (avant : .10 à .15), plein jusqu'à .285, disparition à .32 (inchangé). Pendant « S'équiper » (arrêt du menu à p = .155), l'aiguille reste donc fixe et n'attire plus l'œil loin des boutons du boîtier.
+
+## « Explorer l'inventaire complet » à la place de la pilule (18/11/2026)
+
+À la demande d'Adri, la pilule centrée en bas de l'écran « Voir tout l'équipement → » (`p.scene-more#eqMore`, `a.cnt`) est **supprimée**. Le lien vers `/ai-tools` prend place dans la hiérarchie de « S'équiper » : dans le bloc `#head2`, juste sous le paragraphe, aligné à gauche avec le texte (grand écran : colonne de droite).
+
+- Style : le même que « Lancer la visite guidée » (`.cta`) : fond transparent, texte `--fg` en capitales JetBrains Mono, flèche ↗ orange `--cta-line` (SVG décoratif, `aria-hidden`), voile `--cta-tint` au survol / focus avec la flèche qui glisse de 2 px en diagonale (immobile sous `prefers-reduced-motion`), contour de focus `--focus` 3 px, cible 48 px de haut. Classe `.eq-cta`, conteneur `.eq-more`.
+- Intitulé (RGAA 6.1, lien explicite) : « Explorer l'inventaire complet (n outils) ». Le nombre est **le vrai nombre d'outils de la page `/ai-tools`**, jamais saisi à la main : `aiToolCount` de `/api/loop-content` (outils en base), sinon la liste de secours `data/ai-tools.ts` (6 aujourd'hui, comme le fait `stores/aiTools.ts`). Il est posé côté serveur par `applyLoopContent` (`toolCount`, `utils/loopMarkup.ts`) : lisible sans JavaScript. Le balisage par défaut de `loop.html` porte le nombre de la liste de secours (testé). Le groupe « (n outils) » est insécable.
+- Visible et focalisable avec le titre (`.on` quand l'opacité de `#head2` > .5, `visibility:hidden` sinon) ; toujours visible en vue statique.
+- Ordre du DOM : paragraphe → lien → cartes d'outils (`tests/e2e/home.spec.ts`).
+- Les règles `.scene-more` (seul ce lien les utilisait) sont retirées ; `body.static #s1 #eqMore` aussi.
+- Le brief proposait « 12 outils » : le site n'en affiche que 6 en local (base vide, liste de secours) ; le nombre suit la base dès que des outils y sont saisis dans /admin › Outils IA.

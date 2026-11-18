@@ -31,7 +31,7 @@ const { data: loopContent } = await useFetch<LoopContentTexts>('/api/loop-conten
   key: 'loop-hero',
   timeout: 2000,
   // seulement ce que le HTML serveur utilise : le reste (fiches, carnet…) n'alourdit pas la charge utile de la page
-  pick: ['hero', 'toolsHead', 'stages', 'profile'],
+  pick: ['hero', 'toolsHead', 'stages', 'profile', 'aiToolCount'],
   default: () => null,
 })
 const page = computed(() => applyLoopContent(markup, loopContent.value))

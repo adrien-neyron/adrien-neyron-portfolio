@@ -246,6 +246,9 @@ Only the four cardinal zones remain interactive (`HOT` n/e/s/o); « Adrien Neyro
 ### Needle blink timing (18/11/2026)
 The needle blink + halo of the dive (`transW` in `loop.js`) starts with the zoom toward the dial (p .20 → .235, full until .285, out at .32), no longer during « S'équiper » (was .10 → .15). Details: `docs/ecran-accueil-corde.md`.
 
+### « S'équiper » inventory link (18/11/2026)
+The bottom-centred pill « Voir tout l'équipement → » is gone. `#eqMore` is now inside `#head2`, under the paragraph: ghost link `.eq-cta` styled like the guided-tour `.cta` (↗ `--cta-line`, `--cta-tint` hover), « Explorer l'inventaire complet (n outils) » → `/ai-tools`. `n` = real count of `/ai-tools` (`aiToolCount` from `/api/loop-content`, else `data/ai-tools.ts`), set server-side by `toolCount` in `utils/loopMarkup.ts`; never hardcode it. Details: `docs/ecran-accueil-corde.md`.
+
 ### Watch-button hint (S'équiper) — removed
 The `#eqTip` pill « Cliquer sur les boutons de la montre » was removed on 18/11/2026 at Adri's request (HTML, CSS `.eq-tip`, JS timer `EQ_TIP_MS`/`eqMoved`/`pushUsed`). Don't reintroduce it. Details: `docs/ecran-accueil-corde.md`.
 

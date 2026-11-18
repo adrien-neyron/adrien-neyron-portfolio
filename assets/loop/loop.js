@@ -2436,7 +2436,7 @@ function draw(p,dt){
   const split=LAY.sx>0&&!staticMode;CS=split?.17:.07;CST=split?.012:STEP;CSP=split?.12:.07;CEND=split?[.26,.29]:[.24,.28];CREV=split?[.20,.225]:[.19,.22];   // grand écran : accueil = texte à gauche, montre à droite
   document.documentElement.classList.toggle('hero-split',split);head1.style.opacity=split?(p<.5?1-sm(.075,.10,p):0):Math.max(1-sm(.04,.08,p),sm(.96,1,p));
   head2.style.opacity=split?trap(p,.11,.14,.17,.20):trap(p,.08,.11,.24,.28);   // le titre « S'équiper » attend que l'accroche ait disparu
-  $('#eqMore').classList.toggle('on',+head2.style.opacity>.85||trap(p,CS,CS+.03,CEND[0],CEND[1])>.5);   // lien « Voir tout l'équipement » : visible (et focalisable) avec le titre, puis tant que les cartes sont là
+  $('#eqMore').classList.toggle('on',+head2.style.opacity>.5);   // lien « Explorer l'inventaire complet » : dans le bloc du titre, visible (et focalisable) avec lui
   chips.forEach((c,i)=>{
     const o=hoverCards()
       ?trap(p,CS,CS+.03,CEND[0],CEND[1])*Math.max(cardReveal(i,dt),sm(CREV[0],CREV[1],p))   // souris : la carte du bouton survolé, puis toutes en fin de scène

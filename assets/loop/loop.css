@@ -1103,12 +1103,19 @@ html.loop-on .pl-stages li.biv .dot{transform:scale(.6)}
 
 /* Liens « voir la page » des scènes (cohérence accueil ↔ pages, docs/audit-coherence.md) */
 html.loop-on a.cnt{display:inline-flex;align-items:center;text-decoration:none}
-html.loop-on .scene-more{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 70px);z-index:5;margin:0;opacity:0;pointer-events:none;transition:opacity .3s}   /* au-dessus du pied de page fixe (62 px), qui le recouvrait */
-html.loop-on .scene-more:not(.on){visibility:hidden}
-html.loop-on .scene-more.on{opacity:1;pointer-events:auto}
-html.loop-on .scene-more .cnt{white-space:nowrap}
-html.loop-on body.static .scene-more{position:static;transform:none;visibility:visible;opacity:1;pointer-events:auto;text-align:center;margin:16px 0}
-@media (prefers-reduced-motion:reduce){html.loop-on .scene-more{transition:none}}
+/* « S'équiper » : lien éditorial sous le paragraphe (18/11/2026), même style fantôme que « Lancer la visite guidée » (.cta) : texte --fg en capitales mono, flèche ↗ orange --cta-line, voile --cta-tint au survol / focus. Remplace la pilule centrée en bas « Voir tout l'équipement ». Le nombre d'outils est posé côté serveur (applyLoopContent). */
+html.loop-on #head2 .eq-more{margin:18px 0 0;visibility:hidden}
+html.loop-on #head2 .eq-more.on{visibility:visible}
+html.loop-on .eq-cta{display:inline-flex;align-items:center;gap:10px;min-height:48px;margin-left:-14px;padding:0 20px 0 14px;border-radius:999px;color:var(--fg);font:600 clamp(12.5px,.95vw,14px)/1.35 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;text-align:left;text-wrap:balance;pointer-events:auto;transition:background-color .3s ease-out}
+html.loop-on .eq-cta .eq-k{white-space:nowrap}   /* le nombre d'outils ne se coupe jamais */
+html.loop-on .eq-cta .go{flex:none;color:var(--cta-line);transition:transform .3s ease-out}
+html.loop-on .eq-cta:hover,html.loop-on .eq-cta:focus-visible{background:var(--cta-tint)}
+html.loop-on .eq-cta:hover .go,html.loop-on .eq-cta:focus-visible .go{transform:translate(2px,-2px)}
+html.loop-on .eq-cta:active{background:var(--cta-ring)}
+html.loop-on .eq-cta:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){html.loop-on .eq-cta,html.loop-on .eq-cta .go{transition:none}html.loop-on .eq-cta:hover .go,html.loop-on .eq-cta:focus-visible .go{transform:none}}
+@media (max-width:899px){html.loop-on .eq-cta{margin-left:0}}
+html.loop-on body.static #head2 .eq-more{visibility:visible}
 html.loop-on #dlgCarnet .sh-alt{background:transparent;color:#1B2A24;border:1px solid #1B2A24}
 
 /* Frise des étapes (carte « L'ascension ») : points lisibles sur tous les fonds, jour comme nuit (≥ 3:1, WCAG 1.4.11).
@@ -1155,7 +1162,6 @@ html.loop-on body.static #s1 #head2{margin-top:clamp(8px,2vw,16px);padding-top:c
 html.loop-on body.static #s1 #tools{position:static;left:auto;right:auto;bottom:auto;width:auto;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:12px}
 html.loop-on body.static #s1 #tools .chip{position:static!important;left:auto!important;top:auto!important;width:auto;transform:none!important;visibility:visible!important;opacity:1!important;-webkit-backdrop-filter:none;backdrop-filter:none}
 html.loop-on body.static #s1 .chip span.d{font-size:14px;opacity:1}
-html.loop-on body.static #s1 #eqMore{margin:0;text-align:left}
 
 /* Scène 2 : la carte en bandeau, puis les étapes sur un sentier pointillé (comme les chapitres de la fiche projet) */
 html.loop-on body.static #s2{padding:0 var(--gut) var(--pad);background:var(--bg)}

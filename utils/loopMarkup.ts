@@ -6,9 +6,10 @@
 import { buildStageView, summaryHtml, type StageView } from './stages'
 import { stages as staticStages } from '../data/stages'
 import { projects as staticProjects } from '../data/projects'
+import { aiTools as staticAiTools } from '../data/ai-tools'
 
 export interface LoopTexts { eyebrow?: string; title?: string; lede?: string }
-export interface LoopContentTexts { hero?: LoopTexts | null; toolsHead?: LoopTexts | null; stages?: StageView[] | null; profile?: { cvUrl?: string } | null }
+export interface LoopContentTexts { hero?: LoopTexts | null; toolsHead?: LoopTexts | null; stages?: StageView[] | null; profile?: { cvUrl?: string } | null; aiToolCount?: number | null }
 
 /** Lien CV par défaut de loop.html (fichier présent dans public/) ; remplacé par celui de l'admin s'il est valide. */
 export const DEFAULT_CV = '/CV_Adrien_Neyron.pdf'
@@ -74,6 +75,12 @@ export function renderStageList(view: StageView[]): string {
 
 const PLIST_OPEN = '<ol class="pl-list" id="pList" aria-label="Étapes du parcours">'
 
+/** Nombre d'outils affichés par /ai-tools : ceux de la base, ou la liste de secours si la base est vide ou indisponible (comme stores/aiTools.ts). */
+export const toolCount = (content?: LoopContentTexts | null) => {
+  const n = Number(content?.aiToolCount)
+  return Number.isInteger(n) && n > 0 ? n : staticAiTools.length
+}
+
 export function applyLoopContent(markup: string, content?: LoopContentTexts | null): string {
   const h = content?.hero
   const t = content?.toolsHead
@@ -82,6 +89,9 @@ export function applyLoopContent(markup: string, content?: LoopContentTexts | nu
   // lien CV de l'admin (chemin du site ou https) : posé dans le HTML serveur, valable sans JavaScript
   const cv = (content?.profile?.cvUrl || '').trim()
   if (cv && cv !== DEFAULT_CV && /^(\/(?!\/)|https:\/\/)/.test(cv)) html = html.split(`href="${DEFAULT_CV}"`).join(`href="${escHtml(cv)}"`)
+  // « Explorer l'inventaire complet (n outils) » : même nombre que la page /ai-tools (base, sinon sa liste de secours data/ai-tools.ts)
+  const n = toolCount(content)
+  html = swap(html, '<span class="eq-n">', '</span>', `${n} outil${n > 1 ? 's' : ''}`)
   if (h) {
     html = swap(html, '<p class="eyebrow who">', '</p>', h.eyebrow)
     const tt = (h.title || '').trim()

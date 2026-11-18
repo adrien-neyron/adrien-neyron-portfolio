@@ -103,6 +103,8 @@ export default defineEventHandler(async (event) => {
         category: str(a.category),
         date: str(a.date),
       })),
+      // nombre d'outils de la page /ai-tools (lien « Explorer l'inventaire complet » de « S'équiper ») : 0 = la page affiche sa liste de secours
+      aiToolCount: aiTools.length,
       aiTools: aiTools.map((t) => ({
         slug: str(t.slug),
         name: str(t.name),

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { applyLoopContent, swap, escHtml, renderStageList, loopStages } from '~/utils/loopMarkup'
+import { applyLoopContent, swap, escHtml, renderStageList, loopStages, toolCount } from '~/utils/loopMarkup'
+import { aiTools as staticAiTools } from '~/data/ai-tools'
 import { buildStageView } from '~/utils/stages'
 
 const markup = readFileSync(new URL('../../assets/loop/loop.html', import.meta.url), 'utf8')
@@ -61,6 +62,24 @@ describe('applyLoopContent', () => {
     const out = applyLoopContent(markup, { hero: { title: '<img src=x onerror=alert(1)> & "ok"' } })
     expect(out).not.toContain('<img src=x')
     expect(out).toContain('&lt;img src=x onerror=alert(1)&gt; &amp; &quot;ok&quot;')
+  })
+})
+
+describe('« Explorer l’inventaire complet » (S’équiper)', () => {
+  it('lien dans le bloc #head2, après le paragraphe, vers /ai-tools', () => {
+    const i = markup.indexOf('id="head2"'), block = markup.slice(i, markup.indexOf('</div>', i))
+    expect(block.indexOf('id="eqMore"')).toBeGreaterThan(block.indexOf('<p class="sub">'))
+    expect(block).toMatch(/<a class="eq-cta" href="\/ai-tools">/)
+    expect(markup).not.toContain('Voir tout l\'équipement')
+  })
+  it('le nombre par défaut du balisage = la liste de secours de /ai-tools', () => {
+    expect(markup).toContain(`<span class="eq-n">${staticAiTools.length} outils</span>`)
+  })
+  it('nombre de la base s’il y en a, sinon la liste de secours (comme la page)', () => {
+    expect(applyLoopContent(markup, { aiToolCount: 9 })).toContain('<span class="eq-n">9 outils</span>')
+    expect(applyLoopContent(markup, { aiToolCount: 1 })).toContain('<span class="eq-n">1 outil</span>')
+    expect(toolCount({ aiToolCount: 0 })).toBe(staticAiTools.length)
+    expect(toolCount(null)).toBe(staticAiTools.length)
   })
 })
 
