@@ -103,6 +103,24 @@ describe('WAYFINDER : rail d’altitude', () => {
   })
 })
 
+describe('garde « fantôme » : pas d’élément invisible dans l’ordre de tabulation', () => {
+  const js = readFileSync(new URL('../../assets/loop/loop.js', import.meta.url), 'utf8')
+  const sel = /GHOST_SEL='([^']+)'/.exec(js)?.[1] ?? ''
+  it('chaque bloc surveillé existe dans loop.html (sinon la garde ne protège plus rien)', () => {
+    const parts = sel.split(',')
+    expect(parts.length).toBeGreaterThan(8)
+    for (const p of parts) {
+      const id = /^#([\w-]+)$/.exec(p)?.[1], cls = /^\.([\w-]+)$/.exec(p)?.[1]
+      if (id) expect(markup, p).toContain(`id="${id}"`)
+      else if (cls) expect(new RegExp(`class="[^"]*\\b${cls}\\b`).test(markup) || new RegExp(`className\\s*=\\s*'${cls}\\b`).test(js), p).toBe(true)   // écrit dans loop.html ou créé par loop.js (zones .hot)
+    }
+  })
+  it('sous 35 % d’opacité le bloc devient inert, jamais en vue statique', () => {
+    expect(js).toContain('const GHOST_MIN=.35')
+    expect(js).toContain('const off=!staticMode&&effOpacity(el)<GHOST_MIN;if(el.inert!==off)el.inert=off')
+  })
+})
+
 describe('swap / escHtml', () => {
   it('swap ignore une balise absente', () => {
     expect(swap('<b>a</b>', '<i>', '</i>', 'x')).toBe('<b>a</b>')

@@ -2430,6 +2430,19 @@ function announce(i){
   $('#burgerSteps').parentNode.style.setProperty('--i',i);   // le repère de la rose des vents suit l'étape courante
   railMark(i);
 }
+/* Garde « fantôme » (18/11/2026, demande d'Adri : « beaucoup d'éléments invisibles passent en Tab ») : les blocs interactifs des
+   scènes s'effacent par l'opacité (fondus, carte d'étape, cartes du randonneur, bivouac…) et restaient atteignables au clavier,
+   cliquables et lus par le lecteur d'écran alors qu'on ne les voyait pas. Environ 10 fois par seconde, on mesure l'opacité réelle
+   de chaque bloc (produit des opacités de ses ancêtres) ; sous GHOST_MIN (35 % : illisible), le bloc devient inert, il revient dès
+   qu'il réapparaît. Pas en vue statique (tout y est visible). Un nouveau bloc interactif qui s'efface par l'opacité : l'ajouter à GHOST_SEL. */
+const GHOST_MIN=.35,GHOST_SEL='#head1,#head2,#eqHud,.pl-stages,.pl-dock,#plMore,#stopCard,#s3,#bivtext,#restart,.hot';   // #s3 entier, pas ses cartes : une carte du randonneur est transparente tant que sa zone n'a pas le focus, et Tab depuis la zone doit atterrir sur son bouton
+let ghostT=0,ghostEls=null;
+function effOpacity(el){let o=1;for(let e=el;e&&e!==document.body;e=e.parentElement){o*=+getComputedStyle(e).opacity;if(o<.01)return 0}return o}
+function ghostGuard(){
+  const now=performance.now();if(now-ghostT<100)return;ghostT=now;
+  ghostEls=ghostEls||[...document.querySelectorAll(GHOST_SEL)];
+  for(const el of ghostEls){const off=!staticMode&&effOpacity(el)<GHOST_MIN;if(el.inert!==off)el.inert=off}
+}
 function draw(p,dt){
   pal=palette(p);setVars(root,pal);updateBg(p);if(loaded)prewarm(p);
   setVisible(S[0],crisp(Math.max(trap(p,-1,0,.24,.30),trap(p,.95,1,2,3))));
@@ -2442,6 +2455,7 @@ function draw(p,dt){
   head2.style.opacity=split?trap(p,.11,.14,.17,.20):trap(p,.08,.11,.24,.28);   // le titre « S'équiper » attend que l'accroche ait disparu
   $('#eqMore').classList.toggle('on',+head2.style.opacity>=.05);   // le lien suit le fondu du paragraphe (18/11/2026) : retiré seulement sous 5 %, comme les textes de scène (crisp), plus à mi-fondu
   placeHud(S[0].style.visibility==='visible'?p:-1);   // lien « Explorer l'inventaire complet » : dans le bloc du titre, visible (et focalisable) avec lui
+  ghostGuard();
   chips.forEach((c,i)=>{
     const o=hoverCards()
       ?trap(p,CS,CS+.03,CEND[0],CEND[1])*Math.max(cardReveal(i,dt),sm(CREV[0],CREV[1],p))   // souris : la carte du bouton survolé, puis toutes en fin de scène
