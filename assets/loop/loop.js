@@ -2771,12 +2771,12 @@ function updateSector(){
 }
 addEventListener('pointermove',e=>{if(e.pointerType!=='touch')updateSector()},{passive:true});
 addEventListener('click',e=>{if(sectorKey&&!e.target.closest('a,button,input,textarea,select,label,dialog,.tip')){pinnedKey=pinnedKey===sectorKey?null:sectorKey;refreshAim();haptic(10);tick()}});   // clic quand un point est visé : épingle sa carte (comme le bouton)
-/* Indication d'accueil sur le cadran : le cercle de la zone « Écoute » (E) pulse (.hot.hint) + micro-carte (loop.html #dhint).
+/* Indication d'accueil sur le cadran : le cercle de la zone « Écoute » (E) pulse (.hot.hint). La micro-carte « Explorer l'instrument » (#dhint) a été retirée le 18/11/2026 (demande d'Adri).
    Une fois par visite ; disparaît à la première interaction (clic, touche, molette, toucher, survol d'une zone du cadran) ou après 8 s.
    Le simple mouvement de la souris ne la ferme pas : c'est justement ce qu'elle invite à faire. */
-const dHint=$('#dhint'),HINT_MS=8000;let hintState=0,hintT=0;   // 0 en attente, 1 affichée, 2 terminée
+const HINT_MS=8000;let hintState=0,hintT=0;   // 0 en attente, 1 affichée, 2 terminée
 try{if(sessionStorage.getItem('cordee-hint'))hintState=2}catch(e){}
-function hintGone(){if(hintState===2)return;hintState=2;clearTimeout(hintT);dHint.classList.remove('on');dHint.style.opacity='0';hotEls.forEach(b=>b.classList.remove('hint'));try{sessionStorage.setItem('cordee-hint','1')}catch(e){}}
+function hintGone(){if(hintState===2)return;hintState=2;clearTimeout(hintT);hotEls.forEach(b=>b.classList.remove('hint'));try{sessionStorage.setItem('cordee-hint','1')}catch(e){}}
 ['pointerdown','keydown','wheel','touchstart'].forEach(t=>addEventListener(t,hintGone,{passive:true,capture:true}));
 hotEls.forEach(b=>b.addEventListener('pointerenter',hintGone));
 const TIP_LEAD=40,TIP_DIAL_R=2.3;   // TIP_DIAL_R : rayon extérieur de la lunette (unités de la montre), le trait part de la zone et sort du cadran ; TIP_LEAD : longueur minimale du trait lumineux entre la zone et l'infobulle (bureau), = --lead de .tip.side-r/-l
@@ -2805,14 +2805,7 @@ function placeHot(p){
   });
   sectorOn=loaded&&vis1>.5&&!staticMode;if(ptrIn||sectorKey)updateSector();
   if(!sectorOn&&(aimKey||pinnedKey||hoverKey)){pinnedKey=hoverKey=sectorKey=null;document.body.style.cursor='';refreshAim();if(hotEls.includes(document.activeElement))document.activeElement.blur()}   // étape suivante (zones masquées) : la carte se ferme toujours, même épinglée ou ouverte au clavier
-  if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;dHint.classList.add('on');hotEls.find(b=>b.dataset.k==='e').classList.add('hint');hintT=setTimeout(hintGone,HINT_MS)}
-  if(hintState===1){   // carte juste à droite et en dessous du cercle « Écoute » (gardée dans l'écran)
-    const e=hotEls.find(b=>b.dataset.k==='e'),x=parseFloat(e.style.left),y=parseFloat(e.style.top),hw=dHint.offsetWidth,hh=dHint.offsetHeight;
-    const lx=x+parseFloat(e.style.width)/2+14;
-    if(lx+hw<=w-16){dHint.style.left=lx.toFixed(1)+'px';dHint.style.top=clamp(y+20,16,h-hh-96).toFixed(1)+'px'}   // place à droite du cercle « E » : la carte ne masque pas le cadran
-    else{const sz=hotEls.find(b=>b.dataset.k==='s'),sx=parseFloat(sz.style.left),sy=parseFloat(sz.style.top)+parseFloat(sz.style.height)/2;dHint.style.left=clamp(sx-hw/2,16,w-hw-16).toFixed(1)+'px';dHint.style.top=clamp(sy+18,16,h-hh-96).toFixed(1)+'px'}   // sinon sous le cadran
-    dHint.style.opacity=vis1.toFixed(2);
-  }
+  if(hintState===0&&loaded&&vis1>.95&&!staticMode){hintState=1;hotEls.find(b=>b.dataset.k==='e').classList.add('hint');hintT=setTimeout(hintGone,HINT_MS)}
 }
 
 /* ---------- Boutons du boîtier : chacun fait apparaître une carte de l'atelier (survol ou focus), le clic ouvre sa fiche ----------

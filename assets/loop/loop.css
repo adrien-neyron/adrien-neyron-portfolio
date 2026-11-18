@@ -340,23 +340,12 @@ html.loop-on body.static .hphoto{display:none}
 html.loop-on .hback{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:var(--phk,0);background:var(--hero-top)}
 html.loop-on .htop{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--phk,0);background:linear-gradient(180deg,var(--hero-top) 0,var(--hero-top) 7%,color-mix(in srgb,var(--hero-top) 55%,transparent) 14%,color-mix(in srgb,var(--hero-top) 0%,transparent) 24%)}
 html.loop-on body.static .hback,html.loop-on body.static .htop{display:none}
-/* Indication d'accueil sur le cadran (17/11/2026) : le cercle de la zone « Expérience » (le même que celui du focus clavier, .hot) pulse
-   et une micro-carte invite à explorer. Une fois par visite (sessionStorage), au chargement de la 3D ; disparaît à la première interaction
-   (clic, touche, molette, toucher, survol d'une zone du cadran) ou après 8 s. Carte décorative (aria-hidden, classe decor) : les zones du
-   cadran ont leur propre nom accessible. Tactile : « Touchez pour explorer ». Mouvement réduit : cercle fixe. Position posée par loop.js (placeHot). */
+/* Indication d'accueil sur le cadran (17/11/2026) : le cercle de la zone « E » (le même que celui du focus clavier, .hot) pulse.
+   Une fois par visite (sessionStorage), au chargement de la 3D ; s'arrête à la première interaction (clic, touche, molette, toucher,
+   survol d'une zone du cadran) ou après 8 s. Mouvement réduit : cercle fixe. La micro-carte « Explorer l'instrument » a été retirée le 18/11/2026. */
 html.loop-on .hot.hint{border-color:var(--acc);animation:hotPulse 1.6s ease-out infinite}
 @keyframes hotPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent)}70%{box-shadow:0 0 0 14px color-mix(in srgb,var(--acc) 0%,transparent)}100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 0%,transparent)}}
-html.loop-on .dhint{position:absolute;z-index:5;width:max-content;max-width:min(360px,calc(100vw - 32px));padding:10px 14px 11px;border-radius:12px;background:color-mix(in srgb,var(--card) 94%,transparent);border:1px solid color-mix(in srgb,var(--cta-line) 45%,transparent);pointer-events:none;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .45s ease-out,transform .45s ease-out,visibility .45s}
-html.loop-on .dhint.on{visibility:visible}
-html.loop-on .dhint.on{transform:none}
-html.loop-on .dhint p{margin:0}
-html.loop-on .dhint .dh-k{font:600 11px/1.3 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--cta-line)}
-html.loop-on .dhint .dh-t{max-width:250px;margin-top:6px;font:400 13px/1.45 'JetBrains Mono',ui-monospace,monospace;color:var(--fg)}
-html.loop-on .dhint .dh-a{margin-top:8px;white-space:nowrap;font:500 10.5px/1.3 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-html.loop-on .dh-touch{display:none}
-@media (hover:none),(pointer:coarse){html.loop-on .dh-mouse{display:none}html.loop-on .dh-touch{display:inline}}
-@media (prefers-reduced-motion:reduce){html.loop-on .hot.hint{animation:none}html.loop-on .dhint{transition:none;transform:none}}
-html.loop-on body.static .dhint{display:none}
+@media (prefers-reduced-motion:reduce){html.loop-on .hot.hint{animation:none}}
 html.loop-on #head1 .eyebrow{color:var(--hero-eyebrow)}   /* surtitre sur la photo : orange clair la nuit, rouille brun le jour (≥ 4,5:1 mesuré sur la photo + voile) */
 html.loop-on body.static #head1 .eyebrow{color:var(--acc-text)}
 

@@ -357,3 +357,9 @@ Validée par Adri après l'étape 1, avec une consigne : que les repères s'harm
 - **Technique** : `justify-content` ne s'anime pas. Le pied de page garde donc toujours sa mise en page « copyright à gauche, liens à droite » (`space-between`) et, au premier écran, `translateX(calc(50% - 50cqw))` ramène le groupe de liens au centre (`50%` = sa demi-largeur, `50cqw` = la demi-largeur du pied de page, déclaré `container-type: inline-size`). En quittant le haut, la translation revient à 0 avec une transition.
 - **Limites** : écrans ≥ 900 px seulement (en dessous, les liens restent centrés comme avant) ; pas d'animation sous `prefers-reduced-motion` ; aucun décalage en vue statique.
 - **Mesuré (Chrome, 1440 px)** : centre du groupe à 720 px au premier écran, 1126 px à 200 ms, 1250 px à 900 ms (bord droit à 1420 px, comme avant) ; retour au centre en remontant. À 1024 px, le groupe est centré au premier écran.
+
+### Plus de carte « Explorer l'instrument » au cadran (18/11/2026)
+
+À la demande d'Adri, la micro-carte d'explication de l'étape 1 posée à côté du cadran (`#dhint` : « Explorer l'instrument · Certains éléments du cadran révèlent mon univers · Bougez pour découvrir · Cliquez pour explorer ») est retirée : HTML (`loop.html`), styles `.dhint` / `.dh-*` (`loop.source.css`) et son placement dans `placeHot` (`loop.js`). Elle était décorative (`aria-hidden`), donc rien ne manque au lecteur d'écran : les zones du cadran gardent leur nom accessible.
+
+Reste inchangé : le cercle de la zone « E » pulse une fois par visite au chargement (`.hot.hint`), s'arrête à la première interaction ou après 8 s, et reste fixe sous `prefers-reduced-motion`. Les mentions de `#dhint` plus haut dans ce document décrivent l'état antérieur.
