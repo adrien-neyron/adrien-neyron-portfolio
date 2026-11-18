@@ -368,7 +368,7 @@ function makeDial(){   // écran MIP : boussole numérique ; nuit : fond noir, t
   if(dialOver){const nm=dialOver.n.toUpperCase();let sz=68;x.font='700 '+sz+'px "JetBrains Mono", monospace';   // survol d'un bouton du boîtier : le titre de l'outil remplace le nom
    while(x.measureText(nm).width>760&&sz>34){sz-=2;x.font='700 '+sz+'px "JetBrains Mono", monospace'}
    x.fillStyle=P.val;x.fillText(nm,cx,cy-188)}
-  if(dialOver){const rl='ATELIER';let rs=46;x.font='700 '+rs+'px "JetBrains Mono", monospace';while(x.measureText(rl).width>860&&rs>26){rs-=1;x.font='700 '+rs+'px "JetBrains Mono", monospace'}x.fillStyle=P.N;x.fillText(rl,cx,cy-118)}   // ligne de métier retirée du cadran (17/11/2026) : seul « ATELIER » s'affiche, au survol d'un outil dans « S'équiper »
+  // sous-titre « ATELIER » retiré du cadran (18/11/2026, demande d'Adri) : en « S'équiper », seul le nom de l'outil s'affiche
   // métier sous l'aiguille (17/11/2026, demande d'Adri) : texte fixe, n'utilise plus le champ admin loopDialRole
   // bas du cadran (17/11/2026, demande d'Adri) : texte droit avec l'étape en cours (« 01 · LA TRACE »…), au lieu de la signature en arc ; mis à jour quand l'étape change (update → dialStep)
   {const [n,t]=DIAL_STEPS[dialStep]||DIAL_STEPS[0];let fs=50;const f=()=>x.font='700 '+fs+'px "JetBrains Mono", monospace';f();
@@ -548,7 +548,7 @@ function drawReadout(deg,force){
   if(!force&&key===lastReadKey)return;lastReadKey=key;
   if(dialTool!==toolAim&&dialTex){dialTool=toolAim;dialOver=toolAim>=0&&TOOLS[toolAim]?TOOLS[toolAim]:null;makeDial();dialTex.needsUpdate=true}
   const P=dialPal(),x=readCanvas.getContext('2d');x.clearRect(0,0,512,256);x.textAlign='center';x.textBaseline='alphabetic';
-  if(info&&!aimKey&&toolAim>=0){   // outil sélectionné dans « S'équiper » : plus de descriptif sur l'écran (18/11/2026, demande d'Adri) ; le nom et « ATELIER » restent sur le cadran, la phrase est dans la carte HUD
+  if(info&&!aimKey&&toolAim>=0){   // outil sélectionné dans « S'équiper » : plus de descriptif sur l'écran (18/11/2026, demande d'Adri) ; seul le nom reste sur le cadran, la phrase est dans la carte HUD
   }else if(info){
     let size=60;x.font='700 '+size+'px "JetBrains Mono", monospace';
     while(x.measureText(info.t).width>470&&size>30){size-=3;x.font='700 '+size+'px "JetBrains Mono", monospace'}

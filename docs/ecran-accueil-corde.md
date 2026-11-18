@@ -363,3 +363,7 @@ Validée par Adri après l'étape 1, avec une consigne : que les repères s'harm
 À la demande d'Adri, la micro-carte d'explication de l'étape 1 posée à côté du cadran (`#dhint` : « Explorer l'instrument · Certains éléments du cadran révèlent mon univers · Bougez pour découvrir · Cliquez pour explorer ») est retirée : HTML (`loop.html`), styles `.dhint` / `.dh-*` (`loop.source.css`) et son placement dans `placeHot` (`loop.js`). Elle était décorative (`aria-hidden`), donc rien ne manque au lecteur d'écran : les zones du cadran gardent leur nom accessible.
 
 Reste inchangé : le cercle de la zone « E » pulse une fois par visite au chargement (`.hot.hint`), s'arrête à la première interaction ou après 8 s, et reste fixe sous `prefers-reduced-motion`. Les mentions de `#dhint` plus haut dans ce document décrivent l'état antérieur.
+
+### Plus de sous-titre « ATELIER » au cadran (18/11/2026)
+
+À la demande d'Adri, le sous-titre « ATELIER » peint sous le nom de l'outil sur l'écran de la montre (`makeDial`, branche `dialOver`, `loop.js`) est retiré. En « S'équiper », le cadran n'affiche plus que le nom de l'outil sélectionné (en haut), N E S O, l'aiguille et « 02 S'ÉQUIPER ». Le nom, la phrase et le lien vers la fiche restent dans la carte HUD (`#eqHud`). Rien ne change pour le lecteur d'écran : le cadran est un canvas décoratif.
