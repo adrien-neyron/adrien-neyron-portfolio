@@ -85,6 +85,7 @@ test.describe('Accueil : vue statique', () => {
     const before = (a: string, b: string) => page.evaluate(([x, y]) => !!(document.querySelector(x)!.compareDocumentPosition(document.querySelector(y)!) & Node.DOCUMENT_POSITION_FOLLOWING), [a, b])
     expect(await before('#head2 .sub', '#eqMore')).toBe(true) // « Explorer l'inventaire complet » suit le paragraphe de « S'équiper »…
     expect(await before('#eqMore', '#tools')).toBe(true) // …et précède les cartes, à la tabulation aussi
+    expect(await before('#eqMore', '#eqHud')).toBe(true) // HUD des outils (onglets) après le lien
     expect(await before('#h-map', '#pList')).toBe(true) // le titre de la scène annonce la liste
   })
 

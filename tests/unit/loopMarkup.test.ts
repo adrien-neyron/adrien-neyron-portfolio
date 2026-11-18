@@ -83,6 +83,16 @@ describe('« Explorer l’inventaire complet » (S’équiper)', () => {
   })
 })
 
+describe('HUD connecté de « S’équiper »', () => {
+  it('onglets + panneau ARIA, dans l’ordre : lien inventaire → HUD → liste des outils', () => {
+    expect(markup).toMatch(/id="eqTabs" role="tablist" aria-label="[^"]+"/)
+    expect(markup).toMatch(/id="eqPanel" role="tabpanel"/)
+    expect(markup).toMatch(/<svg class="eq-wire" id="eqWire" aria-hidden="true">/)
+    const a = markup.indexOf('id="eqMore"'), h = markup.indexOf('id="eqHud"'), t = markup.indexOf('id="tools"')
+    expect(a).toBeLessThan(h); expect(h).toBeLessThan(t)
+  })
+})
+
 describe('swap / escHtml', () => {
   it('swap ignore une balise absente', () => {
     expect(swap('<b>a</b>', '<i>', '</i>', 'x')).toBe('<b>a</b>')

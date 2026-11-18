@@ -200,6 +200,48 @@ html.loop-on .hot:focus-visible{border-color:var(--acc);background:color-mix(in 
 html.loop-on .push{position:absolute;z-index:4;width:44px;height:44px;transform:translate(-50%,-50%);border-radius:50%;border:0;background:transparent;padding:0;cursor:pointer;visibility:hidden;opacity:0}
 html.loop-on .push:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
 html.loop-on body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont toutes affichées */
+/* « S'équiper », HUD connecté (18/11/2026, étape 1) : chaque poussoir porte un repère (point cuivré + numéro 01-06) ; un seul outil est sélectionné
+   (01 à l'arrivée sur l'étape), sa carte HUD en verre dépoli est reliée au poussoir actif par un fil cuivré de 1 px qui contourne le boîtier.
+   Sélecteur à 6 crans dans la carte (onglets ARIA, ← → Début Fin). Les poussoirs sont des raccourcis souris / tactile (aria-hidden, hors tabulation) :
+   le clavier et les lecteurs d'écran passent par les onglets. Les 6 cartes d'outils (#tools) ne sont plus affichées hors vue statique. */
+html.loop-on .push .pb-dot{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--cta-line);box-shadow:0 0 0 2px color-mix(in srgb,var(--hud-shadow) 60%,transparent),0 0 8px var(--hud-glow);transition:transform .25s ease-out}
+html.loop-on .push .pb-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--cta-line);opacity:0}
+html.loop-on .push .pb-n{position:absolute;left:calc(50% + var(--ox,0px));top:calc(50% + var(--oy,0px));transform:translate(-50%,-50%);padding:2px 6px;border-radius:999px;border:1px solid color-mix(in srgb,var(--hud-edge) 50%,transparent);background:rgba(var(--hud-bg),.78);color:var(--hud-muted);font:600 10.5px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.06em;transition:color .25s,border-color .25s,background-color .25s;-webkit-backdrop-filter:blur(6px) brightness(.62);backdrop-filter:blur(6px) brightness(.62)}
+html.loop-on .push:hover .pb-dot{transform:scale(1.35)}
+html.loop-on .push.on .pb-dot{transform:scale(1.25)}
+html.loop-on .push.on .pb-dot::after{animation:hudPing 1.6s ease-out infinite}
+html.loop-on .push.on .pb-n,html.loop-on .push:hover .pb-n{color:var(--hud-fg);border-color:var(--hud-edge);background:rgba(var(--hud-bg),.9)}
+html.loop-on .eq-wire{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible;opacity:0}
+html.loop-on .eq-wire path{fill:none;stroke:var(--cta-line);stroke-width:1;stroke-dasharray:1;stroke-dashoffset:0;filter:drop-shadow(0 0 3px var(--hud-glow))}
+html.loop-on .eq-wire.draw path{animation:eqWire .45s ease-out}
+@keyframes eqWire{from{stroke-dashoffset:1}}
+html.loop-on .eq-hud{position:absolute;z-index:4;width:336px;max-width:calc(100% - 32px);padding:10px 14px 14px;color:var(--hud-fg);border-radius:14px;visibility:hidden;opacity:0;
+  background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--hud-fg) 4%,transparent) 0 1px,transparent 1px 3px),rgba(var(--hud-bg),var(--hud-a));
+  border:1px solid var(--hud-edge);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--hud-fg) 10%,transparent),0 24px 48px -12px var(--hud-shadow),0 8px 18px -6px var(--hud-shadow),0 0 22px -6px var(--hud-glow);
+  -webkit-backdrop-filter:blur(24px) saturate(1.3) brightness(.62);backdrop-filter:blur(24px) saturate(1.3) brightness(.62)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){html.loop-on .eq-hud,html.loop-on .push .pb-n{--hud-a:.88;background-color:rgba(var(--hud-bg),.88)}}
+html.loop-on .eq-tabs{display:flex;flex-wrap:wrap;justify-content:space-between;gap:0;margin:0 -6px 8px;padding-bottom:8px;border-bottom:1px solid color-mix(in srgb,var(--hud-edge) 70%,transparent)}
+html.loop-on .eq-tabs [role=tab]{min-width:44px;min-height:44px;padding:0 6px;border:0;border-radius:8px;background:transparent;color:var(--hud-muted);font:600 12px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.06em;cursor:pointer;transition:color .2s,background-color .2s}
+html.loop-on .eq-tabs [role=tab]:hover{color:var(--hud-fg);background:color-mix(in srgb,var(--hud-dot) 12%,transparent)}
+html.loop-on .eq-tabs [role=tab][aria-selected=true]{color:var(--hud-badge)}
+html.loop-on .eq-tabs [role=tab][aria-selected=true]::before{content:"[ "}
+html.loop-on .eq-tabs [role=tab][aria-selected=true]::after{content:" ]"}
+html.loop-on .eq-tabs [role=tab]:focus-visible,html.loop-on .eq-open:focus-visible{outline:2px solid var(--hud-fg);outline-offset:1px}
+html.loop-on .eq-panel{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+html.loop-on .eq-panel:focus-visible{outline:2px solid var(--hud-fg);outline-offset:4px;border-radius:6px}
+html.loop-on .eq-hud .tip-badge{display:inline-flex;align-items:center;gap:7px;margin:0 0 4px;padding:3px 9px 3px 7px;border-radius:999px;border:1px solid var(--hud-edge);background:color-mix(in srgb,var(--hud-dot) 12%,transparent);color:var(--hud-badge);font:600 10.5px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase}
+html.loop-on .eq-hud .tip-dot{position:relative;width:6px;height:6px;border-radius:50%;background:var(--hud-dot);box-shadow:0 0 6px var(--hud-dot)}
+html.loop-on .eq-hud .tip-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--hud-dot);animation:hudPing 1.6s ease-out infinite}
+html.loop-on .eq-hud b{font:500 20px/1.25 var(--serif);color:var(--hud-fg)}
+html.loop-on .eq-hud .eq-d{font-size:13.5px;line-height:1.45;color:var(--hud-muted)}
+html.loop-on .eq-open{display:inline-flex;align-items:center;gap:.5em;min-height:44px;margin:4px 0 -8px -8px;padding:0 10px;border:0;border-radius:999px;background:transparent;color:var(--hud-badge);font:600 12px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background-color .2s}
+html.loop-on .eq-open:hover{background:color-mix(in srgb,var(--hud-dot) 16%,transparent)}
+html.loop-on .eq-open[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){html.loop-on .eq-wire.draw path,html.loop-on .push.on .pb-dot::after,html.loop-on .eq-hud .tip-dot::after{animation:none}html.loop-on .push .pb-dot,html.loop-on .eq-tabs [role=tab]{transition:none}html.loop-on .push:hover .pb-dot,html.loop-on .push.on .pb-dot{transform:none}}
+@media (max-width:899px){   /* mobile : carte compacte en bas, sous la montre (sans badge), le fil part du poussoir actif et contourne le boîtier */
+  html.loop-on .eq-hud{padding:6px 12px 10px}html.loop-on .eq-hud .tip-badge{display:none}html.loop-on .eq-tabs{margin-bottom:4px;padding-bottom:4px}html.loop-on .eq-hud b{font-size:18px}html.loop-on .eq-hud .eq-d{font-size:13px}html.loop-on .eq-open{margin-top:0}}
+html.loop-on body:not(.static) #s1 #tools{display:none}   /* les cartes restent la liste de la vue statique */
+html.loop-on body.static .eq-hud,html.loop-on body.static .eq-wire{display:none}
 html.loop-on #toolLines{display:none}   /* cartes de l'atelier : plus de trait vers la montre */
 /* Infobulle des zones du cadran : HUD flottant en verre sombre (identique jour et nuit : un instrument, pas une carte de page).
    Fond pierre sombre à 60 % (--hud-bg / --hud-a) + flou ; le backdrop-filter assombrit aussi ce qui passe derrière (brightness .62) :

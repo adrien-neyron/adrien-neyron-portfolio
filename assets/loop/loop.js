@@ -2436,7 +2436,8 @@ function draw(p,dt){
   const split=LAY.sx>0&&!staticMode;CS=split?.17:.07;CST=split?.012:STEP;CSP=split?.12:.07;CEND=split?[.26,.29]:[.24,.28];CREV=split?[.20,.225]:[.19,.22];   // grand écran : accueil = texte à gauche, montre à droite
   document.documentElement.classList.toggle('hero-split',split);head1.style.opacity=split?(p<.5?1-sm(.075,.10,p):0):Math.max(1-sm(.04,.08,p),sm(.96,1,p));
   head2.style.opacity=split?trap(p,.11,.14,.17,.20):trap(p,.08,.11,.24,.28);   // le titre « S'équiper » attend que l'accroche ait disparu
-  $('#eqMore').classList.toggle('on',+head2.style.opacity>.5);   // lien « Explorer l'inventaire complet » : dans le bloc du titre, visible (et focalisable) avec lui
+  $('#eqMore').classList.toggle('on',+head2.style.opacity>.5);
+  placeHud(S[0].style.visibility==='visible'?p:-1);   // lien « Explorer l'inventaire complet » : dans le bloc du titre, visible (et focalisable) avec lui
   chips.forEach((c,i)=>{
     const o=hoverCards()
       ?trap(p,CS,CS+.03,CEND[0],CEND[1])*Math.max(cardReveal(i,dt),sm(CREV[0],CREV[1],p))   // souris : la carte du bouton survolé, puis toutes en fin de scène
@@ -2815,18 +2816,60 @@ function placeHot(p){
    Avec une souris, les cartes restent cachées tant qu'aucun bouton n'est survolé, puis toutes s'affichent en fin de scène. Sur écran tactile, sur mobile,
    en vue statique ou sans 3D, toutes les cartes restent visibles comme avant. */
 const hoverCards=()=>THREE_OK&&!staticMode&&!isMobile()&&matchMedia('(hover:hover) and (pointer:fine)').matches;
-let pushHover=-1,cardHover=-1,pushOff=0,REV=TOOLS.map(()=>0);   // pastille « Cliquer sur les boutons de la montre » (#eqTip) retirée le 18/11/2026 à la demande d'Adri
+let cardHover=-1,REV=TOOLS.map(()=>0);   // pastille « Cliquer sur les boutons de la montre » (#eqTip) retirée le 18/11/2026 à la demande d'Adri
+/* « S'équiper », HUD connecté (18/11/2026) : un outil sélectionné (eqSel, 01 à l'arrivée sur l'étape), affiché dans la carte #eqHud et sur l'écran de la montre (toolAim) ;
+   sélection par les poussoirs (souris / tactile), les onglets de la carte (clic, Tab puis ← → Début Fin). Voir docs/ecran-accueil-corde.md. */
+const eqHud=$('#eqHud'),eqTabs=$('#eqTabs'),eqPanel=$('#eqPanel'),eqWire=$('#eqWire'),eqPath=eqWire.querySelector('path'),eqOpen=$('#eqOpen');
+let eqSel=0,eqShown=false;
+const pad2=i=>String(i+1).padStart(2,'0');
+const eqTabEls=TOOLS.map((t,i)=>{
+  const b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.id='eqTab'+i;b.setAttribute('aria-controls','eqPanel');
+  b.innerHTML=`${pad2(i)}<span class="sr-only"> ${esc(t.n)}</span>`;
+  b.addEventListener('click',()=>eqSelect(i));
+  eqTabs.appendChild(b);return b;
+});
+eqTabs.addEventListener('keydown',e=>{
+  const n=TOOLS.length,k={ArrowRight:eqSel+1,ArrowLeft:eqSel-1,Home:0,End:n-1}[e.key];
+  if(k===undefined)return;e.preventDefault();e.stopPropagation();eqSelect((k+n)%n,true);
+});
+eqOpen.addEventListener('click',()=>{haptic(10);tick();openTool(eqSel,eqOpen)});
+function eqSelect(i,focusTab){
+  const ch=i!==eqSel;eqSel=i;
+  eqTabEls.forEach((b,j)=>{b.setAttribute('aria-selected',String(j===i));b.tabIndex=j===i?0:-1});
+  if(focusTab)eqTabEls[i].focus();
+  const t=TOOLS[i],f=TOOL_INFO[i];
+  $('#eqK').textContent='Outil '+pad2(i)+' / '+pad2(TOOLS.length-1);
+  $('#eqT').textContent=t.n;$('#eqD').textContent=t.d;
+  eqPanel.setAttribute('aria-labelledby','eqTab'+i);
+  eqOpen.hidden=!f;$('#eqOpenSr').textContent=' : '+t.n;
+  if(f)eqPanel.removeAttribute('tabindex');else eqPanel.tabIndex=0;   // onglet sans fiche (« À venir ») : le panneau reste atteignable au clavier
+  pushEls.forEach((b,j)=>b.classList.toggle('on',j===i));
+  if(ch){eqWire.classList.remove('draw');void eqWire.getBoundingClientRect();eqWire.classList.add('draw');haptic(8);if(!paused)tickSoft()}
+}
 const pushEls=TOOLS.map((t,i)=>{
   const b=document.createElement('button');b.type='button';b.className='push';
-  b.setAttribute('aria-label',t.n+' : '+t.d+(TOOL_INFO[i]?' (ouvre la fiche)':''));
+  b.tabIndex=-1;b.setAttribute('aria-hidden','true');   // raccourci souris / tactile : au clavier et au lecteur d'écran, ce sont les onglets de la carte
+  b.innerHTML=`<i class="pb-dot"></i><span class="pb-n">${pad2(i)}</span>`;
   S[0].appendChild(b);
-  const on=()=>{clearTimeout(pushOff);if(pushHover!==i)tickSoft();pushHover=i;toolAim=i};
-  b.addEventListener('pointerenter',on);b.addEventListener('focus',on);
-  b.addEventListener('pointerleave',()=>{clearTimeout(pushOff);pushOff=setTimeout(()=>{if(pushHover===i){pushHover=-1;toolAim=-1}},120)});   // le temps d'aller du bouton à la carte
-  b.addEventListener('blur',()=>{if(pushHover===i){pushHover=-1;toolAim=-1}});
-  b.addEventListener('click',()=>{haptic(10);tick();openTool(i,b)});
+  b.addEventListener('click',()=>{haptic(10);tick();eqSelect(i)});
   return b;
 });
+eqSelect(0);
+function placeHud(p){   // visibilité et place de la carte (sans la 3D aussi) ; le fil et les repères sont posés par placePush
+  const vis=staticMode||p<0||p>=.5?0:trap(p,CSP,CSP+.03,CEND[0],CEND[1]),on=vis>=.05;
+  eqHud.style.opacity=vis.toFixed(2);eqHud.style.visibility=on?'visible':'hidden';
+  if(on&&!eqShown&&!eqHud.contains(document.activeElement))eqSelect(0);   // arrivée sur l'étape : 01 par défaut
+  if(!on&&eqHud.contains(document.activeElement))document.activeElement.blur();
+  eqShown=on;toolAim=on&&!staticMode?eqSel:-1;
+  if(!on)return;
+  const sr=S[0].getBoundingClientRect(),hh=eqHud.offsetHeight||180;
+  if(LAY.sx>0){   // grand écran : dans la colonne du texte, sous le lien « Explorer l'inventaire complet »
+    const r=head2.getBoundingClientRect();
+    eqHud.style.left=(r.left-sr.left)+'px';eqHud.style.top=Math.max(80,Math.min(r.bottom-sr.top+28,sr.height-hh-110))+'px';
+  }else{   // écran étroit : en bas, au-dessus du pied de page
+    const w=Math.min(420,sr.width-32);eqHud.style.width=w+'px';eqHud.style.left=((sr.width-w)/2)+'px';eqHud.style.top=Math.max(80,sr.height-hh-(isMobile()?92:118))+'px';
+  }
+}
 chips.forEach((c,i)=>{
   c.li.addEventListener('pointerenter',()=>{clearTimeout(pushOff);cardHover=i});
   c.li.addEventListener('pointerleave',()=>{if(cardHover===i)cardHover=-1});
@@ -2839,15 +2882,26 @@ function cardReveal(i,dt){
 function placePush(p){
   const w=cv.clientWidth,h=cv.clientHeight,vis=loaded&&p>=0&&p<.5?trap(p,CSP,CSP+.03,CEND[0],CEND[1]):0;
   stand.updateMatrixWorld(true);
+  const pts=[];
   pushEls.forEach((b,i)=>{
     b.style.opacity=vis.toFixed(2);b.style.visibility=vis<.05?'hidden':'visible';
     if(vis<.05)return;
     const phi=(90-PUSH[i])*Math.PI/180;
     _pv.set(Math.cos(phi)*PUSH_R,Math.sin(phi)*PUSH_R,-.1);group.localToWorld(_pv);_pv.project(cam);
-    const x=(_pv.x*.5+.5)*w,y=(-_pv.y*.5+.5)*h;
+    const x=(_pv.x*.5+.5)*w,y=(-_pv.y*.5+.5)*h;pts[i]=[x,y];
     b.style.left=x.toFixed(1)+'px';b.style.top=y.toFixed(1)+'px';
-    b.classList.toggle('on',i===pushHover||i===cardHover);
   });
+  eqWire.style.opacity=(vis*(eqShown?1:0)).toFixed(2);
+  if(vis<.05||!eqShown||!pts.length)return;
+  // centre du boîtier à l'écran = milieu des poussoirs ; numéros posés vers l'extérieur ; fil : poussoir actif → anneau autour du boîtier → carte
+  const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length,cy=pts.reduce((a,q)=>a+q[1],0)/pts.length,R=Math.max(...pts.map(q=>Math.hypot(q[0]-cx,q[1]-cy)))+20;
+  pts.forEach((q,i)=>{const d=Math.hypot(q[0]-cx,q[1]-cy)||1;pushEls[i].style.setProperty('--ox',((q[0]-cx)/d*26).toFixed(1)+'px');pushEls[i].style.setProperty('--oy',((q[1]-cy)/d*26).toFixed(1)+'px')});
+  const sr=S[0].getBoundingClientRect(),hr=eqHud.getBoundingClientRect(),P=pts[eqSel];
+  const T=LAY.sx>0?[hr.left-sr.left,hr.top-sr.top+26]:[hr.left-sr.left+hr.width/2,hr.top-sr.top];
+  const a0=Math.atan2(P[1]-cy,P[0]-cx),a1=Math.atan2(T[1]-cy,T[0]-cx);let da=a1-a0;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;
+  const Q=[cx+R*Math.cos(a0),cy+R*Math.sin(a0)],E=[cx+R*Math.cos(a1),cy+R*Math.sin(a1)],f=n=>n.toFixed(1);
+  const inside=Math.hypot(T[0]-cx,T[1]-cy)<R;   // carte posée sur l'anneau (petits écrans) : trait direct
+  eqPath.setAttribute('d',inside?`M${f(P[0])} ${f(P[1])}L${f(T[0])} ${f(T[1])}`:`M${f(P[0])} ${f(P[1])}L${f(Q[0])} ${f(Q[1])}A${f(R)} ${f(R)} 0 0 ${da>0?1:0} ${f(E[0])} ${f(E[1])}L${f(T[0])} ${f(T[1])}`);
 }
 
 /* ---------- Fond vivant : relief topographique, halos de lumière, parallaxe ---------- */

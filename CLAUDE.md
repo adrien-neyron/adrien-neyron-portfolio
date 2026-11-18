@@ -249,6 +249,9 @@ The needle blink + halo of the dive (`transW` in `loop.js`) starts with the zoom
 ### « S'équiper » inventory link (18/11/2026)
 The bottom-centred pill « Voir tout l'équipement → » is gone. `#eqMore` is now inside `#head2`, under the paragraph: ghost link `.eq-cta` styled like the guided-tour `.cta` (↗ `--cta-line`, `--cta-tint` hover), « Explorer l'inventaire complet (n outils) » → `/ai-tools`. `n` = real count of `/ai-tools` (`aiToolCount` from `/api/loop-content`, else `data/ai-tools.ts`), set server-side by `toolCount` in `utils/loopMarkup.ts`; never hardcode it. Details: `docs/ecran-accueil-corde.md`.
 
+### « S'équiper » connected HUD (18/11/2026, step 1 of 2)
+Each watch pusher shows a copper dot + number 01–06 (`.pb-dot`/`.pb-n`); one tool is selected (`eqSel`, 01 on entering the step) and shown in the glass card `#eqHud` (`--hud-*` tokens), linked to the active pusher by a 1 px copper SVG wire `#eqWire` that goes around the case. Selection: click a pusher, click a tab, or ← → Home End in the ARIA tablist `#eqTabs` (pushers are `aria-hidden`/`tabindex=-1` shortcuts). The selected tool also drives the dial screen (`toolAim`). The 6 `#tools` cards are hidden outside static view. Step 2 (watch tilt + pusher press) pending. Details: `docs/ecran-accueil-corde.md`.
+
 ### Watch-button hint (S'équiper) — removed
 The `#eqTip` pill « Cliquer sur les boutons de la montre » was removed on 18/11/2026 at Adri's request (HTML, CSS `.eq-tip`, JS timer `EQ_TIP_MS`/`eqMoved`/`pushUsed`). Don't reintroduce it. Details: `docs/ecran-accueil-corde.md`.
 
