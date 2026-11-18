@@ -3653,12 +3653,13 @@ STOPS.forEach((st,i)=>{
   if(sg.kind==='bivouac')li.classList.add('biv');   // bivouac : petit marqueur, pas une étape
   b.addEventListener('click',()=>{pinnedIdx=pinnedIdx===i?-1:i;gotoStop(i)});
   b.addEventListener('pointerenter',()=>{focusIdx=i});b.addEventListener('pointerleave',()=>{focusIdx=-1});
-  b.addEventListener('focus',()=>{focusIdx=i});b.addEventListener('blur',()=>{if(focusIdx===i)focusIdx=-1});
+  b.addEventListener('focus',()=>{focusIdx=i});b.addEventListener('blur',e=>{if(focusIdx===i&&!(e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest('.pl-dock')))focusIdx=-1});   // vers le lien du bas (« Écrire la suite », « Voir la fiche ») : la sélection reste, sinon le lien changeait avant qu'on puisse le valider (18/11/2026)
   li.style.top=(i/(STOPS.length-1)*100).toFixed(2)+'%';   // les étapes sont réparties sur toute la hauteur de la barre de progression
   li.appendChild(b);stageList.appendChild(li);
   // la liste des étapes (#pList : dates, chiffre, liens vers les fiches) est rendue côté serveur (utils/loopMarkup.ts) : rien à construire ici
 });
 const stageBtns=[...stageList.querySelectorAll('button')],holos=[...tagsEl.querySelectorAll('.holo')];
+$('#plMore').addEventListener('blur',e=>{if(!(e.relatedTarget&&stageList.contains(e.relatedTarget)))focusIdx=-1});   // en quittant le lien du bas (ailleurs que vers la liste des étapes), on revient à l'étape en cours
 /* barre de progression : dans la zone de la carte, la pastille parcourt les points d'étapes posés sur la barre */
 mapRail=p=>{
   const zk=p<.5?sm(.27,.31,p)*(1-sm(.5,.545,p)):0;if(zk<=0)return null;

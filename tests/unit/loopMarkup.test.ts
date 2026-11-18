@@ -175,6 +175,10 @@ describe('navigation latérale de la carte (points des cairns)', () => {
     expect(js).toContain("const yrs=[...new Set((sg.period||'').match(/\\d{4}/g)||[])].join('–')")
     expect(js).toContain('<span class="sr-only">, </span><b class="yr">')
   })
+  it('le lien du bas garde l’étape choisie au clavier le temps qu’on l’atteigne (« Écrire la suite » ne disparaît plus)', () => {
+    expect(js).toContain("e.relatedTarget.closest('.pl-dock')))focusIdx=-1")
+    expect(js).toContain("$('#plMore').addEventListener('blur',e=>{if(!(e.relatedTarget&&stageList.contains(e.relatedTarget)))focusIdx=-1})")
+  })
   it('cible de 44 px partout (téléphone compris) et pas de doublon avec le repère « 03 / 05 » sur la carte', () => {
     expect(css).toContain('@media (max-width:899px){.pl-stages button{margin:-22px 0 0 -22px;height:44px;min-height:44px}}')
     expect(css).toContain('.altrail.map .wcur,.altrail.map .wl{display:none}')

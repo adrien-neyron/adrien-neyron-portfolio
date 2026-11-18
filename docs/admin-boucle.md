@@ -460,3 +460,7 @@ Revue d'Adri : les points de la barre de droite étaient petits et le libellé �
 - **Pas de doublon** : sur la carte, le repère vertical « 03 / 05 L'ASCENSION » et la liste des repères au survol de la barre s'effacent (`.altrail.map`) ; le titre de la scène dit déjà « L'ascension ».
 
 Vérifié (Chrome) : 1440 jour et nuit, 390 ; survol et focus clavier (viseur WAYFINDER autour du point).
+
+## « Écrire la suite » ne disparaît plus au clavier (18/11/2026)
+
+Signalé par Adri. Le lien du bas de la carte (`#plMore`, « Voir la fiche : … » / « Écrire la suite : Contact ») suit l'étape survolée ou qui a le focus dans la barre latérale. Au clavier, en partant de « ∞ Cairn final » (fiche fermée), Tab effaçait la sélection au moment où le focus quittait le bouton : le lien redevenait « Voir la fiche » de l'étape en cours avant d'avoir pu le valider. Maintenant, quand le focus passe d'un bouton d'étape au lien du bas (`.pl-dock`), la sélection reste ; elle n'est effacée que lorsque le focus quitte le lien vers autre chose que la liste des étapes. Vérifié (Chrome 1440) : Tab → « Écrire la suite : Contact », aller-retour Maj+Tab / Tab stable, Entrée → `/contact`.
