@@ -145,9 +145,11 @@ describe('WAYFINDER : règles du code', () => {
     expect(css).toMatch(/@media \(forced-colors: none\) \{\s*html\.wf-on :focus-visible \{ outline-color: transparent !important; \}/)
     expect(src).toContain("root.classList.toggle('wf-on', on)")
   })
-  it('barre de progression permanente : posée à la première touche de navigation, jamais retirée pendant la visite', () => {
-    expect(code).toMatch(/root\.classList\.add\('wf-nav'\)/)
-    expect(code.match(/'wf-nav'/g)).toHaveLength(2)   // ajout + nettoyage à l'arrêt seulement (pas au clic)
+  it('barre de progression permanente : posée au premier déplacement (touche de navigation, molette, doigt, défilement), jamais retirée pendant la visite', () => {
+    expect(code).toMatch(/const markNav = \(\) => \{ if \(!root\.classList\.contains\('wf-nav'\)\) root\.classList\.add\('wf-nav'\) \}/)
+    for (const ev of ["'scroll', onScroll", "'wheel', markNav", "'touchmove', markNav"]) expect(code).toContain(`addEventListener(${ev}`)
+    expect(code).toMatch(/const onScroll = \(\) => \{ markNav\(\)/)
+    expect(code.match(/classList\.remove\([^)]*'wf-nav'/g)).toHaveLength(1)   // retirée seulement à l'arrêt du module (pas au clic)
     const loopCss = readFileSync(new URL('../../assets/loop/loop.source.css', import.meta.url), 'utf8')
     expect(loopCss).toContain('html.wf-nav .altrail .wcur{opacity:1;visibility:visible}')
     expect(loopCss).toContain('html.wf-nav.at-hero .altrail{opacity:1}')

@@ -353,9 +353,7 @@ export function initWayfinder(doc: Document = document): Cleanup {
     if (e.metaKey || e.ctrlKey || e.altKey) return
     if (!isNavKey(e.key)) return
     keyAt = win!.performance.now()
-    // navigation au clavier (Tab, flèches, Espace, Page haut/bas…) : la barre de progression de l'accueil reste affichée pour le
-    // reste de la visite, même après un clic (html.wf-nav, jamais retirée) ; le viseur, lui, garde sa règle (wf-kb)
-    root.classList.add('wf-nav')
+    markNav()   // navigation au clavier : barre de progression permanente ; le viseur, lui, garde sa règle (wf-kb)
     if (e.key === 'Tab') setKb(true)
   }
   const onFocus = (e: FocusEvent) => {
@@ -366,11 +364,14 @@ export function initWayfinder(doc: Document = document): Cleanup {
   const onBlur = () => { win!.setTimeout(() => { if (kb && (!doc.activeElement || doc.activeElement === doc.body)) hide() }, 0) }
   const onPointer = (e: PointerEvent) => { if (e.isTrusted) setKb(false) }
   const onWinBlur = () => hide()
+  // le visiteur se déplace dans la page (clavier, molette, pavé tactile, doigt, barre de défilement) : la barre de progression de
+  // l'accueil reste affichée pour le reste de la visite (html.wf-nav, jamais retirée, même après un clic)
+  const markNav = () => { if (!root.classList.contains('wf-nav')) root.classList.add('wf-nav') }
   const fadeTrail = () => {   // défilement ou redimensionnement : la trace s'efface vite plutôt que de rester décalée de son trajet
     if (!trail.firstChild || trail.classList.contains('gone')) return
     trail.classList.add('gone'); win!.setTimeout(() => { trail.replaceChildren(); trail.classList.remove('gone') }, 200)
   }
-  const onScroll = () => { if (Math.abs(win!.scrollY - trailY) > 24) fadeTrail() }
+  const onScroll = () => { markNav(); if (Math.abs(win!.scrollY - trailY) > 24) fadeTrail() }
 
   doc.addEventListener('keydown', onKey, true)
   doc.addEventListener('focusin', onFocus, true)
@@ -378,6 +379,8 @@ export function initWayfinder(doc: Document = document): Cleanup {
   doc.addEventListener('pointerdown', onPointer, true)
   win.addEventListener('blur', onWinBlur)
   win.addEventListener('scroll', onScroll, { passive: true })
+  win.addEventListener('wheel', markNav, { passive: true })        // molette / pavé tactile, même quand l'accueil retient le défilement (carte des étapes)
+  win.addEventListener('touchmove', markNav, { passive: true })
   win.addEventListener('resize', fadeTrail)
 
   return () => {
@@ -387,6 +390,8 @@ export function initWayfinder(doc: Document = document): Cleanup {
     doc.removeEventListener('pointerdown', onPointer, true)
     win.removeEventListener('blur', onWinBlur)
     win.removeEventListener('scroll', onScroll)
+    win.removeEventListener('wheel', markNav)
+    win.removeEventListener('touchmove', markNav)
     win.removeEventListener('resize', fadeTrail)
     cancelAnimationFrame(raf); win.clearTimeout(moveT); win.clearTimeout(labelT)
     root.classList.remove('wf-kb', 'wf-on', 'wf-probe', 'wf-nav'); wf.remove()
