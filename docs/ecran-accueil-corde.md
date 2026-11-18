@@ -344,3 +344,7 @@ Validée par Adri après l'étape 1, avec une consigne : que les repères s'harm
 ## Plus de descriptif d'outil sur le cadran (18/11/2026)
 
 À la demande d'Adri, l'écran de la montre n'affiche plus la phrase de l'outil sélectionné dans « S'équiper » (branche « outil » de `drawReadout`, `loop.js`, laissée vide). Restent sur le cadran : le nom de l'outil et « ATELIER » (`makeDial`, `dialOver`), et l'étape en bas (« 02 S'ÉQUIPER »). La phrase reste dans la carte HUD `#eqHud`. L'accueil (azimut en direct) ne change pas.
+
+### Plus de numéros autour des poussoirs (18/11/2026)
+
+À la demande d'Adri, les petites plaques 01 à 06 posées autour des poussoirs de la montre (`.pb-n`) sont retirées (HTML injecté par `loop.js`, règles CSS, calcul `--ox` / `--oy` dans `placePush`). Chaque poussoir garde sa LED cuivrée 3D, sa zone cliquable de 44 px (`.push`, `aria-hidden`, hors tabulation) et le fil cuivré vers la carte. Les numéros restent dans les onglets de la carte HUD (`#eqTabs`), qui sont l'accès clavier et lecteur d'écran. Les mentions de `.pb-n` plus haut dans ce document décrivent l'état antérieur.

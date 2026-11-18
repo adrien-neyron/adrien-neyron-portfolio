@@ -2853,7 +2853,7 @@ function eqSelect(i,focusTab,press){
 const pushEls=TOOLS.map((t,i)=>{
   const b=document.createElement('button');b.type='button';b.className='push';
   b.tabIndex=-1;b.setAttribute('aria-hidden','true');   // raccourci souris / tactile : au clavier et au lecteur d'écran, ce sont les onglets de la carte
-  b.innerHTML=`<span class="pb-n">${pad2(i)}</span>`;   // le point lumineux est la LED 3D du poussoir (pushCaps)
+  // pas de numéro autour du poussoir (retiré le 18/11/2026, demande d'Adri) : la LED 3D (pushCaps) et les onglets 01-06 de la carte suffisent
   S[0].appendChild(b);
   b.addEventListener('click',()=>{haptic(10);tick();eqSelect(i,false,true)});
   return b;
@@ -2913,9 +2913,8 @@ function placePush(p){
   });
   eqWire.style.opacity=(vis*(eqShown?1:0)).toFixed(2);
   if(vis<.05||!eqShown||!pts.length)return;
-  // centre du boîtier à l'écran = milieu des poussoirs ; numéros posés vers l'extérieur ; fil : poussoir actif → anneau autour du boîtier → carte
+  // centre du boîtier à l'écran = milieu des poussoirs ; fil : poussoir actif → anneau autour du boîtier → carte
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length,cy=pts.reduce((a,q)=>a+q[1],0)/pts.length,R=Math.max(...pts.map(q=>Math.hypot(q[0]-cx,q[1]-cy)))+20;
-  pts.forEach((q,i)=>{const d=Math.hypot(q[0]-cx,q[1]-cy)||1;pushEls[i].style.setProperty('--ox',((q[0]-cx)/d*26).toFixed(1)+'px');pushEls[i].style.setProperty('--oy',((q[1]-cy)/d*26).toFixed(1)+'px')});
   const sr=S[0].getBoundingClientRect(),hr=eqHud.getBoundingClientRect(),P=pts[eqSel];
   const T=LAY.sx>0?[hr.left-sr.left,hr.top-sr.top+26]:[hr.left-sr.left+hr.width/2,hr.top-sr.top];
   const a0=Math.atan2(P[1]-cy,P[0]-cx),a1=Math.atan2(T[1]-cy,T[0]-cx);let da=a1-a0;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;
