@@ -18,9 +18,12 @@ const ease=t=>t*t*(3-2*t);
 const sm=(a,b,x)=>ease(clamp((x-a)/(b-a)));
 const trap=(p,a,b,c,d)=>p<=a||p>=d?0:p<b?(p-a)/(b-a):p<=c?1:(d-p)/(d-c);
 /* Le défilement brut est étiré : la scène des projets (progression 0,30 à 0,555, pluie sur le dernier cairn comprise) occupe la moitié de la page */
-const WK_R=[0,.17,.68,1],WK_V=[0,.30,.555,1];
-function warp(r){for(let i=0;i<3;i++)if(r<=WK_R[i+1])return lerp(WK_V[i],WK_V[i+1],(r-WK_R[i])/(WK_R[i+1]-WK_R[i]));return 1}
-function unwarp(v){for(let i=0;i<3;i++)if(v<=WK_V[i+1])return lerp(WK_R[i],WK_R[i+1],(v-WK_V[i])/(WK_V[i+1]-WK_V[i]));return 1}
+/* Plongée dans le cadran (progression 0,20 → 0,30, de « S'équiper » à la carte) raccourcie de 35 % le 18/11/2026 (revue d'Adri) : elle prenait
+   ≈ 5,7 % du défilement (≈ une hauteur d'écran), elle en prend ≈ 3,7 % ; le zoom garde ses étapes, il passe plus vite, et la carte commence plus tôt
+   (la place gagnée revient à la carte). Avant : WK_R=[0,.17,.68,1], WK_V=[0,.30,.555,1]. */
+const WK_DIVE=.20,WK_R=[0,.17*WK_DIVE/.30,.17*WK_DIVE/.30+(.17-.17*WK_DIVE/.30)*.65,.68,1],WK_V=[0,WK_DIVE,.30,.555,1],WK_N=WK_R.length-1;
+function warp(r){for(let i=0;i<WK_N;i++)if(r<=WK_R[i+1])return lerp(WK_V[i],WK_V[i+1],(r-WK_R[i])/(WK_R[i+1]-WK_R[i]));return 1}
+function unwarp(v){for(let i=0;i<WK_N;i++)if(v<=WK_V[i+1])return lerp(WK_R[i],WK_R[i+1],(v-WK_V[i])/(WK_V[i+1]-WK_V[i]));return 1}
 const TAU=Math.PI*2;
 const root=document.documentElement;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;

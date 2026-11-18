@@ -267,6 +267,9 @@ During the map, the cairn dots (`.pl-stages`) are the navigation: 14 px dots in 
 ### Stage map finishing touches (18/11/2026)
 The footer copyright is hidden in the animated home (kept in static view). Arrival choreography: the next cairn's stele waits lifted, then lands on its stones with a small bounce once the camera has settled (`bk.air`/`bk.landT`); the stop card composes in cascade (`#stopCard.rev`, title reveal, proof figure, images opening one by one, then links). None under reduced motion. Details: `docs/admin-boucle.md`.
 
+### Shorter dive into the dial (18/11/2026)
+The scroll warp table has an extra point at the zoom start (`WK_DIVE` .20): the dive (p .20 → .30) now takes ≈ 3.7 % of the scroll instead of ≈ 5.7 % (−35 %); the map gets the freed space. `warp`/`unwarp` loop over the whole table (`WK_N`). Details: `docs/ecran-accueil-corde.md`.
+
 ### Footer slide (18/11/2026)
 On the first screen (`html.at-hero`, set by `initHeroClean` while `scrollY < 0.6 × innerHeight`) the footer links (CV, Contact, icons) are centred; leaving the top slides them smoothly to the right (0.8 s). The layout stays `space-between` and `translateX(calc(50% - 50cqw))` (footer = `container-type: inline-size`) centres them, because `justify-content` can't be animated. ≥ 900 px only, no transition under reduced motion, none in static view. Details: `docs/ecran-accueil-corde.md`.
 
