@@ -14,6 +14,19 @@
  *   l'éteint. Mouvement réduit : pas de glissement ni de trace (le viseur saute d'un élément à l'autre).
  * - Calque dans la couche supérieure (API popover) pour passer au-dessus des <dialog> modales ; sans popover : fixe,
  *   z-index maximal.
+ *
+ * Cohérence (revue du 18/11/2026, « discret, fluide, homogène, sans doublon ») :
+ * - Un seul indicateur à la fois : tant que le viseur est affiché (html.wf-on), le contour natif devient transparent
+ *   (il garde sa place, rien ne bouge) ; dès que le viseur n'est pas là (hors écran, contraste élevé, pas de JS),
+ *   le contour natif revient.
+ * - Le nom n'apparaît que s'il n'est écrit nulle part ailleurs : bouton-icône sans texte visible, sans infobulle à lui
+ *   (data-tip), sans description (aria-describedby) ; jamais sur un champ de formulaire (son libellé est visible).
+ * - Pas de viseur sur une cible de focus programmé non interactive (titre après changement de page, main) : elle est
+ *   volontairement sans contour.
+ * - Deux mouvements seulement : glisser vers un voisin proche, « se verrouiller » (équerres qui se resserrent) après
+ *   un saut lointain. La trace ne marque que le passage d'une zone à une autre (en-tête → contenu, contenu → carte…) ;
+ *   jamais entre voisins d'une même zone (items du menu, onglets), ni d'un bout à l'autre de l'écran ; elle repart de zéro à
+ *   l'entrée ou à la sortie d'une fenêtre.
  */
 
 export type Cleanup = () => void
@@ -25,10 +38,13 @@ export const WF_PAD = 6
 /** Longueur maximale du nom affiché. */
 export const WF_NAME_MAX = 40
 /** Durée d'affichage du nom après l'arrivée (ms). */
-export const WF_LABEL_MS = 1800
+export const WF_LABEL_MS = 1400
 /** Durée de vie d'un tronçon de trace (ms) et nombre maximal de tronçons à l'écran. */
-export const WF_TRAIL_MS = 1600
-export const WF_TRAIL_MAX = 4
+export const WF_TRAIL_MS = 1200
+export const WF_TRAIL_MAX = 3
+/** Trace : seulement pour un saut entre WF_TRAIL_MIN px et WF_FAR × la diagonale de la fenêtre. Au-delà : verrouillage, sans glissement. */
+export const WF_TRAIL_MIN = 80
+export const WF_FAR = 0.45
 
 const clean = (s: string | null | undefined) => (s ?? '').replace(/\s+/g, ' ').trim()
 
@@ -92,6 +108,42 @@ export function labelPlace(b: Box, vw: number, labelW = 240): { below: boolean; 
   return { below: b.y < 30, right: b.x + labelW > vw - 8 }
 }
 
+/** Taille des équerres : 10 px, réduite sur un petit élément (30 % du plus petit côté, 6 px au moins). */
+export const cornerSize = (b: Box) => Math.max(6, Math.min(10, Math.min(b.w, b.h) * 0.3))
+
+/** Type de déplacement : « glide » vers un voisin, « jump » (verrouillage) au loin ; trace seulement pour un passage d'une zone à une autre. */
+export function moveKind(a: Pt, b: Pt, vw: number, vh: number, sameZone = false): { kind: 'glide' | 'jump'; trail: boolean } {
+  const d = Math.hypot(b.x - a.x, b.y - a.y), far = WF_FAR * Math.hypot(vw, vh)
+  return { kind: d > far ? 'jump' : 'glide', trail: !sameZone && d >= WF_TRAIL_MIN && d <= far }
+}
+
+/** Zones de la page (repères, groupes qui montrent déjà leur sélection) : la trace ne marque que le passage d'une zone à une autre. */
+export const ZONE_SEL = '[role=tablist],[role=menu],[role=menubar],[role=radiogroup],[role=listbox],[role=toolbar],[role=tree],[role=grid],[role=tabpanel],[role=dialog],[role=region],dialog,header,nav,footer,aside,form,section,main'
+/** Éléments interactifs (le reste, avec tabindex="-1", est une cible de focus programmé). */
+export const INTERACTIVE_SEL = 'a[href],button,input,select,textarea,summary,iframe,[contenteditable=""],[contenteditable=true],[role=button],[role=link],[role=tab],[role=menuitem],[role=option],[role=checkbox],[role=radio],[role=switch],[role=slider],[role=spinbutton],[role=combobox],[role=textbox],[role=treeitem],[role=gridcell]'
+const FIELD_SEL = 'input,select,textarea,[role=textbox],[role=combobox],[role=spinbutton],[role=slider]'
+
+/** Texte réellement visible d'un élément (sans .sr-only ni aria-hidden). */
+export function visibleText(el: Element): string {
+  let out = ''
+  const walk = (n: Node) => {
+    if (n.nodeType === 3) { out += n.textContent ?? ''; return }
+    if (n.nodeType !== 1) return
+    const e = n as Element
+    if (e !== el && (e.getAttribute('aria-hidden') === 'true' || e.classList.contains('sr-only') || e.classList.contains('visually-hidden'))) return
+    n.childNodes.forEach(walk)
+  }
+  walk(el)
+  return clean(out)
+}
+
+/** Le nom doit-il être affiché ? Seulement s'il n'est visible nulle part ailleurs. */
+export function needsLabel(el: Element): boolean {
+  if (el.matches(FIELD_SEL)) return false
+  if (el.hasAttribute('data-tip') || el.hasAttribute('aria-describedby')) return false
+  return visibleText(el).length === 0
+}
+
 /** Touches après lesquelles un déplacement du focus compte comme une navigation clavier. */
 const NAV_KEYS = new Set(['Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', ' ', 'Escape', 'PageUp', 'PageDown'])
 export const isNavKey = (key: string) => NAV_KEYS.has(key)
@@ -117,7 +169,7 @@ export function initWayfinder(doc: Document = document): Cleanup {
   const v = wf.querySelector('.wf-v') as HTMLElement
   const label = wf.querySelector('.wf-l') as HTMLElement
 
-  let kb = false, keyAt = -1e9, el: HTMLElement | null = null, box: Box | null = null, shown = false
+  let kb = false, keyAt = -1e9, el: HTMLElement | null = null, prevEl: Element | null = null, box: Box | null = null, shown = false
   let raf = 0, moveT = 0, labelT = 0, topDlg: Element | null = null, frame = 0
 
   const popUp = () => {   // (re)place le calque en haut de la couche supérieure : au-dessus d'une <dialog> ouverte après lui
@@ -128,22 +180,27 @@ export function initWayfinder(doc: Document = document): Cleanup {
     if (kb === on) return
     kb = on; root.classList.toggle('wf-kb', on)
     if (on) popUp()
-    else { hide(); trail.replaceChildren(); el = null; box = null }
+    else { hide(); trail.replaceChildren(); el = null; prevEl = null; box = null }
+  }
+  const setShown = (on: boolean) => {   // viseur visible ⇔ html.wf-on (le contour natif se retire derrière lui)
+    shown = on; v.classList.toggle('on', on); root.classList.toggle('wf-on', on)
+    if (!on) label.classList.remove('on')
   }
   function hide() {
-    shown = false; v.classList.remove('on'); label.classList.remove('on')
+    setShown(false)
     cancelAnimationFrame(raf); raf = 0
   }
   const place = (b: Box) => {
     v.style.transform = `translate(${b.x.toFixed(1)}px,${b.y.toFixed(1)}px)`
     v.style.width = b.w.toFixed(1) + 'px'; v.style.height = b.h.toFixed(1) + 'px'
+    v.style.setProperty('--wf-k', cornerSize(b).toFixed(1) + 'px')
   }
   const visible = (t: HTMLElement) => {
     const cv = (t as HTMLElement & { checkVisibility?: (o?: object) => boolean }).checkVisibility
     return cv ? cv.call(t, { checkOpacity: true, checkVisibilityCSS: true }) : true
   }
   function drawTrail(a: Pt, b: Pt) {
-    if (reduce.matches || Math.hypot(b.x - a.x, b.y - a.y) < 12) return
+    if (reduce.matches) return
     const g = doc.createElementNS(SVG, 'g'); g.setAttribute('class', 'wf-seg')
     const p = doc.createElementNS(SVG, 'path'); p.setAttribute('d', trailPath(a, b)); p.setAttribute('class', 'wf-p')
     const w = doc.createElementNS(SVG, 'circle'); w.setAttribute('cx', a.x.toFixed(1)); w.setAttribute('cy', a.y.toFixed(1)); w.setAttribute('r', '3.5'); w.setAttribute('class', 'wf-w')
@@ -159,28 +216,34 @@ export function initWayfinder(doc: Document = document): Cleanup {
     const ok = inView(b, win!.innerWidth, win!.innerHeight) && (frame++ % 10 !== 0 || visible(el))
     if (ok) {
       if (!box || Math.abs(b.x - box.x) + Math.abs(b.y - box.y) + Math.abs(b.w - box.w) + Math.abs(b.h - box.h) > 0.5) { box = b; place(b) }
-      if (!shown) { shown = true; v.classList.add('on') }
-    } else if (shown) { shown = false; v.classList.remove('on'); label.classList.remove('on') }
+      if (!shown) setShown(true)
+    } else if (shown) setShown(false)
     raf = win!.requestAnimationFrame(track)
   }
   function moveTo(t: HTMLElement) {
-    if (t === doc.body || t === root) { hide(); return }
+    // cible de focus programmé (titre après changement de page, main…) : pas de viseur, elle garde son propre rendu
+    if (t === doc.body || t === root || (t.tabIndex < 0 && !t.matches(INTERACTIVE_SEL))) { hide(); el = null; prevEl = null; return }
     const dlg = t.closest('dialog')
-    if (dlg && dlg !== topDlg && (dlg as HTMLDialogElement).open) { topDlg = dlg; popUp() } else if (!dlg) topDlg = null
-    const prev = shown && box ? center(box) : null
+    const dlgChange = (dlg && (dlg as HTMLDialogElement).open ? dlg : null) !== topDlg
+    if (dlgChange) { topDlg = dlg && (dlg as HTMLDialogElement).open ? dlg : null; trail.replaceChildren(); if (topDlg) popUp() }   // entrée / sortie de fenêtre : on repart d'une trace vierge
+    const prev = shown && box && !dlgChange ? center(box) : null
     const b = viseurBox(t.getBoundingClientRect())
-    el = t
+    const zone = t.parentElement?.closest(ZONE_SEL) ?? null, sameZone = !!zone && !!prevEl && prevEl.parentElement?.closest(ZONE_SEL) === zone
+    el = t; prevEl = t
     if (!inView(b, win!.innerWidth, win!.innerHeight)) { box = b; if (!raf) raf = win!.requestAnimationFrame(track); return }
-    if (prev) drawTrail(prev, center(b))
-    v.classList.toggle('wf-move', !!prev && !reduce.matches)   // glissement seulement d'un élément visible à un autre
-    win!.clearTimeout(moveT); moveT = win!.setTimeout(() => v.classList.remove('wf-move'), 220)
-    box = b; place(b); shown = true; v.classList.add('on')
-    const name = wfName(t)
+    const mk = prev ? moveKind(prev, center(b), win!.innerWidth, win!.innerHeight, sameZone) : { kind: 'jump' as const, trail: false }
+    if (mk.trail) drawTrail(prev!, center(b))
+    else if (mk.kind === 'jump') trail.replaceChildren()   // saut lointain : pas de longue ligne à travers l'écran
+    const anim = reduce.matches ? '' : mk.kind === 'glide' ? 'wf-move' : 'wf-lock'
+    v.classList.remove('wf-move', 'wf-lock'); if (anim) { void v.offsetWidth; v.classList.add(anim) }
+    win!.clearTimeout(moveT); moveT = win!.setTimeout(() => v.classList.remove('wf-move', 'wf-lock'), 260)
+    box = b; place(b); setShown(true)
+    const name = needsLabel(t) ? wfName(t) : ''
     label.textContent = name
     const lp = labelPlace(b, win!.innerWidth)
     label.classList.toggle('below', lp.below); label.classList.toggle('right', lp.right)
     label.classList.toggle('on', !!name)
-    win!.clearTimeout(labelT); labelT = win!.setTimeout(() => label.classList.remove('on'), WF_LABEL_MS)
+    win!.clearTimeout(labelT); if (name) labelT = win!.setTimeout(() => label.classList.remove('on'), WF_LABEL_MS)
     if (!raf) raf = win!.requestAnimationFrame(track)
   }
 
@@ -212,6 +275,6 @@ export function initWayfinder(doc: Document = document): Cleanup {
     doc.removeEventListener('pointerdown', onPointer, true)
     win.removeEventListener('blur', onWinBlur)
     cancelAnimationFrame(raf); win.clearTimeout(moveT); win.clearTimeout(labelT)
-    root.classList.remove('wf-kb'); wf.remove()
+    root.classList.remove('wf-kb', 'wf-on'); wf.remove()
   }
 }

@@ -1285,22 +1285,27 @@ body.static #head1 .lede{opacity:1}
 /* WAYFINDER (18/11/2026, docs/wayfinder.md) : rôles de l'accueil pour le viseur et la trace (assets/css/wayfinder.css).
    Orange de repérage = --wpt (≥ 3:1 sur --bg, testé) ; nom sur --card en --fg (≥ 4,5:1, testé). */
 html{--wf-c:var(--wpt);--wf-halo:var(--bg);--wf-bg:var(--card);--wf-fg:var(--fg)}
-/* C. Altitude : la barre de droite, indicateur de navigation (loop.js railMark) */
+/* Un seul indicateur (revue du 18/11) : quand le viseur est là (html.wf-on), les repères de focus propres à l'accueil
+   s'effacent aussi (anneau rond des zones du cadran, crochets de l'onglet actif) ; le fond teinté reste comme état. */
+@media (forced-colors:none){
+  html.wf-on .hot:focus-visible{border-color:transparent}
+  html.wf-on .eq-tabs [role=tab][aria-selected=true]:focus-visible::before,html.wf-on .eq-tabs [role=tab][aria-selected=true]:focus-visible::after{visibility:hidden}
+}
+/* C. Altitude : la barre de droite, indicateur de navigation (loop.js railMark). Même plaque, même tempo que le nom du viseur. */
 .altrail{pointer-events:auto}
 .altrail::before{content:"";position:absolute;top:-8px;bottom:-8px;left:-10px;right:-6px}   /* zone de survol un peu plus large que le trait */
-.altrail .wl,.altrail .wcur{position:absolute;right:calc(100% + 12px);transform:translateY(-50%);padding:2px 7px;border-radius:4px;background:color-mix(in srgb,var(--card) 92%,transparent);color:var(--fg);font:500 11px/1.5 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s}
-.altrail .wl b,.altrail .wcur b{font-weight:700;color:var(--acc-text)}
-.altrail .wl em{display:none;font-style:normal;color:var(--muted)}
+.altrail .wl,.altrail .wcur{position:absolute;right:calc(100% + 12px);transform:translateY(-50%);padding:2px 7px;border:1px solid transparent;border-radius:4px;background:color-mix(in srgb,var(--wf-bg) 92%,transparent);color:var(--wf-fg);font:600 11px/1.5 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;opacity:0;visibility:hidden;transition:opacity var(--wf-t,.18s) ease,visibility var(--wf-t,.18s)}
+.altrail .wl b,.altrail .wcur b{font-weight:700}
+.altrail .wl em{display:none;font-style:normal;font-weight:500;color:var(--muted)}
 .altrail .wl.next em{display:inline}
 .altrail .wl.past{color:var(--muted)}
-.altrail .wl.on{border:1px solid var(--wf-c);font-weight:700}
-.altrail .tk{transition:background-color .2s}
+.altrail .wl.on,.altrail .wcur{border-color:var(--wf-c)}   /* le liseré orange = « ici », comme le nom du viseur */
 .altrail:hover .wl{opacity:1;visibility:visible;pointer-events:auto}
 .altrail.hush .wl{opacity:0;visibility:hidden}
-.altrail .wcur{top:calc(100% + 4px);right:auto;left:50%;transform:translateX(-50%);writing-mode:vertical-rl;padding:7px 2px;border:1px solid var(--wf-c)}   /* posé sur le trait, à la verticale : ne recouvre jamais le contenu */
+.altrail .wcur{top:calc(100% + 4px);right:auto;left:50%;transform:translateX(-50%);writing-mode:vertical-rl;padding:7px 2px}   /* posé sur le trait, à la verticale : ne recouvre jamais le contenu */
 .altrail .dot.up .wcur{top:auto;bottom:calc(100% + 4px)}   /* curseur bas sur la barre : le repère passe au-dessus */
 html.wf-kb .altrail .wcur{opacity:1;visibility:visible}
-.altrail:hover .wcur{opacity:0;visibility:hidden}
+.altrail:hover .wcur{opacity:0;visibility:hidden}   /* au survol, la liste des repères le remplace : pas de doublon */
 html.wf-kb.at-hero .altrail{opacity:1}   /* au clavier, le repère reste visible dès le premier écran */
 @media (prefers-reduced-motion:reduce){.altrail .wl,.altrail .wcur{transition:none}}
 @media (hover:none){.altrail{pointer-events:none}}
