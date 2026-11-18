@@ -374,3 +374,7 @@ Reste inchangé : le cercle de la zone « E » pulse une fois par visite au char
 
 - **Technique** : `eqVis(p)` dans `loop.js`, utilisé par `placeHud` et `placePush` : le minimum entre leur propre apparition (`trap(p, CSP, CSP+.03, CEND…)`) et l'opacité de `#head2`, une fois l'apparition terminée (l'arrivée de la carte ne change pas). La carte redevient visible en remontant.
 - **Mesuré (Chrome)** : à 1440 px et à 768 px, opacités de `#head2`, de la carte et du fil identiques à chaque pas de défilement (1 → .9 → .69 → .14 → 0 en grand écran), carte en `visibility:hidden` dès 0.
+
+### « Explorer l'inventaire complet » part avec le paragraphe (18/11/2026)
+
+À la demande d'Adri, le lien `#eqMore` ne disparaît plus d'un coup à mi-fondu : il est dans `#head2` et suit donc déjà son opacité, mais `loop.js` le passait en `visibility:hidden` dès que `#head2` descendait sous 0,5 (pour qu'il ne reste pas atteignable au clavier quand il est presque invisible). Le seuil est maintenant de 5 %, celui des textes de scène (`crisp`) : le lien s'efface dans la continuité du paragraphe et n'est retiré (plus de focus possible) qu'une fois invisible. Mesuré (Chrome 1440) : visible à 0,71, 0,44 et 0,17 d'opacité, retiré à 0, comme le paragraphe.
