@@ -204,13 +204,8 @@ body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont t
    (01 à l'arrivée sur l'étape), sa carte HUD en verre dépoli est reliée au poussoir actif par un fil cuivré de 1 px qui contourne le boîtier.
    Sélecteur à 6 crans dans la carte (onglets ARIA, ← → Début Fin). Les poussoirs sont des raccourcis souris / tactile (aria-hidden, hors tabulation) :
    le clavier et les lecteurs d'écran passent par les onglets. Les 6 cartes d'outils (#tools) ne sont plus affichées hors vue statique. */
-.push .pb-dot{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--cta-line);box-shadow:0 0 0 2px color-mix(in srgb,var(--hud-shadow) 60%,transparent),0 0 8px var(--hud-glow);transition:transform .25s ease-out}
-.push .pb-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--cta-line);opacity:0}
-.push .pb-n{position:absolute;left:calc(50% + var(--ox,0px));top:calc(50% + var(--oy,0px));transform:translate(-50%,-50%);padding:2px 6px;border-radius:999px;border:1px solid color-mix(in srgb,var(--hud-edge) 50%,transparent);background:rgba(var(--hud-bg),.78);color:var(--hud-muted);font:600 10.5px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.06em;transition:color .25s,border-color .25s,background-color .25s;-webkit-backdrop-filter:blur(6px) brightness(.62);backdrop-filter:blur(6px) brightness(.62)}
-.push:hover .pb-dot{transform:scale(1.35)}
-.push.on .pb-dot{transform:scale(1.25)}
-.push.on .pb-dot::after{animation:hudPing 1.6s ease-out infinite}
-.push.on .pb-n,.push:hover .pb-n{color:var(--hud-fg);border-color:var(--hud-edge);background:rgba(var(--hud-bg),.9)}
+.push .pb-n{position:absolute;left:calc(50% + var(--ox,0px));top:calc(50% + var(--oy,0px));transform:translate(-50%,-50%);padding:1px 5px;border-radius:4px;border:1px solid transparent;background:rgba(var(--hud-bg),.72);color:var(--hud-muted);font:600 10px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.08em;transition:color .25s,border-color .25s,background-color .25s;-webkit-backdrop-filter:blur(6px) brightness(.62);backdrop-filter:blur(6px) brightness(.62)}   /* numéro gravé façon lunette (petite plaque rectangulaire, gris du boîtier) ; le point lumineux est la LED 3D du poussoir */
+.push.on .pb-n,.push:hover .pb-n{color:var(--hud-badge);border-color:var(--hud-edge);background:rgba(var(--hud-bg),.9)}
 .eq-wire{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible;opacity:0}
 .eq-wire path{fill:none;stroke:var(--cta-line);stroke-width:1;stroke-dasharray:1;stroke-dashoffset:0;filter:drop-shadow(0 0 3px var(--hud-glow))}
 .eq-wire.draw path{animation:eqWire .45s ease-out}
@@ -237,7 +232,7 @@ body.static .push{display:none}   /* vue statique : pas de 3D, les cartes sont t
 .eq-open{display:inline-flex;align-items:center;gap:.5em;min-height:44px;margin:4px 0 -8px -8px;padding:0 10px;border:0;border-radius:999px;background:transparent;color:var(--hud-badge);font:600 12px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background-color .2s}
 .eq-open:hover{background:color-mix(in srgb,var(--hud-dot) 16%,transparent)}
 .eq-open[hidden]{display:none}
-@media (prefers-reduced-motion:reduce){.eq-wire.draw path,.push.on .pb-dot::after,.eq-hud .tip-dot::after{animation:none}.push .pb-dot,.eq-tabs [role=tab]{transition:none}.push:hover .pb-dot,.push.on .pb-dot{transform:none}}
+@media (prefers-reduced-motion:reduce){.eq-wire.draw path,.eq-hud .tip-dot::after{animation:none}.push .pb-n,.eq-tabs [role=tab]{transition:none}}
 @media (max-width:899px){   /* mobile : carte compacte en bas, sous la montre (sans badge), le fil part du poussoir actif et contourne le boîtier */
   .eq-hud{padding:6px 12px 10px}.eq-hud .tip-badge{display:none}.eq-tabs{margin-bottom:4px;padding-bottom:4px}.eq-hud b{font-size:18px}.eq-hud .eq-d{font-size:13px}.eq-open{margin-top:0}}
 body:not(.static) #s1 #tools{display:none}   /* les cartes restent la liste de la vue statique */

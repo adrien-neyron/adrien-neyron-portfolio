@@ -207,7 +207,8 @@ Object.keys(CV_FACTS).forEach(id=>{const c=CV_FACTS[id],f=PROJECT_INFO[id];if(!f
   if(c.pts){const nz=x=>String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim(),cv=c.pts.map(nz);   // une puce de l'admin déjà dite par le CV (même début, ou contenue dans une puce du CV) n'est pas répétée
     f.pts=[...c.pts,...(f.pts||[]).filter(x=>{const k=nz(x).slice(0,40);return k&&!cv.some(v=>v.includes(k)||v.slice(0,40)===k)})]}
   if(c.stats&&!(f.stats&&f.stats.length))f.stats=c.stats});
-const PUSH=[60,90,120,240,270,300],PUSH_R=2.6;   // boutons du boîtier (degrés depuis midi, sens horaire) ; PUSH[i] affiche TOOLS[i] : 2 h, 3 h, 4 h à droite, 8 h, 9 h, 10 h à gauche
+const PUSH=[60,90,120,240,270,300],PUSH_R=2.6,PUSH_Z=.07,pushCaps=[],PRESS=PUSH.map(()=>0),eqRot={x:0,y:0,vx:0,vy:0};   // PUSH_Z : face avant du poussoir (où est sa LED) ; pushCaps : poussoirs 3D et leur LED ; PRESS : enfoncement (1 au clic, revient à 0) ; eqRot : léger pivot de la montre vers le poussoir actif
+//   // boutons du boîtier (degrés depuis midi, sens horaire) ; PUSH[i] affiche TOOLS[i] : 2 h, 3 h, 4 h à droite, 8 h, 9 h, 10 h à gauche
 const toolsUl=$('#tools'), lines=$('#toolLines');
 const chips=TOOLS.map((t,i)=>{
   const li=document.createElement('li'); li.className='chip';
@@ -635,10 +636,15 @@ function initThree(){
   topoMesh=new THREE.Mesh(new THREE.CircleGeometry(1.98,120),new THREE.MeshBasicMaterial({map:topoTex,transparent:true,opacity:0,depthWrite:false}));topoMesh.position.z=.053;topoMesh.visible=false;group.add(topoMesh);
   const ro=new THREE.Mesh(new THREE.PlaneGeometry(1.6,.8),new THREE.MeshBasicMaterial({map:makeReadout(),transparent:true,depthWrite:false}));ro.position.set(0,toolAim>=0?-.32:.70,.06);group.add(ro);roMesh=ro;
   // six boutons, un par carte de l'atelier : 10 h, 9 h, 8 h à gauche ; 2 h, 3 h, 4 h à droite (voir PUSH)
+  const ledTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(.3,'rgba(255,255,255,.35)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();   // halo des LED des poussoirs (teinté par la couleur du matériau)
   PUSH.forEach(clock=>{
     const phi=(90-clock)*Math.PI/180,ux=Math.cos(phi),uy=Math.sin(phi);
     // collés au boîtier : la bague s'enfonce dans le flanc (rayon 2,48) et le poussoir part de sa surface
     const cap=new THREE.Mesh(new THREE.CylinderGeometry(.17,.17,.2,24),polymer);cap.rotation.z=phi-Math.PI/2;cap.position.set(ux*PUSH_R,uy*PUSH_R,-.1);group.add(cap);
+    // LED cuivrée sur le dessus du poussoir (« S'équiper », 18/11/2026) : c'est le bouton lui-même qui s'allume, pas un repère posé à côté ; elle suit l'enfoncement
+    const led=new THREE.Mesh(new THREE.CircleGeometry(.085,24),new THREE.MeshBasicMaterial({color:0xF08A4B,transparent:true,opacity:0,depthWrite:false,toneMapped:false}));led.position.set(0,.02,.172);cap.add(led);
+    const glow=new THREE.Mesh(new THREE.CircleGeometry(.3,32),new THREE.MeshBasicMaterial({map:ledTex,color:0xF08A4B,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));glow.position.set(0,.02,.176);cap.add(glow);   // halo de la LED (additif)
+    pushCaps.push({cap,led,glow,ux,uy});
     const col=new THREE.Mesh(new THREE.CylinderGeometry(.21,.21,.1,24),orPoli);col.rotation.z=phi-Math.PI/2;col.position.set(ux*2.49,uy*2.49,-.1);group.add(col);
   });
   // pattes (QuickFit), vis or rose, bracelet silicone
@@ -986,13 +992,14 @@ function updateCompass(p,dt){
   mtnMat.uniforms.uT.value=tNow;mtnMat.uniforms.uFade.value=fC;gndMat.opacity=rockMat.opacity=fG*gm;shadowMat.opacity=.85*fG*gm;scenery.visible=sceneryNear.visible=Math.max(fG,fM)>.01;
   const sw=paused?0:1;
   // ressort amorti : le boîtier a du poids, il suit le curseur avec un léger retard et un petit rebond
-  aimK+=((aimKey&&!reduce?1:0)-aimK)*Math.min(1,dt*6);   // pivot doux vers l'utilisateur pendant la visée d'une zone du cadran
+  aimK+=((aimKey&&!reduce?1:0)-aimK)*Math.min(1,dt*6);
+  eqAnim(dt);   // pivot doux vers l'utilisateur pendant la visée d'une zone du cadran
   {const k=38,c=9,mxv=reduce?0:mx,myv=reduce?0:my;tiltS.vx+=((mxv-tiltS.x)*k-tiltS.vx*c)*dt;tiltS.vy+=((myv-tiltS.y)*k-tiltS.vy*c)*dt;tiltS.x+=tiltS.vx*dt;tiltS.y+=tiltS.vy*dt}
   if(sapMat){sapMat.uniforms.uP.value.set(tiltS.x,tiltS.y);sapMat.uniforms.uK.value=theme==='light'?.55:1;sapMat.uniforms.uF.value=p<.5?1-sm(.19,.24,p):sm(.97,1,p)}   // verre saphir : suit la souris ; atténué de jour (cadran clair) ; s'efface avant la plongée dans le verre
   /* Orbite : la caméra semble tourner autour de la montre (souris, défilement, balancement lent) ; face au visiteur pendant le zoom */
   const pc=p>.5?0:p,face=p<.5?1-sm(.22,.30,p):sm(.95,1,p);   // fin de boucle = début (mêmes angles)
-  stand.rotation.x=(-.1+Math.sin(tNow*.8)*.03*sw)*face+tiltS.y*.2*face;
-  stand.rotation.y=(Math.sin(tNow*.55)*.1*sw*(1-sm(.05,.2,pc)*.7)+tiltS.x*.6+Math.sin(pc*11)*.14-.42*hk*(1-.35*aimK)+.42*hk2)*face;   // -.42 rad : vue de trois quarts, cadran tourné vers le texte
+  stand.rotation.x=(-.1+Math.sin(tNow*.8)*.03*sw)*face+tiltS.y*.2*face+eqRot.x;
+  stand.rotation.y=(Math.sin(tNow*.55)*.1*sw*(1-sm(.05,.2,pc)*.7)+tiltS.x*.6+Math.sin(pc*11)*.14-.42*hk*(1-.35*aimK)+.42*hk2)*face+eqRot.y;   // eqRot : pivot vers le poussoir actif de « S'équiper » ; -.42 rad : vue de trois quarts, cadran tourné vers le texte
   {const xs=LAY.sx?LAY.sx/(LAY.W||1)*vis*cam.aspect:0;   // grand écran : les cailloux restent posés au sol, mais ceux qui gêneraient le passage de la montre sont déplacés hors de son couloir (de x = 0 à x = xs)
    nearRocks.forEach((m,k)=>{const b=m.userData.b,a=xs&&m.userData.alt?m.userData.alt(xs):b;m.position.x=a[0];m.position.z=a[1]})}
   if(strapLow){   // le bracelet repose sur le sol : on relève la montre de ce que l'inclinaison ferait entrer sous le sol
@@ -2825,16 +2832,17 @@ const pad2=i=>String(i+1).padStart(2,'0');
 const eqTabEls=TOOLS.map((t,i)=>{
   const b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.id='eqTab'+i;b.setAttribute('aria-controls','eqPanel');
   b.innerHTML=`${pad2(i)}<span class="sr-only"> ${esc(t.n)}</span>`;
-  b.addEventListener('click',()=>eqSelect(i));
+  b.addEventListener('click',()=>eqSelect(i,false,true));
   eqTabs.appendChild(b);return b;
 });
 eqTabs.addEventListener('keydown',e=>{
   const n=TOOLS.length,k={ArrowRight:eqSel+1,ArrowLeft:eqSel-1,Home:0,End:n-1}[e.key];
-  if(k===undefined)return;e.preventDefault();e.stopPropagation();eqSelect((k+n)%n,true);
+  if(k===undefined)return;e.preventDefault();e.stopPropagation();eqSelect((k+n)%n,true,true);
 });
 eqOpen.addEventListener('click',()=>{haptic(10);tick();openTool(eqSel,eqOpen)});
-function eqSelect(i,focusTab){
+function eqSelect(i,focusTab,press){
   const ch=i!==eqSel;eqSel=i;
+  if(press&&!reduce){PRESS[i]=1;const q=pushCaps[i];if(q){eqRot.vy+=q.ux*.9;eqRot.vx-=q.uy*.6}}   // le poussoir s'enfonce ; la pression repousse un instant la montre, qui revient se tourner vers lui
   eqTabEls.forEach((b,j)=>{b.setAttribute('aria-selected',String(j===i));b.tabIndex=j===i?0:-1});
   if(focusTab)eqTabEls[i].focus();
   const t=TOOLS[i],f=TOOL_INFO[i];
@@ -2849,12 +2857,28 @@ function eqSelect(i,focusTab){
 const pushEls=TOOLS.map((t,i)=>{
   const b=document.createElement('button');b.type='button';b.className='push';
   b.tabIndex=-1;b.setAttribute('aria-hidden','true');   // raccourci souris / tactile : au clavier et au lecteur d'écran, ce sont les onglets de la carte
-  b.innerHTML=`<i class="pb-dot"></i><span class="pb-n">${pad2(i)}</span>`;
+  b.innerHTML=`<span class="pb-n">${pad2(i)}</span>`;   // le point lumineux est la LED 3D du poussoir (pushCaps)
   S[0].appendChild(b);
-  b.addEventListener('click',()=>{haptic(10);tick();eqSelect(i)});
+  b.addEventListener('click',()=>{haptic(10);tick();eqSelect(i,false,true)});
   return b;
 });
 eqSelect(0);
+/* Étape 2 du HUD (18/11/2026) : poussoir qui s'enfonce (vite) et remonte sur ressort, LED du poussoir actif qui respire, les autres en veille ;
+   la montre se tourne légèrement vers le poussoir actif (ressort amorti, après le petit recul de la pression). Rien de tout ça hors de l'étape. */
+function eqAnim(dt){
+  const on=eqShown&&!staticMode,a=reduce||paused?0:1;
+  const ty=on?-.07*(pushCaps[eqSel]?pushCaps[eqSel].ux:0):0,tx=on?.05*(pushCaps[eqSel]?pushCaps[eqSel].uy:0):0;
+  if(reduce){eqRot.x=tx;eqRot.y=ty;eqRot.vx=eqRot.vy=0}
+  else{const k=55,c=9,h=Math.min(dt,.05);eqRot.vx+=((tx-eqRot.x)*k-eqRot.vx*c)*h;eqRot.vy+=((ty-eqRot.y)*k-eqRot.vy*c)*h;eqRot.x+=eqRot.vx*h;eqRot.y+=eqRot.vy*h}
+  pushCaps.forEach((q,i)=>{
+    PRESS[i]*=Math.exp(-dt*7);if(PRESS[i]<.002)PRESS[i]=0;
+    const act=on&&i===eqSel,d=.08*Math.min(1,PRESS[i]*1.5)+(act?.015:0),r=PUSH_R-d;   // enfoncé de 0,08 au clic, reste à peine engagé quand il est actif
+    q.cap.position.x=q.ux*r;q.cap.position.y=q.uy*r;
+    const br=act?.8+.2*Math.sin(tNow*3.2)*a:0;   // actif : respire (≈ 2 s)
+    q.led.material.opacity=on?(act?.85+.15*br:.45):0;   // autres : veille ; hors étape : éteintes
+    q.glow.material.opacity=on?(act?.55*br+.35*Math.min(1,PRESS[i]*2):0):0;q.glow.visible=q.glow.material.opacity>.01;
+  });
+}
 function placeHud(p){   // visibilité et place de la carte (sans la 3D aussi) ; le fil et les repères sont posés par placePush
   const vis=staticMode||p<0||p>=.5?0:trap(p,CSP,CSP+.03,CEND[0],CEND[1]),on=vis>=.05;
   eqHud.style.opacity=vis.toFixed(2);eqHud.style.visibility=on?'visible':'hidden';
@@ -2887,7 +2911,7 @@ function placePush(p){
     b.style.opacity=vis.toFixed(2);b.style.visibility=vis<.05?'hidden':'visible';
     if(vis<.05)return;
     const phi=(90-PUSH[i])*Math.PI/180;
-    _pv.set(Math.cos(phi)*PUSH_R,Math.sin(phi)*PUSH_R,-.1);group.localToWorld(_pv);_pv.project(cam);
+    _pv.set(Math.cos(phi)*PUSH_R,Math.sin(phi)*PUSH_R,PUSH_Z);group.localToWorld(_pv);_pv.project(cam);   // sur la LED du poussoir : le fil part du bouton lui-même
     const x=(_pv.x*.5+.5)*w,y=(-_pv.y*.5+.5)*h;pts[i]=[x,y];
     b.style.left=x.toFixed(1)+'px';b.style.top=y.toFixed(1)+'px';
   });
