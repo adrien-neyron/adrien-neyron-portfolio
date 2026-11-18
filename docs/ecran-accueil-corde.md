@@ -382,3 +382,29 @@ Reste inchangé : le cercle de la zone « E » pulse une fois par visite au char
 ### Le cadran annonce l'étape 3 avant la plongée (18/11/2026)
 
 À la demande d'Adri, quand le paragraphe « S'équiper » (`#head2`) a disparu au défilement, le bas du cadran passe de « 02 S'ÉQUIPER » à « 03 L'ASCENSION », avant la plongée dans le cadran vers la carte des étapes. `dialStep` (`loop.js`, à côté du calcul de l'aiguille) vaut 2 dès que `p > CSP + .03` et que l'opacité de `#head2` est sous 5 % ; en remontant, le paragraphe revient et le cadran repasse à « 02 ». Le cadran n'est redessiné qu'au changement d'étape. Vérifié en capture à 1440 px (02 pendant le fondu, 03 juste après) ; à 768 px le paragraphe part plus tard (p ≈ .28), le changement suit.
+
+### Plus d'éléments invisibles dans l'ordre de tabulation (18/11/2026)
+
+À la demande d'Adri (« beaucoup d'éléments invisibles passent en Tab ; supprimer ceux qui ne servent plus »).
+
+**Inventaire** (Chrome 1440, Tab depuis chaque scène, puis relevé de tous les éléments atteignables à 61 positions du défilement, avec leur opacité réelle = produit des opacités des ancêtres) :
+
+| Élément | Constat | Décision |
+|---|---|---|
+| Panneau du projet `#stopCard` (« ✕ », « Fiche … ») | atteignable à 0 % d'opacité sur une large part du défilement (p .20 → .38, .65 → .70) | garde |
+| Liste des étapes `.pl-stages`, lien `#plMore` | atteignables à 0-24 % pendant l'entrée et la sortie de la carte | garde |
+| Scène du randonneur `#s3` (zones `.pside`, boutons `.route`) | 0-29 % à l'entrée et à la sortie | garde (sur la scène entière : une carte est transparente tant que sa zone n'a pas le focus, Tab depuis la zone doit atterrir sur son bouton) |
+| « Recommencer l'aventure » `#restart` | 0-2 % en fin de page | garde |
+| Bivouac `#bivtext`, zones du cadran `.hot`, `#head1`, `#head2`, `#eqHud` | quelques instants pendant leur fondu | garde |
+| « Aller au contenu » | hors écran, affiché au focus | normal (lien d'évitement) |
+| `nuxt-devtools-frame` | outil de développement | absent en production |
+
+**Aucun élément obsolète** : tous servent dans leur scène, rien n'a été supprimé.
+
+**Garde** (`ghostGuard` dans `loop.js`, appelée par `draw`, au plus toutes les 100 ms) : pour chaque bloc de `GHOST_SEL`, si son opacité réelle est sous `GHOST_MIN` (35 %, illisible), le bloc devient `inert` (hors tabulation, hors lecteur d'écran, non cliquable) ; il redevient actif dès qu'il réapparaît. Jamais en vue statique. Testé : chaque sélecteur de `GHOST_SEL` existe dans `loop.html` (ou est créé par `loop.js`). **Un nouveau bloc interactif qui s'efface par l'opacité doit être ajouté à `GHOST_SEL`.**
+
+**Après** : même relevé, plus aucun élément atteignable sous 30 % d'opacité (seuls restent le lien d'évitement et des liens « Fiche … » sortis du panneau défilant, ramenés à l'écran par le focus) ; parcours Tab de chaque scène (S'équiper, L'ascension, Le randonneur, Le bivouac) sans élément invisible, zone → bouton de carte du randonneur conservé.
+
+### Soulignage du menu harmonisé (18/11/2026)
+
+À la demande d'Adri, « Étapes » et « Outils » ont le même soulignage que « Projets ». Accueil (`loop.source.css`) : trait plein `--underline` de 1 px (avant : dégradé effacé aux bouts, 2 px le jour), aligné sur le texte, affiché au survol, **au focus clavier** (manquait) et menu ouvert. Pages (`TrailNav.vue`) : les trois avaient déjà le même style ; ajout du focus clavier et du trait aligné sur le texte à partir de 640 px (il dépassait de 4 px de chaque côté). Mesuré (Chrome) : mêmes hauteur, couleur et alignement pour les trois, jour et nuit.

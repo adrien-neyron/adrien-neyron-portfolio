@@ -635,9 +635,9 @@ header.top>*{pointer-events:auto}
 .burger{min-height:44px;padding:0 16px;gap:0;border:0;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:#E6F4F1;font:500 11.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 0 14px rgba(5,8,17,.95),0 1px 2px rgba(5,8,17,.8);opacity:.92}
 .burger .orb{display:none}
 .burger .lbl{margin-right:-.34em}
-.burger::after{content:"";position:absolute;left:16px;right:16px;bottom:8px;height:1px;background:linear-gradient(90deg,transparent,var(--underline),transparent);transform:scaleX(0);transition:transform .4s}
+.burger::after{content:"";position:absolute;left:16px;right:16px;bottom:8px;height:1px;background:var(--underline);transform:scaleX(0);transition:transform .4s}   /* même soulignage que « Projets » (.top-link) : trait plein, 1 px, sous le texte (18/11/2026) */
 .burger:hover,.burger[aria-expanded="true"]{border:0;box-shadow:none;opacity:1}
-.burger:hover::after,.burger[aria-expanded="true"]::after{transform:scaleX(1)}
+.burger:hover::after,.burger:focus-visible::after,.burger[aria-expanded="true"]::after{transform:scaleX(1)}
 .burger[aria-expanded="true"]{color:#FFE2CC}
 .brand{position:absolute;left:14px;top:calc(env(safe-area-inset-top,0px) + 6px);display:flex;flex-direction:row;align-items:center;gap:10px;min-height:44px;padding:0;color:var(--brand)}
 .brand .logo{width:17px;height:24px;filter:drop-shadow(0 1px 5px rgba(226,109,59,.35))}
@@ -908,7 +908,6 @@ html:not(.loop-live) .preload{opacity:1}
 .pre-needle circle{fill:var(--needle-pivot)}
 
 /* Séparateur « Étapes | Outils » et soulignement des boutons : même ardoise que le logo en mode jour */
-:root[data-theme="light"] .burger::after{height:2px}
 
 /* Pied de page : bande de 62 px (au lieu de 52) ; le copyright et les boutons CV / Contact sont centrés verticalement dans la bande (pas de marge basse asymétrique) */
 footer.perma{min-height:62px;padding-bottom:env(safe-area-inset-bottom,0px)}

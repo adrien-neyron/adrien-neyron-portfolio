@@ -135,8 +135,9 @@ onUnmounted(() => { panel.value = null; });
   content: ""; position: absolute; left: 12px; right: 12px; bottom: 8px; height: 1px; background: var(--color-accent);
   transform: scaleX(0); transition: transform 0.4s;
 }
+@media (min-width: 640px) { .top-btn::after { left: 16px; right: 16px; } }   /* le trait suit la marge du texte (après la règle de base, sinon elle l'écrase) */
 .top-btn:hover, .top-btn[aria-expanded="true"], .top-btn[aria-current] { color: var(--color-accent); }
-.top-btn:hover::after, .top-btn[aria-expanded="true"]::after, .top-btn[aria-current]::after { transform: scaleX(1); }
+.top-btn:hover::after, .top-btn:focus-visible::after, .top-btn[aria-expanded="true"]::after, .top-btn[aria-current]::after { transform: scaleX(1); }   /* même soulignage pour Étapes, Projets, Outils ; aussi au focus clavier, comme sur l'accueil */
 
 /* panneaux déroulants centrés sous l'en-tête, comme sur l'accueil */
 .nav-backdrop { position: fixed; inset: 0; z-index: 55; }
