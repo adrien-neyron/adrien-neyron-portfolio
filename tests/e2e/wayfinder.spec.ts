@@ -30,7 +30,8 @@ test.describe('WAYFINDER', () => {
     let textSeen = false, iconSeen = false
     for (let i = 0; i < 12 && !(textSeen && iconSeen); i++) {
       await page.keyboard.press('Tab')
-      await page.waitForTimeout(300)   // fin du glissement
+      // fin du glissement : on attend que le viseur soit posé (machine chargée = images plus lentes) plutôt qu'un délai fixe
+      await expect.poll(async () => { const t = await state(page); return !t.on || t.gap <= 2 }, { timeout: 3000 }).toBe(true)
       const s = await state(page)
       if (!s.on) continue
       expect(s.kb).toBe(true)

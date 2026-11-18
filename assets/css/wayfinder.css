@@ -61,11 +61,24 @@
 .wf-l.below { bottom: auto; top: calc(100% + 7px); }
 .wf-l.right { left: auto; right: 0; }
 
-/* B. La trace : tronçon pointillé (courbe de niveau) + ancien waypoint, qui s'effacent ; seulement entre deux zones */
-.wf-seg { animation: wfFade 1.2s ease-out forwards; }
-.wf-p { fill: none; stroke: var(--wf-c); stroke-width: 1.25; stroke-linecap: round; stroke-dasharray: 1 6; }
-.wf-w { fill: var(--wf-halo); stroke: var(--wf-c); stroke-width: 1.25; }
-@keyframes wfFade { 0% { opacity: 0; } 15% { opacity: .6; } 100% { opacity: 0; } }
+/* B. La trace : un sentier pointillé de carte, de bord à bord, coupé là où il passerait sur une information (masque posé par le script) */
+html.wf-probe *, html.wf-probe *::before, html.wf-probe *::after { pointer-events: auto !important; }   /* le temps d'un test de rendu (une image) */
+html.wf-probe .wf, html.wf-probe .wf * { pointer-events: none !important; }
+.wf-seg { animation: wfLife 1.8s linear forwards; }
+@keyframes wfLife { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+.wf-in { transition: opacity var(--wf-t) ease; }
+.wf-seg.old .wf-in { opacity: .4; }   /* le tronçon précédent s'estompe : le plus récent reste le plus lisible */
+/* points ronds (« 0 7 » + bouts ronds), chacun cerclé d'un halo couleur du fond : lisible sur la photo, la 3D, le texte clair ou foncé */
+.wf-h, .wf-p { fill: none; stroke-linecap: round; stroke-dasharray: 0 7; }
+.wf-h { stroke: var(--wf-halo); stroke-width: 6; opacity: .85; }
+.wf-p { stroke: var(--wf-c); stroke-width: 3; }
+/* la trace se dessine du départ vers l'arrivée, au rythme du viseur */
+.wf-draw { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: wfDraw .32s var(--wf-ease) forwards; }
+@keyframes wfDraw { to { stroke-dashoffset: 0; } }
+/* waypoint quitté : petit repère cerclé, posé juste à l'extérieur de l'élément */
+.wf-wp circle { fill: var(--wf-halo); stroke: var(--wf-c); stroke-width: 1.5; }
+.wf-wp .wf-wd { fill: var(--wf-c); stroke: none; }
+.wf-trail.gone { opacity: 0; transition: opacity .2s ease; }
 
 @media (prefers-reduced-motion: reduce) {
   .wf-v, .wf-v.wf-move, .wf-l { transition: none; }

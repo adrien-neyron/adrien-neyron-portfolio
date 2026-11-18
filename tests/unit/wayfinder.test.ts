@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { wfName, shorten, viseurBox, inView, trailPath, labelPlace, isNavKey, center, cornerSize, moveKind, visibleText, needsLabel, WF_PAD, WF_NAME_MAX, WF_TRAIL_MIN, type NameSource } from '~/utils/wayfinder'
+import { wfName, shorten, viseurBox, inView, trailPath, trailCtrl, sampleCurve, edgeAnchor, knockRuns, dropShort, labelPlace, isNavKey, center, cornerSize, moveKind, visibleText, needsLabel, WF_PAD, WF_NAME_MAX, WF_TRAIL_MIN, WF_EDGE_GAP, type NameSource } from '~/utils/wayfinder'
 
 /** Faux élément : seulement ce que wfName lit. */
 const el = (attrs: Record<string, string> = {}, text = '', extra: Partial<NameSource> = {}): NameSource => ({
@@ -80,12 +80,50 @@ describe('WAYFINDER : cohérence (un seul indicateur, pas de doublon)', () => {
     expect(cornerSize({ x: 0, y: 0, w: 30, h: 24 })).toBeCloseTo(7.2)
     expect(cornerSize({ x: 0, y: 0, w: 10, h: 10 })).toBe(6)
   })
-  it('deux mouvements : glisser vers un voisin, verrouiller au loin ; trace seulement entre deux zones', () => {
-    const vw = 1440, vh = 900   // diagonale ≈ 1697 px, « loin » au-delà de ≈ 764 px
-    expect(moveKind({ x: 0, y: 0 }, { x: 40, y: 0 }, vw, vh)).toEqual({ kind: 'glide', trail: false })            // voisin immédiat
-    expect(moveKind({ x: 0, y: 0 }, { x: WF_TRAIL_MIN + 100, y: 0 }, vw, vh)).toEqual({ kind: 'glide', trail: true })
-    expect(moveKind({ x: 0, y: 0 }, { x: 300, y: 0 }, vw, vh, true)).toEqual({ kind: 'glide', trail: false })     // même zone (onglets, items de l'en-tête)
-    expect(moveKind({ x: 100, y: 20 }, { x: 900, y: 860 }, vw, vh)).toEqual({ kind: 'jump', trail: false })       // en-tête → pied de page
+  it('deux mouvements : glisser vers un voisin, verrouiller au loin', () => {
+    const vw = 1440, vh = 900   // diagonale ≈ 1697 px : glisse jusqu'à ≈ 764 px
+    expect(moveKind({ x: 0, y: 0 }, { x: 300, y: 0 }, vw, vh).kind).toBe('glide')
+    expect(moveKind({ x: 100, y: 20 }, { x: 900, y: 860 }, vw, vh).kind).toBe('jump')
+  })
+  it('trace : bien visible à chaque déplacement, sauf entre voisins collés, dans un groupe d’onglets, ou d’un bout à l’autre de l’écran', () => {
+    const vw = 1440, vh = 900
+    expect(moveKind({ x: 0, y: 0 }, { x: 300, y: 0 }, vw, vh, false, 200).trail).toBe(true)                 // même zone (en-tête) : tracée aussi
+    expect(moveKind({ x: 100, y: 20 }, { x: 900, y: 860 }, vw, vh, false, 1000).trail).toBe(true)           // saut lointain mais lisible
+    expect(moveKind({ x: 0, y: 0 }, { x: 60, y: 0 }, vw, vh, false, WF_TRAIL_MIN - 1).trail).toBe(false)    // voisins collés
+    expect(moveKind({ x: 0, y: 0 }, { x: 300, y: 0 }, vw, vh, true, 200).trail).toBe(false)                 // onglets : la sélection le montre déjà
+    expect(moveKind({ x: 0, y: 0 }, { x: 1400, y: 890 }, vw, vh, false, 1500).trail).toBe(false)           // diagonale entière
+  })
+})
+
+describe('WAYFINDER : la trace ne coupe aucune information', () => {
+  it('part et arrive sur le bord des éléments, un peu à l’extérieur (jamais dedans)', () => {
+    const box = { x: 100, y: 100, w: 200, h: 40 }
+    expect(edgeAnchor(box, { x: 1000, y: 120 })).toEqual({ x: 300 + WF_EDGE_GAP, y: 120 })   // à droite
+    expect(edgeAnchor(box, { x: 200, y: 900 })).toEqual({ x: 200, y: 140 + WF_EDGE_GAP })     // en dessous
+    const p = edgeAnchor(box, { x: 900, y: 700 })
+    expect(p.x >= box.x + box.w || p.y >= box.y + box.h).toBe(true)
+  })
+  it('deux courbes possibles, de part et d’autre de la ligne droite', () => {
+    const a = { x: 0, y: 0 }, b = { x: 100, y: 0 }
+    expect(trailCtrl(a, b, 1).y).toBe(18)
+    expect(trailCtrl(a, b, -1).y).toBe(-18)
+    expect(trailPath(a, b, -1)).toBe('M0 0Q50 -18 100 0')
+  })
+  it('échantillonne la courbe régulièrement, du départ à l’arrivée', () => {
+    const pts = sampleCurve({ x: 0, y: 0 }, { x: 100, y: 0 })
+    expect(pts[0]).toEqual({ x: 0, y: 0 }); expect(pts.at(-1)).toEqual({ x: 100, y: 0 })
+    expect(pts.length).toBeGreaterThan(20)
+  })
+  it('pas de miettes : un bout de trace de moins de 3 points entre deux coupures est effacé aussi', () => {
+    const F = false, T = true
+    expect(dropShort([F, F, F, T, F, F, T, F, F, F])).toEqual([F, F, F, T, T, T, T, F, F, F])
+    expect(dropShort([F, F])).toEqual([F, F])   // trajet libre et court : gardé
+    expect(dropShort([T, F, T])).toEqual([T, T, T])
+  })
+  it('regroupe les points couverts en tronçons à effacer', () => {
+    const pts = [0, 1, 2, 3, 4, 5].map((x) => ({ x, y: 0 }))
+    expect(knockRuns(pts, [false, true, true, false, true, false]).map((r) => r.map((p) => p.x))).toEqual([[1, 2], [4]])
+    expect(knockRuns(pts, pts.map(() => false))).toEqual([])
   })
 })
 
