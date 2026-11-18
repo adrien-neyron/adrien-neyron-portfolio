@@ -340,3 +340,7 @@ Validée par Adri après l'étape 1, avec une consigne : que les repères s'harm
 - **Le poussoir s'enfonce** : à chaque sélection (poussoir, onglet cliqué, flèches du clavier), `PRESS[i]` = 1 : le poussoir rentre de 0,08 dans le boîtier tout de suite, puis ressort sur ~0,4 s (décroissance exponentielle) ; le poussoir actif reste engagé de 0,015. La remise à 01 à l'arrivée sur l'étape n'enfonce rien.
 - **La montre pivote** : ressort amorti `eqRot` ajouté aux rotations du boîtier (`stand.rotation`) : la pression la repousse un instant, puis elle se tourne légèrement vers le poussoir actif (≈ 4° en lacet, 3° en tangage) ; retour à 0 en quittant l'étape. Calcul dans `eqAnim(dt)` (`loop.js`).
 - Mouvement réduit : la page est en vue statique (pas de 3D) ; par sécurité `eqAnim` ne fait ni recul ni respiration si `reduce`.
+
+## Plus de descriptif d'outil sur le cadran (18/11/2026)
+
+À la demande d'Adri, l'écran de la montre n'affiche plus la phrase de l'outil sélectionné dans « S'équiper » (branche « outil » de `drawReadout`, `loop.js`, laissée vide). Restent sur le cadran : le nom de l'outil et « ATELIER » (`makeDial`, `dialOver`), et l'étape en bas (« 02 S'ÉQUIPER »). La phrase reste dans la carte HUD `#eqHud`. L'accueil (azimut en direct) ne change pas.

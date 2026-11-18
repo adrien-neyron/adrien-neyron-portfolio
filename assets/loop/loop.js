@@ -548,11 +548,7 @@ function drawReadout(deg,force){
   if(!force&&key===lastReadKey)return;lastReadKey=key;
   if(dialTool!==toolAim&&dialTex){dialTool=toolAim;dialOver=toolAim>=0&&TOOLS[toolAim]?TOOLS[toolAim]:null;makeDial();dialTex.needsUpdate=true}
   const P=dialPal(),x=readCanvas.getContext('2d');x.clearRect(0,0,512,256);x.textAlign='center';x.textBaseline='alphabetic';
-  if(info&&!aimKey&&toolAim>=0){   // outil survolé : la description en grand (le titre est sur le cadran)
-    x.fillStyle=P.rDesc;x.font='700 40px "JetBrains Mono", monospace';
-    const words=info.d.split(' ');const L=[];let line='';
-    words.forEach(w=>{const t=line?line+' '+w:w;if(x.measureText(t).width>480&&line){L.push(line);line=w}else line=t});L.push(line);
-    const lh=48,y0=128-(L.length-1)*lh/2+13;L.forEach((l,i)=>x.fillText(l,256,y0+i*lh));
+  if(info&&!aimKey&&toolAim>=0){   // outil sélectionné dans « S'équiper » : plus de descriptif sur l'écran (18/11/2026, demande d'Adri) ; le nom et « ATELIER » restent sur le cadran, la phrase est dans la carte HUD
   }else if(info){
     let size=60;x.font='700 '+size+'px "JetBrains Mono", monospace';
     while(x.measureText(info.t).width>470&&size>30){size-=3;x.font='700 '+size+'px "JetBrains Mono", monospace'}
