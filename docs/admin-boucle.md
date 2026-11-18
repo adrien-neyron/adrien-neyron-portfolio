@@ -412,3 +412,15 @@ Vérifié (Chrome, captures) : 1440 jour et nuit, 390 jour. Non vérifié : vrai
 - Aucune donnée n'a été écrite en base : tant que les champs n'ont pas été enregistrés dans /admin, c'est le texte par défaut qui s'affiche.
 
 Vérifié (Chrome) : 1440 jour et nuit, 390, vue statique ; typographie mesurée identique à « S'équiper ». À noter : le cairn suivant, au loin, peut passer derrière le titre (le halo garde le texte lisible).
+
+## Étape 3 : la fiche d'étape en trois niveaux (18/11/2026)
+
+Revue d'Adri : « la fiche est un mur de texte ». Dans une scène claire, la carte bleu nuit cassait la palette, et les longs paragraphes obligeaient à défiler dans la fiche alors que tout le reste avance d'un cran par étape.
+
+- **Trois niveaux** (`#stopCard`, `fillCard` dans `loop.js`) : 1. période et **titre** ; 2. **chiffre-preuve en grand** (`#scF` : le chiffre de l'étape `figure` en JetBrains Mono 700, 34-44 px, cuivre `--exp-cta`, puis son libellé `figureLabel`, ex. « +500 personnes formées ») ; 3. les **images**. Le récit (`summary`, paragraphes conservés) passe derrière **« Lire le parcours »** (`<details>`/`<summary>` natif : clavier, Entrée / Espace, lecteur d'écran, sans JavaScript ; « Masquer le parcours » une fois ouvert ; refermé à chaque changement d'étape), puis les liens « Fiche … ».
+- **Jamais de chiffre inventé** : sans `figure` saisie dans /admin › Étapes, le niveau 2 n'apparaît pas. L'ancienne liste « Chiffre clé » (`#scP`) est retirée (le chiffre est maintenant au niveau 2).
+- **Chiffres de mesure** : la serif italique a des chiffres elzéviriens (le « 3 » descend sous la ligne), d'où la mono, comme les km et le D+.
+- **Jour : papier clair** au lieu du verre bleu nuit : `--exp-*` redéfinis sous `:root[data-theme="light"]` (fond `rgba(252,247,238,.94)`, encre `#12222B` 15:1, gris `#435862` 6,9:1, cuivre `#8F2F1B` 7,5:1, bouton blanc sur `#B23F27` 5,9:1 ; testés dans `loopTokens.test.ts`). Nuit : verre sombre inchangé.
+- **Téléphone** : chiffre et libellé sur une ligne.
+
+Mesuré (Chrome, fiche fermée, sans défilement interne) : 1440 px ≈ 405-455 px de haut ; 390 px ≈ 308-387 px (sous la limite de 46 svh). Récit ouvert : la fiche défile, comme avant.

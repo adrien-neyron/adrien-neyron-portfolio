@@ -82,6 +82,15 @@ describe('jetons jour / nuit', () => {
     expect(css).toMatch(/html\{--wf-c:var\(--wpt\);--wf-halo:var\(--bg\);--wf-bg:var\(--card\);--wf-fg:var\(--fg\)\}/)
   })
 
+  it('fiche d’étape de jour (papier) : texte ≥ 4,5:1, bouton ≥ 4,5:1', () => {
+    const blk = /:root\[data-theme="light"\]\{(--exp-glass[^}]+)\}/.exec(css)?.[1] ?? ''
+    const t: Record<string, string> = Object.fromEntries([...blk.matchAll(/(--exp-[\w-]+):([^;]+)/g)].map((m) => [m[1], m[2].trim()]))
+    expect(t['--exp-glass']).toMatch(/rgba\(252,247,238,\.9\d\)/)
+    const paper = '#FCF7EE'
+    for (const k of ['--exp-ink', '--exp-muted', '--exp-meta', '--exp-cta']) expect(ratio(t[k], paper), k).toBeGreaterThanOrEqual(4.5)
+    expect(ratio(t['--exp-cta-ink'], t['--exp-cta'])).toBeGreaterThanOrEqual(4.5)
+  })
+
   it('anneau de focus visible (≥ 3:1) sur le fond, jour et nuit', () => {
     for (const theme of [light, dark]) expect(ratio(theme['--focus'], theme['--bg'])).toBeGreaterThanOrEqual(3)
   })

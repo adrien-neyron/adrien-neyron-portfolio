@@ -139,6 +139,23 @@ describe('« Aller au contenu » ≠ logo', () => {
   })
 })
 
+describe('fiche d’étape en trois niveaux (titre, chiffre-preuve, images ; récit derrière « Lire le parcours »)', () => {
+  const i = markup.indexOf('id="stopCard"'), card = markup.slice(i, markup.indexOf('</aside>', i))
+  it('ordre : titre → chiffre-preuve → images → « Lire le parcours » (récit dedans) → liens', () => {
+    const at = (s: string) => card.indexOf(s)
+    expect(at('id="scT"')).toBeLessThan(at('id="scF"'))
+    expect(at('id="scF"')).toBeLessThan(at('id="scI"'))
+    expect(at('id="scI"')).toBeLessThan(at('id="scD"'))
+    expect(at('id="scD"')).toBeLessThan(at('id="scActs"'))
+    expect(card).toMatch(/<details class="sc-read" id="scD" hidden><summary><span class="o">Lire le parcours<\/span><span class="c">Masquer le parcours<\/span><\/summary><div class="sc-l" id="scL"><\/div><\/details>/)
+  })
+  it('le chiffre n’est affiché que s’il est saisi, jamais inventé ; récit refermé à chaque étape', () => {
+    const js = readFileSync(new URL('../../assets/loop/loop.js', import.meta.url), 'utf8')
+    expect(js).toContain("f.hidden=!sg.figure")
+    expect(js).toContain("d.hidden=!l.children.length;d.open=false")
+  })
+})
+
 describe('swap / escHtml', () => {
   it('swap ignore une balise absente', () => {
     expect(swap('<b>a</b>', '<i>', '</i>', 'x')).toBe('<b>a</b>')

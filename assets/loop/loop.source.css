@@ -1103,6 +1103,29 @@ body.static .stop-card{display:none}
   #stopCard .sc-pts{display:none}
 }
 
+/* Fiche d'étape en trois niveaux (18/11/2026, docs/admin-boucle.md) : titre, chiffre-preuve en grand, images ; le récit derrière « Lire le parcours ».
+   Jour : papier clair au lieu du verre bleu nuit (la carte ne casse plus la palette d'une scène claire). Contrastes : encre 15:1, gris 6,9:1, cuivre 7,5:1, bouton 5,9:1. */
+:root[data-theme="light"]{--exp-glass:rgba(252,247,238,.94);--exp-edge:rgba(178,63,39,.32);--exp-ink:#12222B;--exp-muted:#435862;--exp-meta:#8F2F1B;--exp-cta:#B23F27;--exp-cta-hover:#8F2F1B;--exp-cta-ink:#FFFFFF;--exp-chip:rgba(178,63,39,.4)}
+:root[data-theme="light"] #stopCard{box-shadow:0 18px 44px rgba(60,40,20,.16),0 2px 8px rgba(60,40,20,.1);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+:root[data-theme="light"] #stopCard .sc-code{border-color:rgba(18,34,43,.45)}
+:root[data-theme="light"] #stopCard .sc-code:hover,:root[data-theme="light"] #stopCard .sc-code:focus-visible,:root[data-theme="light"] #stopCard .sc-x:hover,:root[data-theme="light"] #stopCard .sc-x:focus-visible{background:rgba(18,34,43,.07)}
+:root[data-theme="light"] #stopCard :focus-visible{outline-color:#12222B}
+#stopCard .sc-t{margin-bottom:10px}
+#stopCard .sc-fig{display:flex;flex-direction:column;gap:2px;margin:0 0 16px}
+#stopCard .sc-fig .v{font:700 clamp(34px,3vw,44px)/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:-.02em;color:var(--exp-cta);font-variant-numeric:tabular-nums}   /* chiffre de mesure (comme km et D+) : chiffres alignés, pas les chiffres elzéviriens de la serif */
+#stopCard .sc-fig .u{font:500 13px/1.4 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;color:var(--exp-ink)}
+#stopCard .sc-read{margin:0 0 14px}
+#stopCard .sc-read>summary{display:inline-flex;align-items:center;gap:8px;min-height:44px;list-style:none;cursor:pointer;font:600 13px/1.2 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--exp-ink)}
+#stopCard .sc-read>summary::-webkit-details-marker{display:none}
+#stopCard .sc-read>summary::before{content:"";width:7px;height:7px;border-right:1.5px solid var(--exp-cta);border-bottom:1.5px solid var(--exp-cta);transform:rotate(-45deg);transition:transform var(--wf-t,.18s) ease}
+#stopCard .sc-read[open]>summary::before{transform:rotate(45deg)}
+#stopCard .sc-read>summary .c,#stopCard .sc-read[open]>summary .o{display:none}
+#stopCard .sc-read[open]>summary .c{display:inline}
+#stopCard .sc-read>summary:hover{text-decoration:underline;text-underline-offset:4px}
+#stopCard .sc-read .sc-l{margin:6px 0 0}
+@media (prefers-reduced-motion:reduce){#stopCard .sc-read>summary::before{transition:none}}
+@media (max-width:899px){#stopCard .sc-fig{flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin-bottom:10px}#stopCard .sc-fig .v{font-size:28px}}   /* téléphone : chiffre et libellé sur une ligne, la fiche tient sans défiler */
+
 /* ===== Trace en 4 étapes (docs/admin-boucle.md, « Étapes ») ===== */
 /* Lien « Projets » de l'en-tête : visible dès le premier écran, avant même le démarrage de la 3D (seul élément de l'en-tête affiché sans html.loop-live) */
 .top-link{position:relative;display:inline-flex;align-items:center;min-height:44px;padding:0 12px;color:var(--fg);text-decoration:none;font:500 11.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 0 12px color-mix(in srgb,var(--hdr-halo,var(--bg)) 92%,transparent),0 0 3px color-mix(in srgb,var(--hdr-halo,var(--bg)) 85%,transparent)}

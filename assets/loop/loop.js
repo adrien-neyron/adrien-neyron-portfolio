@@ -3686,8 +3686,10 @@ function fillCard(pr){const sg=pr.sg,t=pr.t||0;
   $('#scM').textContent=[sg.label,sg.period].filter(Boolean).join(' · ');
   $('#scT').textContent=sg.title;
   $('#scSr').textContent=[(sg.steleTitle&&sg.steleTitle!==sg.title?'Gravé sur la stèle : '+sg.steleTitle:''),(sg.stelePeriod&&sg.stelePeriod!==sg.period?'Période gravée : '+sg.stelePeriod:''),sg.place,'Altitude '+fmtN(altOf(sg,t))+' mètres',stageKmSpeech(sg)].filter(Boolean).join('. ')+'.';   // ce que seule la stèle (décorative) montre
-  const l=$('#scL');l.innerHTML=summaryHtml(sg.summary,esc);l.hidden=!l.children.length;   // paragraphes et retours à la ligne saisis dans l'admin conservés
-  const pl=$('#scP');pl.setAttribute('aria-label','Chiffre clé');pl.innerHTML=sg.figure?`<li><strong>${esc(sg.figure)}</strong>${sg.figureLabel?' '+esc(sg.figureLabel):''}</li>`:'';pl.hidden=!pl.children.length;   // sans chiffre : rien (jamais de valeur inventée)
+  /* Trois niveaux (18/11/2026, demande d'Adri : « la fiche est un mur de texte ») : le titre, le chiffre-preuve en grand, les images ;
+     le récit de l'étape passe derrière « Lire le parcours » (details/summary natif, refermé à chaque étape), puis les liens. */
+  const f=$('#scF');$('#scFv').textContent=sg.figure||'';$('#scFu').textContent=sg.figure?(sg.figureLabel||''):'';f.hidden=!sg.figure;   // sans chiffre saisi : rien (jamais de valeur inventée)
+  const l=$('#scL'),d=$('#scD');l.innerHTML=summaryHtml(sg.summary,esc);d.hidden=!l.children.length;d.open=false;   // paragraphes et retours à la ligne saisis dans l'admin conservés
   const kl=$('#scK');kl.innerHTML='';kl.hidden=true;
   const L=sg.kind==='final'?[{href:'/contact',title:sg.cta||'Écrire la suite ensemble',txt:sg.cta||'Écrire la suite ensemble'}]:sg.links.map((x,k)=>({href:x.href,title:x.title,txt:k===0&&sg.cta?sg.cta:'Fiche '+x.title})),acts=$('#scActs');   // texte du lien principal : saisi dans l'admin (sg.cta), sinon « Fiche … »
   acts.innerHTML=L.map((x,k)=>`<a class="${k?'sc-code':'sc-cta'}" href="${esc(x.href)}">${esc(x.txt)}<span aria-hidden="true"> →</span></a>`).join('');   // vrais liens : ils marchent aussi sans 3D (même liste dans #pList)
