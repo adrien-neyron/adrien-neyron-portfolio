@@ -385,3 +385,20 @@ Les points de la frise (`.pl-stages .dot`, à droite de la scène « L'ascension
 
 ## Frise des étapes : infobulle lisible (04/11/2026)
 Au survol ou au focus clavier d'un point de la frise (`.pl-stages`, à droite de la scène « L'ascension »), une infobulle `.stip` affiche « Étape 03 · Préparer la voie ». Problèmes corrigés : fond transparent, donc le libellé s'écrivait sur le texte de la fiche d'étape ouverte (la frise est en `z-index: 14`, la fiche `.stop-card` en `6`) ; texte forcé en blanc `#FFFFFF`, invisible en thème clair. Désormais : pastille **opaque** (`background: var(--bg)`), contour 1 px `var(--acc-text)`, texte `var(--fg)`, numéro `var(--acc-text)`, ombre portée. Les couleurs suivent les jetons du thème, donc contrastes AA en jour comme en nuit (WCAG 1.4.3 et 1.4.11). Le style est à la fin de `loop.source.css` ; `loop.css` est régénéré par `node scripts/scope-loop-css.cjs assets/loop/loop.source.css assets/loop/loop.css` (un test vérifie qu'ils restent synchronisés).
+
+## Étape 3 : le cairn, seul point focal (18/11/2026)
+
+Revue d'Adri : le cairn était petit, crème sur crème, avec peu d'ombre et une gravure floue (« Moodle · Google Workspace · Suite Office » illisible) ; les courbes de niveau, orange vif à pleine opacité, criaient plus fort que lui et traversaient le surtitre et le menu.
+
+**Cairn** (`loop.js`)
+- **Plus grand** : à l'arrêt, la caméra est 1,2 × plus proche, au même angle (`STOP_ZOOM`, `STOP_D`, `STOP_H`) ; avec la perspective, la stèle paraît ≈ 1,5 × plus grande (mesuré à 1440 px : ≈ 570 px de large au lieu de ≈ 350). Essayé à 1,5 × de caméra : elle sortait de l'écran. Rien n'est déplacé dans la scène (pas de collision avec la trace ni avec le Départ).
+- **Gravure plus nette** : canvas de la pierre gravée à 2,5 × la mise en page 512 × 384 sur un appareil complet (2 × allégé, 1,5 × économe, `QC.tier`), filtrage anisotrope au maximum de la carte graphique (16 au plus).
+- **Relief et lumière rasante** : la gravure sert aussi de `bumpMap` (l'encre est en creux, `bumpScale` .22 : plus haut, le grain de la pierre faisait « crépi ») ; une lumière directionnelle rasante (`rake`, ≈ 14°, de la gauche de la stèle affichée, 1,2 le jour / .85 la nuit) suit l'étape dans `rig`.
+- **Ombre portée** plus dense (.85 au lieu de .55) et plus large (42 × 34), décalée de 6 unités à l'opposé de la lumière.
+
+**Courbes de niveau** (shader du sol, `parcTheme`, et verre du cadran `makeTopoTex` pour que la plongée reste continue)
+- **Ton sur ton** : jour brun-gris du papier (`cLo` .50/.43/.36 → `cHi` .42/.36/.30), nuit bleu ardoise (`.30/.37/.48` → `.40/.48/.60`) ; plus d'orange vif. Le relief de l'étape affichée se réchauffe à peine (`cF` à 50 %, ×1,35 au lieu de ×2,4).
+- **Opacité** 30 % (maîtresse 40 %) au lieu de 55 / 85 % ; **plus fines** (≈ 0,75 px) ; **courbe maîtresse** plus épaisse (≈ 1,8 px) toutes les cinq ; la maîtresse garde la même teinte le jour (elle se distingue par l'épaisseur, `uMk`). Quadrillage 7 % au lieu de 13 %.
+- **Estompées sous le texte** : masque calculé à l'écran à chaque image (`textMask`) : rectangle des lignes réelles du surtitre, du titre et des km de la scène (`#s2 .head`, étendue des lignes de texte, + 10 px), et bande du menu (`header.top`) ; les courbes y tombent à 10 % avec un fondu de 48 px.
+
+Vérifié (Chrome, captures) : 1440 jour et nuit, 390 jour. Non vérifié : vrai téléphone, GPU modeste (coût du canvas 2,5 ×), Lighthouse.

@@ -588,7 +588,7 @@ function makeTopoTex(){   // relief gravé dans le verre : EXACTEMENT ce que ver
   for(let j=0;j<n;j++)for(let i=0;i<n;i++){const u=i*cg-half,v=half-j*cg,h=I.heightAt(I.x0+rx*u+fx*v,I.z0+rz*u+fz*v);f[j*n+i]=h;if(h<lo)lo=h;if(h>hi)hi=h}
   for(let k=Math.ceil(lo/I.cstep);k<=Math.floor(hi/I.cstep);k++){
     const L=k*I.cstep,master=k%5===0,t=Math.max(0,Math.min(1,(L-I.hmin)/(I.hmax-I.hmin))),m=mOf(L);
-    x.strokeStyle=DY?`rgba(${Math.round(168-36*t)},${Math.round(64-18*t)},${Math.round(27-6*t)},${master?.9:.55})`:`rgba(${Math.round(199+56*t)},${Math.round(112+66*t)},${Math.round(46+61*t)},${master?.95:.62})`;x.lineWidth=master?2.4:1.3;x.beginPath();
+    x.strokeStyle=DY?`rgba(${Math.round(128-21*t)},${Math.round(110-18*t)},${Math.round(92-15*t)},${master?.40:.30})`:`rgba(${Math.round(77+25*t)},${Math.round(94+28*t)},${Math.round(122+31*t)},${master?.45:.32})`;x.lineWidth=master?2.6:1.;x.beginPath();   // mêmes teintes ton sur ton, opacités et épaisseurs que la carte (18/11/2026) : la plongée reste continue
     marchLevel(f,n,n,cg,L,(x1,y1,x2,y2)=>{const a=P(x1-half,half-y1,m),b=P(x2-half,half-y2,m);x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1])});x.stroke();
   }
   const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;
@@ -3265,7 +3265,7 @@ function fatLine(geo,o){const m=new THREE.ShaderMaterial({transparent:true,depth
       uLen:{value:geo.userData.len},uH0:{value:0},uH1:{value:0},uV0:{value:0},uV1:{value:1},uVF:{value:.004},uGlow:{value:o.glow?1:0},uTime:{value:0},uBoost:{value:o.boost||1}}});
   m.userData.cw=o.w;m.userData.o=o;FATS.push(m);const mesh=new THREE.Mesh(geo,m);mesh.frustumCulled=false;mesh.renderOrder=o.order||2;scene.add(mesh);return mesh}
 const CLEAR=8.6,GAP=.28,SMALL_K=.62,NEEDLE_OUT=[.004,.03],NEEDLE_SUB=.8;   // NEEDLE_OUT : entre ces abscisses le triangle de l'aiguille passe de l'opacité pleine à NEEDLE_SUB, puis reste, discret, en tête du faisceau jusqu'au dernier cairn   // SMALL_K : échelle du marqueur de bivouac (pierre gravée et cairn)   // hauteur de la pierre gravée au-dessus du wire ; jeu entre les pierres où passe le wire (≈ 3 px à l'arrêt)
-const blocks=[];   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
+const blocks=[];let rake=null;   // {holder,mesh,shadow,pole,proj,base,lift,stopIdx,tex,canvas}
 /* année gravée : période du projet, sinon un statut daté de la fiche (« 2026 – en cours »), sinon rien */
 function yearOf(pr){const f=PROJECT_INFO[pr.id],st=f&&f.st||'';return pr.when||(/\d{4}/.test(st)?st:'')}
 function paintBlock(b){
@@ -3335,28 +3335,35 @@ function initScene(){
   scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(42,1,.5,4000);ray=new THREE.Raycaster();
   scene.add(new THREE.HemisphereLight(0xbcd0e4,0x1a1410,.7));
   const dl=new THREE.DirectionalLight(0xffd9b0,1.1);dl.position.set(-40,60,30);scene.add(dl);
+  rake=new THREE.DirectionalLight(0xfff0dc,1.2);rake.target=new THREE.Object3D();scene.add(rake,rake.target);   // lumière rasante sur la stèle affichée (rig) : la gravure et les arêtes ressortent
   const g=new THREE.PlaneGeometry(bx1-bx0,bz1-bz0,NX,NZ);g.rotateX(-Math.PI/2);
   const pos=g.attributes.position;
   for(let j=0;j<=NZ;j++)for(let i=0;i<=NX;i++){const k=j*(NX+1)+i;pos.setY(k,H[k]);pos.setX(k,bx0+i*cell);pos.setZ(k,bz0+j*cell)}
   mat=new THREE.ShaderMaterial({
     extensions:{derivatives:true},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
-    uniforms:{cLo:{value:new THREE.Vector3(.78,.44,.18)},cHi:{value:new THREE.Vector3(1,.70,.42)},cGrid:{value:new THREE.Vector3(.35,.55,.75)},cstep:{value:20*SC*EX},uMin:{value:hmin},uMax:{value:hmax},uGlow:{value:1},uC:{value:new THREE.Vector2((bx0+bx1)/2,(bz0+bz1)/2)},uR0:{value:Math.round(.8*RFAR)},uR1:{value:RFAR},uF:{value:new THREE.Vector2()},uFk:{value:0},uFR:{value:90},cF:{value:new THREE.Vector3(1,.28,.08)}},
+    uniforms:{uMask:{value:new THREE.Vector4(0,0,0,0)},uHdr:{value:0},uFbH:{value:1},uFe:{value:48},uMk:{value:1},cLo:{value:new THREE.Vector3(.30,.37,.48)},cHi:{value:new THREE.Vector3(.40,.48,.60)},cGrid:{value:new THREE.Vector3(.35,.55,.75)},cstep:{value:20*SC*EX},uMin:{value:hmin},uMax:{value:hmax},uGlow:{value:1},uC:{value:new THREE.Vector2((bx0+bx1)/2,(bz0+bz1)/2)},uR0:{value:Math.round(.8*RFAR)},uR1:{value:RFAR},uF:{value:new THREE.Vector2()},uFk:{value:0},uFR:{value:90},cF:{value:new THREE.Vector3(1,.28,.08)}},
     vertexShader:'varying float vH;varying vec3 vW;varying vec3 vView;void main(){vH=position.y;vW=position;vec4 mv=modelViewMatrix*vec4(position,1.);vView=mv.xyz;gl_Position=projectionMatrix*mv;}',
     fragmentShader:`precision highp float;
-      uniform vec3 cLo,cHi,cGrid,cF;uniform float cstep,uMin,uMax,uGlow,uR0,uR1,uFk,uFR;uniform vec2 uC,uF;
+      uniform vec3 cLo,cHi,cGrid,cF;uniform float cstep,uMin,uMax,uGlow,uR0,uR1,uFk,uFR,uHdr,uMk,uFbH,uFe;uniform vec2 uC,uF;uniform vec4 uMask;
       varying float vH;varying vec3 vW;varying vec3 vView;
       void main(){
         float t=smoothstep(uMin,uMax,vH);
-        float f=vH/cstep;float g=abs(fract(f-.5)-.5)/fwidth(f);float line=1.-min(g,1.);
-        float m=vH/(cstep*5.);float gm=abs(fract(m-.5)-.5)/fwidth(m);float master=1.-min(gm,1.);
+        /* courbes de niveau (revue du 18/11/2026) : ton sur ton, fines (≈ 0,75 px), une courbe maîtresse plus épaisse (≈ 1,8 px) toutes les cinq ;
+           opacité 30 % (maîtresse 40 %), au lieu de 55 / 85 % : le cairn reste le seul point focal */
+        float f=vH/cstep;float g=abs(fract(f-.5)-.5)/fwidth(f);float line=1.-min(g/.75,1.);
+        float m=vH/(cstep*5.);float gm=abs(fract(m-.5)-.5)/fwidth(m);float master=1.-min(gm/1.8,1.);
         vec2 gp=vW.xz/14.;vec2 gg=abs(fract(gp-.5)-.5)/fwidth(gp);float grid=1.-min(min(gg.x,gg.y),1.);
         float edge=1.-smoothstep(uR0,uR1,length(vW.xz-uC));
         float depthFade=1.-smoothstep(240.,640.,length(vView));
-        vec3 col=mix(cLo,cHi,t)*(.7+.6*master)*uGlow;
+        vec3 col=mix(cLo,cHi,t)*mix(1.,.7+.6*master,uMk)*uGlow;   // uMk : nuit (additif) la maîtresse est plus claire ; jour, même teinte, elle se distingue par l'épaisseur
         col=mix(col,cGrid,grid*(1.-line)*.6);
-        float fz=uFk*(1.-smoothstep(uFR*.25,uFR,length(vW.xz-uF)));   // étape du projet affiché : son relief s'allume en cuivre
-        col=mix(col,cF*(1.1+.6*master),fz);
-        float a=clamp((line*.55+master*.85+grid*.13)*(1.+fz*1.4)+line*fz*.25,0.,1.)*edge*depthFade;
+        float fz=uFk*(1.-smoothstep(uFR*.25,uFR,length(vW.xz-uF)));   // étape du projet affiché : son relief se réchauffe, sans crier
+        col=mix(col,cF,fz*.5);
+        float a=clamp(max(line*.30,master*.40)*(1.+fz*.35)+grid*.07,0.,1.)*edge*depthFade;
+        // estompées sous le texte : le surtitre et le titre de la scène (uMask, rectangle en pixels de l'écran, haut-gauche → bas-droite) et la bande du menu (uHdr)
+        if(uMask.z>uMask.x){float dx=max(max(uMask.x-gl_FragCoord.x,gl_FragCoord.x-uMask.z),0.),dy=max(max(uMask.y-gl_FragCoord.y,gl_FragCoord.y-uMask.w),0.);
+          a*=mix(.1,1.,smoothstep(0.,uFe,length(vec2(dx,dy))));}
+        if(uHdr>0.)a*=mix(.1,1.,smoothstep(uHdr,uHdr+uFe,uFbH-gl_FragCoord.y));
         gl_FragColor=vec4(col,a);}`
   });
   const tm=new THREE.Mesh(g,mat);tm.renderOrder=2;scene.add(tm);
@@ -3397,10 +3404,10 @@ function buildBlocks(){
   STOPS.forEach((st,si)=>{
     const pr=st.proj;   // chaque étape a son cairn (Départ et cairn final compris), gravé avec ses données d'étape
     if(!pr)return;
-    const cnv=document.createElement('canvas');cnv.width=768;cnv.height=576;   // 1,5 × la mise en page (512 × 384) : la gravure fine (km, technos) reste nette
-    const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=8;tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
+    const cnv=document.createElement('canvas'),GK=[2.5,2,1.5][QC.tier]||1.5;cnv.width=512*GK;cnv.height=384*GK;   // 2,5 × la mise en page (512 × 384) sur un appareil complet (2 × allégé, 1,5 × économe) : la gravure fine (km, technos) reste nette de près
+    const tex=new THREE.CanvasTexture(cnv);tex.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());tex.repeat.set(1/(2*(w+.7)),1/(2*(h+.7)));tex.offset.set(.5,.5);
     const geo=new THREE.ExtrudeGeometry(stoneShape(si*1.9),{depth:1.4,bevelEnabled:true,bevelThickness:1.1,bevelSize:1,bevelSegments:4,curveSegments:6});
-    const top=new THREE.MeshStandardMaterial({map:tex,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
+    const top=new THREE.MeshStandardMaterial({map:tex,bumpMap:tex,bumpScale:.22,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});   // la gravure sert aussi de relief : l'encre sombre est en creux, la lumière rasante la fait ressortir
     const side=new THREE.MeshStandardMaterial({color:STONE,roughness:.95,metalness:0,envMap:env,envMapIntensity:.15,transparent:true});
     const mesh=new THREE.Mesh(geo,[top,side]);mesh.rotation.x=-Math.PI/2+.42;mesh.position.y=0;
     const holder=new THREE.Group();holder.add(mesh);holder.scale.setScalar(1.3*(pr.small?SMALL_K:1));scene.add(holder);   // bivouac : petit marqueur, pas une étape
@@ -3412,7 +3419,7 @@ function buildBlocks(){
     holder.position.set(bx,by,bz);
     const camAt=t>0?curve.getPointAt(clamp(t-.03)):pt.clone().multiplyScalar(2).sub(curve.getPointAt(.03));   // au Départ, rien avant la trace : on prolonge la trace en arrière
     const faceYaw=Math.atan2(camAt.x-bx,camAt.z-bz);holder.rotation.y=faceYaw;
-    const shadow=new THREE.Mesh(new THREE.PlaneGeometry(34,29),new THREE.MeshBasicMaterial({map:shTex,transparent:true,depthWrite:false,opacity:.55}));
+    const shadow=new THREE.Mesh(new THREE.PlaneGeometry(42,34),new THREE.MeshBasicMaterial({map:shTex,transparent:true,depthWrite:false,opacity:.85}));   // ombre portée plus dense et plus large (18/11/2026), décalée à l'opposé de la lumière rasante (placeBlocks)
     shadow.rotation.x=-Math.PI/2;shadow.position.set(bx,terrainAt(bx,bz)+.4,bz);scene.add(shadow);
     // pierres du cairn (placées par placeBlocks)
     const rockM=new THREE.MeshStandardMaterial({color:STONE,roughness:.96,metalness:0,flatShading:true,envMap:env,envMapIntensity:.12,transparent:true});
@@ -3432,7 +3439,7 @@ function placeBlocks(){
     const o=(bk.stopIdx===0||bk.t>=1)?depOff(bk):[0,0],bx=bk.pt.x+o[0],bz=bk.pt.z+o[1],gy=terrainAt(bx,bz);
     const rk=bk.proj&&bk.proj.small?SMALL_K:1;bk.base=bk.ty+CLEAR*rk;bk.faceYaw=Math.atan2(bk.camAt.x+o[0]-bx,bk.camAt.z+o[1]-bz);
     bk.holder.position.set(bx,bk.base,bz);bk.pos.set(bx,bk.base,bz);
-    bk.shadow.position.set(bx,gy+.4,bz);
+    {const px=Math.cos(bk.faceYaw),pz=-Math.sin(bk.faceYaw);bk.shadow.position.set(bx+px*6,gy+.4,bz+pz*6)}   // la lumière rasante vient de la gauche de la stèle : l'ombre part à droite
     // 2 pierres sous le wire (du sol, un peu enterrées, jusqu'au jeu), 2 au-dessus (du jeu jusque sous la pierre gravée) ; dessus et dessous plats : le jeu est net
     const wy=bk.ty,lo0=Math.min(gy-.5,wy-GAP/2-1.2),lo1=wy-GAP/2,hi0=wy+GAP/2,hi1=Math.max(hi0+1.6*rk,bk.base-3.4*rk);
     const span=[[lo0,(lo0+lo1)/2,6.4*rk],[(lo0+lo1)/2,lo1,5.6*rk],[hi0,(hi0+hi1)/2,5.2*rk],[(hi0+hi1)/2,hi1,4.4*rk]];
@@ -3491,7 +3498,7 @@ function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return
 const nT=OK?new THREE.Vector3():null,nP=OK?new THREE.Vector3():null,nQ=OK?new THREE.Quaternion():null,v1=OK?new THREE.Vector3():null,v2=OK?new THREE.Vector3():null,camA=OK?new THREE.PerspectiveCamera():null,camB=OK?new THREE.PerspectiveCamera():null,v3=OK?new THREE.Vector3():null;
 const trWin=[0,1];   // tronçon de trace affiché [début, fin], en abscisse t
 const CAIRN_NEXT=.35;   // opacité du cairn suivant (et du précédent, le temps de le quitter) ; les autres cairns sont masqués
-const STOP_D=[70,80],STOP_H=26,STOP_SIDE=.35,STOP_LOW=-9;   // cadrage aux arrêts : recul [grand écran, téléphone], hauteur, décalage latéral (part du recul) pour la carte de droite, visée plus basse sur téléphone (carte en bas)
+const STOP_ZOOM=[1.2,1.2],STOP_D=[70/STOP_ZOOM[0],80/STOP_ZOOM[1]],STOP_H=[26/STOP_ZOOM[0],26/STOP_ZOOM[1]],STOP_SIDE=.35,STOP_LOW=-9/STOP_ZOOM[1];   // 18/11/2026 : caméra 1,2 × plus proche (même angle) : avec la perspective, la stèle paraît ≈ 1,5 × plus grande (mesuré) et devient le seul point focal ; à 1,5 × elle sortait de l'écran sur grand écran   // cadrage aux arrêts : recul [grand écran, téléphone], hauteur, décalage latéral (part du recul) pour la carte de droite, visée plus basse sur téléphone (carte en bas)
 let stopW=0,curT=0,activeStop=0,hoverIdx=-1,pinnedIdx=-1,focusIdx=-1,ptrIdx=-1,ptr={x:0,y:0,in:false};
 function onPlane(q,o,y){   // point de l'écran (px) -> point du plan horizontal de hauteur y, vu par la caméra de la carte
   cam.updateMatrixWorld();o.set(q[0]/cv.clientWidth*2-1,1-q[1]/cv.clientHeight*2,.5).unproject(cam).sub(cam.position);return o.multiplyScalar((y-cam.position.y)/o.y).add(cam.position)}
@@ -3499,7 +3506,7 @@ const fA=OK?{p:new THREE.Vector3(),t:new THREE.Vector3()}:null,fB=OK?{p:new THRE
 function frameOf(i,o){   // cadrage d'arrêt de l'étape i (position, visée) ; false si l'étape n'a pas de cairn
   const blk=blocks.find(x=>x.stopIdx===i);if(!blk)return false;
   const nar=cam.aspect<.9,fx=Math.sin(blk.faceYaw),fz=Math.cos(blk.faceYaw),D=nar?STOP_D[1]:STOP_D[0];
-  o.p.set(blk.pos.x+fx*D,blk.base+STOP_H,blk.pos.z+fz*D);
+  o.p.set(blk.pos.x+fx*D,blk.base+(nar?STOP_H[1]:STOP_H[0]),blk.pos.z+fz*D);
   const card=cardShut!==i&&!!blk.proj,side=!nar&&card?D*STOP_SIDE:0;   // grand écran : la carte est à droite, la stèle passe à gauche du centre ; téléphone : la carte est en bas, la stèle remonte
   o.t.set(blk.pos.x+fz*side,blk.base+(nar&&card?STOP_LOW:1.5),blk.pos.z-fx*side);return true}
 function frameFollow(pt,dx,dz,o){o.p.set(pt.x-dx*80,pt.y+40,pt.z-dz*80);o.t.set(pt.x,pt.y+10,pt.z)}   // repli sans cairn : derrière l'aiguille
@@ -3510,6 +3517,8 @@ function rig(p,dt,snap,intro=0){
   const pt=curve.getPointAt(clamp(t)),a=curve.getPointAt(clamp(t-.05)),b=curve.getPointAt(clamp(t+.05));
   let dx=b.x-a.x,dz=b.z-a.z;const dl=Math.hypot(dx,dz)||1;dx/=dl;dz/=dl;
   const blk=blocks.find(x=>x.stopIdx===aw);
+  if(rake&&blk){const fx=Math.sin(blk.faceYaw),fz=Math.cos(blk.faceYaw);   // lumière rasante : de la gauche de la stèle, basse (≈ 14°), un peu vers l'avant
+    rake.position.set(blk.pos.x-fz*60+fx*16,blk.base+16,blk.pos.z+fx*60+fz*16);rake.target.position.copy(blk.pos);rake.intensity=theme==='light'?1.2:.85}
   /* cadrage continu : à l'arrêt, face à la stèle (dans l'axe où elle regarde), à distance fixe ; entre deux arrêts, la caméra glisse du cadrage
      de l'un à celui du suivant, en arc léger, en gardant l'aiguille dans le champ. Pas de vue de poursuite intermédiaire : plus de bascule de 90° d'un coup. */
   {let i1=NS-1;for(let i=0;i<NS;i++)if(p<=STOPS[i].b){i1=i;break}
@@ -3599,7 +3608,7 @@ let parcLt=null;
 function parcTheme(L){   // carte de jour : relief en teintes cuivre foncé en mélange normal (l'additif s'efface sur fond clair), trace encre
   if(!mat)return;parcLt=L;
   mat.blending=L?THREE.NormalBlending:THREE.AdditiveBlending;mat.needsUpdate=true;
-  mat.uniforms.cLo.value.set(...(L?[.55,.22,.07]:[.78,.44,.18]));mat.uniforms.cHi.value.set(...(L?[.80,.38,.13]:[1,.70,.42]));mat.uniforms.cGrid.value.set(...(L?[.20,.34,.48]:[.35,.55,.75]));mat.uniforms.cF.value.set(...(L?[.62,.12,.03]:[1,.28,.08]));
+  mat.uniforms.cLo.value.set(...(L?[.50,.43,.36]:[.30,.37,.48]));mat.uniforms.cHi.value.set(...(L?[.42,.36,.30]:[.40,.48,.60]));mat.uniforms.uMk.value=L?0:1;   // ton sur ton (18/11/2026) : jour brun-gris du papier, nuit bleu ardoise du ciel ; plus d'orange vifmat.uniforms.cGrid.value.set(...(L?[.20,.34,.48]:[.35,.55,.75]));mat.uniforms.cF.value.set(...(L?[.62,.12,.03]:[1,.28,.08]));
   FATS.forEach(m=>{const o=m.userData.o;if(!o)return;
     m.blending=(o.add&&!L)?THREE.AdditiveBlending:THREE.NormalBlending;m.needsUpdate=true;   // l'additif s'efface sur fond clair
     m.uniforms.uColor.value.set(L?o.cl:o.c);m.uniforms.uC2.value.set(L?(o.c2l||o.cl):(o.c2||o.c));m.uniforms.uAlpha.value=L?o.al:o.a;m.uniforms.uBoost.value=L?(o.boostl||1):(o.boost||1)});
@@ -3756,8 +3765,15 @@ function dynamicView(){if(!inited)return;resize()}
 let inited=false;
 function ensure(){if(inited||!OK)return;inited=true;initScene();resize();camPos.set(0,0,0);camTgt.set(0,0,0);first=true}
 let first=true,lastT=0;
+const s2Head=document.querySelector('#s2 .head'),topHdr=document.querySelector('header.top');
+function textMask(){   // courbes estompées sous le texte (le surtitre, le titre et les km de la scène ; la bande du menu)
+  const u=mat.uniforms,d=renderer.getPixelRatio(),cr=renderer.domElement.getBoundingClientRect(),H=cr.height*d;u.uFbH.value=H;u.uFe.value=48*d;
+  if(s2Head){textMask.r=textMask.r||document.createRange();textMask.r.selectNodeContents(s2Head);const r=textMask.r.getBoundingClientRect(),pad=10;u.uMask.value.set((r.left-cr.left-pad)*d,H-(r.bottom-cr.top+pad)*d,(r.right-cr.left+pad)*d,H-(r.top-cr.top-pad)*d)}   // étendue réelle des lignes de texte (les blocs, eux, prennent toute la largeur)
+  u.uHdr.value=topHdr?Math.max(0,(topHdr.getBoundingClientRect().bottom-cr.top)*d):0;
+}
 function update(l,dt,intro,rain=0){
   if(!inited)return;
+  textMask();
   rainR=staticMode?0:rain;
   const iL=1-sm(STOPS[0].b,STOPS[1].a,l);   // la vue de dessus (alignée sur le verre) ne dure que le temps du Départ, puis la caméra s'incline en rejoignant la première étape
   updateSky(l);rig(l,dt,first||iL>0,iL);first=false;
