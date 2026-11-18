@@ -2372,7 +2372,7 @@ $$('#bivtext .cnt,#bivtext input,#bivtext textarea,#bivtext .cnt-send,#restart')
 /* Recommencer l'aventure : accélération à travers les étoiles, faisceau sur le cadran, retour au départ */
 const warpCv=$('#warp'),wctx=warpCv.getContext('2d'),WSTARS=Array.from({length:220},()=>({a:Math.random()*6.283,r:Math.random(),s:.3+Math.random()*.7}));let warpOn=false;
 function sizeWarp(){const q=.7;warpCv.width=Math.max(2,Math.round(innerWidth*q));warpCv.height=Math.max(2,Math.round(innerHeight*q))}
-const transW=p=>p<.5?trap(p,.10,.15,.285,.32):0;   // fenêtre de la transition : l'aiguille clignote et fait le halo
+const transW=p=>p<.5?trap(p,.20,.235,.285,.32):0;   // fenêtre de la transition : l'aiguille clignote et fait le halo ; elle démarre avec le zoom vers le cadran (zi, p .20), pas dès l'arrivée sur « S'équiper » (était .10 → .15 avant le 18/11/2026)
 const BLINK_HZ=.55;   // un éclat toutes les 1,8 s environ
 function needleBlink(t){   // éclat bref et rare (bien sous le seuil de 3 éclats par seconde) ; fixe en mouvement réduit ou en pause
   if(reduce||paused)return .7;

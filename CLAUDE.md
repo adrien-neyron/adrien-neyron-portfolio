@@ -243,6 +243,9 @@ The dial no longer shows a name: the readout plate (`drawReadout`, `roMesh` at y
 ### Dial zones and job line (17/11/2026)
 Only the four cardinal zones remain interactive (`HOT` n/e/s/o); « Adrien Neyron » and « Expérience » zones were removed. « DÉVELOPPEUR - MANAGER - FORMATEUR » is painted under the needle as an arc following the dial's curvature (letters on a radius-330 circle, ≤ 2.3 rad; fixed text in `makeDial`, not the admin `loopDialRole`). The onboarding pulse is on « E »; its card goes right of the ring if it fits, else under the dial.
 
+### Needle blink timing (18/11/2026)
+The needle blink + halo of the dive (`transW` in `loop.js`) starts with the zoom toward the dial (p .20 → .235, full until .285, out at .32), no longer during « S'équiper » (was .10 → .15). Details: `docs/ecran-accueil-corde.md`.
+
 ### Watch-button hint (S'équiper) — removed
 The `#eqTip` pill « Cliquer sur les boutons de la montre » was removed on 18/11/2026 at Adri's request (HTML, CSS `.eq-tip`, JS timer `EQ_TIP_MS`/`eqMoved`/`pushUsed`). Don't reintroduce it. Details: `docs/ecran-accueil-corde.md`.
 

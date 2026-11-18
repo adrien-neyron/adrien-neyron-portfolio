@@ -304,3 +304,7 @@ Demande d'Adri : à l'étape 02 (« S'équiper »), la pastille `#eqTip` qui app
 ## Brouillard de « S'équiper » identique à celui de l'accueil (18/11/2026)
 
 Demande d'Adri : à l'étape 02, un effet brouillard sur la moitié droite, comme celui de la moitié gauche à l'étape 01. Le voile existait déjà (`.hphoto::before`, `--ph-r`, même dégradé que `::after` en miroir), mais il était **invisible en pratique** : un pseudo-élément `::before` est peint avant les enfants, et à `z-index: 1` le canvas du relief au curseur (`.hrelief`, z 1, opaque) le recouvrait ; `::after`, peint après, restait au-dessus (d'où le brouillard à gauche seulement). Correctif : les deux voiles à `z-index: 2`. Vérifié dans Chrome (1440 × 900, jour et nuit) : la moitié droite de « S'équiper » est maintenant voilée comme la gauche de l'accueil ; l'accueil est inchangé.
+
+## Clignotement de l'aiguille : au moment du zoom (18/11/2026)
+
+À la demande d'Adri, l'aiguille du cadran ne clignote plus dès l'arrivée sur « S'équiper » : le clignotement (et le halo qu'il dessine, `transW` / `needleBlink` / `drawNeedleHalo` dans `loop.js`) commence quand le défilement se tourne vers le cadran, c'est-à-dire avec le zoom (`zi = sm(.20,.30,p)`) et le retour de la montre au centre. Fenêtre : apparition de p = .20 à .235 (avant : .10 à .15), plein jusqu'à .285, disparition à .32 (inchangé). Pendant « S'équiper » (arrêt du menu à p = .155), l'aiguille reste donc fixe et n'attire plus l'œil loin des boutons du boîtier.
