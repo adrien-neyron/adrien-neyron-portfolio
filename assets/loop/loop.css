@@ -1191,3 +1191,13 @@ html.loop-on #stopCard .sc-l.clamp{display:-webkit-box;-webkit-box-orient:vertic
 html.loop-on #stopCard .sc-read{align-self:flex-start;min-height:44px;margin:-6px 0 10px -8px;padding:0 8px;border:0;background:none;color:var(--exp-meta);font:600 12.5px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.06em;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 html.loop-on #stopCard .sc-read:hover{color:var(--exp-ink)}
 html.loop-on #stopCard .sc-read:focus-visible{outline:3px solid var(--exp-ink);outline-offset:2px;border-radius:6px}
+
+/* Transition étape 3 → 4 (pluie) : à l'arrivée de la pluie, titre, liste et card s'effacent (un seul propos à l'écran) ; il ne reste que le lien vers le contact.
+   Le dock « contact » n'existe que pendant la pluie ; hors de là il est masqué et non focalisable. */
+html.loop-on #s2 .rain-dock{opacity:0;visibility:hidden;transition:opacity .5s ease,visibility 0s linear .5s}
+html.loop-on #s2.raining .rain-dock{opacity:1;visibility:visible;transition:opacity .6s ease .2s,visibility 0s}
+html.loop-on #s2.raining .head,html.loop-on #s2.raining #stopCard,html.loop-on #s2.raining #pTags,html.loop-on #s2.raining .pl-stages,html.loop-on #s2.raining .pl-dock:not(.rain-dock){opacity:0!important;visibility:hidden!important;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s}
+@media (prefers-reduced-motion:reduce){html.loop-on #s2 .rain-dock,html.loop-on #s2.raining .rain-dock{display:none}}
+/* Titre de la flaque : arrive après la basket (la classe .arriving est posée tant que l'onde de la goutte n'a pas fini de révéler la scène) */
+html.loop-on #s3 .head{transition:opacity .7s ease .15s}
+html.loop-on #s3.arriving .head{opacity:0!important;transition:none}

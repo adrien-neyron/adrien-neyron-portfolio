@@ -164,3 +164,18 @@ Le menu « Étapes | Projets | Outils » a un halo qui doit se fondre dans ce qu
 - **Bloc en haut à gauche** (`#s2 .head`) : titre en serif italique, Km / D+ en mono à chiffres tabulaires, halo `--bg` pour que les courbes ne gênent pas la lecture.
 - Vérifié : tests unitaires, captures jour 1440 × 810 (Bivouac, Départ). **Non vérifié** : mode nuit, mobile, clavier, Lighthouse, poids mémoire des textures ×3 (5 cairns ≈ 35 Mo de textures), fiche avec texte long (bouton « Lire la suite »).
 - **Pas encore fait** : compteur Km / D+ animé, trace qui se remplit avec marqueur, aperçu du cairn suivant, chorégraphie d'entrée des étapes, transition étape 2 → 3 déclenchée plutôt que liée au scroll.
+
+## Transition étape 3 → 4 : la goutte et l'onde (19/11/2026, `dev`)
+
+**Audit de départ** (captures 1280×720, jour) : la transition était un fondu entre deux scènes. Fantômes de la card et du cairn par-dessus la basket, deux titres lisibles en même temps, zoom sur une pierre déjà vue (texte coupé), pluie de jour en traits d'encre sombres, saut de palette ciel bleu-gris → pêche, bouton de contact perdu avec la card.
+
+**Ce qui a été fait** (`assets/loop/loop.js`, `loop.source.css`, `loop.html`), tout piloté par `rainR` (rejouable à l'envers, interruptible) :
+- **Goutte héroïne** (`HERO`, `heroSetup`, `heroStep`) : toujours la même, au bord droit de la dalle du dernier cairn ; elle gonfle (rainR .03–.14), tombe (.14–.52, la caméra la suit, plan semi-serré en léger surplomb) puis éclate en couronne de 12 gouttelettes et en deux anneaux d'eau (.52 →).
+- **La flaque se révèle dans l'onde** : l'anneau est projeté à l'écran (`REV`, centre et rayon en px) et sert de masque à la scène de la flaque (`#s3`, masque radial) et de masque inverse à la carte (`#s2`, sinon elle transparaît dans le ciel transparent de la flaque). Plus de fondu en mode mouvement ; le masque déborde pour couvrir l'écran avant rainR = 1.
+- **Un seul propos à l'écran** : dès la pluie (`#s2.raining`), titre, liste, tags et card s'effacent ; il reste un lien « Écrire la suite ensemble → » (`#rainCta`, vers `/contact`), masqué et non focalisable hors de la pluie. Le titre de la flaque n'arrive qu'après la basket (`#s3.arriving`). Le triangle de l'aiguille et la lueur de la trace s'effacent pendant la pluie.
+- **Pluie** : trois plans de profondeur (échelle par goutte), gouttes plus fines, jour en bleu-gris translucide (plus d'encre `#27465C`), un peu moins dense pendant la chute pour qu'on voie la goutte.
+- **Mouvement réduit / vue statique** : ni goutte ni masque ni zoom ; ancien fondu conservé (`wave` faux). Vérifié : avec `prefers-reduced-motion` l'accueil passe en vue statique, sans erreur console.
+
+**Vérifié** : 21 captures par thème (jour et nuit) de la séquence ; aucune erreur de page ; `npm test` (218 tests) ; CSS régénéré (`scope-loop-css.cjs`).
+**Non vérifié** : Lighthouse, fluidité sur machine modeste (swiftshader seulement), mobile (cadrage `dd` = 24 prévu mais non capturé), molette réelle (balayage par `scrollTo`), parcours clavier du lien de contact, contrastes recalculés du lien (même style que `.pl-more`), `npm run lint` (dépendances locales absentes), e2e.
+**À décider / reste** : transition 4 → 5 ; son « plic » ; goutte plus « goutte » (forme de larme) et plus de contexte visuel pendant la chute (la dalle n'est pas visible) ; ciel qui vire progressivement du bleu-gris au pêche ; durée à régler à la molette réelle.

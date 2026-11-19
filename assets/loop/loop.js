@@ -2400,8 +2400,10 @@ function announce(i){
 function draw(p,dt){
   pal=palette(p);setVars(root,pal);updateBg(p);if(loaded)prewarm(p);
   setVisible(S[0],crisp(Math.max(trap(p,-1,0,.24,.30),trap(p,.95,1,2,3))));
-  {const mo=trap(p,.245,.29,.525,.555);setVisible(S[1],crisp(mo));document.documentElement.style.setProperty('--hudk',(1-mo).toFixed(3));railTone(mo)}   // altitude, scène et lieu en bas à gauche : masqués dans l'expérience de la trace
-  setVisible(S[2],crisp(trap(p,.53,.56,.77,.81)));   // la flaque arrive en fondu pendant le zoom arrière au-dessus du dernier cairn sous la pluie
+  const wave=!reduce&&!staticMode;   // transition 3 → 4 : la flaque se révèle dans l'onde de la goutte (masque) ; sans mouvement, fondu simple
+  S[1].classList.toggle('raining',wave&&p>.482);   // card, titre et liste s'effacent dès que la pluie s'installe ; reste un seul lien vers le contact
+  {const mo=wave?trap(p,.245,.29,.545,.55):trap(p,.245,.29,.525,.555);setVisible(S[1],crisp(mo));document.documentElement.style.setProperty('--hudk',(1-mo).toFixed(3));railTone(mo)}   // altitude, scène et lieu en bas à gauche : masqués dans l'expérience de la trace
+  setVisible(S[2],crisp(wave?trap(p,.5,.505,.77,.81):trap(p,.53,.56,.77,.81)));   // la flaque est posée sous la carte dès la goutte (masquée), puis révélée par l'onde ; sans mouvement : fondu pendant le zoom arrière
   {const o4=crisp(trap(p,.78,.82,.97,.985));setVisible(S[3],o4);const hk=+o4.toFixed(2);if(hk!==hdrK){hdrK=hk;root.style.setProperty('--hdr-k',String(hk))}}   // halo du menu : se fond dans le ciel du bivouac pendant cette scène (voir --hdr-halo)
   // s1
   const split=LAY.sx>0&&!staticMode;CS=split?.17:.07;CST=split?.012:STEP;CSP=split?.12:.07;CEND=split?[.26,.29]:[.24,.28];CREV=split?[.20,.225]:[.19,.22];   // grand écran : accueil = texte à gauche, montre à droite
@@ -2421,6 +2423,13 @@ function draw(p,dt){
   // s2
   S[1].style.setProperty('--hd',(p<.5?sm(.262,.292,p):1).toFixed(3));
   if(S[1].style.visibility==='visible'){PARC.ensure();PARC.update(clamp((p-.30)/.19),dt,1-sm(.31,.38,p),clamp((p-.478)/.062))}
+  {const rv=PARC.reveal,on=wave&&rv.on&&S[1].style.visibility==='visible';   // masque circulaire : centre et rayon de l'anneau d'eau projetés à l'écran
+   const sf=Math.max(10,rv.r*.07),at=`circle at ${rv.x.toFixed(1)}px ${rv.y.toFixed(1)}px`;
+   // flaque : visible DANS l'onde ; carte : visible HORS de l'onde (sinon elle transparaît à travers le ciel transparent de la flaque)
+   const mIn=on?(rv.r<2?'linear-gradient(#0000,#0000)':`radial-gradient(${at},#000 ${rv.r.toFixed(1)}px,transparent ${(rv.r+sf).toFixed(1)}px)`):'';
+   const mOut=on&&rv.r>=2?`radial-gradient(${at},transparent ${rv.r.toFixed(1)}px,#000 ${(rv.r+sf).toFixed(1)}px)`:'';
+   [[S[2],mIn],[S[1],mOut]].forEach(([el,m])=>{if(el.style.maskImage!==m){el.style.maskImage=m;el.style.webkitMaskImage=m}});
+   S[2].classList.toggle('arriving',wave&&p<.553)}   // le titre de la flaque n'arrive qu'après l'objet
   // s3
   if(S[2].style.visibility==='visible')drawPuddle(clamp((p-.55)/.24),dt);
   // s4
@@ -3275,7 +3284,7 @@ function placeBlocks(){
    prefers-reduced-motion : ni gouttes ni zoom, la pierre se mouille et le fondu fait la transition. */
 let rainR=0;const RAIN={on:false,drops:null,splash:[],n:110,acc:0,wet:-1};
 function rainInit(){
-  const DN=RAIN.n,g=new THREE.SphereGeometry(.1,6,4);g.scale(1,7,1);   // goutte étirée par la vitesse : un trait vu de partout
+  const DN=RAIN.n,g=new THREE.SphereGeometry(.075,6,4);g.scale(1,7,1);   // goutte étirée par la vitesse : un trait vu de partout
   const m=new THREE.MeshBasicMaterial({color:0xCFE8F2,transparent:true,opacity:.75,depthWrite:false});
   const im=new THREE.InstancedMesh(g,m,DN);im.frustumCulled=false;im.renderOrder=12;im.count=0;scene.add(im);
   RAIN.drops={im,p:Array.from({length:DN},()=>({on:false,x:0,y:0,z:0,v:0,hy:0,hn:new THREE.Vector3(0,1,0)})),o:new THREE.Object3D(),ray:new THREE.Raycaster(),dn:new THREE.Vector3(0,-1,0),o3:new THREE.Vector3()};
@@ -3284,22 +3293,67 @@ function rainInit(){
   RAIN.on=true}
 function rainSpawn(d,bk){
   const D=RAIN.drops,a=Math.random()*6.283,rr=Math.sqrt(Math.random())*18;   // disque de 18 unités autour du cairn (la stèle fait ≈ 10 de demi-largeur)
-  d.x=bk.pos.x+Math.cos(a)*rr;d.z=bk.pos.z+Math.sin(a)*rr;d.y=bk.base+26+Math.random()*34;d.v=62+Math.random()*16;d.on=true;
+  d.x=bk.pos.x+Math.cos(a)*rr;d.z=bk.pos.z+Math.sin(a)*rr;d.y=bk.base+26+Math.random()*34;d.v=62+Math.random()*16;d.on=true;{const q=Math.random();d.s=q<.55?.6:q<.92?1:1.6}   // trois plans de profondeur : fines et lointaines, moyennes, quelques grosses au premier plan
+
   D.o3.set(d.x,bk.base+80,d.z);D.ray.set(D.o3,D.dn);
   const hit=D.ray.intersectObjects([bk.mesh,...bk.cairn.children],false)[0];
   if(hit){d.hy=hit.point.y;d.hn.copy(hit.face.normal).transformDirection(hit.object.matrixWorld)}else{d.hy=terrainAt(d.x,d.z)+.3;d.hn.set(0,1,0)}}
 function rainSplash(x,y,z,n){
   const r=RAIN.splash.find(s=>s.userData.t<0);if(!r)return;
   r.position.set(x+n.x*.15,y+n.y*.15,z+n.z*.15);r.lookAt(x+n.x,y+n.y,z+n.z);r.userData.t=0;r.visible=true}
+/* ---------- Goutte héroïne (transition étape 3 → 4) ----------
+   Toujours la même, au même endroit : elle se forme au bord droit de la dalle, tombe (rainR .14 → .52, la caméra la suit), éclate en couronne puis en anneau d'eau.
+   L'anneau grandit avec la caméra qui recule ; REV (centre et rayon en px de cet anneau) sert de masque à la scène de la flaque : la flaque se révèle DANS l'onde, plus de fondu entre deux scènes.
+   Tout est une fonction de rainR : rejouable à l'envers, interruptible. Sans mouvement réduit seulement (rainStep s'arrête avant). */
+const HERO={ready:null,x:0,z:0,top:0,gnd:0,drop:null,r1:null,r2:null,cr:[],L:null};
+const REV={on:false,x:0,y:0,r:0};
+const HV=OK?[new THREE.Vector3(),new THREE.Vector3(),new THREE.Vector3()]:null;
+function heroSetup(bk){
+  if(HERO.ready===bk)return;HERO.ready=bk;
+  bk.holder.updateMatrixWorld(true);
+  const bx=new THREE.Box3().setFromObject(bk.mesh),c=bx.getCenter(new THREE.Vector3()),sz=bx.getSize(new THREE.Vector3());
+  const px=Math.cos(bk.faceYaw),pz=-Math.sin(bk.faceYaw),hw=(Math.abs(px)*sz.x+Math.abs(pz)*sz.z)/2*.9;   // (px,pz) : la droite de l'écran vu de l'arrêt
+  HERO.x=c.x+px*hw;HERO.z=c.z+pz*hw;HERO.top=bx.min.y-.1;HERO.gnd=terrainAt(HERO.x,HERO.z)+.3}
+const heroY=r=>{const u=clamp((r-.14)/.38);return HERO.top-(HERO.top-HERO.gnd)*u*u};
+function heroInit(){
+  HERO.drop=new THREE.Mesh(new THREE.SphereGeometry(.5,18,14),new THREE.MeshStandardMaterial({roughness:.08,metalness:0,transparent:true,opacity:.92}));
+  HERO.drop.renderOrder=13;HERO.drop.visible=false;scene.add(HERO.drop);
+  const rg=new THREE.RingGeometry(.985,1,96);
+  [HERO.r1,HERO.r2]=[0,1].map(()=>{const m=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.renderOrder=12;m.visible=false;scene.add(m);return m});
+  const cg=new THREE.SphereGeometry(.1,8,6);
+  for(let k=0;k<12;k++){const m=new THREE.Mesh(cg,new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));m.visible=false;m.renderOrder=13;m.userData={a:k/12*6.283+.4,h:.9+1.1*((k*7)%5)/4,v:1.1+.9*((k*3)%4)/3};scene.add(m);HERO.cr.push(m)}}
+function heroStep(r,bk,L){
+  const H=HERO;heroSetup(bk);if(!H.drop)heroInit();
+  const col=L?0x6F9DB4:0xCFE8F2;
+  if(H.L!==L){H.L=L;const m=H.drop.material;m.color.setHex(L?0xF2FAFD:0xE8F6FC);m.emissive.setHex(L?0x7FB3CC:0x6FAFCB);m.emissiveIntensity=L?.55:.6;m.opacity=.82}
+  // la goutte : se forme (gonfle) sous la dalle, puis tombe en s'étirant
+  const u=clamp((r-.14)/.38),sw=.12+.88*sm(.03,.14,r),sy=sw*(1+1.2*u);
+  H.drop.visible=r>.03&&r<.525;
+  if(H.drop.visible){H.drop.position.set(H.x,heroY(r)-.45*sy,H.z);H.drop.scale.set(sw*.9,sy*.9,sw*.9)}
+  // anneaux d'eau : le premier devient la flaque
+  const t1=ease(sm(.52,.97,r)),t2=ease(sm(.555,.97,r)),R1=.5+110*t1,R2=.3+80*t2;
+  const o1=(L?.55:.8)*sm(.52,.53,r)*(1-sm(.62,.9,r)),o2=(L?.35:.55)*sm(.555,.57,r)*(1-sm(.6,.85,r));
+  [[H.r1,R1,o1],[H.r2,R2,o2]].forEach(([m,R,o])=>{m.visible=o>.003;if(m.visible){m.position.set(H.x,H.gnd+.12,H.z);m.scale.setScalar(R);m.material.opacity=o;m.material.color.setHex(col)}});
+  // couronne : douze gouttelettes sur un arc, déterministes
+  const tt=(r-.52)/.1;
+  H.cr.forEach(m=>{const d=m.userData;m.visible=tt>0&&tt<1;if(!m.visible)return;
+    m.position.set(H.x+Math.cos(d.a)*d.v*Math.sqrt(tt)*1.3,H.gnd+d.h*4*tt*(1-tt)*.9,H.z+Math.sin(d.a)*d.v*Math.sqrt(tt)*1.3);
+    m.scale.setScalar(.5+.5*(1-tt));m.material.opacity=(L?.7:.9)*(1-tt*tt);m.material.color.setHex(col)});
+  // masque de révélation de la flaque (px, repère de la scène) : suit l'anneau, puis déborde pour couvrir tout l'écran avant la fin
+  const W=cv.clientWidth,Hh=cv.clientHeight;cam.updateMatrixWorld();
+  HV[0].set(H.x,H.gnd,H.z).project(cam);HV[1].set(1,0,0).applyQuaternion(cam.quaternion);HV[2].set(H.x,H.gnd,H.z).addScaledVector(HV[1],R1).project(cam);
+  const px=Math.hypot((HV[2].x-HV[0].x)*W/2,(HV[2].y-HV[0].y)*Hh/2);
+  REV.x=(HV[0].x+1)/2*W;REV.y=(1-HV[0].y)/2*Hh;REV.r=r>.53?Math.max(px,sm(.88,1,r)*Math.hypot(W,Hh)*1.6):0;REV.on=r>0}
 function rainStep(r,dt,bk){
-  const L=theme==='light',col=L?0x27465C:0xCFE8F2;   // jour : gouttes et anneaux à l'encre de la carte ; nuit : eau claire
+  const L=theme==='light',col=L?0x4E7C95:0xCFE8F2;   // jour : eau bleu-gris translucide (plus d'encre sombre, qui faisait des rayures) ; nuit : eau claire
   // la pierre se mouille : plus sombre et plus brillante (sans gouttes en mouvement réduit)
   {const w=sm(.05,.5,r);if(Math.abs(w-RAIN.wet)>.002){RAIN.wet=w;const[top,side,rock]=bk.mats;
     top.roughness=side.roughness=rock.roughness=lerp(.95,.42,w);top.color.setScalar(lerp(1,.72,w));side.color.setHex(0x9A9387).multiplyScalar(lerp(1,.68,w));rock.color.setHex(0x9A9387).multiplyScalar(lerp(1,.68,w))}}
   if(reduce)return;
   if(!RAIN.on){if(r<=0)return;rainInit()}
-  const D=RAIN.drops,rate=r>0?lerp(40,220,sm(0,.35,r))*(1-sm(.9,1,r)):0;   // bruine à l'arrêt, averse pendant le zoom
-  D.im.material.color.setHex(col);D.im.material.opacity=L?.6:.75;
+  heroStep(r,bk,L);
+  const D=RAIN.drops,rate=r>0?lerp(40,200,sm(0,.35,r))*(1-sm(.9,1,r))*(1-.6*sm(.1,.3,r)*(1-sm(.6,.9,r))):0;   // bruine à l'arrêt, averse ; un peu moins dense pendant la chute de la goutte héroïne pour qu'on la voie
+  D.im.material.color.setHex(col);D.im.material.opacity=L?.4:.75;
   RAIN.acc+=rate*dt;
   let k=0;
   for(const d of D.p){
@@ -3307,12 +3361,12 @@ function rainStep(r,dt,bk){
     if(!d.on)continue;
     d.y-=d.v*dt;
     if(d.y<=d.hy){d.on=false;rainSplash(d.x,d.hy,d.z,d.hn);continue}
-    D.o.position.set(d.x,d.y,d.z);D.o.updateMatrix();D.im.setMatrixAt(k++,D.o.matrix)}
+    D.o.position.set(d.x,d.y,d.z);D.o.scale.setScalar(d.s||1);D.o.updateMatrix();D.im.setMatrixAt(k++,D.o.matrix)}
   RAIN.acc=Math.min(RAIN.acc,4);D.im.count=k;D.im.instanceMatrix.needsUpdate=true;
   RAIN.splash.forEach(s=>{if(s.userData.t<0)return;s.userData.t+=dt/.45;const u=s.userData.t;
     if(u>=1){s.userData.t=-1;s.visible=false;return}
     s.material.color.setHex(col);s.scale.setScalar(.6+2.4*u);s.material.opacity=(L?.55:.7)*(1-u)*(1-u)})}
-function rainHide(){if(!RAIN.on)return;RAIN.drops.im.count=0;RAIN.drops.p.forEach(d=>d.on=false);RAIN.splash.forEach(s=>{s.userData.t=-1;s.visible=false});RAIN.acc=0}
+function rainHide(){REV.on=false;if(HERO.drop){HERO.drop.visible=false;HERO.r1.visible=HERO.r2.visible=false;HERO.cr.forEach(m=>m.visible=false)}if(!RAIN.on)return;RAIN.drops.im.count=0;RAIN.drops.p.forEach(d=>d.on=false);RAIN.splash.forEach(s=>{s.userData.t=-1;s.visible=false});RAIN.acc=0}
 function resize(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h||!OK)return;renderer.setSize(w,h,false);{const bs=renderer.getDrawingBufferSize(new THREE.Vector2()),k=bs.x/w;FATS.forEach(m=>{m.uniforms.uRes.value.copy(bs);m.uniforms.uW.value=m.userData.cw*k})}cam.aspect=w/h;if(!staticMode)cam.fov=baseFov();cam.updateProjectionMatrix();placeBlocks()}
 
 /* ---------- Caméra : vol bas, en légère contre-plongée ; arrêts devant chaque projet ---------- */
@@ -3351,10 +3405,12 @@ function rig(p,dt,snap,intro=0){
    const gh=terrainAt(v1.x,v1.z)+14;if(v1.y<gh)v1.y=gh}
   if(rainR>0&&!reduce&&!staticMode){   // pluie sur le dernier cairn : zoom avant sur la stèle mouillée, puis zoom arrière très haut, la flaque apparaît en fondu (draw)
     const end=blocks.find(x=>x.t>=1);
-    if(end){const z=clamp((rainR-.2)/.8),zi=ease(sm(0,.45,z)),zo=ease(sm(.5,1,z));
+    if(end){heroSetup(end);const r=rainR,zi=ease(sm(.02,.30,r)),zo=ease(sm(.56,.98,r)),hy=heroY(r);
       let ex=v1.x-end.pos.x,ez=v1.z-end.pos.z;const el=Math.hypot(ex,ez)||1;ex/=el;ez/=el;   // on garde l'axe de vue de l'arrêt
-      v3.set(end.pos.x+ex*(cam.aspect<.9?58:34),end.base+10,end.pos.z+ez*(cam.aspect<.9?58:34));v1.lerp(v3,zi);v3.set(end.pos.x+ex*34,end.base+175,end.pos.z+ez*34);v1.lerp(v3,zo);
-      v3.set(end.pos.x,end.base+2.5,end.pos.z);v2.lerp(v3,Math.max(zi,zo))}}
+      const dd=cam.aspect<.9?24:17;   // la caméra rejoint la goutte (plan semi-serré, un peu en surplomb pour garder le sol dans le cadre) et la suit dans sa chute
+      v3.set(HERO.x+ex*dd,hy+2.6,HERO.z+ez*dd);v1.lerp(v3,zi);v3.set(end.pos.x+ex*34,end.base+175,end.pos.z+ez*34);v1.lerp(v3,zo);   // puis recule très haut pendant que l'anneau grandit
+      v1.y=Math.max(v1.y,terrainAt(v1.x,v1.z)+1.2);
+      v3.set(HERO.x,lerp(hy+3,hy-2.4,sm(.14,.3,r)),HERO.z);v2.lerp(v3,zi);v3.set(end.pos.x,end.base+2.5,end.pos.z);v2.lerp(v3,zo)}}   // au départ on regarde un peu au-dessus (le bord de la dalle d'où elle se forme), puis on suit la chute
   {const u=mat.uniforms,fk=blk&&STOPS[aw].proj?mw:0;if(blk)u.uF.value.set(blk.pos.x,blk.pos.z);u.uFk.value+=(fk-u.uFk.value)*(snap?1:1-Math.exp(-dt*4))}   // relief de l'étape : s'allume à l'arrêt, s'éteint en repartant   // téléphone : à l'arrêt, la caméra vise exactement le bloc (centré, jamais rogné sur le côté)
   const k=snap?1:1-Math.exp(-dt*9);   // caméra réactive : elle rejoint le cadrage de l'étape en ≈ 0,1 s
   if(intro>.001){
@@ -3389,13 +3445,13 @@ function rig(p,dt,snap,intro=0){
    const top=aw===0;if(ball.userData.top!==top){ball.userData.top=top;ball.children.forEach(m=>{m.material.depthTest=!top;m.renderOrder=top?11:4})}}   // au Départ, l'aiguille passe devant la pierre gravée, comme sur le cadran : elle désigne le départ
   /* Le fil se dessine au fil de l'avancée, sans point qui se déplace : le triangle n'existe qu'au Départ (relais de l'aiguille du cadran pendant la plongée),
      il s'atténue (NEEDLE_OUT → NEEDLE_SUB) dès que la trace avance mais reste en tête du faisceau jusqu'au dernier cairn ; la lueur part alors du départ et s'arrête à l'abscisse atteinte (tt), sans trou sous l'aiguille. */
-  const nv=lerp(1,NEEDLE_SUB,sm(NEEDLE_OUT[0],NEEDLE_OUT[1],t));ball.visible=true;ball.children.forEach(m=>{m.material.opacity=nv});
+  const nv=lerp(1,NEEDLE_SUB,sm(NEEDLE_OUT[0],NEEDLE_OUT[1],t))*(1-sm(.02,.14,rainR));ball.visible=nv>.01;ball.children.forEach(m=>{m.material.opacity=nv});   // la pluie arrive : le triangle s'efface (la goutte est le seul sujet)
   const tg0=tB,hB=tB,hT=tt;   // tant que le triangle est là, la lueur s'arrête à sa base et rien n'est dessiné dessous
   // tronçon visible : du cairn où l'on est (ou que l'on vient de quitter) au suivant ; à la dernière étape, de l'avant-dernier cairn au bout. Il glisse en douceur d'un tronçon au suivant
   {const L=curve.getLength(),eps=12/L;let k=0;for(let i=0;i<NS;i++)if(STOPS[i].t<=tt+eps)k=i;
    const v0=k>=NS-1?STOPS[NS-2].t:Math.min(STOPS[k].t,tB),v1=k>=NS-1?1:STOPS[k+1].t,kk=snap||reduce?1:1-Math.exp(-dt*3.5);
    trWin[0]+=(v0-trWin[0])*kk;trWin[1]+=(v1-trWin[1])*kk;}
-  FATS.forEach(m=>{const glow=m.uniforms.uMode.value>.5;m.uniforms.uT.value=tg0;m.uniforms.uH0.value=hB;m.uniforms.uH1.value=hT;m.uniforms.uTime.value=reduce?0:tNow;m.uniforms.uV0.value=glow?0:trWin[0];m.uniforms.uV1.value=trWin[1];m.uniforms.uVF.value=6/curve.getLength()});   // le fil parcouru reste dessiné depuis le départ (uV0 = 0) ; le câble mat ne montre que le tronçon jusqu'au prochain cairn   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
+  FATS.forEach(m=>{const glow=m.uniforms.uMode.value>.5;m.visible=!(glow&&rainR>.12&&!reduce);m.uniforms.uT.value=tg0;m.uniforms.uH0.value=hB;m.uniforms.uH1.value=hT;m.uniforms.uTime.value=reduce?0:tNow;m.uniforms.uV0.value=glow?0:trWin[0];m.uniforms.uV1.value=trWin[1];m.uniforms.uVF.value=6/curve.getLength()});   // le fil parcouru reste dessiné depuis le départ (uV0 = 0) ; le câble mat ne montre que le tronçon jusqu'au prochain cairn   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
   blocks.forEach((bk,i)=>{
@@ -3612,7 +3668,7 @@ function warmAhead(){
 function sizeIt(){if(inited)resize()}
 function setQuality(){if(inited){renderer.setPixelRatio(Math.min(devicePixelRatio,QDPR()));resize()}}
 function stopPs(){return STOPS.map(s=>({p:PC0+PCW*(s.a+s.b)/2,name:s.name}))}
-return {ensure,update,resize:sizeIt,staticView,dynamicView,setQuality,stopPs,topoInfo(){return {heightAt:terrainAt,x0:C0.x,z0:C0.z,gy0:terrainAt(C0.x,C0.z),hx:hd.x,hz:hd.z,cstep:20*SC*EX,rfin:RFIN,kappa:KAPPA,hmin,hmax}},dispose(){if(inited)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
+return {ensure,update,reveal:REV,resize:sizeIt,staticView,dynamicView,setQuality,stopPs,topoInfo(){return {heightAt:terrainAt,x0:C0.x,z0:C0.z,gy0:terrainAt(C0.x,C0.z),hx:hd.x,hz:hd.z,cstep:20*SC*EX,rfin:RFIN,kappa:KAPPA,hmin,hmax}},dispose(){if(inited)try{renderer.forceContextLoss();renderer.dispose()}catch(e){}}};
 
 })();
 

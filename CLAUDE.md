@@ -294,3 +294,6 @@ Sources : `context/audit-portfolio-awwwards-2026-11-13.md` (site en ligne, grill
 
 ### Avant toute mise en ligne
 Lighthouse mobile + bureau sur `/`, `/projects`, une fiche, `/about`, `/contact` (consigner les scores dans `docs/`) ; axe sur toutes les scènes et les deux thèmes ; parcours clavier complet de la visite guidée ; VoiceOver iOS et NVDA ; test sur iPhone Safari et un Android milieu de gamme ; toutes les URL du sitemap en 200.
+
+### Transition étape 3 → 4 (19/11/2026)
+Goutte héroïne déterministe (`HERO`/`heroStep` dans `loop.js`, fonction de `rainR`) : la caméra la suit, l'anneau d'eau projeté à l'écran (`PARC.reveal`) masque la flaque (`#s3`) et, en inverse, la carte (`#s2`) ; titre/card/liste s'effacent dès la pluie (`#s2.raining`), un lien « Écrire la suite ensemble » (`#rainCta`) reste ; titre de la flaque après la basket (`#s3.arriving`). Mouvement réduit / vue statique : ancien fondu, aucune goutte. Détails, vérifié / non vérifié : `docs/ecran-accueil-corde.md`.
