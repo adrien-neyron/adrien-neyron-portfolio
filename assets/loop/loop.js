@@ -3305,18 +3305,30 @@ function rainSplash(x,y,z,n){
    Toujours la même, au même endroit : elle se forme au bord droit de la dalle, tombe (rainR .14 → .52, la caméra la suit), éclate en couronne puis en anneau d'eau.
    L'anneau grandit avec la caméra qui recule ; REV (centre et rayon en px de cet anneau) sert de masque à la scène de la flaque : la flaque se révèle DANS l'onde, plus de fondu entre deux scènes.
    Tout est une fonction de rainR : rejouable à l'envers, interruptible. Sans mouvement réduit seulement (rainStep s'arrête avant). */
-const HERO={ready:null,x:0,z:0,top:0,gnd:0,drop:null,r1:null,r2:null,cr:[],L:null};
+const HERO={ready:null,t:-1,m:[],x:0,z:0,top:0,gnd:0,drop:null,r1:null,r2:null,cr:[],L:null};
 const REV={on:false,x:0,y:0,r:0};
 const HV=OK?[new THREE.Vector3(),new THREE.Vector3(),new THREE.Vector3()]:null;
+/* Point d'accroche de la goutte : bord droit de la dalle, mesuré à chaque image sur ses vrais sommets (≈ 220 échantillons).
+   La boîte englobante d'une dalle tournée déborde de plusieurs unités, et la dalle pivote vers la caméra : un point figé la laissait pendre dans le vide. */
 function heroSetup(bk){
-  if(HERO.ready===bk)return;HERO.ready=bk;
+  if(HERO.ready!==bk){HERO.ready=bk;HERO.t=-1;HERO.m=[];
+    bk.mesh.traverse(o=>{if(!o.isMesh||!o.geometry.attributes.position)return;const a=o.geometry.attributes.position,st=Math.max(1,Math.floor(a.count/220));
+      for(let i=0;i<a.count;i+=st)HERO.m.push([o,new THREE.Vector3().fromBufferAttribute(a,i)])})}
+  if(HERO.t===tNow||!HERO.m.length)return;HERO.t=tNow;
   bk.holder.updateMatrixWorld(true);
-  const bx=new THREE.Box3().setFromObject(bk.mesh),c=bx.getCenter(new THREE.Vector3()),sz=bx.getSize(new THREE.Vector3());
-  const px=Math.cos(bk.faceYaw),pz=-Math.sin(bk.faceYaw),hw=(Math.abs(px)*sz.x+Math.abs(pz)*sz.z)/2*.9;   // (px,pz) : la droite de l'écran vu de l'arrêt
-  HERO.x=c.x+px*hw;HERO.z=c.z+pz*hw;HERO.top=bx.min.y-.1;HERO.gnd=terrainAt(HERO.x,HERO.z)+.3}
+  const px=Math.cos(bk.faceYaw),pz=-Math.sin(bk.faceYaw),q=HERO.q||(HERO.q=new THREE.Vector3()),W=HERO.w||(HERO.w=[]);   // (px,pz) : la droite de l'écran vu de l'arrêt
+  let cx=0,cz=0;W.length=0;
+  HERO.m.forEach(([o,v])=>{q.copy(v).applyMatrix4(o.matrixWorld);W.push(q.x,q.y,q.z);cx+=q.x;cz+=q.z});
+  const n=HERO.m.length;cx/=n;cz/=n;
+  let dmax=0;for(let i=0;i<n;i++){const d=(W[i*3]-cx)*px+(W[i*3+2]-cz)*pz;if(d>dmax)dmax=d}
+  const edge=dmax*.72;let yb=1e9;for(let i=0;i<n;i++){const d=(W[i*3]-cx)*px+(W[i*3+2]-cz)*pz;if(d>edge*.75&&W[i*3+1]<yb)yb=W[i*3+1]}   // dessous de la dalle près de ce bord
+  HERO.x=cx+px*edge;HERO.z=cz+pz*edge;HERO.top=yb-.05;HERO.gnd=terrainAt(HERO.x,HERO.z)+.3}
 const heroY=r=>{const u=clamp((r-.14)/.38);return HERO.top-(HERO.top-HERO.gnd)*u*u};
 function heroInit(){
-  HERO.drop=new THREE.Mesh(new THREE.SphereGeometry(.5,18,14),new THREE.MeshStandardMaterial({roughness:.08,metalness:0,transparent:true,opacity:.92}));
+  // larme : ventre rond (rayon .5, centré en 0) qui s'effile vers une pointe en haut (y = 1,25)
+  const tp=[];for(let i=0;i<=14;i++){const f=-Math.PI/2+i/14*(Math.PI/2+.2);tp.push(new THREE.Vector2(Math.max(.0001,.5*Math.cos(f)),.5*Math.sin(f)))}
+  {const y0=.5*Math.sin(.2),r0=.5*Math.cos(.2);for(let i=1;i<=10;i++){const s=i/10;tp.push(new THREE.Vector2(Math.max(.0001,r0*Math.pow(1-s,1.7)),y0+(1.25-y0)*s))}}
+  HERO.drop=new THREE.Mesh(new THREE.LatheGeometry(tp,24),new THREE.MeshStandardMaterial({roughness:.08,metalness:0,transparent:true,opacity:.92,side:THREE.DoubleSide}));
   HERO.drop.renderOrder=13;HERO.drop.visible=false;scene.add(HERO.drop);
   const rg=new THREE.RingGeometry(.985,1,96);
   [HERO.r1,HERO.r2]=[0,1].map(()=>{const m=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.renderOrder=12;m.visible=false;scene.add(m);return m});
@@ -3327,9 +3339,9 @@ function heroStep(r,bk,L){
   const col=L?0x6F9DB4:0xCFE8F2;
   if(H.L!==L){H.L=L;const m=H.drop.material;m.color.setHex(L?0xF2FAFD:0xE8F6FC);m.emissive.setHex(L?0x7FB3CC:0x6FAFCB);m.emissiveIntensity=L?.55:.6;m.opacity=.82}
   // la goutte : se forme (gonfle) sous la dalle, puis tombe en s'étirant
-  const u=clamp((r-.14)/.38),sw=.12+.88*sm(.03,.14,r),sy=sw*(1+1.2*u);
+  const u=clamp((r-.14)/.38),sw=.15+.85*sm(.03,.14,r),sy=sw*(1+.5*u);   // gonfle sous la dalle, puis s'étire un peu en tombant
   H.drop.visible=r>.03&&r<.525;
-  if(H.drop.visible){H.drop.position.set(H.x,heroY(r)-.45*sy,H.z);H.drop.scale.set(sw*.9,sy*.9,sw*.9)}
+  if(H.drop.visible){const k=1.05;H.drop.position.set(H.x,heroY(r)-1.25*sy*k,H.z);H.drop.scale.set(sw*k,sy*k,sw*k)}   // la pointe de la larme touche la dalle tant qu'elle y est accrochée
   // anneaux d'eau : le premier devient la flaque
   const t1=ease(sm(.52,.97,r)),t2=ease(sm(.555,.97,r)),R1=.5+110*t1,R2=.3+80*t2;
   const o1=(L?.55:.8)*sm(.52,.53,r)*(1-sm(.62,.9,r)),o2=(L?.35:.55)*sm(.555,.57,r)*(1-sm(.6,.85,r));
@@ -3408,9 +3420,11 @@ function rig(p,dt,snap,intro=0){
     if(end){heroSetup(end);const r=rainR,zi=ease(sm(.02,.30,r)),zo=ease(sm(.56,.98,r)),hy=heroY(r);
       let ex=v1.x-end.pos.x,ez=v1.z-end.pos.z;const el=Math.hypot(ex,ez)||1;ex/=el;ez/=el;   // on garde l'axe de vue de l'arrêt
       const dd=cam.aspect<.9?24:17;   // la caméra rejoint la goutte (plan semi-serré, un peu en surplomb pour garder le sol dans le cadre) et la suit dans sa chute
-      v3.set(HERO.x+ex*dd,hy+2.6,HERO.z+ez*dd);v1.lerp(v3,zi);v3.set(end.pos.x+ex*34,end.base+175,end.pos.z+ez*34);v1.lerp(v3,zo);   // puis recule très haut pendant que l'anneau grandit
+      {const ua=clamp((r-.14)/.38),an=lerp(-.5,.4,ease(ua)),ca=Math.cos(an),sa=Math.sin(an);   // la caméra tourne autour de la chute (parallaxe) : le plan vit au lieu de rester figé
+       v3.set(HERO.x+(ex*ca-ez*sa)*dd,hy+2.6,HERO.z+(ex*sa+ez*ca)*dd)}
+      v1.lerp(v3,zi);v3.set(end.pos.x+ex*34,end.base+175,end.pos.z+ez*34);v1.lerp(v3,zo);   // puis recule très haut pendant que l'anneau grandit
       v1.y=Math.max(v1.y,terrainAt(v1.x,v1.z)+1.2);
-      v3.set(HERO.x,lerp(hy+3,hy-2.4,sm(.14,.3,r)),HERO.z);v2.lerp(v3,zi);v3.set(end.pos.x,end.base+2.5,end.pos.z);v2.lerp(v3,zo)}}   // au départ on regarde un peu au-dessus (le bord de la dalle d'où elle se forme), puis on suit la chute
+      v3.set(HERO.x,lerp(hy+2.4,hy-2.4,sm(.14,.3,r)),HERO.z);v2.lerp(v3,zi);v3.set(end.pos.x,end.base+2.5,end.pos.z);v2.lerp(v3,zo)}}   // au départ on regarde un peu au-dessus (le bord de la dalle d'où elle se forme), puis on suit la chute
   {const u=mat.uniforms,fk=blk&&STOPS[aw].proj?mw:0;if(blk)u.uF.value.set(blk.pos.x,blk.pos.z);u.uFk.value+=(fk-u.uFk.value)*(snap?1:1-Math.exp(-dt*4))}   // relief de l'étape : s'allume à l'arrêt, s'éteint en repartant   // téléphone : à l'arrêt, la caméra vise exactement le bloc (centré, jamais rogné sur le côté)
   const k=snap?1:1-Math.exp(-dt*9);   // caméra réactive : elle rejoint le cadrage de l'étape en ≈ 0,1 s
   if(intro>.001){
@@ -3451,7 +3465,7 @@ function rig(p,dt,snap,intro=0){
   {const L=curve.getLength(),eps=12/L;let k=0;for(let i=0;i<NS;i++)if(STOPS[i].t<=tt+eps)k=i;
    const v0=k>=NS-1?STOPS[NS-2].t:Math.min(STOPS[k].t,tB),v1=k>=NS-1?1:STOPS[k+1].t,kk=snap||reduce?1:1-Math.exp(-dt*3.5);
    trWin[0]+=(v0-trWin[0])*kk;trWin[1]+=(v1-trWin[1])*kk;}
-  FATS.forEach(m=>{const glow=m.uniforms.uMode.value>.5;m.visible=!(glow&&rainR>.12&&!reduce);m.uniforms.uT.value=tg0;m.uniforms.uH0.value=hB;m.uniforms.uH1.value=hT;m.uniforms.uTime.value=reduce?0:tNow;m.uniforms.uV0.value=glow?0:trWin[0];m.uniforms.uV1.value=trWin[1];m.uniforms.uVF.value=6/curve.getLength()});   // le fil parcouru reste dessiné depuis le départ (uV0 = 0) ; le câble mat ne montre que le tronçon jusqu'au prochain cairn   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
+  FATS.forEach(m=>{const glow=m.uniforms.uMode.value>.5;m.visible=!(rainR>.12&&!reduce);m.uniforms.uT.value=tg0;m.uniforms.uH0.value=hB;m.uniforms.uH1.value=hT;m.uniforms.uTime.value=reduce?0:tNow;m.uniforms.uV0.value=glow?0:trWin[0];m.uniforms.uV1.value=trWin[1];m.uniforms.uVF.value=6/curve.getLength()});   // le fil parcouru reste dessiné depuis le départ (uV0 = 0) ; le câble mat ne montre que le tronçon jusqu'au prochain cairn   // uT : avancement du pulse, lié au défilement (param(p)) à chaque image
   curT=t;parcAlt=altAt(t);
   // blocs : soulèvement au survol ou à l'arrêt, pivot vers la caméra
   blocks.forEach((bk,i)=>{

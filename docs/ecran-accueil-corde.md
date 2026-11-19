@@ -179,3 +179,9 @@ Le menu « Étapes | Projets | Outils » a un halo qui doit se fondre dans ce qu
 **Vérifié** : 21 captures par thème (jour et nuit) de la séquence ; aucune erreur de page ; `npm test` (218 tests) ; CSS régénéré (`scope-loop-css.cjs`).
 **Non vérifié** : Lighthouse, fluidité sur machine modeste (swiftshader seulement), mobile (cadrage `dd` = 24 prévu mais non capturé), molette réelle (balayage par `scrollTo`), parcours clavier du lien de contact, contrastes recalculés du lien (même style que `.pl-more`), `npm run lint` (dépendances locales absentes), e2e.
 **À décider / reste** : transition 4 → 5 ; son « plic » ; goutte plus « goutte » (forme de larme) et plus de contexte visuel pendant la chute (la dalle n'est pas visible) ; ciel qui vire progressivement du bleu-gris au pêche ; durée à régler à la molette réelle.
+
+**Reprise du 19/11 (soir) — la chute** : constat de la 1re passe : cadre presque vide pendant la chute, goutte en forme d'œuf, dalle invisible. Corrigé :
+- **Larme** (`LatheGeometry` : ventre rond, pointe en haut), pointe accrochée à la dalle tant que la goutte gonfle, léger étirement en tombant.
+- **Point d'accroche mesuré chaque image** sur les sommets de la dalle (`heroSetup`, ≈ 220 échantillons, bord droit à 72 %) : la boîte englobante d'une dalle tournée déborde de plusieurs unités et la dalle pivote vers la caméra, la goutte pendait dans le vide.
+- **Contexte et mouvement** : caméra à 17 unités, en léger surplomb, qui tourne de −29° à +23° autour de la chute (parallaxe) ; on voit le dessous de la dalle, les pierres du cairn puis le sol qui monte. Le câble et la lueur de la trace s'effacent dès la pluie (ils barraient le ciel).
+- Vérifié : captures jour (12 images de la chute). Non revu : nuit après cette reprise, mobile, molette réelle, Lighthouse.
